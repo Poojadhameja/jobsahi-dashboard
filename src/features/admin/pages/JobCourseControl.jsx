@@ -8,7 +8,7 @@ export default function JobCourseControl() {
   ]
   return (
     <div className="space-y-4">
-      <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job/Course Control</h1>
+      <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Course Control</h1>
       <div className="rounded-2xl border overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
