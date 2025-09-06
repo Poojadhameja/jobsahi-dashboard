@@ -10,19 +10,12 @@ export default function AdminRoutes() {
   return (
     <Suspense fallback={<div className="p-8">Loading...</div>}>
       <Routes>
-        <Route path="/" element={<Navigate to="dashboard" replace />} />
-        <Route path="/dashboard" element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />
-        </Route>
-        <Route path="/management" element={<AdminLayout />}>
-          <Route index element={<Management />} />
-        </Route>
-        <Route path="/job-control" element={<AdminLayout />}>
-          <Route index element={<JobCourseControl />} />
-        </Route>
-        {/* Catch-all inside /admin */}
-        <Route path="*" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+        <Route element={<AdminLayout />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="management" element={<Management />} />
+          <Route path="job-control" element={<JobCourseControl />} />
+          <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Route>
       </Routes>
     </Suspense>
