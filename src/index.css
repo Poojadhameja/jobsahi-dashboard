@@ -1,13 +1,35 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-    Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji",
-    "Segoe UI Emoji";
+/* (optional) your custom styles */
+
+html, body, #root { height: 100%; }
+body { margin: 0; }
+
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Custom scrollbar styles */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
 }
 
-html, body, #root {
-  height: 100%;
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #0B537D;
 }
 
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #0C5A8D;
+  border-radius: 3px;
+}
 
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #0A4A6B;
+}
+
+/* For Firefox */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #0C5A8D #0B537D;
+}
