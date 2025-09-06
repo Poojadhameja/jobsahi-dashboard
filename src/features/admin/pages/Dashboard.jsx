@@ -1,16 +1,8 @@
 import React from 'react'
 import { TAILWIND_COLORS } from '../../../shared/WebConstant'
+import MetricCard from '../components/metricCard.jsx'
 
 // ---- inline widgets (same file) ----
-function MetricCard({ title, value, hint }) {
-  return (
-    <div className={`${TAILWIND_COLORS.CARD} p-4`}>
-      <div className="text-sm text-gray-500">{title}</div>
-      <div className="text-2xl font-semibold mt-1">{value}</div>
-      {hint && <div className="text-xs text-gray-400 mt-1">{hint}</div>}
-    </div>
-  )
-}
 
 function ApplicationsTrend() {
   const pts = [10,16,12,18,25,22,30,28,35,40,38,45]
@@ -110,10 +102,10 @@ function PendingInstitutes() {
 
 export default function Dashboard() {
   const overview = [
-    { title:'Total Students', value:'12,480', hint:'+182 this week' },
-    { title:'Institutes', value:'126', hint:'+3 this week' },
-    { title:'Active Jobs', value:'432', hint:'45 expiring soon' },
-    { title:'New Applications', value:'1,204', hint:'Last 7 days' },
+    { title:'Total Students', count:'12,480', hint:'+182 this week', icon:'🎓' },
+    { title:'Institutes', count:'126', hint:'+3 this week', icon:'🏫' },
+    { title:'Active Jobs', count:'432', hint:'45 expiring soon', icon:'💼' },
+    { title:'New Applications', count:'1,204', hint:'Last 7 days', icon:'📨' },
   ]
 
   return (
@@ -121,7 +113,17 @@ export default function Dashboard() {
       <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Dashboard</h1>
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {overview.map((o)=>(<MetricCard key={o.title} {...o} />))}
+        {overview.map((o)=>(
+          <MetricCard
+            key={o.title}
+            title={o.title}
+            count={o.count}
+            icon={o.icon}
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+            className=""
+          />
+        ))}
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
