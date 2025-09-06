@@ -129,6 +129,7 @@ export default function Dashboard() {
           <div className="font-medium mb-2">Applications Trend</div>
           <ApplicationsTrend />
         </div>
+
         <div className={`${TAILWIND_COLORS.CARD} p-4`}>
           <div className="font-medium mb-2">Top Skills</div>
           <SkillsChart />
