@@ -30,14 +30,14 @@ function PlacementSuccess() {
     { value: '1.2K', label: 'Hired', sub: 'Successfully placed', color: 'bg-rose-500' },
   ]
   return (
-    <div className={`${TAILWIND_COLORS.CARD} p-4`}>
-      <div className="font-medium mb-4">Placement Success Funnel</div>
+    <div className={`${TAILWIND_COLORS.CARD} p-5`}>
+      <div className="font-medium my-4 md:mb-10 text-xl text-center md:text-left">Placement Success Funnel</div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {items.map((it)=> (
           <div key={it.label} className="flex flex-col items-center text-center">
-            <div className={`w-16 h-16 ${it.color} rounded-full flex items-center justify-center text-white text-lg font-semibold shadow-sm`}>{it.value}</div>
-            <div className="mt-2 text-sm font-semibold text-gray-800">{it.label}</div>
-            <div className="text-xs text-gray-500">{it.sub}</div>
+            <div className={`w-16 h-16 lg:w-24 lg:h-24   ${it.color} rounded-full flex items-center justify-center text-white text-lg lg:text-xl xl:text-2xl font-semibold shadow-sm`}>{it.value}</div>
+            <div className="mt-2 text-sm md:text-xl font-semibold text-gray-800">{it.label}</div>
+            <div className="text-xs md:text-lg text-gray-500">{it.sub}</div>
           </div>
         ))}
       </div>
@@ -48,9 +48,9 @@ function PlacementSuccess() {
 export default function Dashboard() {
   const overview = [
     { title:'Total Students', count:'15,847', icon:<LuGraduationCap className="w-6 h-6" /> },
-    { title:'Applied job', count:'2,456', icon:<LuBriefcase className="w-6 h-6" /> },
-    { title:'Interview job', count:'342', icon:<LuUserCheck className="w-6 h-6" /> },
-    { title:'active jobs', count:'23,891', icon:<LuTrendingUp className="w-6 h-6" /> },
+    { title:'Applied Job', count:'2,456', icon:<LuBriefcase className="w-6 h-6" /> },
+    { title:'Interview Job', count:'342', icon:<LuUserCheck className="w-6 h-6" /> },
+    { title:'Active Jobs', count:'23,891', icon:<LuTrendingUp className="w-6 h-6" /> },
   ]
 
   const lineData = {
@@ -117,16 +117,16 @@ export default function Dashboard() {
 
       <PlacementSuccess />
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className={`${TAILWIND_COLORS.CARD} p-4 lg:col-span-2`}> 
-          <div className="font-medium mb-2">Applications Trend (Last 6 Months)</div>
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={`${TAILWIND_COLORS.CARD} p-4  `}> 
+          <div className="font-medium my-4 md:mb-10 text-xl text-center md:text-left">Applications Trend (Last 6 Months)</div>
           <div className="h-64">
             <Line data={lineData} options={lineOptions} />
           </div>
         </div>
 
         <div className={`${TAILWIND_COLORS.CARD} p-4`}>
-          <div className="font-medium mb-2">Top Skills in Demand</div>
+          <div className="font-medium my-4 md:mb-10 text-xl text-center md:text-left">Top Skills in Demand</div>
           <div className="h-64">
             <Doughnut data={doughnutData} options={doughnutOptions} />
           </div>

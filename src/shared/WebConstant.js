@@ -35,7 +35,7 @@ export const COLORS = {
 // Tailwind utility class tokens used across UI
 export const TAILWIND_COLORS = {
   // Layout
-  BG_PRIMARY: 'bg-[#E6F2F8]',              // overall page background
+  BG_PRIMARY: 'bg-[#F6FAFF]',              // overall page background
   HEADER_BG: 'bg-white',                   // header background
   BORDER: 'border-gray-200',              // common border color
   SCROLLBAR: 'scrollbar-thin',            // custom scrollbar from index.css
@@ -49,7 +49,7 @@ export const TAILWIND_COLORS = {
   NAV_ACTIVE: 'bg-[rgba(11,83,125,0.15)] text-[#0B537D] font-medium',
 
   // Cards
-  CARD: 'bg-white rounded-xl border border-gray-200 shadow-sm',
+  CARD: 'bg-white rounded-xl border border-[rgba(0,57,91,0.18)] shadow-sm',
 
   // Pills / badges
   BADGE_INFO: 'text-[#0B537D] bg-[#E6F2F8]',
