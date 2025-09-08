@@ -1,116 +1,105 @@
 import React from 'react'
 import { TAILWIND_COLORS } from '../../../shared/WebConstant'
 import MetricCard from '../components/metricCard.jsx'
+import { Line, Doughnut } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js'
+import {
+  LuGraduationCap,
+  LuBriefcase,
+  LuUserCheck,
+  LuTrendingUp,
+} from 'react-icons/lu'
 
-// ---- inline widgets (same file) ----
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler)
 
-function ApplicationsTrend() {
-  const pts = [10,16,12,18,25,22,30,28,35,40,38,45]
-  const max = Math.max(...pts)
-  const path = pts.map((y,i)=>`${i===0?'M':'L'} ${i*30} ${100-(y/max)*100}`).join(' ')
-  return (
-    <svg width="330" height="120" viewBox="0 0 330 120" className="w-full h-36">
-      <path d={path} fill="none" stroke="#0B537D" strokeWidth="2" />
-      {pts.map((y,i)=>(<circle key={i} cx={i*30} cy={100-(y/max)*100} r="2.5" fill="#0B537D" />))}
-    </svg>
-  )
-}
-
-function SkillsChart() {
-  const data = [
-    { label:'Welding', value:25 },
-    { label:'Fitter', value:20 },
-    { label:'Electrician', value:18 },
-    { label:'Plumber', value:15 },
-    { label:'Automobile', value:12 },
-    { label:'Fabrication', value:10 },
+function PlacementSuccess() {
+  const items = [
+    { value: '8.5K', label: 'Applications', sub: 'Ready for placement', color: 'bg-emerald-500' },
+    { value: '3.2K', label: 'Interviews', sub: 'Shortlisted candidates', color: 'bg-blue-500' },
+    { value: '1.8K', label: 'Offers', sub: 'Job offers extended', color: 'bg-amber-500' },
+    { value: '1.2K', label: 'Hired', sub: 'Successfully placed', color: 'bg-rose-500' },
   ]
-  const max = Math.max(...data.map(d=>d.value))
   return (
-    <div className="space-y-2">
-      {data.map(d=>(
-        <div key={d.label}>
-          <div className="text-sm text-gray-600 mb-1">{d.label}</div>
-          <div className="h-2 bg-gray-100 rounded">
-            <div className="h-2 rounded bg-[#0B537D]" style={{width:`${(d.value/max)*100}%`}} />
+    <div className={`${TAILWIND_COLORS.CARD} p-4`}>
+      <div className="font-medium mb-4">Placement Success Funnel</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {items.map((it)=> (
+          <div key={it.label} className="flex flex-col items-center text-center">
+            <div className={`w-16 h-16 ${it.color} rounded-full flex items-center justify-center text-white text-lg font-semibold shadow-sm`}>{it.value}</div>
+            <div className="mt-2 text-sm font-semibold text-gray-800">{it.label}</div>
+            <div className="text-xs text-gray-500">{it.sub}</div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
-
-function PlacementFunnel() {
-  const steps = [
-    { label:'Registered', value:12000, color:'bg-blue-500' },
-    { label:'Profile Complete', value:9000, color:'bg-blue-400' },
-    { label:'Applied', value:6000, color:'bg-blue-300' },
-    { label:'Interviewed', value:3000, color:'bg-blue-200' },
-    { label:'Placed', value:1500, color:'bg-blue-100' },
-  ]
-  const max = steps[0].value
-  return (
-    <div className="space-y-2">
-      {steps.map(s=>(
-        <div key={s.label} className="flex items-center gap-2">
-          <div className={`h-6 ${s.color} rounded`} style={{width:`${(s.value/max)*100}%`}} />
-          <span className="text-sm text-gray-600">{s.label} — {s.value}</span>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function PendingApprovals() {
-  const rows = [
-    { name:'A-One Industries', city:'Pune', size:'100-500 employees', applications:58 },
-    { name:'MechWorks', city:'Indore', size:'50-100 employees', applications:22 },
-    { name:'JS Auto', city:'Bhopal', size:'20-50 employees', applications:10 },
-  ]
-  return (
-    <div className="text-sm">
-      {rows.map((r,i)=>(
-        <div key={i} className="border-t first:border-t-0 py-2">
-          <div className="font-medium">{r.name}</div>
-          <div className="text-gray-500">{r.city} • {r.size}</div>
-          <div className="text-gray-600">Applications: {r.applications}</div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function PendingInstitutes() {
-  const rows = [
-    { name:'Prime ITI', city:'Jabalpur', intake:'700+', courses:'Fitter' },
-    { name:'Hi-Tech Institute', city:'Nagpur', intake:'500+', courses:'Electrician' },
-    { name:'Skills Hub', city:'Bhopal', intake:'400+', courses:'Welder' },
-  ]
-  return (
-    <div className="text-sm">
-      {rows.map((r,i)=>(
-        <div key={i} className="border-t first:border-t-0 py-2">
-          <div className="font-medium">{r.name}</div>
-          <div className="text-gray-500">{r.city} • Intake {r.intake}</div>
-          <div className="text-gray-600">Courses: {r.courses}</div>
-        </div>
-      ))}
-    </div>
-  )
-}
-// ---- end inline widgets ----
 
 export default function Dashboard() {
   const overview = [
-    { title:'Total Students', count:'12,480', hint:'+182 this week', icon:'🎓' },
-    { title:'Institutes', count:'126', hint:'+3 this week', icon:'🏫' },
-    { title:'Active Jobs', count:'432', hint:'45 expiring soon', icon:'💼' },
-    { title:'New Applications', count:'1,204', hint:'Last 7 days', icon:'📨' },
+    { title:'Total Students', count:'15,847', icon:<LuGraduationCap className="w-6 h-6" /> },
+    { title:'Applied job', count:'2,456', icon:<LuBriefcase className="w-6 h-6" /> },
+    { title:'Interview job', count:'342', icon:<LuUserCheck className="w-6 h-6" /> },
+    { title:'active jobs', count:'23,891', icon:<LuTrendingUp className="w-6 h-6" /> },
   ]
 
+  const lineData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Applications',
+        data: [1200, 1800, 1400, 2200, 2900, 3200],
+        borderColor: '#0B537D',
+        backgroundColor: 'rgba(11,83,125,0.12)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 3,
+      },
+    ],
+  }
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+    scales: {
+      x: { grid: { display: false } },
+      y: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { stepSize: 500 } },
+    },
+  }
+
+  const doughnutData = {
+    labels: ['JavaScript', 'Python', 'Java', 'React', 'Node.js', 'Others'],
+    datasets: [
+      {
+        data: [30, 18, 12, 15, 10, 15],
+        backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#94A3B8'],
+        borderWidth: 0,
+      },
+    ],
+  }
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } },
+    cutout: '60%'
+  }
+
   return (
-    <div className="space-y-6">
-      <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Dashboard</h1>
+    <div className="space-y-6 text-center">
+      <div className={`${TAILWIND_COLORS.CARD} p-5`}>
+        <div className="text-xl lg:text-3xl font-semibold text-[#0B537D]">Dashboard Overview</div>
+        <div className="text-md mt-2 lg:text-lg text-[#0B537D]">Monitor your platform's key metrics and performance</div>
+      </div>
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {overview.map((o)=>(
@@ -119,37 +108,28 @@ export default function Dashboard() {
             title={o.title}
             count={o.count}
             icon={o.icon}
-            iconBgColor="bg-blue-100"
+            iconBgColor="bg-blue-50"
             iconColor="text-blue-600"
             className=""
           />
         ))}
       </section>
 
+      <PlacementSuccess />
+
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className={`${TAILWIND_COLORS.CARD} p-4 lg:col-span-2`}>
-          <div className="font-medium mb-2">Applications Trend</div>
-          <ApplicationsTrend />
+        <div className={`${TAILWIND_COLORS.CARD} p-4 lg:col-span-2`}> 
+          <div className="font-medium mb-2">Applications Trend (Last 6 Months)</div>
+          <div className="h-64">
+            <Line data={lineData} options={lineOptions} />
+          </div>
         </div>
 
         <div className={`${TAILWIND_COLORS.CARD} p-4`}>
-          <div className="font-medium mb-2">Top Skills</div>
-          <SkillsChart />
-        </div>
-      </section>
-
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className={`${TAILWIND_COLORS.CARD} p-4`}>
-          <div className="font-medium mb-2">Placement Funnel</div>
-          <PlacementFunnel />
-        </div>
-        <div className={`${TAILWIND_COLORS.CARD} p-4`}>
-          <div className="font-medium mb-2">Pending Approvals</div>
-          <PendingApprovals />
-        </div>
-        <div className={`${TAILWIND_COLORS.CARD} p-4`}>
-          <div className="font-medium mb-2">Pending Institutes</div>
-          <PendingInstitutes />
+          <div className="font-medium mb-2">Top Skills in Demand</div>
+          <div className="h-64">
+            <Doughnut data={doughnutData} options={doughnutOptions} />
+          </div>
         </div>
       </section>
     </div>

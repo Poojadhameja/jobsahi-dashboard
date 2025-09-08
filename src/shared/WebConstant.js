@@ -3,7 +3,8 @@
 // Color palette (hex/rgba)
 export const COLORS = {
   // Primary blues
-  PRIMARY: '#00395B',
+  lightblue: '#F6FAFF',
+  PRIMARY: '#0B537D',
   PRIMARY_DARK: '#0A4A6B',
   PRIMARY_LIGHT: '#0C5A8D',
 
