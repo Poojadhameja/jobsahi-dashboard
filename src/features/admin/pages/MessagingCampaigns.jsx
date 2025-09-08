@@ -150,7 +150,8 @@ const MessagingCampaignsView = () => {
      
       {/* System-wide Push Notifications Form */}
       <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>System-wide Push Notifications</h2>
+          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>System-wide Push Notifications</h2>
+          <p className="text-sm text-gray-500 mt-1 mb-6">System-wide Push Notifications</p>
 
           <form onSubmit={handleNotificationSubmit} className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -202,7 +203,7 @@ const MessagingCampaignsView = () => {
               </button>
               <button
                 type="button"
-                className={`flex items-center justify-center space-x-2 px-4 md:px-6 py-2 rounded-lg transition-colors duration-200 text-sm md:text-base ${TAILWIND_COLORS.BTN_LIGHT}`}
+                className={`flex items-center justify-center space-x-2 px-4 md:px-6 py-2 rounded-lg transition-colors duration-200 text-sm md:text-base bg-white border border-[#5B9821] text-[#5B9821] hover:bg-green-50`}
               >
                 <span>📅</span>
                 <span>Schedule</span>
@@ -213,25 +214,29 @@ const MessagingCampaignsView = () => {
 
       {/* Recent System-wide Push Notifications */}
       <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Recent Notifications</h2>
+          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>System-wide Push Notifications</h2>
 
           <div className="space-y-4">
             {recentNotifications.map((notification) => (
-              <div key={notification.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+              <div key={notification.id} className="flex items-center space-x-3 p-4 bg-white rounded-lg border border-gray-200">
                 <span className="text-xl">🔔</span>
                 <div className="flex-1">
                   <p className="text-sm text-gray-900">{notification.title}</p>
                   <p className="text-xs text-gray-500">{notification.recipients} - {notification.time}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {notification.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                  {notification.tags.map((tag, index) => {
+                    const isDelivered = tag.toLowerCase() === 'delivered';
+                    const base = 'px-3 py-1 text-xs font-medium rounded-1/2';
+                    const style = isDelivered
+                      ? 'bg-white border border-[#5B9821] text-[#5B9821]'
+                      : 'bg-[#5B9821] text-white';
+                    return (
+                      <span key={index} className={`${base} ${style}`}>
+                        {tag}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             ))}

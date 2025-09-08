@@ -19,7 +19,7 @@ const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {
               <div
                 key={tab.id}
                 onClick={() => setActiveNavTab(tab.id)}
-                className={`relative cursor-pointer flex items-center ${isFive ? 'basis-1/5 flex-none' : 'flex-1'} h-9 min-w-0 transition-all duration-200 hover:scale-105`}
+                className={`relative cursor-pointer flex items-center ${isFive ? 'basis-1/5 flex-none' : 'flex-1'} h-9 min-w-0 transition-all duration-200 `}
                 role="tab"
                 aria-selected={isActive}
               >
@@ -46,7 +46,7 @@ const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {
                   {tab.label}
                 </span>
 
-                {isActive && (
+                {false && isActive && (
                   <div
                     className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full"
                     style={{ backgroundColor: COLORS.GREEN_PRIMARY }}
