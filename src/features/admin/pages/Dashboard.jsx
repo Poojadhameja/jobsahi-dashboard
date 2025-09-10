@@ -1,6 +1,6 @@
 import React from 'react'
 import { TAILWIND_COLORS } from '../../../shared/WebConstant'
-import MetricCard from '../components/metricCard.jsx'
+import MetricCard, { MatrixCard } from '../components/metricCard.jsx'
 import { Line, Doughnut } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -95,11 +95,11 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6 text-center">
-      <div className={`${TAILWIND_COLORS.CARD} p-5`}>
-        <div className="text-xl lg:text-3xl font-semibold text-[#0B537D]">Dashboard Overview</div>
-        <div className="text-md mt-2 lg:text-lg text-[#0B537D]">Monitor your platform's key metrics and performance</div>
-      </div>
+    <div className="space-y-6">
+      <MatrixCard 
+        title="Dashboard Overview"
+        subtitle="Monitor your platform's key metrics and performance"
+      />
 
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {overview.map((o)=>(

@@ -1,5 +1,48 @@
 import React, { useState } from 'react'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
+import { LuUsers } from 'react-icons/lu'
+import { LuGraduationCap } from 'react-icons/lu'
+
+function Pills({ items = [], activeKey, onChange }) {
+  return (
+    <div
+      className="rounded-full p-1 flex justify-between items-center gap-2 overflow-x-auto"
+      style={{ backgroundColor: '#F7FBFF', border: '1px solid rgba(11,83,125,0.15)' }}
+    >
+      {items.map((item) => {
+        const isActive = activeKey === item.key
+        return (
+          <button
+            key={item.key}
+            type="button"
+            onClick={() => onChange?.(item.key)}
+            className="flex items-center gap-2 rounded-full px-2 py-2 whitespace-nowrap"
+            style={
+              isActive
+                ? { backgroundColor: COLORS.GREEN_PRIMARY, color: 'white' }
+                : { backgroundColor: 'white', color: COLORS.GREEN_PRIMARY, border: '1px solid rgba(11,83,125,0.15)' }
+            }
+          >
+            {item.icon ? (
+              <span
+                className="w-7 h-7 rounded-full flex items-center justify-center"
+                style={
+                  isActive
+                    ? { backgroundColor: 'rgba(255,255,255,0.9)', color: COLORS.GREEN_PRIMARY }
+                    : { backgroundColor: 'rgba(92,154,36,0.15)', color: COLORS.GREEN_PRIMARY }
+                }
+                aria-hidden
+              >
+                {item.icon}
+              </span>
+            ) : null}
+            <span className="text-sm font-medium md:me-10">{item.label}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function CreateAccount() {
   const [role, setRole] = useState('Recruiter') // Recruiter | Institute
@@ -28,20 +71,15 @@ export default function CreateAccount() {
         <div className="rounded-2xl bg-white shadow-sm border border-[rgba(0,57,91,0.18)] px-6 md:px-10 py-6 md:py-7 mb-6">
           <h1 className="text-center text-xl md:text-2xl font-semibold text-gray-800">Create your account</h1>
           <div className="mt-4 flex items-center justify-center">
-            <div className="relative w-[420px] max-w-full bg-gray-100 rounded-full p-1 flex items-center gap-1">
-              {['Recruiter', 'Institute'].map((label) => (
-                <button
-                  key={label}
-                  type="button"
-                  onClick={() => setRole(label)}
-                  className={`flex-1 text-xs md:text-sm rounded-full h-8 md:h-9 transition-colors ${
-                    role === label ? 'text-white' : 'text-gray-600'
-                  }`}
-                  style={role === label ? { backgroundColor: COLORS.GREEN_PRIMARY } : {}}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className=" ">
+              <Pills
+                items={[
+                  { key: 'Recruiter', label: 'Recruiter', icon: <LuUsers size={18} /> },
+                  { key: 'Institute', label: 'Institute', icon: <LuGraduationCap size={18} /> },
+                ]}
+                activeKey={role}
+                onChange={setRole}
+              />
             </div>
           </div>
         </div>
@@ -71,6 +109,20 @@ export default function CreateAccount() {
                   className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number*</label>
+              <input
+                type="tel"
+                inputMode="numeric"
+                maxLength={10}
+                value={form.phone}
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                required
+                placeholder="Enter your phone number"
+                className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+              />
             </div>
 
             <div>

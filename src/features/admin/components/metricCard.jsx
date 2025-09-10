@@ -61,4 +61,25 @@ export const MetricPillRow = ({ items = [], className = '' }) => {
   );
 };
 
+// Matrix Card Component - Clean header card with title and subtitle
+// Usage: <MatrixCard title="Dashboard Overview" subtitle="Monitor your platform's key metrics and performance" />
+export const MatrixCard = ({
+  title, 
+  subtitle, 
+  className = '',
+  titleColor = 'text-[#1A569A]',
+  subtitleColor = 'text-[#1A569A]'
+}) => {
+  return (
+    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-6 text-center ${className}`}>
+      <h2 className={`text-xl md:text-2xl font-semibold ${titleColor} mb-2`}>
+        {title}
+      </h2>
+      <p className={`text-base md:text-md ${subtitleColor}`}>
+        {subtitle}
+      </p>
+    </div>
+  );
+};
+
 export default MetricCard;

@@ -1,5 +1,50 @@
 import React, { useState } from 'react'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
+import { LuPhone, LuMail } from 'react-icons/lu'
+
+function AuthTabs({ mode, setMode }) {
+  const items = [
+    { key: 'OTP', label: 'OTP Login', icon: <LuPhone size={18} /> },
+    { key: 'EMAIL', label: 'Email Login', icon: <LuMail size={18} /> },
+  ]
+
+  return (
+    <div
+      className=" rounded-full p-1 flex justify-between items-center gap-2 overflow-x-auto"
+      style={{ backgroundColor: '#F7FBFF', border: '1px solid rgba(11,83,125,0.15)' }}
+    >
+      {items.map((item) => {
+        const isActive = mode === item.key
+        return (
+          <button
+            key={item.key}
+            type="button"
+            onClick={() => setMode(item.key)}
+            className="flex items-center gap-2 rounded-full px-2 py-2 whitespace-nowrap"
+            style={
+              isActive
+                ? { backgroundColor: COLORS.GREEN_PRIMARY, color: 'white' }
+                : { backgroundColor: 'white', color: COLORS.GREEN_PRIMARY, border: '1px solid rgba(11,83,125,0.15)' }
+            }
+          >
+            <span
+              className="w-7 h-7 rounded-full flex items-center justify-center"
+              style={
+                isActive
+                  ? { backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }
+                  : { backgroundColor: 'rgba(92,154,36,0.15)', color: COLORS.GREEN_PRIMARY }
+              }
+              aria-hidden
+            >
+              {item.icon}
+            </span>
+            <span className="text-sm font-medium me-10">{item.label}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function Login() {
   const [mode, setMode] = useState('OTP') // 'OTP' | 'EMAIL'
@@ -41,37 +86,16 @@ export default function Login() {
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center px-4 py-8 ${TAILWIND_COLORS.BG_PRIMARY}`}>
+    <div className={`mt-10 flex items-center justify-center px-4 py-8 ${TAILWIND_COLORS.BG_PRIMARY}`}>
       <div className="w-full max-w-3xl">
         {/* Header card */}
         <div className="rounded-2xl bg-white shadow-sm border border-[rgba(0,57,91,0.18)] px-6 md:px-10 py-6 md:py-7 mb-6">
           <h1 className="text-center text-xl md:text-2xl font-semibold text-gray-800">
             Login to your Account
           </h1>
-          {/* Segmented control */}
+          {/* Pills control */}
           <div className="mt-4 flex items-center justify-center">
-            <div className="relative w-[340px] max-w-full bg-gray-100 rounded-full p-1 flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setMode('OTP')}
-                className={`flex-1 text-xs md:text-sm rounded-full h-8 md:h-9 transition-colors ${
-                  mode === 'OTP' ? 'text-white' : 'text-gray-600'
-                }`}
-                style={mode === 'OTP' ? { backgroundColor: COLORS.GREEN_PRIMARY } : {}}
-              >
-                OTP
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode('EMAIL')}
-                className={`flex-1 text-xs md:text-sm rounded-full h-8 md:h-9 transition-colors ${
-                  isEmail ? 'text-white' : 'text-gray-600'
-                }`}
-                style={isEmail ? { backgroundColor: COLORS.GREEN_PRIMARY } : {}}
-              >
-                EMAIL
-              </button>
-            </div>
+            <AuthTabs mode={mode} setMode={setMode} />
           </div>
         </div>
 
