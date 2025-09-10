@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../../../shared/WebConstant'
 
+
 function TabButton({ label, active, onClick }) {
   return (
-    <button
+    <Button
       onClick={onClick}
       className={`px-4 py-2 rounded-lg text-sm border ${active ? 'bg-white' : 'text-gray-700 border-gray-200 hover:bg-white'}`}
       style={active ? { color: COLORS.PRIMARY, borderColor: COLORS.PRIMARY } : { backgroundColor: COLORS.PRIMARY_30 }}
-    >{label}</button>
+      variant="unstyled"
+    >{label}</Button>
   )
 }
 
