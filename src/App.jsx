@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import Login from './shared/components/Login.jsx'
-import CreateAccount from './shared/components/CreateAccount.jsx'
+import Login from './shared/auth/Login.jsx'
+import CreateAccount from './shared/auth/CreateAccount.jsx'
 
 const AdminRoutes = lazy(() => import('./features/admin/routes.jsx'))
 

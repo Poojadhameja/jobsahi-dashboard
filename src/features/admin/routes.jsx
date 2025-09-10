@@ -6,7 +6,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
 const Management = lazy(() => import('./pages/Management.jsx'))
 const JobCourseControl = lazy(() => import('./pages/JobCourseControl.jsx'))
 const MessagingCampaigns = lazy(() => import('./pages/MessagingCampaigns.jsx'))
-const AdminProfile = lazy(() => import('../../shared/components/AdminProfile.jsx'))
+const AdminProfile = lazy(() => import('../../shared/auth/AdminProfile.jsx'))
 
 export default function AdminRoutes() {
   return (
