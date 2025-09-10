@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom'
 import { TAILWIND_COLORS, COLORS } from '../../../shared/WebConstant'
 import Button from '../../../shared/components/Button.jsx'
+import UserDropdown from '../../../shared/components/UserDropdown.jsx'
 
 export default function Header({ toggleSidebar }) {
   const navigate = useNavigate()
