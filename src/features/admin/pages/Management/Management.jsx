@@ -21,10 +21,10 @@ import {
 } from 'react-icons/lu'
 
 
-export default function AlertAutomation() {
+export default function Management() {
     return (
         <div className="p-5 space-y-5">
-        Alert Automation Page
+        jndenf
         </div>
     )
 }
