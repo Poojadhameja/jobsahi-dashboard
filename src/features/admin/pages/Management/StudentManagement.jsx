@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-
+import { TAILWIND_COLORS } from '../../../shared/WebConstant'
 // inline filters
 function AdvancedFilters({ value, onChange }) {
   return (
@@ -41,7 +40,7 @@ function StudentTable({ rows }) {
               <td className="py-2 px-3">
                 <a className="text-blue-600 mr-3" href={`/admin/students/${r.id}`}>View</a>
                 <a className="text-green-600 mr-3" href={`/admin/students/${r.id}/edit`}>Edit</a>
-                <button className="text-red-600">Delete</button>
+                <Button className="text-red-600" variant="unstyled">Delete</Button>
               </td>
             </tr>
           ))}

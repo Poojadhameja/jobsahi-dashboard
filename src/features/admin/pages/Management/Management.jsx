@@ -42,27 +42,28 @@ function SwipeContainer({ index, setIndex, children }) {
 
 function StudentManagement() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <SectionCard title="Students Overview">
-        <div className="text-sm text-gray-600">Total Students: 15,847</div>
-        <div className="text-sm text-gray-600">Active this week: 1,206</div>
-      </SectionCard>
-      <SectionCard title="Applications Trend">
-        <div className="h-36 bg-gray-50 rounded" />
-      </SectionCard>
-      <SectionCard title="Top Skills">
-        <div className="space-y-2">
-          {["JavaScript","Python","Java","React","Node.js"].map((s, i) => (
-            <div key={s} className="text-sm text-gray-600 flex items-center gap-3">
-              <span className="w-24">{s}</span>
-              <div className="h-2 bg-gray-100 rounded flex-1">
-                <div className="h-2 rounded" style={{ width: `${(5 - i) * 18}%`, backgroundColor: COLORS.PRIMARY }} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
-    </div>
+    <div className=""></div>
+    // <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    //   <SectionCard title="Students Overview">
+    //     <div className="text-sm text-gray-600">Total Students: 15,847</div>
+    //     <div className="text-sm text-gray-600">Active this week: 1,206</div>
+    //   </SectionCard>
+    //   <SectionCard title="Applications Trend">
+    //     <div className="h-36 bg-gray-50 rounded" />
+    //   </SectionCard>
+    //   <SectionCard title="Top Skills">
+    //     <div className="space-y-2">
+    //       {["JavaScript","Python","Java","React","Node.js"].map((s, i) => (
+    //         <div key={s} className="text-sm text-gray-600 flex items-center gap-3">
+    //           <span className="w-24">{s}</span>
+    //           <div className="h-2 bg-gray-100 rounded flex-1">
+    //             <div className="h-2 rounded" style={{ width: `${(5 - i) * 18}%`, backgroundColor: COLORS.PRIMARY }} />
+    //           </div>
+    //         </div>
+    //       ))}
+    //     </div>
+    //   </SectionCard>
+    // </div>
   )
 }
 
