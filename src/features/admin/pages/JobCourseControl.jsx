@@ -4,7 +4,6 @@ import MetricCard from '../components/metricCard.jsx';
 import NavigationTabs from '../../../shared/components/navigation';
 import { COLORS, TAILWIND_COLORS } from '../../../shared/WebConstant';
 
-
 const JobCourseControlView = () => {
   const [selectedJobs, setSelectedJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -274,11 +273,10 @@ const JobCourseControlView = () => {
   return (
     <div className="admin-jobcourse-root space-y-6">
       {/* Main Header Section */}
-     
-        <div className="text-center">
-          <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Job & Course Control</h1>
-          <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>Manage job postings, course approvals, and content quality control</p>
-        </div>
+      <div className="text-center">
+        <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Job & Course Control</h1>
+        <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>Manage job postings, course approvals, and content quality control</p>
+      </div>
       
 
       {/* Job Metrics Cards */}
@@ -352,19 +350,21 @@ const JobCourseControlView = () => {
             </select>
           </div>
           <div className="jp-toolbar__actions flex gap-3">
-            <button
+            <Button
               onClick={handleBulkApprove}
               className={`jp-btn jp-btn--approve px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}
+              variant="unstyled"
             >
               Approve selected
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleBulkPromote}
               className={`jp-btn jp-btn--promote px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_LIGHT}`}
               style={{ borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY }}
+              variant="unstyled"
             >
               Promote selected
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -423,19 +423,21 @@ const JobCourseControlView = () => {
                   </td>
                   <td className="jp-td px-6 py-4">
                     <div className="jp-row-actions flex space-x-2">
-                      <button
+                      <Button
                         onClick={() => handleApproveJob(job.id)}
                         className={`jp-row-btn jp-row-btn--approve px-3 py-1 text-xs rounded transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}
+                        variant="unstyled"
                       >
                         Approve
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => handlePromoteJob(job.id)}
                         className={`jp-row-btn jp-row-btn--promote px-3 py-1 text-xs rounded transition-colors duration-200 ${TAILWIND_COLORS.BTN_LIGHT}`}
                         style={{ borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY }}
+                        variant="unstyled"
                       >
                         Promote
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -466,18 +468,20 @@ const JobCourseControlView = () => {
                   <div className="text-sm text-gray-600">{post.company} - {post.reports} reports</div>
                 </div>
                 <div className="flagged-item__actions flex items-center gap-3">
-                  <button
+                  <Button
                     onClick={() => handleApproveJob(post.id)}
                     className={`flagged-approve-btn px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}
+                    variant="unstyled"
                   >
                     Approve
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => console.log('Viewing flagged job', post.id)}
                     className={`flagged-view-btn px-4 py-2 bg-white rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_LIGHT}`}
+                    variant="unstyled"
                   >
                     View
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
@@ -509,7 +513,7 @@ const JobCourseControlView = () => {
             <div className="manual-highlight-group space-y-3" role="radiogroup" aria-label="Highlight type">
               {/* Top ribbon option */}
               <label className="manual-radio flex items-center gap-3 cursor-pointer select-none">
-                <button
+                <Button
                   type="button"
                   role="radio"
                   aria-checked={highlightType === 'top-ribbon'}
@@ -521,6 +525,7 @@ const JobCourseControlView = () => {
                     borderColor: highlightType === 'top-ribbon' ? COLORS.GREEN_PRIMARY : undefined,
                     backgroundColor: highlightType === 'top-ribbon' ? 'rgba(92,154,36,0.1)' : undefined
                   }}
+                  variant="unstyled"
                 >
                   <span
                     className={`h-2.5 w-2.5 rounded-full transition-colors duration-200 ${
@@ -528,13 +533,13 @@ const JobCourseControlView = () => {
                     }`}
                     style={{ backgroundColor: highlightType === 'top-ribbon' ? COLORS.GREEN_PRIMARY : undefined }}
                   />
-                </button>
+                </Button>
                 <span className="text-sm text-gray-800">Top ribbon</span>
               </label>
 
               {/* Priority listing option */}
               <label className="manual-radio flex items-center gap-3 cursor-pointer select-none">
-                <button
+                <Button
                   type="button"
                   role="radio"
                   aria-checked={highlightType === 'priority'}
@@ -546,6 +551,7 @@ const JobCourseControlView = () => {
                     borderColor: highlightType === 'priority' ? COLORS.GREEN_PRIMARY : undefined,
                     backgroundColor: highlightType === 'priority' ? 'rgba(92,154,36,0.1)' : undefined
                   }}
+                  variant="unstyled"
                 >
                   <span
                     className={`h-2.5 w-2.5 rounded-full transition-colors duration-200 ${
@@ -553,19 +559,20 @@ const JobCourseControlView = () => {
                     }`}
                     style={{ backgroundColor: highlightType === 'priority' ? COLORS.GREEN_PRIMARY : undefined }}
                   />
-                </button>
+                </Button>
                 <span className="text-sm text-gray-800">Priority listing</span>
               </label>
             </div>
           </div>
 
           <div className="mt-6">
-            <button
+            <Button
               onClick={handleManualPromotion}
               className={`manual-promote-btn px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}
+              variant="unstyled"
             >
               Promote Job
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -621,8 +628,8 @@ const JobCourseControlView = () => {
                 </select>
               </div>
               <div className="flex gap-3">
-                <button onClick={handleBulkCourseApprove} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}>Approve selected</button>
-                <button onClick={handleBulkCourseFeature} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY }}>Feature selected</button>
+                <Button onClick={handleBulkCourseApprove} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve selected</Button>
+                <Button onClick={handleBulkCourseFeature} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY }} variant="unstyled">Feature selected</Button>
               </div>
             </div>
 
@@ -678,8 +685,8 @@ const JobCourseControlView = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <button onClick={() => handleApproveCourse(course.id)} className={`px-3 py-1 text-xs rounded transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}>Approve</button>
-                            <button onClick={() => handleFeatureCourse(course.id)} className={`px-3 py-1 text-xs rounded ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY }}>Feature</button>
+                            <Button onClick={() => handleApproveCourse(course.id)} className={`px-3 py-1 text-xs rounded transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve</Button>
+                            <Button onClick={() => handleFeatureCourse(course.id)} className={`px-3 py-1 text-xs rounded ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY }} variant="unstyled">Feature</Button>
                           </div>
                         </td>
                       </tr>
@@ -704,14 +711,14 @@ const JobCourseControlView = () => {
                   onChange={(e) => setNewCategory(e.target.value)}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
                 />
-                <button onClick={handleAddCategory} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}>Add</button>
+                <Button onClick={handleAddCategory} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Add</Button>
               </div>
               <div className="space-y-3">
                 {categories.map((c) => (
                   <div key={c} className="flex items-center gap-3">
                     <div className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-800 bg-white">{c}</div>
-                    <button onClick={() => handleRenameCategory(c)} className={`px-3 py-1 text-xs rounded transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}>Rename</button>
-                    <button onClick={() => handleDeleteCategory(c)} className={`px-3 py-1 text-xs rounded ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY }}>Delete</button>
+                    <Button onClick={() => handleRenameCategory(c)} className={`px-3 py-1 text-xs rounded transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Rename</Button>
+                    <Button onClick={() => handleDeleteCategory(c)} className={`px-3 py-1 text-xs rounded ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY }} variant="unstyled">Delete</Button>
                   </div>
                 ))}
               </div>
@@ -736,7 +743,7 @@ const JobCourseControlView = () => {
                   />
                 </div>
               </div>
-              <button onClick={handleTagTopRated} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}>Tag top-rated</button>
+              <Button onClick={handleTagTopRated} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Tag top-rated</Button>
             </div>
           </div>
         </div>

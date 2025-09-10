@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import MetricCard from '../components/metricCard.jsx';
 import NavigationTabs from '../../../shared/components/navigation';
 import { TAILWIND_COLORS } from '../../../shared/WebConstant';
+import Button from '../../../shared/components/Button.jsx';
 
 const MessagingCampaignsView = () => {
   // Tabs synced to URL (?tab=messaging|analytics)
@@ -27,7 +28,7 @@ const MessagingCampaignsView = () => {
   const navigationTabs = [
     {
       id: 'messaging',
-      label: 'Messaging & Campaigns',
+      label: ' System-wide Push Notifications',
       icon: () => (
         <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
           <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
@@ -36,16 +37,25 @@ const MessagingCampaignsView = () => {
       )
     },
     {
+      id: 'segments',
+      label: 'Segment-Based Messaging',
+      icon: () => (
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+        </svg>
+      )
+    },
+    {
       id: 'analytics',
-      label: 'Campaign Analytics',
+      label: ' Notification Templates Manager',
       icon: () => (
         <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
           <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
         </svg>
       )
     }
-    
   ];
+
 
   // Sample data based on the image
   const recentNotifications = [
@@ -83,14 +93,9 @@ const MessagingCampaignsView = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Messaging & Campaigns</h1>
-          <p className="text-gray-600 mt-1">Manage notifications, campaigns, and templates</p>
-        </div>
-        <button className={`${TAILWIND_COLORS.BTN_PRIMARY} px-4 py-2 rounded-lg transition-colors duration-200`}>
-          New Campaign
-        </button>
+      <div className="text-center">
+        <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Messaging & Campaigns</h1>
+        <p className="text-gray-600 mt-1">Manage notifications, campaigns, and templates</p>
       </div>
 
       {/* Campaign Statistics Cards */}
@@ -145,103 +150,234 @@ const MessagingCampaignsView = () => {
 
       {/* Content based on active navigation tab */}
       {activeNavTab === 'messaging' && (
-        <div>
-          {/* Campaign Type Tabs */}
-     
-      {/* System-wide Push Notifications Form */}
-      <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>System-wide Push Notifications</h2>
-          <p className="text-sm text-gray-500 mt-1 mb-6">System-wide Push Notifications</p>
+        <div className="space-y-6">
 
-          <form onSubmit={handleNotificationSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
+            <Button 
+              variant="outline" 
+              size="md"
+              className="w-full sm:w-auto"
+              icon={
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
+                </svg>
+              }
+            >
+              Filter
+            </Button>
+            <Button 
+              variant="primary" 
+              size="md"
+              className="w-full sm:w-auto"
+              icon={
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+              }
+            >
+              New Campaign
+            </Button>
+          </div>
+
+          {/* System-wide Push Notifications Form */}
+          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#5B9821]/10">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#5B9821">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notification Title</label>
-                <input
-                  type="text"
-                  value={notificationForm.title}
-                  onChange={(e) => setNotificationForm({...notificationForm, title: e.target.value})}
-                  placeholder="Enter notification title"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm md:text-base"
+                <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>System-wide Push Notifications</h2>
+                <p className="text-sm text-gray-500">System-wide Push Notifications</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleNotificationSubmit} className="space-y-6 mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Notification Title</label>
+                  <input
+                    type="text"
+                    value={notificationForm.title}
+                    onChange={(e) => setNotificationForm({...notificationForm, title: e.target.value})}
+                    placeholder="Enter notification title"
+                    className="w-full min-h-[44px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm md:text-base transition-all duration-200"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                  <select
+                    value={notificationForm.type}
+                    onChange={(e) => setNotificationForm({...notificationForm, type: e.target.value})}
+                    className="w-full min-h-[44px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm md:text-base transition-all duration-200"
+                  >
+                    <option value="">Select notification type</option>
+                    <option value="job-alert">Job Alert</option>
+                    <option value="system">System</option>
+                    <option value="reminder">Reminder</option>
+                    <option value="promotion">Promotion</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                <textarea
+                  value={notificationForm.message}
+                  onChange={(e) => setNotificationForm({...notificationForm, message: e.target.value})}
+                  placeholder="Enter your notification message"
+                  rows="4"
+                  className="w-full min-h-[100px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm md:text-base resize-y transition-all duration-200"
                 />
               </div>
               
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                <select
-                  value={notificationForm.type}
-                  onChange={(e) => setNotificationForm({...notificationForm, type: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm md:text-base"
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Button 
+                  type="submit" 
+                  variant="primary" 
+                  size="md"
+                  className="w-full sm:w-auto min-h-[44px]"
+                  icon={
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                  }
                 >
-                  <option value="">select notification type</option>
-                  <option value="job-alert">Job Alert</option>
-                  <option value="system">System</option>
-                  <option value="reminder">Reminder</option>
-                  <option value="promotion">Promotion</option>
-                </select>
+                  Send Now
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="md"
+                  className="w-full sm:w-auto min-h-[44px]"
+                  icon={
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                    </svg>
+                  }
+                >
+                  Schedule
+                </Button>
               </div>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-              <textarea
-                value={notificationForm.message}
-                onChange={(e) => setNotificationForm({...notificationForm, message: e.target.value})}
-                placeholder="Enter your notification message"
-                rows="3"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm md:text-base"
-              />
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                type="submit"
-                className={`flex items-center justify-center space-x-2 px-4 md:px-6 py-2 rounded-lg transition-colors duration-200 text-sm md:text-base ${TAILWIND_COLORS.BTN_PRIMARY}`}
-              >
-                <span>✔</span>
-                <span>Send Now</span>
-              </button>
-              <button
-                type="button"
-                className={`flex items-center justify-center space-x-2 px-4 md:px-6 py-2 rounded-lg transition-colors duration-200 text-sm md:text-base bg-white border border-[#5B9821] text-[#5B9821] hover:bg-green-50`}
-              >
-                <span>📅</span>
-                <span>Schedule</span>
-              </button>
-            </div>
-          </form>
-      </div>
+            </form>
+          </div>
 
-      {/* Recent System-wide Push Notifications */}
-      <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>System-wide Push Notifications</h2>
+          {/* Recent System-wide Push Notifications */}
+          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>System-wide Push Notifications</h2>
 
-          <div className="space-y-4">
-            {recentNotifications.map((notification) => (
-              <div key={notification.id} className="flex items-center space-x-3 p-4 bg-white rounded-lg border border-gray-200">
-                <span className="text-xl">🔔</span>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-900">{notification.title}</p>
-                  <p className="text-xs text-gray-500">{notification.recipients} - {notification.time}</p>
+            <div className="space-y-4">
+              {recentNotifications.map((notification) => (
+                <div key={notification.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-all duration-200 gap-3">
+                  <div className="flex items-start sm:items-center space-x-3 flex-1 min-w-0">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#5B9821]/10 flex-shrink-0">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#5B9821">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                      </svg>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{notification.title}</p>
+                      <p className="text-xs text-gray-500 mt-1">{notification.recipients} - {notification.time}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 justify-end sm:justify-start">
+                    {notification.tags.map((tag, index) => {
+                      const isDelivered = tag.toLowerCase() === 'delivered';
+                      const base = 'px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap';
+                      const style = isDelivered
+                        ? 'bg-white border border-[#5B9821] text-[#5B9821]'
+                        : 'bg-[#5B9821] text-white';
+                      return (
+                        <span key={index} className={`${base} ${style}`}>
+                          {tag}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {notification.tags.map((tag, index) => {
-                    const isDelivered = tag.toLowerCase() === 'delivered';
-                    const base = 'px-3 py-1 text-xs font-medium rounded-1/2';
-                    const style = isDelivered
-                      ? 'bg-white border border-[#5B9821] text-[#5B9821]'
-                      : 'bg-[#5B9821] text-white';
-                    return (
-                      <span key={index} className={`${base} ${style}`}>
-                        {tag}
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
+      )}
+
+      {/* Segment-Based Messaging Content */}
+      {activeNavTab === 'segments' && (
+        <div className="space-y-6">
+          {/* Segment Management */}
+          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>User Segments</h2>
+                <p className="text-sm text-gray-500 mt-1">Create and manage user segments for targeted messaging</p>
+              </div>
+              <Button 
+                variant="primary" 
+                size="md"
+                className="w-full sm:w-auto"
+                icon={
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                  </svg>
+                }
+              >
+                Create Segment
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow duration-200">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <span className="text-blue-600 font-semibold">A</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium text-gray-900 truncate">Active Job Seekers</h3>
+                    <p className="text-xs text-gray-500">1,234 users</p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">Active</span>
+                  <Button variant="outline" size="sm" className="text-xs">Manage</Button>
+                </div>
+              </div>
+
+              <div className="p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow duration-200">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <span className="text-green-600 font-semibold">B</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium text-gray-900 truncate">Recent Graduates</h3>
+                    <p className="text-xs text-gray-500">567 users</p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">Active</span>
+                  <Button variant="outline" size="sm" className="text-xs">Manage</Button>
+                </div>
+              </div>
+
+              <div className="p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow duration-200">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <span className="text-purple-600 font-semibold">C</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium text-gray-900 truncate">Premium Users</h3>
+                    <p className="text-xs text-gray-500">89 users</p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded-full">Active</span>
+                  <Button variant="outline" size="sm" className="text-xs">Manage</Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -250,34 +386,34 @@ const MessagingCampaignsView = () => {
         <div className={`${TAILWIND_COLORS.CARD} p-6`}>
           <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Campaign Analytics</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
+            <div className="bg-blue-50 p-4 md:p-6 rounded-lg min-h-[120px] flex flex-col justify-center">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-blue-600 font-medium">Open Rate</p>
-                  <p className="text-2xl font-bold text-blue-900">24.5%</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-blue-600 font-medium mb-1">Open Rate</p>
+                  <p className="text-xl md:text-2xl font-bold text-blue-900">24.5%</p>
                 </div>
-                <div className="text-2xl">📊</div>
+                <div className="text-2xl md:text-3xl ml-3 flex-shrink-0">📊</div>
               </div>
             </div>
             
-            <div className="bg-green-50 p-4 rounded-lg">
+            <div className="bg-green-50 p-4 md:p-6 rounded-lg min-h-[120px] flex flex-col justify-center">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-green-600 font-medium">Click Rate</p>
-                  <p className="text-2xl font-bold text-green-900">12.3%</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-green-600 font-medium mb-1">Click Rate</p>
+                  <p className="text-xl md:text-2xl font-bold text-green-900">12.3%</p>
                 </div>
-                <div className="text-2xl">👆</div>
+                <div className="text-2xl md:text-3xl ml-3 flex-shrink-0">👆</div>
               </div>
             </div>
             
-            <div className="bg-purple-50 p-4 rounded-lg">
+            <div className="bg-purple-50 p-4 md:p-6 rounded-lg min-h-[120px] flex flex-col justify-center sm:col-span-2 lg:col-span-1">
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-purple-600 font-medium">Conversion</p>
-                  <p className="text-2xl font-bold text-purple-900">8.7%</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-purple-600 font-medium mb-1">Conversion</p>
+                  <p className="text-xl md:text-2xl font-bold text-purple-900">8.7%</p>
                 </div>
-                <div className="text-2xl">🎯</div>
+                <div className="text-2xl md:text-3xl ml-3 flex-shrink-0">🎯</div>
               </div>
             </div>
           </div>
@@ -286,9 +422,12 @@ const MessagingCampaignsView = () => {
             <div className="text-6xl mb-4">📈</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Detailed Analytics</h3>
             <p className="text-gray-600 mb-6">View comprehensive campaign performance metrics and insights.</p>
-            <button className="px-6 py-3 bg-[#5B9821] text-white rounded-lg hover:bg-[#4A7D1A] transition-colors duration-200">
+            <Button 
+              variant="primary" 
+              size="lg"
+            >
               View Full Report
-            </button>
+            </Button>
           </div>
         </div>
       )}

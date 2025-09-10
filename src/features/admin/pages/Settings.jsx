@@ -17,7 +17,7 @@ export default function Settings() {
           <div className="text-sm text-gray-600 mb-1">Support Email</div>
           <input className="w-full border rounded-lg p-2" value={supportEmail} onChange={e=>setSupportEmail(e.target.value)} />
         </label>
-        <button className={`px-4 py-2 rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}>Save</button>
+        <Button className={`px-4 py-2 rounded-lg`} variant="primary">Save</Button>
       </div>
     </div>
   )
