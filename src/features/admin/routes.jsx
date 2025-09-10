@@ -6,6 +6,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
 const Management = lazy(() => import('./pages/Management.jsx'))
 const JobCourseControl = lazy(() => import('./pages/JobCourseControl.jsx'))
 const MessagingCampaigns = lazy(() => import('./pages/MessagingCampaigns/MessagingCampaignscontrol.jsx'))
+const AdminProfile = lazy(() => import('./pages/AdminProfile.jsx'))
 const Settings = lazy(() => import('./pages/Settings.jsx'))
 const AlertsAutomation = lazy(() => import('./pages/AlertsAutomation.jsx'))
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import MetricCard from '../../components/metricCard.jsx';
 import NavigationTabs from '../../../../shared/components/navigation.jsx';
-import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js';
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';
 import { FilterButton, NewCampaignButton } from '../../../../shared/components/Button.jsx';
 import SystemwidePush from './SystemwidePush.jsx';
