@@ -12,8 +12,8 @@ const MetricCard = ({
   className = '' 
 }) => {
   return (
-    <div className={`bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200 ${className}`}>
-      <div className="flex flex-col items-center text-center">
+    <div className={`bg-white p-3 rounded-lg shadow-sm border border-[#0b537d34]   ${className}`}>
+      <div className="flex flex-col items-center text-center gap-2 my-2">
         <div className={`h-12 w-12 ${iconBgColor} rounded-lg flex items-center justify-center mb-2`}>
           {image ? (
             <img 
@@ -25,9 +25,59 @@ const MetricCard = ({
             <span className={`text-xl ${iconColor}`}>{icon}</span>
           )}
         </div>
-        <h2 className={`text-xs font-medium ${titleColor} mb-1`}>{title}</h2>
+        <h2 className={`text-sm md:text-xl font-medium ${titleColor} mb-1`}>{title}</h2>
         <p className={`text-2xl font-medium ${countColor} leading-none`}>{count}</p>
       </div>
+    </div>
+  );
+};
+
+// Reusable pill-shaped metric button for quick actions around the dashboard
+// Usage: <MetricPillButton label="CMS Editor" icon={<YourIcon />} onClick={...} />
+export const MetricPillButton = ({ label, icon, onClick, className = '', active = false }) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 bg-white/90 border border-[rgba(0,57,91,0.18)] shadow-sm hover:bg-gray-50 transition-colors text-[#5B9821] ${active ? 'ring-2 ring-[#5B9821]/30' : ''} ${className}`}
+    >
+      <span className="w-6 h-6 rounded-full grid place-items-center bg-[rgba(92,154,36,0.15)] text-[#5B9821]">
+        {icon}
+      </span>
+      <span className="text-sm font-medium whitespace-nowrap">{label}</span>
+    </button>
+  );
+};
+
+// Helper component to render a list/row of metric buttons
+// items: [{ key, label, icon, onClick, active }]
+export const MetricPillRow = ({ items = [], className = '' }) => {
+  return (
+    <div className={`flex flex-wrap items-center gap-3 ${className}`}>
+      {items.map((item) => (
+        <MetricPillButton key={item.key ?? item.label} {...item} />
+      ))}
+    </div>
+  );
+};
+
+// Matrix Card Component - Clean header card with title and subtitle
+// Usage: <MatrixCard title="Dashboard Overview" subtitle="Monitor your platform's key metrics and performance" />
+export const MatrixCard = ({
+  title, 
+  subtitle, 
+  className = '',
+  titleColor = 'text-[#1A569A]',
+  subtitleColor = 'text-[#1A569A]'
+}) => {
+  return (
+    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-6 text-center ${className}`}>
+      <h2 className={`text-xl md:text-2xl font-semibold ${titleColor} mb-2`}>
+        {title}
+      </h2>
+      <p className={`text-base md:text-md ${subtitleColor}`}>
+        {subtitle}
+      </p>
     </div>
   );
 };
