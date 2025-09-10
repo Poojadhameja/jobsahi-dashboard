@@ -30,18 +30,12 @@ export default function Header({ toggleSidebar }) {
       </div>
 
       <div className="flex items-center gap-3 md:gap-4">
-        <button
-          className={`px-4 h-9 rounded-lg text-sm font-medium ${TAILWIND_COLORS.BTN_PRIMARY}`}
-          onClick={() => navigate('/login')}
-        >
-          Login
-        </button>
         <button className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200" title="Notifications">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5">
             <path d="M18 16V11a6 6 0 10-12 0v5l-2 2h16l-2-2z"/>
           </svg>
           <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#F59E0B' }} />
-        </Button>
+        </button>
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin/profile')}>
           <span className="text-sm font-medium">Admin</span>
           <div className="w-8 h-8 rounded-full bg-gray-200 grid place-items-center">
