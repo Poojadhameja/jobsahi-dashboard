@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom'
 import { TAILWIND_COLORS, COLORS } from '../../../shared/WebConstant'
 import Button from '../../../shared/components/Button.jsx'
+import UserDropdown from '../../../shared/components/UserDropdown.jsx'
 
 export default function Header({ toggleSidebar }) {
   const navigate = useNavigate()
@@ -36,14 +37,9 @@ export default function Header({ toggleSidebar }) {
           </svg>
           <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#F59E0B' }} />
         </button>
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/admin/profile')}>
-          <span className="text-sm font-medium">Admin</span>
-          <div className="w-8 h-8 rounded-full bg-gray-200 grid place-items-center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-gray-600">
-              <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 1116 0"/>
-            </svg>
-          </div>
-        </div>
+        
+        {/* User Dropdown */}
+        <UserDropdown user={{ name: 'Admin User', role: 'Administrator' }} />
       </div>
     </header>
   )
