@@ -1,3 +1,3 @@
 //main page
 
-//isme 
+//isme front ui bnega after that sare pages yhi par calls honge 
