@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { TAILWIND_COLORS, COLORS } from '../../../shared/WebConstant'
+import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant'
 import { LuUsers, LuPlus } from 'react-icons/lu'
 import { FiBarChart } from 'react-icons/fi'
+import { PillNavigation, MANAGEMENT_TABS } from '../../../../shared/components/navigation'
+import { MatrixCard } from '../../components/metricCard'
 
 function SectionCard({ title, children, right }) {
   return (
@@ -15,49 +17,6 @@ function SectionCard({ title, children, right }) {
   )
 }
 
-function TabPills({ index, setIndex }) {
-  const items = [
-    { label: 'Student Management', icon: <LuUsers size={18} /> },
-    { label: 'Employer Management', icon: <LuPlus size={18} /> },
-    { label: 'Institute Management', icon: <FiBarChart size={18} /> },
-  ]
-
-  return (
-    <div
-      className="inline-flex rounded-full p-1 items-center gap-2 overflow-x-auto max-w-full"
-      style={{ backgroundColor: '#ffffff', border: '1px solid rgba(11,83,125,0.15)' }}
-    >
-      {items.map((item, i) => {
-        const isActive = i === index
-        return (
-          <button
-            key={item.label}
-            onClick={() => setIndex(i)}
-            className="flex items-center justify-between gap-2 rounded-full px-2 py-2 whitespace-nowrap "
-            style={
-              isActive
-                ? { backgroundColor: COLORS.GREEN_PRIMARY, color: 'white' }
-                : { backgroundColor: 'white', color: COLORS.GREEN_PRIMARY, border: '1px solid rgba(11,83,125,0.15)' }
-            }
-          >
-            <span
-              className="w-7 h-7 rounded-full flex items-center justify-center"
-              style={
-                isActive
-                  ? { backgroundColor: 'rgba(255,255,255,0.9)', color: COLORS.GREEN_PRIMARY }
-                  : { backgroundColor: 'rgba(92,154,36,0.15)', color: COLORS.GREEN_PRIMARY }
-              }
-              aria-hidden
-            >
-              {item.icon}
-            </span>
-            <span className="text-sm font-medium">{item.label}</span>
-          </button>
-        )
-      })}
-    </div>
-  )
-}
 
 function SwipeContainer({ index, setIndex, children }) {
   const containerRef = useRef(null)
@@ -145,11 +104,19 @@ export default function Management() {
 
   return (
     <div className="space-y-6">
-      {/* <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Management</h1> */}
+      <PillNavigation 
+        tabs={MANAGEMENT_TABS}
+        activeTab={tab}
+        onTabChange={setTab}
+      />
 
-      <div className="flex justify-center">
-        <TabPills index={tab} setIndex={setTab} />
-      </div>
+      {/* Show MatrixCard only when Student Management tab is active (tab 0) */}
+      {tab === 0 && (
+        <MatrixCard 
+          title="Student Management"
+          subtitle="Manage student profiles, track progress, and monitor placements"
+        />
+      )}
 
       <SwipeContainer index={tab} setIndex={setTab}>
         <StudentManagement />

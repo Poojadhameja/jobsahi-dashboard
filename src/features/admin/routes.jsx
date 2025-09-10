@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 
 const AdminLayout = lazy(() => import('./components/AdminLayout.jsx'))
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
-const Management = lazy(() => import('./pages/Management.jsx'))
+const Management = lazy(() => import('./pages/Management/Management.jsx'))
 const JobCourseControl = lazy(() => import('./pages/JobCourseControl.jsx'))
 const MessagingCampaigns = lazy(() => import('./pages/MessagingCampaigns.jsx'))
 const AdminProfile = lazy(() => import('../../shared/components/AdminProfile.jsx'))

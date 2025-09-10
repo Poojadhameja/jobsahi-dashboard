@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { TAILWIND_COLORS } from '../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 // inline filters
 function AdvancedFilters({ value, onChange }) {
