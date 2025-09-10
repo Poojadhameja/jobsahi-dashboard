@@ -19,14 +19,10 @@ export default function AdminRoutes() {
           <Route path="management" element={<Management />} />
           <Route path="job-control" element={<JobCourseControl />} />
           <Route path="messaging-campaigns" element={<MessagingCampaigns />} />
-          <Route path="alerts-automation" element={<AlertsAutomation />} />
-          <Route path="alerts" element={<AlertsAutomation />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="profile" element={<AdminProfile />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Route>
       </Routes>
     </Suspense>
   )
 }
-
-
