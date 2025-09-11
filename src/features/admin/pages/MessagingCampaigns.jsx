@@ -93,13 +93,13 @@ const MessagingCampaignsView = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center">
-        <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Messaging & Campaigns</h1>
-        <p className="text-gray-600 mt-1">Manage notifications, campaigns, and templates</p>
+      <div className="text-center px-2 sm:px-0">
+        <h1 className={`text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} break-words`}>Messaging & Campaigns</h1>
+        <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 break-words">Manage notifications, campaigns, and templates</p>
       </div>
 
       {/* Campaign Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           <MetricCard
             title="Active Campaigns"
             count="15"
@@ -153,13 +153,13 @@ const MessagingCampaignsView = () => {
         <div className="space-y-6">
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mb-4 sm:mb-6">
             <Button 
               variant="outline" 
-              size="md"
-              className="w-full sm:w-auto"
+              size="sm"
+              className="w-full sm:w-auto text-xs sm:text-sm"
               icon={
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="sm:w-4 sm:h-4">
                   <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
                 </svg>
               }
@@ -168,10 +168,10 @@ const MessagingCampaignsView = () => {
             </Button>
             <Button 
               variant="primary" 
-              size="md"
-              className="w-full sm:w-auto"
+              size="sm"
+              className="w-full sm:w-auto text-xs sm:text-sm"
               icon={
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="sm:w-4 sm:h-4">
                   <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                 </svg>
               }
@@ -181,38 +181,38 @@ const MessagingCampaignsView = () => {
           </div>
 
           {/* System-wide Push Notifications Form */}
-          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-            <div className="flex items-center space-x-3 mb-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#5B9821]/10">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#5B9821">
+          <div className={`${TAILWIND_COLORS.CARD} p-3 sm:p-4 md:p-6`}>
+            <div className="flex items-center space-x-2 sm:space-x-3 mb-2">
+              <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#5B9821]/10 flex-shrink-0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#5B9821" className="sm:w-4 sm:h-4">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
               </div>
-              <div>
-                <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>System-wide Push Notifications</h2>
-                <p className="text-sm text-gray-500">System-wide Push Notifications</p>
+              <div className="min-w-0 flex-1">
+                <h2 className={`text-lg sm:text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>System-wide Push Notifications</h2>
+                <p className="text-xs sm:text-sm text-gray-500 truncate">System-wide Push Notifications</p>
               </div>
             </div>
 
-            <form onSubmit={handleNotificationSubmit} className="space-y-6 mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleNotificationSubmit} className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Notification Title</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Notification Title</label>
                   <input
                     type="text"
                     value={notificationForm.title}
                     onChange={(e) => setNotificationForm({...notificationForm, title: e.target.value})}
                     placeholder="Enter notification title"
-                    className="w-full min-h-[44px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm md:text-base transition-all duration-200"
+                    className="w-full min-h-[40px] sm:min-h-[44px] px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-xs sm:text-sm md:text-base transition-all duration-200"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Type</label>
                   <select
                     value={notificationForm.type}
                     onChange={(e) => setNotificationForm({...notificationForm, type: e.target.value})}
-                    className="w-full min-h-[44px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm md:text-base transition-all duration-200"
+                    className="w-full min-h-[40px] sm:min-h-[44px] px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-xs sm:text-sm md:text-base transition-all duration-200"
                   >
                     <option value="">Select notification type</option>
                     <option value="job-alert">Job Alert</option>
@@ -224,24 +224,24 @@ const MessagingCampaignsView = () => {
               </div>
               
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Message</label>
                 <textarea
                   value={notificationForm.message}
                   onChange={(e) => setNotificationForm({...notificationForm, message: e.target.value})}
                   placeholder="Enter your notification message"
-                  rows="4"
-                  className="w-full min-h-[100px] px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm md:text-base resize-y transition-all duration-200"
+                  rows="3"
+                  className="w-full min-h-[80px] sm:min-h-[100px] px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-xs sm:text-sm md:text-base resize-y transition-all duration-200"
                 />
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2">
                 <Button 
                   type="submit" 
                   variant="primary" 
-                  size="md"
-                  className="w-full sm:w-auto min-h-[44px]"
+                  size="sm"
+                  className="w-full sm:w-auto min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm"
                   icon={
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="sm:w-4 sm:h-4">
                       <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
                     </svg>
                   }
@@ -251,10 +251,10 @@ const MessagingCampaignsView = () => {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  size="md"
-                  className="w-full sm:w-auto min-h-[44px]"
+                  size="sm"
+                  className="w-full sm:w-auto min-h-[40px] sm:min-h-[44px] text-xs sm:text-sm"
                   icon={
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="sm:w-4 sm:h-4">
                       <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
                     </svg>
                   }
@@ -266,27 +266,27 @@ const MessagingCampaignsView = () => {
           </div>
 
           {/* Recent System-wide Push Notifications */}
-          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>System-wide Push Notifications</h2>
+          <div className={`${TAILWIND_COLORS.CARD} p-3 sm:p-4 md:p-6`}>
+            <h2 className={`text-lg sm:text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 sm:mb-6`}>System-wide Push Notifications</h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {recentNotifications.map((notification) => (
-                <div key={notification.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-all duration-200 gap-3">
-                  <div className="flex items-start sm:items-center space-x-3 flex-1 min-w-0">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-[#5B9821]/10 flex-shrink-0">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#5B9821">
+                <div key={notification.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-white rounded-lg border border-gray-200 hover:shadow-sm transition-all duration-200 gap-2 sm:gap-3">
+                  <div className="flex items-start sm:items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                    <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#5B9821]/10 flex-shrink-0">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="#5B9821" className="sm:w-[18px] sm:h-[18px]">
                         <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
                       </svg>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{notification.title}</p>
-                      <p className="text-xs text-gray-500 mt-1">{notification.recipients} - {notification.time}</p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{notification.title}</p>
+                      <p className="text-[10px] sm:text-xs text-gray-500 mt-1">{notification.recipients} - {notification.time}</p>
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-2 justify-end sm:justify-start">
+                  <div className="flex flex-wrap gap-1 sm:gap-2 justify-start sm:justify-end">
                     {notification.tags.map((tag, index) => {
                       const isDelivered = tag.toLowerCase() === 'delivered';
-                      const base = 'px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap';
+                      const base = 'px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-medium rounded-full whitespace-nowrap';
                       const style = isDelivered
                         ? 'bg-white border border-[#5B9821] text-[#5B9821]'
                         : 'bg-[#5B9821] text-white';

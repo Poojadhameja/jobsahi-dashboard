@@ -82,11 +82,10 @@ export default function CreateAccount() {
               />
             </div>
           </div>
-        </div>
+        {/* </div>
 
-        {/* Form */}
-        <div className={`rounded-2xl p-6 md:p-8 ${TAILWIND_COLORS.CARD}`}>
-          <form onSubmit={onSubmit} className="space-y-4">
+        <div className={`rounded-2xl p-6 md:p-8 ${TAILWIND_COLORS.CARD}`}> */}
+          <form onSubmit={onSubmit} className="space-y-4 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">First Name*</label>

@@ -17,14 +17,14 @@ function SectionCard({ title, children, right }) {
 
 function TabPills({ index, setIndex }) {
   const items = [
-    { label: 'Student Management', icon: <LuUsers size={18} /> },
-    { label: 'Employer Management', icon: <LuPlus size={18} /> },
-    { label: 'Institute Management', icon: <FiBarChart size={18} /> },
+    { label: 'Student Management', icon: <LuUsers size={16} /> },
+    { label: 'Employer Management', icon: <LuPlus size={16} /> },
+    { label: 'Institute Management', icon: <FiBarChart size={16} /> },
   ]
 
   return (
     <div
-      className="inline-flex rounded-full p-1 items-center gap-2 overflow-x-auto max-w-full"
+      className="inline-flex rounded-full p-1 items-center gap-1 sm:gap-2 overflow-x-auto max-w-full w-full sm:w-auto"
       style={{ backgroundColor: '#ffffff', border: '1px solid rgba(11,83,125,0.15)' }}
     >
       {items.map((item, i) => {
@@ -33,7 +33,7 @@ function TabPills({ index, setIndex }) {
           <button
             key={item.label}
             onClick={() => setIndex(i)}
-            className="flex items-center justify-between gap-2 rounded-full px-2 py-2 whitespace-nowrap "
+            className="flex items-center justify-between gap-1 sm:gap-2 rounded-full px-1.5 sm:px-2 py-1.5 sm:py-2 whitespace-nowrap flex-1 sm:flex-none"
             style={
               isActive
                 ? { backgroundColor: COLORS.GREEN_PRIMARY, color: 'white' }
@@ -41,7 +41,7 @@ function TabPills({ index, setIndex }) {
             }
           >
             <span
-              className="w-7 h-7 rounded-full flex items-center justify-center"
+              className="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center flex-shrink-0"
               style={
                 isActive
                   ? { backgroundColor: 'rgba(255,255,255,0.9)', color: COLORS.GREEN_PRIMARY }
@@ -51,7 +51,7 @@ function TabPills({ index, setIndex }) {
             >
               {item.icon}
             </span>
-            <span className="text-sm font-medium">{item.label}</span>
+            <span className="text-xs sm:text-sm font-medium truncate">{item.label}</span>
           </button>
         )
       })}
@@ -83,21 +83,21 @@ function SwipeContainer({ index, setIndex, children }) {
 
 function StudentManagement() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
       <SectionCard title="Students Overview">
-        <div className="text-sm text-gray-600">Total Students: 15,847</div>
-        <div className="text-sm text-gray-600">Active this week: 1,206</div>
+        <div className="text-xs sm:text-sm text-gray-600">Total Students: 15,847</div>
+        <div className="text-xs sm:text-sm text-gray-600">Active this week: 1,206</div>
       </SectionCard>
       <SectionCard title="Applications Trend">
-        <div className="h-36 bg-gray-50 rounded" />
+        <div className="h-24 sm:h-32 lg:h-36 bg-gray-50 rounded" />
       </SectionCard>
       <SectionCard title="Top Skills">
-        <div className="space-y-2">
+        <div className="space-y-1.5 sm:space-y-2">
           {["JavaScript","Python","Java","React","Node.js"].map((s, i) => (
-            <div key={s} className="text-sm text-gray-600 flex items-center gap-3">
-              <span className="w-24">{s}</span>
-              <div className="h-2 bg-gray-100 rounded flex-1">
-                <div className="h-2 rounded" style={{ width: `${(5 - i) * 18}%`, backgroundColor: COLORS.PRIMARY }} />
+            <div key={s} className="text-xs sm:text-sm text-gray-600 flex items-center gap-2 sm:gap-3">
+              <span className="w-16 sm:w-20 lg:w-24 truncate">{s}</span>
+              <div className="h-1.5 sm:h-2 bg-gray-100 rounded flex-1">
+                <div className="h-1.5 sm:h-2 rounded" style={{ width: `${(5 - i) * 18}%`, backgroundColor: COLORS.PRIMARY }} />
               </div>
             </div>
           ))}
@@ -109,16 +109,16 @@ function StudentManagement() {
 
 function EmployerManagement() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
       <SectionCard title="Active Jobs">
-        <div className="text-sm text-gray-600">Open Jobs: 432</div>
+        <div className="text-xs sm:text-sm text-gray-600">Open Jobs: 432</div>
       </SectionCard>
       <SectionCard title="Applications Pipeline">
-        <div className="space-y-2">
+        <div className="space-y-1.5 sm:space-y-2">
           {[['Applied',3200],['Interview',760],['Offers',240],['Hired',120]].map(([label,val])=> (
             <div key={label} className="flex items-center gap-2">
-              <div className="h-3 rounded" style={{ width: `${(val/3200)*100}%`, backgroundColor: COLORS.PRIMARY }} />
-              <div className="text-xs text-gray-600">{label} — {val}</div>
+              <div className="h-2 sm:h-3 rounded" style={{ width: `${(val/3200)*100}%`, backgroundColor: COLORS.PRIMARY }} />
+              <div className="text-[10px] sm:text-xs text-gray-600">{label} — {val}</div>
             </div>
           ))}
         </div>
@@ -129,12 +129,12 @@ function EmployerManagement() {
 
 function InstituteManagement() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
       <SectionCard title="Institutes">
-        <div className="text-sm text-gray-600">Total: 126 • +3 this week</div>
+        <div className="text-xs sm:text-sm text-gray-600">Total: 126 • +3 this week</div>
       </SectionCard>
       <SectionCard title="Pending Approvals">
-        <div className="text-sm text-gray-600">3 pending institutes</div>
+        <div className="text-xs sm:text-sm text-gray-600">3 pending institutes</div>
       </SectionCard>
     </div>
   )
@@ -144,10 +144,10 @@ export default function Management() {
   const [tab, setTab] = useState(0)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Management</h1> */}
 
-      <div className="flex justify-center">
+      <div className="flex justify-center px-2 sm:px-0">
         <TabPills index={tab} setIndex={setTab} />
       </div>
 
