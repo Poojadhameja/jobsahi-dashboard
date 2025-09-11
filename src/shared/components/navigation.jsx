@@ -1,5 +1,5 @@
 import React from 'react'
-import { TAILWIND_COLORS, COLORS } from '../../shared/WebConstant'
+import { TAILWIND_COLORS, COLORS } from '../WebConstant'
 import { LuUsers, LuPlus, LuBuilding2 } from 'react-icons/lu'
 
 const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {

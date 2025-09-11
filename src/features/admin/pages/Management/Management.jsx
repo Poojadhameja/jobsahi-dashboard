@@ -27,12 +27,20 @@ export default function Management() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      {/* <div className="mb-6">
+        <h1 className="text-3xl font-bold text-blue-600 mb-2">Management Dashboard</h1>
+        <p className="text-gray-600">Manage students, employers, and institutes from one place.</p>
+      </div> */}
+
+      {/* Navigation using shared component */}
       <PillNavigation 
         tabs={MANAGEMENT_TABS}
         activeTab={activeTab}
         onTabChange={handleTabChange}
       />
 
+      {/* Active Component */}
       <ActiveTabContent activeTab={activeTab} />
     </div>
   )

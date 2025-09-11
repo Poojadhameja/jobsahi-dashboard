@@ -1,14 +1,12 @@
 import React, { useMemo, useState, useEffect } from 'react'
-import { TAILWIND_COLORS, COLORS } from '../../../shared/WebConstant'
+import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant'
 import { MatrixCard, MetricPillRow } from '../../components/metricCard'
 import { 
   LuUsers, 
-  LuCheckCircle, 
-  LuFolderOpen, 
-  LuTarget,
   LuSearch,
-  LuMoreVertical,
-  LuFilter
+  LuFilter,
+  LuMessageSquare,
+  LuPlus
 } from 'react-icons/lu'
 // KPI Card Component
 function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
@@ -33,72 +31,84 @@ function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
 // Advanced Filters Component
 function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter }) {
   return (
-    <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-      <div className="flex items-center gap-2 mb-4">
+    <div className="bg-white border border-[#0b537d28] rounded-lg p-6">
+      <div className="flex items-center gap-2 mb-6">
         <LuFilter className="text-gray-600" size={20} />
-        <h3 className="font-medium text-gray-800">Advanced Filters</h3>
+        <h3 className="font-medium text-[#0b537d]">Advanced Filters</h3>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-        <select 
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-          value={filters.course || 'all'}
-          onChange={(e) => onFilterChange({ ...filters, course: e.target.value })}
-        >
-          <option value="all">All Courses</option>
-          <option value="electrician">Electrician</option>
-          <option value="plumber">Plumber</option>
-          <option value="carpenter">Carpenter</option>
-          <option value="welder">Welder</option>
-        </select>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-[#0b537d]">Courses</label>
+          <select 
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={filters.course || 'all'}
+            onChange={(e) => onFilterChange({ ...filters, course: e.target.value })}
+          >
+            <option value="all">All Courses</option>
+            <option value="electrician">Electrician</option>
+            <option value="plumber">Plumber</option>
+            <option value="carpenter">Carpenter</option>
+            <option value="welder">Welder</option>
+          </select>
+        </div>
         
-        <select 
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-          value={filters.placementStatus || 'all'}
-          onChange={(e) => onFilterChange({ ...filters, placementStatus: e.target.value })}
-        >
-          <option value="all">All Status</option>
-          <option value="placed">Placed</option>
-          <option value="placement-ready">Placement Ready</option>
-          <option value="in-progress">In Progress</option>
-          <option value="not-ready">Not Ready</option>
-        </select>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-[#0b537d]">Placement Status</label>
+          <select 
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={filters.placementStatus || 'all'}
+            onChange={(e) => onFilterChange({ ...filters, placementStatus: e.target.value })}
+          >
+            <option value="all">All Status</option>
+            <option value="placed">Placed</option>
+            <option value="placement-ready">Placement Ready</option>
+            <option value="in-progress">In Progress</option>
+            <option value="not-ready">Not Ready</option>
+          </select>
+        </div>
         
-        <select 
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-          value={filters.skills || 'all'}
-          onChange={(e) => onFilterChange({ ...filters, skills: e.target.value })}
-        >
-          <option value="all">All Skills</option>
-          <option value="react">React</option>
-          <option value="java">Java</option>
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
-        </select>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-[#0b537d]">Skills</label>
+          <select 
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={filters.skills || 'all'}
+            onChange={(e) => onFilterChange({ ...filters, skills: e.target.value })}
+          >
+            <option value="all">All Skills</option>
+            <option value="react">React</option>
+            <option value="java">Java</option>
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+          </select>
+        </div>
         
-        <select 
-          className="border border-gray-200 rounded-lg px-3 py-2 text-sm"
-          value={filters.experience || 'all'}
-          onChange={(e) => onFilterChange({ ...filters, experience: e.target.value })}
-        >
-          <option value="all">All Experience</option>
-          <option value="0-1">0-1 years</option>
-          <option value="1-3">1-3 years</option>
-          <option value="3-5">3-5 years</option>
-          <option value="5+">5+ years</option>
-        </select>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-[#0b537d]">Experience</label>
+          <select 
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={filters.experience || 'all'}
+            onChange={(e) => onFilterChange({ ...filters, experience: e.target.value })}
+          >
+            <option value="all">All Experience</option>
+            <option value="0-1">0-1 years</option>
+            <option value="1-3">1-3 years</option>
+            <option value="3-5">3-5 years</option>
+            <option value="5+">5+ years</option>
+          </select>
+        </div>
       </div>
       
       <div className="flex justify-end gap-3">
         <button 
           onClick={onClearAll}
-          className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+          className="px-4 py-2 text-sm text-[#5B9821] hover:underline font-medium"
         >
           Clear All
         </button>
         <button 
           onClick={onApplyFilter}
-          className={`px-4 py-2 text-sm rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}
+          className="px-4 py-2 text-sm rounded-lg bg-[#5B9821] text-white hover:bg-[#4a7c1a] transition-colors duration-200 font-medium"
         >
           Apply Filter
         </button>
@@ -149,20 +159,20 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
   
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <LuUsers className="text-gray-600" size={20} />
-          <h3 className="font-medium text-gray-800">All Student Profiles</h3>
-        </div>
-        <div className="relative">
-          <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-          <input 
-            type="text"
-            placeholder="Search by name, email, or student ID..."
-            className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-80"
-          />
-        </div>
-      </div>
+       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+         <div className="flex items-center gap-2">
+           <LuUsers className="text-gray-600" size={20} />
+           <h3 className="font-medium text-gray-800">All Student Profiles</h3>
+         </div>
+         <div className="relative w-full sm:w-auto">
+           <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+           <input 
+             type="text"
+             placeholder="Search by name, email, or student ID..."
+             className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-80"
+           />
+         </div>
+       </div>
       
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
@@ -216,7 +226,7 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
                 </td>
                 <td className="py-4 px-4">
                   <button className="p-1 hover:bg-gray-100 rounded">
-                    <LuMoreVertical className="text-gray-400" size={16} />
+                    <span className="text-black text-lg">⋯</span>
                   </button>
                 </td>
               </tr>
@@ -325,7 +335,12 @@ export default function StudentManagement() {
   }
 
   const handleClearAll = () => {
-    setFilters({})
+    setFilters({
+      course: 'all',
+      placementStatus: 'all',
+      skills: 'all',
+      experience: 'all'
+    })
   }
 
   const handleApplyFilter = () => {
@@ -337,14 +352,15 @@ export default function StudentManagement() {
     <div className="space-y-6">
       {/* Header Section */}
       <div className="space-y-4">
-        <div>
-          <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student Management</h1>
-          <p className="text-gray-600 mt-1">Manage student profiles, track progress, and monitor placements.</p>
-        </div>
+        <MatrixCard 
+          title="Student Management"
+          subtitle="Manage student profiles, track progress, and monitor placements."
+          className="mb-6"  
+        />
         
         <div className="flex items-center justify-end gap-3">
           <MetricPillRow items={[
-            { key: 'export', label: 'Export Data', icon: <LuBarChart3 size={16} />, onClick: () => console.log('Export Data') },
+            { key: 'export', label: 'Export Data', icon: <span className="text-sm">📊</span>, onClick: () => console.log('Export Data') },
             { key: 'notification', label: 'Send Bulk Notification', icon: <LuMessageSquare size={16} />, onClick: () => console.log('Send Notification') },
             { key: 'add', label: 'Add Student', icon: <LuPlus size={16} />, onClick: () => console.log('Add Student') }
           ]} />
@@ -362,20 +378,20 @@ export default function StudentManagement() {
         <KPICard 
           title="Verified Profiles" 
           value="2,456" 
-          icon={<LuCheckCircle size={24} color={COLORS.GREEN_PRIMARY} />}
-          color={COLORS.GREEN_PRIMARY}
+          icon={<span className="text-2xl">✅</span>}
+          color={COLORS.PRIMARY}
         />
         <KPICard 
           title="Placement Ready" 
           value="342" 
-          icon={<LuFolderOpen size={24} color={COLORS.PRIMARY} />}
+          icon={<span className="text-2xl">📁</span>}
           color={COLORS.PRIMARY}
         />
         <KPICard 
           title="Successfully Placed" 
           value="23,891" 
-          icon={<LuTarget size={24} color="#8B5CF6" />}
-          color="#8B5CF6"
+          icon={<span className="text-2xl">🎯</span>}
+          color={COLORS.PRIMARY}
         />
       </div>
 

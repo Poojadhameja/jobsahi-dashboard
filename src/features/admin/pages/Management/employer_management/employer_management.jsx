@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant'
-import { MatrixCard, MetricPillRow } from '../../../../components/metricCard'
+import { MatrixCard, MetricPillRow } from '../../../components/metricCard'
+import PendingRecruiterApprovals from './pending_recruiter'
+import JobPostingAnalytics from './job_posting'
+import PaymentHistory from './payment'
+import EmployerRatings from './employer_rating'
+import ResumeUsageTracker from './resume_usage'
+import FraudControlSystem from './fraud_control'
 import { 
   LuBriefcase, 
-  LuBuilding2, 
+  LuBuilding, 
   LuUsers, 
   LuTrendingUp,
   LuSearch,
-  LuMoreVertical,
   LuFilter,
   LuPlus,
   LuDownload,
@@ -40,7 +45,7 @@ function EmployerTable({ employers }) {
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <LuBuilding2 className="text-gray-600" size={20} />
+          <LuBuilding className="text-gray-600" size={20} />
           <h3 className="font-medium text-gray-800">All Employer Profiles</h3>
         </div>
         <div className="relative">
@@ -88,7 +93,7 @@ function EmployerTable({ employers }) {
                 </td>
                 <td className="py-4 px-4">
                   <button className="p-1 hover:bg-gray-100 rounded">
-                    <LuMoreVertical className="text-gray-400" size={16} />
+                    <span className="text-gray-400 text-sm">⋯</span>
                   </button>
                 </td>
               </tr>
@@ -103,6 +108,9 @@ function EmployerTable({ employers }) {
 
 export default function EmployerManagement() {
   const [employers, setEmployers] = useState([])
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [activeView, setActiveView] = useState('approve-reject') // 'overview', 'approve-reject', etc.
+  const dropdownRef = useRef(null)
 
   useEffect(() => {
     setEmployers([
@@ -136,20 +144,35 @@ export default function EmployerManagement() {
     ])
   }, [])
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
       <div className="space-y-4">
-        <div>
-          <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Employer Management</h1>
-          <p className="text-gray-600 mt-1">Manage employer profiles, job postings, and recruitment processes.</p>
-        </div>
+        <MatrixCard 
+          title="Employer Management"
+          subtitle="Comprehensive employer management system with approval work flows and analytics"
+          className="mb-6"
+        />
         
         <div className="flex items-center justify-end gap-3">
           <MetricPillRow items={[
             { key: 'export', label: 'Export Data', icon: <LuDownload size={16} />, onClick: () => console.log('Export Data') },
-            { key: 'notification', label: 'Send Bulk Notification', icon: <LuMessageSquare size={16} />, onClick: () => console.log('Send Notification') },
-            { key: 'add', label: 'Add Employer', icon: <LuPlus size={16} />, onClick: () => console.log('Add Employer') }
+            // { key: 'notification', label: 'Send Bulk Notification', icon: <LuMessageSquare size={16} />, onClick: () => console.log('Send Notification') },
+            // { key: 'add', label: 'Add Employer', icon: <LuPlus size={16} />, onClick: () => console.log('Add Employer') }
           ]} />
         </div>
       </div>
@@ -157,33 +180,143 @@ export default function EmployerManagement() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard 
-          title="Total Employers" 
-          value="1,247" 
-          icon={<LuBuilding2 size={24} color={COLORS.PRIMARY} />}
-          color={COLORS.PRIMARY}
-        />
-        <KPICard 
-          title="Active Jobs" 
-          value="432" 
-          icon={<LuBriefcase size={24} color={COLORS.GREEN_PRIMARY} />}
-          color={COLORS.GREEN_PRIMARY}
-        />
-        <KPICard 
-          title="Applications" 
-          value="3,200" 
+          title="Total Employerss" 
+          value="1234" 
           icon={<LuUsers size={24} color={COLORS.PRIMARY} />}
           color={COLORS.PRIMARY}
         />
         <KPICard 
-          title="Success Rate" 
-          value="87%" 
-          icon={<LuTrendingUp size={24} color="#8B5CF6" />}
-          color="#8B5CF6"
+          title="Pending Approvals" 
+          value="56" 
+          icon={<span className="text-2xl">✅</span>}
+          color={COLORS.PRIMARY}
+        />
+        <KPICard 
+          title="Active Jobs" 
+          value="1,234" 
+          icon={<span className="text-2xl">📁</span>}
+          color={COLORS.PRIMARY}
+        />
+        <KPICard 
+          title="Monthly Revenue" 
+          value="₹4,50,000" 
+          icon={<span className="text-2xl">🎯</span>}
+          color={COLORS.PRIMARY}
         />
       </div>
 
-      {/* Employer Table */}
-      <EmployerTable employers={employers} />
+      {/* Toggle Button with Dropdown */}
+      <div className="flex justify-end relative" ref={dropdownRef}>
+        <button 
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="bg-[#0B537D] text-white p-3 rounded-lg shadow-lg transition-colors duration-200 hover:bg-[#0a4a6b]"
+        >
+          <div className="flex flex-col space-y-1">
+            <div className="w-6 h-0.5 bg-white"></div>
+            <div className="w-6 h-0.5 bg-white"></div>
+            <div className="w-6 h-0.5 bg-white"></div>
+          </div>
+        </button>
+        
+        {/* Dropdown Menu */}
+        {isDropdownOpen && (
+          <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+            {/* Menu Items */}
+            <div className="py-2">
+              <button 
+                onClick={() => { setActiveView('approve-reject'); setIsDropdownOpen(false); }}
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                  activeView === 'approve-reject' 
+                    ? 'bg-[#0B537D] text-white' 
+                    : 'text-[#0B537D] hover:bg-gray-50'
+                }`}
+              >
+                Approve/Reject
+              </button>
+              <button 
+                onClick={() => { setActiveView('job-tracking'); setIsDropdownOpen(false); }}
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                  activeView === 'job-tracking' 
+                    ? 'bg-[#0B537D] text-white' 
+                    : 'text-[#0B537D] hover:bg-gray-50'
+                }`}
+              >
+                Job Tracking
+              </button>
+              <button 
+                onClick={() => { setActiveView('payments'); setIsDropdownOpen(false); }}
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                  activeView === 'payments' 
+                    ? 'bg-[#0B537D] text-white' 
+                    : 'text-[#0B537D] hover:bg-gray-50'
+                }`}
+              >
+                Payments
+              </button>
+              <button 
+                onClick={() => { setActiveView('ratings'); setIsDropdownOpen(false); }}
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                  activeView === 'ratings' 
+                    ? 'bg-[#0B537D] text-white' 
+                    : 'text-[#0B537D] hover:bg-gray-50'
+                }`}
+              >
+                Ratings
+              </button>
+              <button 
+                onClick={() => { setActiveView('resume-usage'); setIsDropdownOpen(false); }}
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                  activeView === 'resume-usage' 
+                    ? 'bg-[#0B537D] text-white' 
+                    : 'text-[#0B537D] hover:bg-gray-50'
+                }`}
+              >
+                Resume Usage
+              </button>
+              <button 
+                onClick={() => { setActiveView('fraud-control'); setIsDropdownOpen(false); }}
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                  activeView === 'fraud-control' 
+                    ? 'bg-[#0B537D] text-white' 
+                    : 'text-[#0B537D] hover:bg-gray-50'
+                }`}
+              >
+                Fraud Control
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Conditional Content Rendering */}
+      {activeView === 'approve-reject' && (
+        <PendingRecruiterApprovals />
+      )}
+
+      {activeView === 'job-tracking' && (
+        <JobPostingAnalytics />
+      )}
+
+      {activeView === 'payments' && (
+        <PaymentHistory />
+      )}
+
+      {activeView === 'ratings' && (
+        <EmployerRatings />
+      )}
+
+      {activeView === 'resume-usage' && (
+        <ResumeUsageTracker />
+      )}
+
+      {activeView === 'fraud-control' && (
+        <FraudControlSystem />
+      )}
+
+      {activeView === 'overview' && (
+        <EmployerTable employers={employers} />
+      )}
+
     </div>
   )
 }
