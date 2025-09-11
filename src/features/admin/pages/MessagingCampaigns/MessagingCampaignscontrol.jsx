@@ -7,6 +7,8 @@ import Button from '../../../../shared/components/Button.jsx';
 import { FilterButton, NewCampaignButton } from '../../../../shared/components/Button.jsx';
 import SystemwidePush from './SystemwidePush.jsx';
 import SegmentBasedMessaging from './SegmentBasedMessaging.jsx';
+import EmailSMSCampaignsManager from './email_sms_campaignsmanager.jsx'; 
+import NotificationTemplatesManager from './notification_templates_manager.jsx';
 
 const MessagingCampaignsView = () => {
   // Tabs synced to URL (?tab=messaging|analytics)
@@ -58,6 +60,15 @@ const MessagingCampaignsView = () => {
     },
     {
       id: 'analytics',
+      label: ' Email & SMS Campaigns Management',
+      icon: () => (
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+        </svg>
+      )
+    },
+    {
+      id: 'templates',
       label: ' Notification Templates Manager',
       icon: () => (
         <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor">
@@ -71,15 +82,15 @@ const MessagingCampaignsView = () => {
 
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
       {/* Header */}
       <div className="text-center">
-        <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Messaging & Campaigns</h1>
-        <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Manage notifications, campaigns, and templates</p>
+        <h1 className={`text-2xl sm:text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Messaging & Campaigns</h1>
+        <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1 text-sm sm:text-base`}>Manage notifications, campaigns, and templates</p>
       </div>
 
       {/* Campaign Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <MetricCard
             title="Active Campaigns"
             count="15"
@@ -129,7 +140,7 @@ const MessagingCampaignsView = () => {
       />
 
       {/* Filter and New Campaign Buttons */}
-      <div className="flex flex-col sm:flex-row justify-end gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row justify-end gap-3 mb-4 sm:mb-6">
         <FilterButton onClick={handleFilterClick} />
         <NewCampaignButton onClick={handleNewCampaignClick} />
       </div>
@@ -140,56 +151,12 @@ const MessagingCampaignsView = () => {
       {/* Segment-Based Messaging Content */}
       {activeNavTab === 'segments' && <SegmentBasedMessaging />}
 
-      {/* Campaign Analytics Content */}
-      {activeNavTab === 'analytics' && (
-        <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Campaign Analytics</h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
-            <div className="bg-blue-50 p-4 md:p-6 rounded-lg min-h-[120px] flex flex-col justify-center">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-blue-600 font-medium mb-1">Open Rate</p>
-                  <p className="text-xl md:text-2xl font-bold text-blue-900">24.5%</p>
-                </div>
-                <div className="text-2xl md:text-3xl ml-3 flex-shrink-0">📊</div>
-              </div>
-            </div>
-            
-            <div className="bg-green-50 p-4 md:p-6 rounded-lg min-h-[120px] flex flex-col justify-center">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-green-600 font-medium mb-1">Click Rate</p>
-                  <p className="text-xl md:text-2xl font-bold text-green-900">12.3%</p>
-                </div>
-                <div className="text-2xl md:text-3xl ml-3 flex-shrink-0">👆</div>
-              </div>
-            </div>
-            
-            <div className="bg-purple-50 p-4 md:p-6 rounded-lg min-h-[120px] flex flex-col justify-center sm:col-span-2 lg:col-span-1">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-purple-600 font-medium mb-1">Conversion</p>
-                  <p className="text-xl md:text-2xl font-bold text-purple-900">8.7%</p>
-                </div>
-                <div className="text-2xl md:text-3xl ml-3 flex-shrink-0">🎯</div>
-              </div>
-            </div>
-          </div>
+      {/* Email & SMS Campaigns Management Content */}
+      {activeNavTab === 'analytics' && <EmailSMSCampaignsManager />}    
 
-          <div className="text-center py-8">
-            <div className="text-6xl mb-4">📈</div>
-            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Detailed Analytics</h3>
-            <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>View comprehensive campaign performance metrics and insights.</p>
-            <Button 
-              variant="primary" 
-              size="lg"
-            >
-              View Full Report
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* Notification Templates Manager Content */}
+      {activeNavTab === 'templates' && <NotificationTemplatesManager />}
+
     </div>
   );
 };

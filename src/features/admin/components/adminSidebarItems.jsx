@@ -30,7 +30,7 @@ export const adminSidebarItems = [
   { to: '/admin/business-panel', activePath: '/admin/business-panel', label: 'Business & Revenue Panel', icon: Icon.Biz },
   { to: '/admin/reports', activePath: '/admin/reports', label: 'Reports & Analytics Center', icon: Icon.Reports },
   { to: '/admin/messaging-campaigns', activePath: '/admin/messaging-campaigns', label: 'Messaging & Campaigns', icon: Icon.Msg },
-  { to: '/admin/alerts', activePath: '/admin/alerts', label: 'Alerts & Automation', icon: Icon.Alerts },
+  { to: '/admin/alerts-automation', activePath: '/admin/alerts-automation', label: 'Alerts & Automation', icon: Icon.Alerts },
   { to: '/admin/settings', activePath: '/admin/settings', label: 'System Settings & Configuration', icon: Icon.Settings },
   { to: '/admin/tools-logs', activePath: '/admin/tools-logs', label: 'Admin Tools & Logs', icon: Icon.Tools },
 ]
