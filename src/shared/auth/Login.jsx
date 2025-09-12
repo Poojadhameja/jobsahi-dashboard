@@ -97,10 +97,9 @@ export default function Login() {
           <div className="mt-4 flex items-center justify-center">
             <AuthTabs mode={mode} setMode={setMode} />
           </div>
-        </div>
+        {/* </div>
 
-        {/* Form card */}
-        <div className={`rounded-2xl p-6 md:p-8 ${TAILWIND_COLORS.CARD}`}>
+        <div className={`rounded-2xl p-6 md:p-8 ${TAILWIND_COLORS.CARD}`}> */}
           <form onSubmit={onSubmit} className="space-y-4">
             {isEmail ? (
               <>

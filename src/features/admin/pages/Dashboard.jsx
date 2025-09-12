@@ -30,14 +30,14 @@ function PlacementSuccess() {
     { value: '1.2K', label: 'Hired', sub: 'Successfully placed', color: 'bg-rose-500' },
   ]
   return (
-    <div className={`${TAILWIND_COLORS.CARD} p-5`}>
-      <div className="font-medium my-4 md:mb-10 text-xl text-center md:text-left">Placement Success Funnel</div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className={`${TAILWIND_COLORS.CARD} p-3 sm:p-4 md:p-5`}>
+      <div className="font-medium my-3 sm:my-4 md:mb-6 lg:mb-10 text-lg sm:text-xl text-center md:text-left">Placement Success Funnel</div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {items.map((it)=> (
           <div key={it.label} className="flex flex-col items-center text-center">
-            <div className={`w-16 h-16 lg:w-24 lg:h-24   ${it.color} rounded-full flex items-center justify-center text-white text-lg lg:text-xl xl:text-2xl font-semibold shadow-sm`}>{it.value}</div>
-            <div className="mt-2 text-sm md:text-xl font-semibold text-gray-800">{it.label}</div>
-            <div className="text-xs md:text-lg text-gray-500">{it.sub}</div>
+            <div className={`w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 ${it.color} rounded-full flex items-center justify-center text-white text-sm sm:text-base lg:text-lg xl:text-xl font-semibold shadow-sm`}>{it.value}</div>
+            <div className="mt-1 sm:mt-2 text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-semibold text-gray-800">{it.label}</div>
+            <div className="text-[10px] sm:text-xs md:text-sm lg:text-base text-gray-500 text-center">{it.sub}</div>
           </div>
         ))}
       </div>
@@ -95,13 +95,13 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <MatrixCard 
-        title="Dashboard Overview"
-        subtitle="Monitor your platform's key metrics and performance"
-      />
+    <div className="space-y-4 sm:space-y-6">
+      <div className="text-center px-2 sm:px-0">
+        <h1 className={`text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} break-words`}>Dashboard Overview</h1>
+        <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 break-words">Monitor your platform's key metrics and performance</p>
+      </div>
 
-      <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {overview.map((o)=>(
           <MetricCard
             key={o.title}
@@ -117,17 +117,17 @@ export default function Dashboard() {
 
       <PlacementSuccess />
 
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className={`${TAILWIND_COLORS.CARD} p-4  `}> 
-          <div className="font-medium my-4 md:mb-10 text-xl text-center md:text-left">Applications Trend (Last 6 Months)</div>
-          <div className="h-64">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+        <div className={`${TAILWIND_COLORS.CARD} p-3 sm:p-4`}> 
+          <div className="font-medium my-3 sm:my-4 md:mb-6 lg:mb-10 text-lg sm:text-xl text-center md:text-left">Applications Trend (Last 6 Months)</div>
+          <div className="h-48 sm:h-56 md:h-64">
             <Line data={lineData} options={lineOptions} />
           </div>
         </div>
 
-        <div className={`${TAILWIND_COLORS.CARD} p-4`}>
-          <div className="font-medium my-4 md:mb-10 text-xl text-center md:text-left">Top Skills in Demand</div>
-          <div className="h-64">
+        <div className={`${TAILWIND_COLORS.CARD} p-3 sm:p-4`}>
+          <div className="font-medium my-3 sm:my-4 md:mb-6 lg:mb-10 text-lg sm:text-xl text-center md:text-left">Top Skills in Demand</div>
+          <div className="h-48 sm:h-56 md:h-64">
             <Doughnut data={doughnutData} options={doughnutOptions} />
           </div>
         </div>

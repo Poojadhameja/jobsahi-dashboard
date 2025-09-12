@@ -21,10 +21,10 @@ import {
 } from 'react-icons/lu'
 
 
-export default function BusinessRevenue() {
+export default function Management() {
     return (
         <div className="p-5 space-y-5">
-        Business Revenue 
+        jndenf
         </div>
     )
 }

@@ -2,67 +2,107 @@ import React, { useState } from 'react'
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
+// Toggle Switch Component
 const Toggle = ({ checked, onChange, label }) => (
   <label className="flex items-center gap-3 cursor-pointer select-none">
     <span
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200`}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+        checked ? 'bg-[#5C9A24]' : 'bg-gray-300'
+      }`}
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      style={{ backgroundColor: checked ? COLORS.GREEN_PRIMARY : COLORS.GRAY_300 }}
     >
       <span
-        className={`h-5 w-5 bg-white rounded-full shadow transform transition-transform duration-200 ${checked ? 'translate-x-5' : 'translate-x-1'}`}
+        className={`h-5 w-5 bg-white rounded-full shadow transform transition-transform duration-200 ${
+          checked ? 'translate-x-5' : 'translate-x-1'
+        }`}
       />
     </span>
-    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{label}</span>
+    <span className="text-sm text-gray-600">{label}</span>
   </label>
 )
 
-const SpamRulesForm = ({ value, onChange, onSubmit }) => {
-  const { keywords, minLength, autoFlag, flagInactive } = value
+// Plan Expiry Settings Card
+const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) => {
+  const reminderDaysOptions = [
+    { value: '1', label: '1 day' },
+    { value: '3', label: '3 days' },
+    { value: '7', label: '7 days' },
+    { value: '14', label: '14 days' },
+    { value: '30', label: '30 days' }
+  ]
+
+  const handleSubmit = () => {
+    onUpdateSettings(settings)
+  }
+
   return (
-    <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full h-96 flex flex-col">
+      {/* Header */}
       <div className="flex items-center gap-2 mb-1">
-        <span style={{ color: COLORS.GREEN_PRIMARY }}>🔔</span>
-        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Spam Detection Rules</h2>
+        <span className="text-[#5C9A24] text-lg">🔔</span>
+        <h2 className="text-lg font-semibold text-[#0B537D]">Plan Expiry Settings</h2>
       </div>
-      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Configure automatic job spam detection</p>
-
-      <div className="space-y-4">
+      <p className="text-sm text-gray-600 mb-6">Configure automatic reminders for plan expiration</p>
+      
+      {/* Form Content */}
+      <div className="space-y-1 flex-1">
+        {/* Reminder Days Dropdown */}
         <div>
-          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Keywords Filters</label>
-          <input
-            type="text"
-            placeholder="Enter spam keywords (comma separated)"
-            value={keywords}
-            onChange={(e) => onChange({ ...value, keywords: e.target.value })}
-            className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm`}
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Reminder Days Before Expiry
+          </label>
+          <div className="relative">
+            <select
+              value={settings.reminderDays}
+              onChange={(e) => onSettingsChange({ ...settings, reminderDays: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent appearance-none bg-white pr-8 text-sm"
+            >
+              <option value="">select days</option>
+              {reminderDaysOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Email Template */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email Template
+          </label>
+          <textarea
+            value={settings.emailTemplate}
+            onChange={(e) => onSettingsChange({ ...settings, emailTemplate: e.target.value })}
+            placeholder="your plan expired in days. Renew now to continue..."
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent resize-none h-20 text-sm"
           />
         </div>
 
-        <div>
-          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Minimum job description length</label>
-          <input
-            type="number"
-            min={0}
-            value={minLength}
-            onChange={(e) => onChange({ ...value, minLength: Number(e.target.value) || 0 })}
-            className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm`}
+        {/* Toggle Switches */}
+        <div className="space-y-2 pt-2">
+          <Toggle 
+            checked={settings.enableReminders} 
+            onChange={(checked) => onSettingsChange({ ...settings, enableReminders: checked })} 
+            label="Enable automatic reminders" 
           />
         </div>
 
-        <div className="space-y-3 pt-1">
-          <Toggle checked={autoFlag} onChange={(v) => onChange({ ...value, autoFlag: v })} label="Auto-flag suspicious jobs" />
-          <Toggle checked={flagInactive} onChange={(v) => onChange({ ...value, flagInactive: v })} label="Flag inactive users (90+ days)" />
-        </div>
-
+        {/* Update Button */}
         <div className="pt-2">
           <PrimaryButton 
-            onClick={onSubmit} 
-            disabled={!keywords.trim() && minLength === 0}
+            onClick={handleSubmit}
+            className="bg-[#5C9A24] hover:bg-[#4A7D1A] text-white px-4 py-2 rounded-lg text-sm font-medium"
           >
-            Update Rules
+            Save Settings
           </PrimaryButton>
         </div>
       </div>
@@ -70,72 +110,136 @@ const SpamRulesForm = ({ value, onChange, onSubmit }) => {
   )
 }
 
-const FlaggedList = ({ items, onReview }) => (
-  <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-    <div className="flex items-center gap-2 mb-1">
-      <span style={{ color: COLORS.GREEN_PRIMARY }}>🔔</span>
-      <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Flagged Items</h2>
-    </div>
-    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-4`}>Review automatically flagged content</p>
+// Recent Expiry Alerts Card
+const RecentExpiryAlerts = ({ alerts, onReviewAlert }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full h-96 flex flex-col">
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-[#5C9A24] text-lg">🔔</span>
+        <h2 className="text-lg font-semibold text-[#0B537D]">Recent Expiry Alerts</h2>
+      </div>
+      <p className="text-sm text-gray-600 mb-6">Latest plan expiration notifications</p>
 
-    <div className="space-y-3">
-      {items.map((it) => (
-        <div key={it.id} className={`flex items-center gap-3 p-4 bg-white rounded-lg border ${TAILWIND_COLORS.BORDER}`}>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm text-gray-900 truncate">{it.title}</p>
-            <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} truncate`}>{it.subtitle}</p>
-          </div>
-          <span
-            className={`px-3 py-1 text-xs font-medium rounded-full ${it.status === 'Reviewed' ? 'bg-white border' : 'text-white'}`}
-            style={it.status === 'Reviewed' ? { borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY } : { backgroundColor: COLORS.GREEN_PRIMARY }}
+      {/* Alerts List */}
+      <div className="space-y-4 flex-1 overflow-y-auto">
+        {alerts.map((alert, index) => (
+          <div 
+            key={index} 
+            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
           >
-            {it.status}
-          </span>
-          <OutlineButton onClick={() => onReview(it.id)}>
-            Review
-          </OutlineButton>
-        </div>
-      ))}
-    </div>
-  </div>
-)
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {alert.name}
+              </p>
+              <p className="text-xs text-gray-600 truncate">
+                {alert.details}
+              </p>
+            </div>
 
+            {/* Status and Actions */}
+            <div className="flex items-center gap-2 ml-4">
+              {/* Status Badge */}
+              <span
+                className={`px-3 py-1 text-xs font-medium rounded-full ${
+                  alert.status === 'Reviewed' 
+                    ? 'bg-white border border-[#5C9A24] text-[#5C9A24]' 
+                    : 'bg-[#5C9A24] text-white'
+                }`}
+              >
+                {alert.status}
+              </span>
+              
+              {/* Review Button */}
+              {alert.status === 'Sent' && (
+                <OutlineButton 
+                  onClick={() => onReviewAlert(index)}
+                  className="border-[#5C9A24] text-[#5C9A24] hover:bg-[rgba(92,154,36,0.1)] px-3 py-1 text-xs font-medium rounded-lg"
+                >
+                  Review
+                </OutlineButton>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// Main Component
 const ExpiryReminder = () => {
-  const [rules, setRules] = useState({ keywords: '', minLength: 50, autoFlag: true, flagInactive: true })
-  const [flagged, setFlagged] = useState([
-    { id: 1, title: 'Work from home opportunity', subtitle: 'Job post - spam keywords', status: 'Pending' },
-    { id: 2, title: 'inactive_user@gmail.com', subtitle: 'User - 90+ days inactive', status: 'Reviewed' },
-    { id: 3, title: 'Easy money fast', subtitle: 'Job post - suspicious content', status: 'Pending' },
+  // State management for plan expiry settings
+  const [settings, setSettings] = useState({
+    reminderDays: '7',
+    emailTemplate: 'your plan expired in days. Renew now to continue...',
+    enableReminders: true
+  })
+
+  // Sample alerts data
+  const [alerts, setAlerts] = useState([
+    {
+      name: "Rahul Singh",
+      details: "Premium plan expires in 7 days",
+      status: "Sent"
+    },
+    {
+      name: "Rahul Singh", 
+      details: "Basic plan expires in 7 days",
+      status: "Reviewed"
+    },
+    {
+      name: "Rahul Singh",
+      details: "Pro plan expires in 7 days", 
+      status: "Sent"
+    }
   ])
 
-  const submitRules = () => {
-    // In real app, call API
-    // eslint-disable-next-line no-console
-    console.log('Updated rules:', rules)
-    alert('Rules updated successfully!')
+  const handleSettingsChange = (newSettings) => {
+    setSettings(newSettings)
   }
 
-  const handleReview = (id) => {
-    setFlagged(prev => prev.map(item => 
-      item.id === id 
-        ? { ...item, status: item.status === 'Pending' ? 'Reviewed' : 'Pending' }
-        : item
-    ))
-    console.log('Reviewing item:', id)
+  const handleUpdateSettings = (updatedSettings) => {
+    // In a real app, this would call an API
+    console.log('Updated settings:', updatedSettings)
+    alert('Settings updated successfully!')
+  }
+
+  const handleReviewAlert = (alertIndex) => {
+    setAlerts(prev => 
+      prev.map((alert, index) => 
+        index === alertIndex 
+          ? { ...alert, status: alert.status === 'Sent' ? 'Reviewed' : 'Sent' }
+          : alert
+      )
+    )
+    console.log('Reviewing alert:', alertIndex)
   }
 
   return (
-    <div className="space-y-6">
-      <SpamRulesForm 
-        value={rules} 
-        onChange={setRules} 
-        onSubmit={submitRules} 
-      />
-      
-      <FlaggedList 
-        items={flagged} 
-        onReview={handleReview} 
-      />
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column - Plan Expiry Settings */}
+          <div>
+            <PlanExpirySettings 
+              settings={settings} 
+              onSettingsChange={handleSettingsChange}
+              onUpdateSettings={handleUpdateSettings}
+            />
+          </div>
+
+          {/* Right Column - Recent Expiry Alerts */}
+          <div>
+            <RecentExpiryAlerts 
+              alerts={alerts}
+              onReviewAlert={handleReviewAlert}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

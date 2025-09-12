@@ -4,6 +4,9 @@ import { PrimaryButton, OutlineButton } from '../../../../shared/components/Butt
 import NavigationTabs from '../../../../shared/components/navigation.jsx'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import ExpiryReminder from './expiry_reminder.jsx'
+import AutoFlagging from './auto_flagging.jsx'
+import ResumeFeedback from './resume_feedback.jsx'
+import CourseAlerts from './course_alerts.jsx'
 
 // Local, lightweight presentational atoms
 const StatCards = () => (
@@ -55,21 +58,11 @@ const AlertsAutomation = () => {
       case 'expiry':
         return <ExpiryReminder />
       case 'auto-flag':
-        return (
-          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-          </div>
-        )
+        return <AutoFlagging />
       case 'resume':
-        return (
-          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-            
-          </div>
-        )
+        return <ResumeFeedback />
       case 'course':
-        return (
-          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-          </div>
-        )
+        return <CourseAlerts />
       default:
         return <ExpiryReminder />
     }
