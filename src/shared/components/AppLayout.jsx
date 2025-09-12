@@ -43,16 +43,16 @@ export default function AppLayout({
   return (
     <div className={`flex h-screen ${TAILWIND_COLORS.BG_PRIMARY} relative`}>
       {!isDesktop && isSidebarOpen && (
-        <div className="fixed inset-0 z-30" onClick={toggleSidebar} />
+        <div className="fixed inset-0 z-30 bg-black/50" onClick={toggleSidebar} />
       )}
       <AppSidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} brand={brand} roleLabel={roleLabel} items={sidebarItems} />
       <div
-  className={`flex-1 flex flex-col min-w-0 relative 
-  ${isDesktop && isSidebarOpen ? 'md:ml-64' : 'ml-0'} 
-  w-full`}
->
+        className={`flex-1 flex flex-col min-w-0 relative 
+        ${isDesktop && isSidebarOpen ? 'md:ml-64' : 'ml-0'} 
+        w-full`}
+      >
         {Header}
-        <main className={`flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 ${TAILWIND_COLORS.SCROLLBAR}`}>
+        <main className={`flex-1 overflow-y-auto p-2 sm:p-3 md:p-4 lg:p-6 ${TAILWIND_COLORS.SCROLLBAR}`}>
           <Outlet />
         </main>
       </div>
