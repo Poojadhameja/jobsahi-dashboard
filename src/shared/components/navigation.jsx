@@ -1,5 +1,5 @@
 import React from 'react'
-import { TAILWIND_COLORS, COLORS } from '../../shared/WebConstant'
+import { TAILWIND_COLORS, COLORS } from '../WebConstant'
 
 const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {
   return (
