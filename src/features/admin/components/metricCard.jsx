@@ -39,12 +39,12 @@ export const MetricPillButton = ({ label, icon, onClick, className = '', active 
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 bg-white/90 border border-[rgba(0,57,91,0.18)] shadow-sm hover:bg-gray-50 transition-colors text-[#5B9821] ${active ? 'ring-2 ring-[#5B9821]/30' : ''} ${className}`}
+      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 bg-white border-2 border-[#5B9821] transition-colors text-[#5B9821] ${active ? 'ring-2 ring-[#5B9821]/30' : ''} ${className}`}
     >
       <span className="w-6 h-6 rounded-full grid place-items-center bg-[rgba(92,154,36,0.15)] text-[#5B9821]">
         {icon}
       </span>
-      <span className="text-sm font-medium whitespace-nowrap">{label}</span>
+      <span className="text-sm font-bold whitespace-nowrap">{label}</span>
     </button>
   );
 };
@@ -71,7 +71,7 @@ export const MatrixCard = ({
   subtitleColor = 'text-[#1A569A]'
 }) => {
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-6 text-center ${className}`}>
+    <div className={`bg-white rounded-lg border border-[#0b537d28] shadow-sm p-6 text-center ${className}`}>
       <h2 className={`text-xl md:text-2xl font-semibold ${titleColor} mb-2`}>
         {title}
       </h2>

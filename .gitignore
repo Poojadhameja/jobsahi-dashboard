@@ -16,3 +16,6 @@ pnpm-debug.log*
 
 # environment
 .env
+
+package-lock.json
+package.json
