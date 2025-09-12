@@ -82,12 +82,12 @@ export const PillNavigation = ({
         {tabs.map((tab, index) => {
           const isActive = index === activeTab
           const Icon = tab.icon
-          
+
           return (
             <button
               key={tab.id || index}
               onClick={() => onTabChange(index)}
-              className="flex items-center justify-between gap-2 rounded-full px-2 py-2 whitespace-nowrap transition-all duration-200"
+              className="flex items-center justify-between gap-2 rounded-full px-2 lg:pe-5 py-2 whitespace-nowrap transition-all duration-200"
               style={
                 isActive
                   ? { 
