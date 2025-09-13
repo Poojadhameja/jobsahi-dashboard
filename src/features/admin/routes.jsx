@@ -7,10 +7,10 @@ const Management = lazy(() => import('./pages/Management/Management.jsx'))
 const JobCourseControl = lazy(() => import('./pages/Job_Course_Control/job_course_control.jsx'))
 const BusinessRevenue = lazy(() => import('./pages/Buiness_Revenue/business_revenue.jsx'))
 const ReportAnalytics = lazy(() => import('./pages/Reports_Analytics/report_analytics.jsx'))
-const MessagingCampaigns = lazy(() => import('./pages/MessagingCampaigns/MessagingCampaignscontrol.jsx'))
+const MessagingCampaignsView = lazy(() => import('./pages/MessagingCampaigns/MessagingCampaignscontrol.jsx'))
 const AlertsAutomation = lazy(() => import('./pages/Alert_Automation/alert_automation.jsx'))
 const SystemSetting = lazy(() => import('./pages/System_Setting/system_setting.jsx'))
-const ToolsLogs = lazy(() => import('./pages/Home.jsx'))
+const AdminTools = lazy(() => import('./pages/Tools_&_Logs/Admin_Tools.jsx'))
 const AdminProfile = lazy(() => import('../../shared/auth/AdminProfile.jsx'))
 
 export default function AdminRoutes() {
@@ -24,10 +24,10 @@ export default function AdminRoutes() {
           <Route path="job-control" element={<JobCourseControl />} />
           <Route path="business-panel" element={<BusinessRevenue />} />
           <Route path="reports" element={<ReportAnalytics />} />
-          <Route path="messaging-campaigns" element={<MessagingCampaigns />} />
+          <Route path="messaging-campaigns" element={<MessagingCampaignsView />} />
           <Route path="alerts-automation" element={<AlertsAutomation />} />
           <Route path="settings" element={<SystemSetting />} />
-          <Route path="tools-logs" element={<ToolsLogs />} />
+          <Route path="tools-logs" element={<AdminTools />} />
           <Route path="profile" element={<AdminProfile />} />
           <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Route>
