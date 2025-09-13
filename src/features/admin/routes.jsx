@@ -10,7 +10,7 @@ const ReportAnalytics = lazy(() => import('./pages/Reports_Analytics/report_anal
 const MessagingCampaigns = lazy(() => import('./pages/MessagingCampaigns/MessagingCampaignscontrol.jsx'))
 const AlertsAutomation = lazy(() => import('./pages/Alert_Automation/alert_automation.jsx'))
 const SystemSetting = lazy(() => import('./pages/System_Setting/system_setting.jsx'))
-const ToolsLogs = lazy(() => import('./pages/ToolsLogs.jsx'))
+const ToolsLogs = lazy(() => import('./pages/Tools_&_Logs/Admin_Tools.jsx'))
 const AdminProfile = lazy(() => import('../../shared/auth/AdminProfile.jsx'))
 
 export default function AdminRoutes() {

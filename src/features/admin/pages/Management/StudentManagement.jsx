@@ -355,7 +355,7 @@ export default function StudentManagement() {
         <MatrixCard 
           title="Student Management"
           subtitle="Manage student profiles, track progress, and monitor placements."
-          className="mb-6"  
+          className=""  
         />
         
         <div className="flex items-center justify-end gap-3">
