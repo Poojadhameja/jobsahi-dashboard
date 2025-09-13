@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 
 const AdminLayout = lazy(() => import('./components/AdminLayout.jsx'))
-const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
+const Dashboard = lazy(() => import('./pages/Home.jsx'))
 const Management = lazy(() => import('./pages/Management/Management.jsx'))
 const JobCourseControl = lazy(() => import('./pages/Job_Course_Control/job_course_control.jsx'))
 const BusinessRevenue = lazy(() => import('./pages/Buiness_Revenue/business_revenue.jsx'))
@@ -10,7 +10,7 @@ const ReportAnalytics = lazy(() => import('./pages/Reports_Analytics/report_anal
 const MessagingCampaigns = lazy(() => import('./pages/MessagingCampaigns/MessagingCampaignscontrol.jsx'))
 const AlertsAutomation = lazy(() => import('./pages/Alert_Automation/alert_automation.jsx'))
 const SystemSetting = lazy(() => import('./pages/System_Setting/system_setting.jsx'))
-const ToolsLogs = lazy(() => import('./pages/Tools_&_Logs/Admin_Tools.jsx'))
+const ToolsLogs = lazy(() => import('./pages/Home.jsx'))
 const AdminProfile = lazy(() => import('../../shared/auth/AdminProfile.jsx'))
 
 export default function AdminRoutes() {
