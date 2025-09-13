@@ -1,5 +1,5 @@
 import React from 'react'
-import { TAILWIND_COLORS } from '../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../shared/WebConstant.js'
 import MetricCard, { MatrixCard } from '../components/metricCard.jsx'
 import { Line, Doughnut } from 'react-chartjs-2'
 import {
@@ -24,7 +24,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcEleme
 
 function PlacementSuccess() {
   const items = [
-    { value: '8.5K', label: 'Applications', sub: 'Ready for placement', color: 'bg-emerald-500' },
+    { value: '5.5K', label: 'Applications', sub: 'Ready for placement', color: 'bg-emerald-500' },
     { value: '3.2K', label: 'Interviews', sub: 'Shortlisted candidates', color: 'bg-blue-500' },
     { value: '1.8K', label: 'Offers', sub: 'Job offers extended', color: 'bg-amber-500' },
     { value: '1.2K', label: 'Hired', sub: 'Successfully placed', color: 'bg-rose-500' },

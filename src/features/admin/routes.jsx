@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 
 const AdminLayout = lazy(() => import('./components/AdminLayout.jsx'))
-const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
+const Dashboard = lazy(() => import('./pages/Home.jsx'))
 const Management = lazy(() => import('./pages/Management/Management.jsx'))
 const JobCourseControl = lazy(() => import('./pages/Job_Course_Control/job_course_control.jsx'))
 const BusinessRevenue = lazy(() => import('./pages/Buiness_Revenue/business_revenue.jsx'))
@@ -24,7 +24,7 @@ export default function AdminRoutes() {
           <Route path="job-control" element={<JobCourseControl />} />
           <Route path="business-panel" element={<BusinessRevenue />} />
           <Route path="reports" element={<ReportAnalytics />} />
-          <Route path="messaging-campaigns" element={<MessagingCampaignsView />} />
+          <Route path="messaging-campaigns" element={<MessagingCampaigns />} />
           <Route path="alerts-automation" element={<AlertsAutomation />} />
           <Route path="settings" element={<SystemSetting />} />
           <Route path="tools-logs" element={<ToolsLogs />} />
