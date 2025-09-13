@@ -1,177 +1,176 @@
-import React, { useState } from 'react'
-import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
-import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import React, { useState } from "react";
+import { COLORS, TAILWIND_COLORS } from "../../../../shared/WebConstant";
 
-// ===== COMPONENT STRUCTURE =====
-
-// Toggle Switch Component
-const Toggle = ({ checked, onChange }) => (
-  <label className="flex items-center cursor-pointer select-none">
-    <span
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-        checked ? 'bg-[#5C9A24]' : 'bg-gray-300'
-      }`}
+// ========= Toggle (kept as a separate component) =========
+const Toggle = ({ checked, onChange, label }) => (
+  <label className="flex items-center justify-between gap-3 select-none">
+    {label ? <span className={`${TAILWIND_COLORS.TEXT_MUTED}`}>{label}</span> : null}
+    <button
+      type="button"
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
+      className={[
+        "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
+        checked ? "bg-green-600" : "bg-slate-300",
+        "focus:outline-none focus:ring-4 focus:ring-sky-100",
+      ].join(" ")}
     >
       <span
-        className={`h-5 w-5 bg-white rounded-full shadow transform transition-transform duration-200 ${
-          checked ? 'translate-x-5' : 'translate-x-1'
-        }`}
+        className={[
+          "inline-block h-5 w-5 transform rounded-full bg-white shadow transition",
+          checked ? "translate-x-5" : "translate-x-1",
+        ].join(" ")}
       />
-    </span>
+    </button>
   </label>
-)
+);
 
-// AI Resume Feedback Card
+// ========= Card (matching Dashboard Placement Success Funnel styling) =========
 const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) => {
-  const handleSubmit = () => {
-    onUpdateSettings(settings)
-  }
+  const responseOptions = [
+    { value: "", label: "select response time" },
+    { value: "instant", label: "Instant (beta)" },
+    { value: "1h", label: "Within 1 hour" },
+    { value: "6h", label: "Within 6 hours" },
+    { value: "24h", label: "Within 24 hours" },
+  ];
+
+  const handleSubmit = () => onUpdateSettings?.(settings);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 w-full">
-      {/* Card Header with Bell Icon */}
-      <div className="flex items-start mb-6">
-        <div className="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-lg mr-4 flex-shrink-0">
-          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-5 5-5-5h5v-5a7.5 7.5 0 1 0-15 0v5h5l-5 5-5-5h5v-5a7.5 7.5 0 1 1 15 0v5z" />
-          </svg>
-        </div>
-        <div className="flex-1">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">AI Resume Feedback (Future Integration)</h2>
-          <p className="text-gray-600 text-sm">Configure LLM-powered resume analysis and feedback system</p>
-        </div>
+    <div className="bg-white rounded-xl border border-[rgba(0,57,91,0.18)] shadow-sm p-3 sm:p-4 md:p-5">
+      <div className={`font-medium my-3 sm:my-4 md:mb-6 lg:mb-10 text-lg sm:text-xl text-center md:text-left ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+        AI Resume Feedback (Future Integration)
+      </div>
+      
+      {/* Coming soon banner */}
+      <div className="mb-4 rounded-xl bg-green-50 text-green-800 border border-green-200 p-4">
+        <p className="font-medium">Coming soon</p>
+        <p className="text-sm mt-1">
+          this feature will integrate with large language models to provide
+          automated resume feedback and suggestions to job seekers.
+        </p>
       </div>
 
-      {/* Coming Soon Banner */}
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-8">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-green-800 mb-2">Coming soon</h3>
-          <p className="text-green-700 text-sm">
-            this feature will integrate with large language models to provide automated resume feedback and suggestions to job seekers.
+      {/* Body */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Feedback Categories */}
+        <div>
+          <h3 className={`${TAILWIND_COLORS.TEXT_MUTED} font-semibold mb-4`}>Feedback Categories</h3>
+          <div className="space-y-3">
+            <Toggle
+              label="Email Notifications"
+              checked={settings.emailNotifications}
+              onChange={(v) =>
+                onSettingsChange({ ...settings, emailNotifications: v })
+              }
+            />
+            <Toggle
+              label="Push Notifications"
+              checked={settings.pushNotifications}
+              onChange={(v) =>
+                onSettingsChange({ ...settings, pushNotifications: v })
+              }
+            />
+            <Toggle
+              label="Content Quality"
+              checked={settings.contentQuality}
+              onChange={(v) =>
+                onSettingsChange({ ...settings, contentQuality: v })
+              }
+            />
+            <Toggle
+              label="Grammar & Language"
+              checked={settings.grammarLanguage}
+              onChange={(v) =>
+                onSettingsChange({ ...settings, grammarLanguage: v })
+              }
+            />
+          </div>
+        </div>
+
+        {/* Response time + CTA */}
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className={`block ${TAILWIND_COLORS.TEXT_MUTED} font-semibold mb-2`}>
+              Responsive time target
+            </label>
+            <div className="relative">
+              <select
+                value={settings.responseTime}
+                onChange={(e) =>
+                  onSettingsChange({ ...settings, responseTime: e.target.value })
+                }
+                className={`w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 ${TAILWIND_COLORS.TEXT_MUTED} focus:outline-none focus:ring-4 focus:ring-sky-100 focus:border-sky-300`}
+              >
+                {responseOptions.map((o) => (
+                  <option key={o.value} value={o.value} disabled={o.value === ""}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              <svg
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className={`inline-flex items-center justify-center gap-2 rounded-xl ${TAILWIND_COLORS.BTN_PRIMARY} px-5 py-3 font-medium shadow-sm focus:outline-none focus:ring-4 focus:ring-green-100 active:scale-95`}
+            onClick={handleSubmit}
+          >
+            Configure LLM Integration
+          </button>
+
+          <p className="text-xs text-gray-500">
+            Note: Since this is a future integration, controls are UI-only for now.
+            Wire them to your API when backend is ready.
           </p>
         </div>
       </div>
-
-      {/* Feedback Categories Section */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-6">Feedback Categories</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Email Notifications */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <span className="text-gray-700 font-medium">Email Notifications</span>
-            <Toggle
-              checked={settings.emailNotifications}
-              onChange={(checked) => onSettingsChange({ ...settings, emailNotifications: checked })}
-            />
-          </div>
-
-          {/* Push Notifications */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <span className="text-gray-700 font-medium">Push Notifications</span>
-            <Toggle
-              checked={settings.pushNotifications}
-              onChange={(checked) => onSettingsChange({ ...settings, pushNotifications: checked })}
-            />
-          </div>
-
-          {/* Content Quality */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <span className="text-gray-700 font-medium">Content Quality</span>
-            <Toggle
-              checked={settings.contentQuality}
-              onChange={(checked) => onSettingsChange({ ...settings, contentQuality: checked })}
-            />
-          </div>
-
-          {/* Grammar & Language */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <span className="text-gray-700 font-medium">Grammar & Language</span>
-            <Toggle
-              checked={settings.grammarLanguage}
-              onChange={(checked) => onSettingsChange({ ...settings, grammarLanguage: checked })}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Response Time Target Section */}
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Responsive time target</h3>
-        <div className="relative">
-          <select
-            value={settings.responseTime}
-            onChange={(e) => onSettingsChange({ ...settings, responseTime: e.target.value })}
-            className="w-full md:w-64 px-4 py-3 border border-green-300 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none cursor-pointer"
-            style={{ borderColor: COLORS.GREEN_PRIMARY }}
-          >
-            <option value="">select response time</option>
-            <option value="instant">Instant (0-5 seconds)</option>
-            <option value="fast">Fast (5-30 seconds)</option>
-            <option value="normal">Normal (30 seconds - 2 minutes)</option>
-            <option value="thorough">Thorough (2-5 minutes)</option>
-          </select>
-          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      {/* Configure LLM Integration Button */}
-      <div className="flex justify-center">
-        <PrimaryButton
-          onClick={handleSubmit}
-          className="px-8 py-4 text-lg font-semibold rounded-lg transition-all duration-200 hover:shadow-lg"
-          style={{
-            backgroundColor: COLORS.GREEN_PRIMARY,
-            color: 'white',
-            minWidth: '280px'
-          }}
-        >
-          Configure LLM Integration
-        </PrimaryButton>
-      </div>
     </div>
-  )
-}
+  );
+};
 
-// ===== MAIN COMPONENT =====
+// ========= Page wrapper (kept exactly like your structure) =========
 const ResumeFeedback = () => {
-  // State management for feedback settings
   const [settings, setSettings] = useState({
     emailNotifications: true,
     pushNotifications: true,
     contentQuality: true,
     grammarLanguage: true,
-    responseTime: ''
-  })
+    responseTime: "",
+  });
 
-  const handleSettingsChange = (newSettings) => {
-    setSettings(newSettings)
-  }
+  const handleSettingsChange = (newSettings) => setSettings(newSettings);
 
   const handleUpdateSettings = (updatedSettings) => {
-    // In a real app, this would call an API
-    console.log('Updated settings:', updatedSettings)
-    alert('Settings updated successfully!')
-  }
+    // Hook up to API later
+    console.log("Updated settings:", updatedSettings);
+    alert("Settings updated successfully!");
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Single Card Layout */}
-        <AIResumeFeedbackCard 
-          settings={settings} 
-          onSettingsChange={handleSettingsChange}
-          onUpdateSettings={handleUpdateSettings}
-        />
-      </div>
+    <div className="space-y-4 sm:space-y-6">
+      <AIResumeFeedbackCard
+        settings={settings}
+        onSettingsChange={handleSettingsChange}
+        onUpdateSettings={handleUpdateSettings}
+      />
     </div>
-  )
-}
+  );
+};
 
-export default ResumeFeedback
+export default ResumeFeedback;

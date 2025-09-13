@@ -4,7 +4,9 @@ import NavigationTabs from '../../../../shared/components/navigation'
 import CMSEditor from './cms_editor'
 import SEOSetting from './seo_setting'
 import BrandingConfig from './branding_config'
-import {
+import AppVersionMonitor from './app_version'
+import ApiKeyWebhookControl from './api_key'
+import {  
   LuUsers,
   LuPlus,
   LuLayers,
@@ -52,19 +54,9 @@ export default function SystemSetting() {
       case 'branding-config':
         return <BrandingConfig />
       case 'app-version':
-        return (
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">App Version Monitor</h3>
-            <p className="text-gray-600">Monitor and manage application versions and updates.</p>
-          </div>
-        )
+        return <AppVersionMonitor />
       case 'api-key':
-        return (
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">API Key & Webhook Control</h3>
-            <p className="text-gray-600">Manage API keys, webhooks, and integration settings.</p>
-          </div>
-        )
+        return <ApiKeyWebhookControl />
       default:
         return null
     }

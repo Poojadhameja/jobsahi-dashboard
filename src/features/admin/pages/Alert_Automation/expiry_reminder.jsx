@@ -23,76 +23,64 @@ const Toggle = ({ checked, onChange, label }) => (
   </label>
 )
 
-// Plan Expiry Settings Card
-const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) => {
-  const reminderDaysOptions = [
-    { value: '1', label: '1 day' },
-    { value: '3', label: '3 days' },
-    { value: '7', label: '7 days' },
-    { value: '14', label: '14 days' },
-    { value: '30', label: '30 days' }
-  ]
+// Spam Detection Rules Card Component
+const SpamDetectionRules = ({ rules, onRulesChange, onUpdateRules }) => {
+  const { keywords, minLength, autoFlag, flagInactive } = rules
 
   const handleSubmit = () => {
-    onUpdateSettings(settings)
+    onUpdateRules(rules)
   }
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full h-96 flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-[#5C9A24] text-lg">🔔</span>
-        <h2 className="text-lg font-semibold text-[#0B537D]">Plan Expiry Settings</h2>
+        <span className="text-[#5C9A24] text-lg">🚩</span>
+        <h2 className="text-lg font-semibold text-[#0B537D]">Spam Detection Rules</h2>
       </div>
-      <p className="text-sm text-gray-600 mb-6">Configure automatic reminders for plan expiration</p>
-      
+      <p className="text-sm text-gray-600 mb-6">Configure automatic job spam detection</p>
+
       {/* Form Content */}
-      <div className="space-y-1 flex-1">
-        {/* Reminder Days Dropdown */}
+      <div className="space-y-2 flex-1">
+        {/* Keywords Filter */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Reminder Days Before Expiry
+            Keywords Filters
           </label>
-          <div className="relative">
-            <select
-              value={settings.reminderDays}
-              onChange={(e) => onSettingsChange({ ...settings, reminderDays: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent appearance-none bg-white pr-8 text-sm"
-            >
-              <option value="">select days</option>
-              {reminderDaysOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
+          <input
+            type="text"
+            value={keywords}
+            onChange={(e) => onRulesChange({ ...rules, keywords: e.target.value })}
+            placeholder="Enter spam keywords (comma separated)"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent text-sm"
+          />
         </div>
 
-        {/* Email Template */}
+        {/* Minimum Length */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Email Template
+            Minimum Description Length
           </label>
-          <textarea
-            value={settings.emailTemplate}
-            onChange={(e) => onSettingsChange({ ...settings, emailTemplate: e.target.value })}
-            placeholder="your plan expired in days. Renew now to continue..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent resize-none h-20 text-sm"
+          <input
+            type="number"
+            value={minLength}
+            onChange={(e) => onRulesChange({ ...rules, minLength: e.target.value })}
+            placeholder="50"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent text-sm"
           />
         </div>
 
         {/* Toggle Switches */}
         <div className="space-y-2 pt-2">
           <Toggle 
-            checked={settings.enableReminders} 
-            onChange={(checked) => onSettingsChange({ ...settings, enableReminders: checked })} 
-            label="Enable automatic reminders" 
+            checked={autoFlag} 
+            onChange={(checked) => onRulesChange({ ...rules, autoFlag: checked })} 
+            label="Auto-flag suspicious posts" 
+          />
+          <Toggle 
+            checked={flagInactive} 
+            onChange={(checked) => onRulesChange({ ...rules, flagInactive: checked })} 
+            label="Flag inactive user posts" 
           />
         </div>
 
@@ -102,7 +90,7 @@ const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) =>
             onClick={handleSubmit}
             className="bg-[#5C9A24] hover:bg-[#4A7D1A] text-white px-4 py-2 rounded-lg text-sm font-medium"
           >
-            Save Settings
+            Save Rules
           </PrimaryButton>
         </div>
       </div>
@@ -110,20 +98,20 @@ const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) =>
   )
 }
 
-// Recent Expiry Alerts Card
-const RecentExpiryAlerts = ({ alerts, onReviewAlert }) => {
+// Flagged Items Review Card
+const FlaggedItemsReview = ({ flaggedItems, onReviewItem }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full h-96 flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-[#5C9A24] text-lg">🔔</span>
-        <h2 className="text-lg font-semibold text-[#0B537D]">Recent Expiry Alerts</h2>
+        <span className="text-[#5C9A24] text-lg">🚩</span>
+        <h2 className="text-lg font-semibold text-[#0B537D]">Flagged Items Review</h2>
       </div>
-      <p className="text-sm text-gray-600 mb-6">Latest plan expiration notifications</p>
+      <p className="text-sm text-gray-600 mb-6">Review and manage flagged content</p>
 
-      {/* Alerts List */}
+      {/* Flagged Items List */}
       <div className="space-y-4 flex-1 overflow-y-auto">
-        {alerts.map((alert, index) => (
+        {flaggedItems.map((item, index) => (
           <div 
             key={index} 
             className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
@@ -131,10 +119,10 @@ const RecentExpiryAlerts = ({ alerts, onReviewAlert }) => {
             {/* Content */}
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
-                {alert.name}
+                {item.title}
               </p>
               <p className="text-xs text-gray-600 truncate">
-                {alert.details}
+                {item.reason}
               </p>
             </div>
 
@@ -143,18 +131,18 @@ const RecentExpiryAlerts = ({ alerts, onReviewAlert }) => {
               {/* Status Badge */}
               <span
                 className={`px-3 py-1 text-xs font-medium rounded-full ${
-                  alert.status === 'Reviewed' 
+                  item.status === 'Approved' 
                     ? 'bg-white border border-[#5C9A24] text-[#5C9A24]' 
                     : 'bg-[#5C9A24] text-white'
                 }`}
               >
-                {alert.status}
+                {item.status}
               </span>
               
               {/* Review Button */}
-              {alert.status === 'Sent' && (
+              {item.status === 'Flagged' && (
                 <OutlineButton 
-                  onClick={() => onReviewAlert(index)}
+                  onClick={() => onReviewItem(index)}
                   className="border-[#5C9A24] text-[#5C9A24] hover:bg-[rgba(92,154,36,0.1)] px-3 py-1 text-xs font-medium rounded-lg"
                 >
                   Review
@@ -168,53 +156,54 @@ const RecentExpiryAlerts = ({ alerts, onReviewAlert }) => {
   )
 }
 
-// Main Component
+// Main ExpiryReminder Component
 const ExpiryReminder = () => {
-  // State management for plan expiry settings
-  const [settings, setSettings] = useState({
-    reminderDays: '7',
-    emailTemplate: 'your plan expired in days. Renew now to continue...',
-    enableReminders: true
+  // State management for spam detection rules
+  const [rules, setRules] = useState({
+    keywords: 'spam, fake, scam, urgent',
+    minLength: '50',
+    autoFlag: true,
+    flagInactive: false
   })
 
-  // Sample alerts data
-  const [alerts, setAlerts] = useState([
+  // Sample flagged items data
+  const [flaggedItems, setFlaggedItems] = useState([
     {
-      name: "Rahul Singh",
-      details: "Premium plan expires in 7 days",
-      status: "Sent"
+      title: "URGENT: High Paying Job - No Experience Required",
+      reason: "Contains spam keywords",
+      status: "Flagged"
     },
     {
-      name: "Rahul Singh", 
-      details: "Basic plan expires in 7 days",
-      status: "Reviewed"
+      title: "Software Engineer Position", 
+      reason: "Approved by admin",
+      status: "Approved"
     },
     {
-      name: "Rahul Singh",
-      details: "Pro plan expires in 7 days", 
-      status: "Sent"
+      title: "Work from home - Earn $5000 daily",
+      reason: "Suspicious content",
+      status: "Flagged"
     }
   ])
 
-  const handleSettingsChange = (newSettings) => {
-    setSettings(newSettings)
+  const handleRulesChange = (newRules) => {
+    setRules(newRules)
   }
 
-  const handleUpdateSettings = (updatedSettings) => {
+  const handleUpdateRules = (updatedRules) => {
     // In a real app, this would call an API
-    console.log('Updated settings:', updatedSettings)
-    alert('Settings updated successfully!')
+    console.log('Updated rules:', updatedRules)
+    alert('Rules updated successfully!')
   }
 
-  const handleReviewAlert = (alertIndex) => {
-    setAlerts(prev => 
-      prev.map((alert, index) => 
-        index === alertIndex 
-          ? { ...alert, status: alert.status === 'Sent' ? 'Reviewed' : 'Sent' }
-          : alert
+  const handleReviewItem = (itemIndex) => {
+    setFlaggedItems(prev => 
+      prev.map((item, index) => 
+        index === itemIndex 
+          ? { ...item, status: item.status === 'Flagged' ? 'Approved' : 'Flagged' }
+          : item
       )
     )
-    console.log('Reviewing alert:', alertIndex)
+    console.log('Reviewing item:', itemIndex)
   }
 
   return (
@@ -222,20 +211,20 @@ const ExpiryReminder = () => {
       <div className="max-w-7xl mx-auto">
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Column - Plan Expiry Settings */}
+          {/* Left Column - Spam Detection Rules */}
           <div>
-            <PlanExpirySettings 
-              settings={settings} 
-              onSettingsChange={handleSettingsChange}
-              onUpdateSettings={handleUpdateSettings}
+            <SpamDetectionRules 
+              rules={rules} 
+              onRulesChange={handleRulesChange}
+              onUpdateRules={handleUpdateRules}
             />
           </div>
 
-          {/* Right Column - Recent Expiry Alerts */}
+          {/* Right Column - Flagged Items Review */}
           <div>
-            <RecentExpiryAlerts 
-              alerts={alerts}
-              onReviewAlert={handleReviewAlert}
+            <FlaggedItemsReview 
+              flaggedItems={flaggedItems}
+              onReviewItem={handleReviewItem}
             />
           </div>
         </div>

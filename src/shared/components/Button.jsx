@@ -422,6 +422,70 @@ export const ViewCampaignButton = ({ onClick, className = '', ...props }) => (
   />
 );
 
+// System Settings Buttons
+export const SaveButton = ({ 
+  onClick, 
+  loading = false, 
+  savedTick = false, 
+  disabled = false, 
+  className = '', 
+  children = 'Save',
+  ...props 
+}) => (
+  <div className="relative">
+    <Button
+      onClick={onClick}
+      disabled={disabled || loading}
+      loading={loading}
+      variant="primary"
+      size="md"
+      fullWidth
+      className={`${className}`}
+      style={{ 
+        backgroundColor: COLORS?.GREEN_PRIMARY || '#059669',
+        opacity: loading ? 0.7 : 1
+      }}
+      {...props}
+    >
+      {children}
+    </Button>
+    {savedTick && (
+      <div className="absolute inset-y-0 right-3 flex items-center">
+        <svg className="h-5 w-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+    )}
+  </div>
+);
+
+export const BackToOverviewButton = ({ 
+  onClick, 
+  className = '', 
+  children = 'Back to overview',
+  ...props 
+}) => (
+  <Button
+    onClick={onClick}
+    variant="light"
+    size="sm"
+    className={`rounded-full bg-white hover:bg-emerald-50 text-emerald-700 border px-4 py-2 font-medium flex items-center gap-2 ${className}`}
+    style={{ borderColor: COLORS?.GREEN_PRIMARY || '#059669' }}
+    icon={
+      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+    }
+    {...props}
+  >
+    {children}
+  </Button>
+);
+
+// CMS Editor specific buttons
+export const CMSSaveButton = SaveButton;
+export const CMSBackButton = BackToOverviewButton;
+
 export default Button;
 
 
