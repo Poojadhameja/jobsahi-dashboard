@@ -1,6 +1,6 @@
 import React from 'react'
 import { TAILWIND_COLORS } from '../../../shared/WebConstant.js'
-import MetricCard, { MatrixCard } from '../components/metricCard.jsx'
+import MetricCard, { MatrixCard, Horizontal4Cards } from '../components/metricCard.jsx'
 import { Line, Doughnut } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -47,10 +47,10 @@ function PlacementSuccess() {
 
 export default function Dashboard() {
   const overview = [
-    { title:'Total Students', count:'15,847', icon:<LuGraduationCap className="w-6 h-6" /> },
-    { title:'Applied Job', count:'2,456', icon:<LuBriefcase className="w-6 h-6" /> },
-    { title:'Interview Job', count:'342', icon:<LuUserCheck className="w-6 h-6" /> },
-    { title:'Active Jobs', count:'23,891', icon:<LuTrendingUp className="w-6 h-6" /> },
+    { title:'Total Students', value:'15,847', icon:<LuGraduationCap className="w-5 h-5" /> },
+    { title:'Applied Job', value:'2,456', icon:<LuBriefcase className="w-5 h-5" /> },
+    { title:'Interview Job', value:'342', icon:<LuUserCheck className="w-5 h-5" /> },
+    { title:'Active Jobs', value:'23,891', icon:<LuTrendingUp className="w-5 h-5" /> },
   ]
 
   const lineData = {
@@ -96,24 +96,12 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="text-center px-2 sm:px-0">
-        <h1 className={`text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} break-words`}>Dashboard Overview</h1>
-        <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1 break-words">Monitor your platform's key metrics and performance</p>
-      </div>
+      <MatrixCard 
+        title="Dashboard Overview"
+        subtitle="Monitor your platform's key metrics and performance"
+      />
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {overview.map((o)=>(
-          <MetricCard
-            key={o.title}
-            title={o.title}
-            count={o.count}
-            icon={o.icon}
-            iconBgColor="bg-blue-50"
-            iconColor="text-blue-600"
-            className=""
-          />
-        ))}
-      </section>
+      <Horizontal4Cards data={overview} />
 
       <PlacementSuccess />
 

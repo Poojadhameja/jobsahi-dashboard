@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import {
-  LuCircleUser,
   LuArrowLeft,
   LuCheck,
   LuCircleDot,
 } from 'react-icons/lu';
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant';
-import Button, { BackToOverviewButton } from '../../../../shared/components/Button';
+import { PrimaryButton } from '../../../../shared/components/Button';
 
 const CMSEditor = () => {
   // State for each page
@@ -54,7 +53,7 @@ const CMSEditor = () => {
     const isPublished = status === "Published";
     return (
       <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium ${
-        isPublished ? "bg-blue-100 text-blue-700" : "bg-blue-100 text-blue-700"
+        isPublished ? "bg-blue-600 text-white" : "bg-blue-600 text-white"
       }`}>
         {isPublished ? <LuCheck className="h-3 w-3" /> : <LuCircleDot className="h-3 w-3" />}
         {status}
@@ -71,21 +70,21 @@ const CMSEditor = () => {
     pageData, 
     pageType 
   }) => (
-    <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 h-fit">
+    <div className="bg-white border border-[#0b537d2c] rounded-lg shadow-sm p-6 h-fit">
       {/* Card Header */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
-          <h3 className="text-slate-900 font-semibold mb-1">{title}</h3>
-          <p className="text-sm text-slate-600">Last updated {lastUpdated}</p>
+          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>{title}</h3>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Last updated {lastUpdated}</p>
         </div>
         <StatusBadge status={status} />
       </div>
 
       {/* Form Fields */}
-      <div className="space-y-5">
+      <div className="space-y-6">
         {/* Page Title Field */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Page title</label>
+        <div className="space-y-2">
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Page title</label>
           <input
             type="text"
             value={pageData.title}
@@ -95,13 +94,13 @@ const CMSEditor = () => {
               setter(prev => ({ ...prev, title: e.target.value }));
             }}
             placeholder={titlePlaceholder}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+            className="w-full h-12 px-4 py-3 border border-[#0b537d2c] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
           />
         </div>
 
         {/* Content Field */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Content Preview</label>
+        <div className="space-y-2">
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Content Preview</label>
           <textarea
             rows={6}
             value={pageData.content}
@@ -111,60 +110,52 @@ const CMSEditor = () => {
               setter(prev => ({ ...prev, content: e.target.value }));
             }}
             placeholder={contentPlaceholder}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200 resize-none"
+            className="w-full h-32 px-4 py-3 border border-[#0b537d2c] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none"
           />
         </div>
 
         {/* Save Button */}
-        <div className="relative">
-          <button
+        <div className="pt-2">
+          <PrimaryButton
             onClick={() => handleSave(pageType, { title: pageData.title, content: pageData.content })}
             disabled={pageData.isSaving}
-            className="w-full rounded-lg px-4 py-2 font-medium flex items-center justify-center text-white"
-            style={{ 
-              backgroundColor: COLORS?.GREEN_PRIMARY || '#059669',
-              opacity: pageData.isSaving ? 0.7 : 1
-            }}
+            className="w-full h-12 bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg text-sm font-medium"
           >
             {pageData.isSaving ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             ) : (
               'Save'
             )}
-          </button>
-          {pageData.savedTick && (
-            <div className="absolute inset-y-0 right-3 flex items-center">
-              <LuCheck className="h-5 w-5 text-green-700" />
-            </div>
-          )}
+          </PrimaryButton>
         </div>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
       {/* Header Section */}
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div
-              className="h-8 w-8 rounded-full flex items-center justify-center mt-0.5"
-              style={{ backgroundColor: COLORS?.GREEN_PRIMARY || '#059669' }}
-            >
-              <LuCircleUser className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">CMS Editor</h2>
-              <p className="text-sm text-slate-600">About, Terms, Policy</p>
-            </div>
+      <div className="flex items-start bg-white p-4 border border-[#0b537d2c] rounded-lg justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
+            <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
           </div>
-
-          {/* Back to overview (pill) */}
-          <BackToOverviewButton
-            onClick={() => window.history.back()}
-          />
+          <div>
+            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>CMS Editor</h2>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>About, Terms, Policy</p>
+          </div>
         </div>
+
+        {/* Back to overview button */}
+        <PrimaryButton
+          onClick={() => window.history.back()}
+          className="h-10 px-4 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-sm font-medium"
+          icon={<LuArrowLeft className="w-4 h-4" />}
+        >
+          Back to overview
+        </PrimaryButton>
       </div>
 
       {/* Cards Grid */}

@@ -3,115 +3,92 @@ import {
   LuArrowUpRight,
   LuUpload,
   LuMonitor,
+  LuArrowLeft,
 } from 'react-icons/lu';
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant';
-import Button, { BackToOverviewButton } from '../../../../shared/components/Button';
+import { PrimaryButton } from '../../../../shared/components/Button';
+import { Horizontal4Cards } from '../../components/metricCard';
 
 export default function AppVersionMonitor() {
   const [autoUpdates, setAutoUpdates] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
   const [fileUsage] = useState(78); // percent
 
-  const stats = [
+  const metrics = [
     {
-      id: "logo",
       title: "Main Logo",
       value: "200 x 60px",
-      actionIcon: <LuUpload className="h-5 w-5" style={{ color: COLORS?.GREEN_PRIMARY || '#059669' }} />,
+      icon: <LuUpload className="h-5 w-5" />,
     },
     {
-      id: "version",
       title: "Current Version",
       value: "V2.1.4",
-      actionIcon: <LuArrowUpRight className="h-5 w-5" style={{ color: COLORS?.GREEN_PRIMARY || '#059669' }} />,
+      icon: <LuArrowUpRight className="h-5 w-5" />,
     },
     {
-      id: "users",
       title: "Active Users",
       value: "1,234",
-      actionIcon: <LuArrowUpRight className="h-5 w-5" style={{ color: COLORS?.GREEN_PRIMARY || '#059669' }} />,
+      icon: <LuArrowUpRight className="h-5 w-5" />,
     },
     {
-      id: "uptime",
       title: "Uptime",
       value: "99.9%",
-      actionIcon: <LuArrowUpRight className="h-5 w-5" style={{ color: COLORS?.GREEN_PRIMARY || '#059669' }} />,
+      icon: <LuArrowUpRight className="h-5 w-5" />,
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
       {/* Header Section */}
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div
-              className="h-8 w-8 rounded-full flex items-center justify-center mt-0.5"
-              style={{ backgroundColor: COLORS?.GREEN_PRIMARY || '#059669' }}
-            >
-              <LuMonitor className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">App Version Monitor</h2>
-              <p className="text-sm text-slate-600">System health & updates</p>
-            </div>
+      <div className="flex items-start bg-white p-4 border border-[#0b537d2c] rounded-lg justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
+            <LuMonitor className="h-4 w-4 text-green-600" />
           </div>
-
-          {/* Back to overview (pill) */}
-          <BackToOverviewButton
-            onClick={() => window.history.back()}
-          />
+          <div>
+            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>App Version Monitor</h2>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>System health & updates</p>
+          </div>
         </div>
 
-        {/* Stat cards */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-          {stats.map((s) => (
-            <div
-              key={s.id}
-              className="bg-white border border-slate-200 rounded-xl p-5 flex items-start justify-between"
-            >
-              <div>
-                <p className="text-sm text-slate-600">{s.title}</p>
-                <p className="text-xl font-semibold text-slate-900 mt-1">
-                  {s.value}
-                </p>
-              </div>
-              <div 
-                className="h-9 w-9 rounded-lg grid place-items-center"
-                style={{ backgroundColor: 'rgba(92,154,36,0.1)' }}
-              >
-                {s.actionIcon}
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Back to overview button */}
+        <PrimaryButton
+          onClick={() => window.history.back()}
+          className="h-10 px-4 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-sm font-medium"
+          icon={<LuArrowLeft className="w-4 h-4" />}
+        >
+          Back to overview
+        </PrimaryButton>
       </div>
 
-      {/* Lower cards */}
+      {/* Metrics Cards */}
+      <Horizontal4Cards data={metrics} />
+
+      {/* System Health & Update Management */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* System Health */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
-          <h3 className="text-slate-900 font-semibold">System Health</h3>
-          <p className="text-sm text-slate-600 mb-4">
-            Real-time system monitoring
-          </p>
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+          <div className="mb-6">
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>System Health</h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Real-time system monitoring</p>
+          </div>
 
-          <div className="space-y-3">
-            <HealthRow label="Database" status="Healthy" tone="emerald" />
-            <HealthRow label="API Services" status="Operational" tone="emerald" />
-            <HealthRow label="Cache layer" status="Optimal" tone="emerald" />
+          <div className="space-y-4">
+            <HealthRow label="Database" status="Healthy" />
+            <HealthRow label="API Services" status="Operational" />
+            <HealthRow label="Cache layer" status="Optimal" />
 
             {/* File storage with progress */}
-            <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2.5">
-                <span className="text-sm text-slate-700">File Storage</span>
-                <span className="inline-flex items-center rounded-full bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-1">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>File Storage</span>
+                <span className="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-1">
                   {fileUsage}% Used
                 </span>
               </div>
-              <div className="h-2 bg-slate-100">
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className="h-2 bg-amber-400"
+                  className="h-2 bg-yellow-400 rounded-full transition-all duration-300"
                   style={{ width: `${fileUsage}%` }}
                 />
               </div>
@@ -120,13 +97,13 @@ export default function AppVersionMonitor() {
         </div>
 
         {/* Update Management */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
-          <h3 className="text-slate-900 font-semibold">Update Management</h3>
-          <p className="text-sm text-slate-600 mb-4">
-            System updates and maintenance
-          </p>
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+          <div className="mb-6">
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Update Management</h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>System updates and maintenance</p>
+          </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             <SettingTile
               title="Automatic Updates"
               subtitle="Enable automatic system updates"
@@ -141,18 +118,11 @@ export default function AppVersionMonitor() {
             />
           </div>
 
-          <Button
-            variant="primary"
-            size="lg"
-            fullWidth
-            className="mt-5"
-            style={{
-              backgroundColor: COLORS?.GREEN_PRIMARY || '#059669',
-              borderColor: COLORS?.GREEN_PRIMARY || '#059669'
-            }}
+          <PrimaryButton
+            className="w-full mt-6 bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg py-3 font-medium"
           >
             Check for Updates
-          </Button>
+          </PrimaryButton>
         </div>
       </div>
     </div>

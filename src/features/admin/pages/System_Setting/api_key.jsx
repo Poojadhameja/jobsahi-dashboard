@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { LuKey, LuRefreshCw } from 'react-icons/lu';
+import { LuKey, LuRefreshCw, LuArrowLeft } from 'react-icons/lu';
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant';
-import Button, { BackToOverviewButton } from '../../../../shared/components/Button';
+import { PrimaryButton } from '../../../../shared/components/Button';
 
 /* Small reusable toggle */
 const ToggleSwitch = ({ checked, onChange }) => (
@@ -28,13 +28,13 @@ const ToggleSwitch = ({ checked, onChange }) => (
 const StatusPill = ({ active, onClick }) => (
   <button
     onClick={onClick}
-    className={`px-3 py-1 rounded-full text-xs font-semibold border ${
+    className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors duration-200 ${
       active
-        ? "text-white border-emerald-600"
-        : "bg-slate-100 text-slate-700 border-slate-200"
+        ? "text-white border-[#5B9821]"
+        : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"
     }`}
     style={{
-      backgroundColor: active ? COLORS?.GREEN_PRIMARY || '#059669' : undefined
+      backgroundColor: active ? '#5B9821' : undefined
     }}
     type="button"
   >
@@ -80,177 +80,161 @@ export default function ApiKeyWebhookControl() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
       {/* Header Section */}
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div
-              className="h-8 w-8 rounded-full flex items-center justify-center mt-0.5"
-              style={{ backgroundColor: COLORS?.GREEN_PRIMARY || '#059669' }}
-            >
-              <LuKey className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">API Key & Webhook Control</h2>
-              <p className="text-sm text-slate-600">Integration controls</p>
-            </div>
+      <div className="flex items-start bg-white p-4 border border-[#0b537d2c] rounded-lg justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
+            <LuKey className="h-4 w-4 text-green-600" />
           </div>
-
-          {/* Back to overview (pill) */}
-          <BackToOverviewButton
-            onClick={() => window.history.back()}
-          />
+          <div>
+            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>API Key & Webhook Control</h2>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Integration controls</p>
+          </div>
         </div>
 
-        {/* Two columns */}
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* API Key Management */}
-          <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <h3 className="text-slate-900 font-semibold">API Key Management</h3>
-            <p className="text-sm text-slate-600 mb-4">
-              Manage API keys for third-party integrations
-            </p>
+        {/* Back to overview button */}
+        <PrimaryButton
+          onClick={() => window.history.back()}
+          className="h-10 px-4 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-sm font-medium"
+          icon={<LuArrowLeft className="w-4 h-4" />}
+        >
+          Back to overview
+        </PrimaryButton>
+      </div>
 
-            {/* Application Name (masked key) */}
-            <div className="rounded-xl border border-slate-200 bg-white p-3 mb-4">
+      {/* API Key Management & Webhook Configuration */}
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* API Key Management */}
+          <div className="space-y-6">
+            <div>
+              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>API Key Management</h3>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Manage API keys for third-party integrations</p>
+            </div>
+
+            {/* Application Name */}
+            <div className="space-y-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Application Name</label>
               <div className="flex items-center gap-3">
-                <div className="flex-1">
-                  <label className="block text-sm text-gray-700 mb-1">
-                    Application Name
-                  </label>
-                  <input
-                    value={apiKey}
-                    disabled
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-gray-700"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Last used : {lastUsed}
-                  </p>
-                </div>
+                <input
+                  value={apiKey}
+                  disabled
+                  className="flex-1 h-12 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                />
                 <div className="flex flex-col items-end gap-2">
                   <StatusPill
                     active={apiKeyActive}
                     onClick={() => setApiKeyActive((v) => !v)}
                   />
-                  <Button
+                  <PrimaryButton
                     onClick={handleRegenerateApi}
-                    variant="outline"
-                    size="sm"
-                    className="px-3 py-1.5"
-                    style={{
-                      borderColor: COLORS?.GREEN_PRIMARY || '#059669',
-                      color: COLORS?.GREEN_PRIMARY || '#059669'
-                    }}
-                    icon={<LuRefreshCw className="h-4 w-4" />}
-                    title="Regenerate"
+                    className="h-8 px-3 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-xs font-medium"
+                    icon={<LuRefreshCw className="h-3 w-3" />}
                   >
                     Regenerate
-                  </Button>
+                  </PrimaryButton>
                 </div>
               </div>
+              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Last used: {lastUsed}</p>
             </div>
 
             {/* Webhook Secret */}
-            <div className="rounded-xl border border-slate-200 bg-white p-3">
+            <div className="space-y-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Webhook Secret</label>
               <div className="flex items-center gap-3">
-                <div className="flex-1">
-                  <label className="block text-sm text-gray-700 mb-1">
-                    Webhook Secret
-                  </label>
-                  <input
-                    value={webhookSecret}
-                    disabled
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-gray-700"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Created: {createdAt}
-                  </p>
-                </div>
+                <input
+                  value={webhookSecret}
+                  disabled
+                  className="flex-1 h-12 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                />
                 <div className="flex flex-col items-end gap-2">
                   <StatusPill
                     active={secretActive}
                     onClick={() => setSecretActive((v) => !v)}
                   />
-                  <Button
+                  <PrimaryButton
                     onClick={handleRegenerateSecret}
-                    variant="outline"
-                    size="sm"
-                    className="px-3 py-1.5"
-                    style={{
-                      borderColor: COLORS?.GREEN_PRIMARY || '#059669',
-                      color: COLORS?.GREEN_PRIMARY || '#059669'
-                    }}
-                    icon={<LuRefreshCw className="h-4 w-4" />}
-                    title="Regenerate"
+                    className="h-8 px-3 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-xs font-medium"
+                    icon={<LuRefreshCw className="h-3 w-3" />}
                   >
                     Regenerate
-                  </Button>
+                  </PrimaryButton>
                 </div>
               </div>
+              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Created: {createdAt}</p>
             </div>
           </div>
 
           {/* Webhook Configuration */}
-          <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <h3 className="text-slate-900 font-semibold">
-              Webhook Configuration
-            </h3>
-            <p className="text-sm text-slate-600 mb-4">
-              Configure webhook endpoints
-            </p>
+          <div className="space-y-6">
+            <div>
+              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Webhook Configuration</h3>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Configure webhook endpoints</p>
+            </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Webhook URL
-              </label>
+            <div className="space-y-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>webhook url</label>
               <input
                 value={webhookUrl}
                 onChange={(e) => setWebhookUrl(e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
-                placeholder="https://example.com/webhooks"
+                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                placeholder="https://jobsahiapp.com/webhooks"
               />
             </div>
 
-            <p className="text-sm font-medium text-slate-700 mb-2">Events to Subscribe</p>
-            <div className="space-y-2">
-              {[
-                ["Job created", "jobCreated"],
-                ["Application Received", "applicationReceived"],
-                ["User Registered", "userRegistered"],
-                ["Payment Processed", "paymentProcessed"],
-              ].map(([label, key]) => (
-                <div
-                  key={key}
-                  className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2"
-                >
-                  <span className="text-sm text-gray-700">{label}</span>
-                  <ToggleSwitch
-                    checked={events[key]}
-                    onChange={(v) =>
-                      setEvents((prev) => ({ ...prev, [key]: v }))
-                    }
-                  />
-                </div>
-              ))}
+            <div className="space-y-4">
+              <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Events to Subscribe</p>
+              <div className="space-y-3">
+                {[
+                  ["Job created", "jobCreated"],
+                  ["Application Received", "applicationReceived"],
+                  ["User Registered", "userRegistered"],
+                  ["Payment Processed", "paymentProcessed"],
+                ].map(([label, key]) => (
+                  <div
+                    key={key}
+                    className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-4 py-3"
+                  >
+                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{label}</span>
+                    <ToggleSwitch
+                      checked={events[key]}
+                      onChange={(v) =>
+                        setEvents((prev) => ({ ...prev, [key]: v }))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Security Settings */}
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
-        <h3 className="text-slate-900 font-semibold">Security Settings</h3>
-        <p className="text-sm text-slate-600 mb-4">
-          Configure API security and access controls
-        </p>
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <div>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Security Settings</h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Configure API security and access controls</p>
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Rate Limiting tile */}
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center justify-between">
+          {/* Back to overview button */}
+          <PrimaryButton
+            onClick={() => window.history.back()}
+            className="h-10 px-4 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-sm font-medium"
+            icon={<LuArrowLeft className="w-4 h-4" />}
+          >
+            Back to overview
+          </PrimaryButton>
+        </div>
+
+        <div className="space-y-4">
+          {/* Rate Limiting */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-700">Rate Limiting</p>
-              <p className="text-xs text-slate-500">1000 requests/hour</p>
+              <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Rate Limiting</p>
+              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>1000 requests/hour</p>
             </div>
             <ToggleSwitch
               checked={rateLimitEnabled}
@@ -258,32 +242,26 @@ export default function ApiKeyWebhookControl() {
             />
           </div>
 
-          {/* IP Whitelisting tile */}
-          <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center justify-between">
+          {/* IP Whitelisting */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-700">IP Whitelisting</p>
-              <p className="text-xs text-slate-500">Restrict by IP address</p>
+              <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>IP Whitelisting</p>
+              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Restrict by IP address</p>
             </div>
             <ToggleSwitch
               checked={ipWhitelistEnabled}
               onChange={setIpWhitelistEnabled}
             />
           </div>
-        </div>
 
-        {/* Allowed origins list */}
-        <div className="mt-5">
-          <p className="text-sm font-medium text-slate-700 mb-2">Allowed origins</p>
-          <div className="rounded-xl border border-slate-200 bg-white p-4">
-            <p className="text-sm text-slate-600">https://yourdomain.com</p>
-            <p className="text-sm text-slate-600">https://app.yourdomain.com</p>
+          {/* Allowed origins */}
+          <div className="space-y-2">
+            <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Allowed origins</p>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-1">
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>https://yourdomain.com</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>https://app.yourdomain.com</p>
+            </div>
           </div>
-        </div>
-
-        <div className="mt-6 flex justify-end">
-          <BackToOverviewButton
-            onClick={() => window.history.back()}
-          />
         </div>
       </div>
     </div>
