@@ -38,26 +38,30 @@ const CourseDeadlineSettings = ({ settings, onSettingsChange, onUpdateSettings }
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full h-96 flex flex-col">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-[#5C9A24] text-lg">🔔</span>
-        <h2 className="text-lg font-semibold text-[#0B537D]">Course Deadline Settings</h2>
+        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-[#5b9a242d]">
+          <svg className="w-3 h-3 text-[#5C9A24]" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+          </svg>
+        </div>
+        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course Deadline Settings</h2>
       </div>
-      <p className="text-sm text-gray-600 mb-6">Automatic alerts for course deadlines</p>
+      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Automatic alerts for course deadlines</p>
       
       {/* Form Content */}
-      <div className="space-y-1 flex-1">
+      <div className="space-y-6 flex-1">
         {/* Alert Schedule Dropdown */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="space-y-2">
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Alert Schedule
           </label>
           <div className="relative">
             <select
               value={settings.alertSchedule}
               onChange={(e) => onSettingsChange({ ...settings, alertSchedule: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent appearance-none bg-white pr-8 text-sm"
+              className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none appearance-none bg-white pr-9 text-sm"
             >
               <option value="">select alert timing</option>
               {alertScheduleOptions.map(option => (
@@ -74,43 +78,39 @@ const CourseDeadlineSettings = ({ settings, onSettingsChange, onUpdateSettings }
           </div>
         </div>
 
-        {/* Notifications */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Notifications
-          </label>
-          <div className="space-y-2">
-            <Toggle 
-              checked={settings.emailNotifications} 
-              onChange={(checked) => onSettingsChange({ ...settings, emailNotifications: checked })} 
-              label="Email Notifications" 
-            />
-            <Toggle 
-              checked={settings.pushNotifications} 
-              onChange={(checked) => onSettingsChange({ ...settings, pushNotifications: checked })} 
-              label="Push Notifications" 
-            />
-          </div>
+        {/* Notification Toggles */}
+        <div className="space-y-4">
+          <Toggle 
+            checked={settings.emailNotifications} 
+            onChange={(checked) => onSettingsChange({ ...settings, emailNotifications: checked })} 
+            label="Email Notifications" 
+          />
+          <Toggle 
+            checked={settings.pushNotifications} 
+            onChange={(checked) => onSettingsChange({ ...settings, pushNotifications: checked })} 
+            label="Push Notifications" 
+          />
         </div>
 
         {/* Message Template */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="space-y-2">
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Message Template
           </label>
-          <textarea
+          <input
+            type="text"
             value={settings.messageTemplate}
             onChange={(e) => onSettingsChange({ ...settings, messageTemplate: e.target.value })}
             placeholder="Reminder: your course (course_name) deadline is approaching"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent resize-none h-20 text-sm"
+            className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none text-sm"
           />
         </div>
 
         {/* Save Button */}
-        <div className="pt-2">
+        <div className="pt-4">
           <PrimaryButton 
             onClick={handleSubmit}
-            className="bg-[#5C9A24] hover:bg-[#4A7D1A] text-white px-4 py-2 rounded-lg text-sm font-medium w-full"
+            className="w-full h-12 bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg text-sm font-medium"
           >
             Save Alert Settings
           </PrimaryButton>
@@ -123,37 +123,41 @@ const CourseDeadlineSettings = ({ settings, onSettingsChange, onUpdateSettings }
 // Upcoming Deadlines Card
 const UpcomingDeadlines = ({ deadlines }) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full h-96 flex flex-col">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-[#5C9A24] text-lg">📅</span>
-        <h2 className="text-lg font-semibold text-[#0B537D]">Upcoming Deadlines</h2>
+        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-[#5b9a242d]">
+          <svg className="w-3 h-3 text-[#5C9A24]" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+          </svg>
+        </div>
+        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Upcoming Deadlines</h2>
       </div>
-      <p className="text-sm text-gray-600 mb-6">Courses with approaching deadlines</p>
+      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Courses with approaching deadlines</p>
 
       {/* Deadlines List */}
-      <div className="space-y-4 flex-1 overflow-y-auto">
+      <div className="space-y-3 flex-1">
         {deadlines.map((deadline, index) => (
           <div 
             key={index} 
-            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200"
           >
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                 {deadline.courseName}
-              </p>
-              <p className="text-xs text-gray-600 truncate">
+              </h3>
+              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
                 {deadline.studentCount} students - Deadlines in {deadline.deadline}
               </p>
             </div>
 
             {/* Status Badge */}
             <span
-              className={`px-3 py-1 text-xs font-medium rounded-full ${
+              className={`px-3 py-1 text-sm font-medium rounded-md whitespace-nowrap ${
                 deadline.status === 'alert sent' 
-                  ? 'bg-green-600 text-white' 
-                  : 'bg-green-50 text-green-700 border border-green-200'
+                  ? 'bg-[#5B9821] text-white' 
+                  : 'bg-[#5b9a242d] text-[#5C9A24] border border-green-200'
               }`}
             >
               {deadline.status}
@@ -178,19 +182,19 @@ const CourseAlerts = () => {
   // Sample deadlines data
   const [deadlines, setDeadlines] = useState([
     {
-      courseName: 'Digital Marketing Course',
+      courseName: 'Digital marketing Course',
       studentCount: 25,
       deadline: '1 week',
       status: 'alert sent'
     },
     {
-      courseName: 'Digital Marketing Course', 
+      courseName: 'Digital marketing Course', 
       studentCount: 25,
       deadline: '1 week',
       status: 'scheduled'
     },
     {
-      courseName: 'Digital Marketing Course',
+      courseName: 'Digital marketing Course',
       studentCount: 25,
       deadline: '1 week', 
       status: 'scheduled'
@@ -208,9 +212,9 @@ const CourseAlerts = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
       {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column - Course Deadline Settings */}
         <div>
           <CourseDeadlineSettings 

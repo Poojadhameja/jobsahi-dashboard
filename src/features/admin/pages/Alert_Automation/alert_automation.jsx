@@ -1,37 +1,28 @@
 import React, { useMemo, useState } from 'react'
-import MetricCard from '../../components/metricCard.jsx'
+import MetricCard, { MatrixCard, Horizontal4Cards } from '../../components/metricCard.jsx'
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
-import NavigationTabs from '../../../../shared/components/navigation.jsx'
+import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import ExpiryReminder from './expiry_reminder.jsx'
 import AutoFlagging from './auto_flagging.jsx'
 import ResumeFeedback from './resume_feedback.jsx'
 import CourseAlerts from './course_alerts.jsx'
 
-// Local, lightweight presentational atoms
-const StatCards = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <MetricCard title="Active Alerts" count="15" icon="⚠️" iconBgColor="bg-blue-100" iconColor="text-blue-600" />
-    <MetricCard title="Automation Rules" count="15" icon="⚙️" iconBgColor="bg-green-100" iconColor="text-green-600" />
-    <MetricCard title="Flagged Items" count="15" icon="🚩" iconBgColor="bg-purple-100" iconColor="text-purple-600" />
-    <MetricCard title="Success Rate" count="15%" icon="✅" iconBgColor="bg-orange-100" iconColor="text-orange-600" />
-  </div>
-)
+// Alert automation metrics data
+const alertMetrics = [
+  { title: "Active Alerts", value: "15", icon: "⚠️" },
+  { title: "Automation Rules", value: "15", icon: "⚙️" },
+  { title: "Flagged Items", value: "15", icon: "🚩" },
+  { title: "Success Rate", value: "15%", icon: "✅" }
+]
 
-const Toolbar = ({ active, setActive }) => {
-  const tabs = useMemo(() => [
-    { id: 'expiry', label: 'Expiry Reminders', icon: () => <span className="text-white">⏰</span> },
-    { id: 'auto-flag', label: 'Auto Flagging', icon: () => <span className="text-white">➕</span> },
-    { id: 'resume', label: 'Resume Feedback', icon: () => <span className="text-white">💬</span> },
-    { id: 'course', label: 'Course Alerts', icon: () => <span className="text-white">📊</span> },
-  ], [])
-
-  return (
-    <div className="w-full max-w-3xl mx-auto">
-      <NavigationTabs navigationTabs={tabs} activeNavTab={active} setActiveNavTab={setActive} />
-    </div>
-  )
-}
+// Navigation tabs configuration
+const navigationTabs = [
+  { id: 'expiry', label: 'Expiry Reminders', icon: () => <span className="text-lg">⏰</span> },
+  { id: 'auto-flag', label: 'Auto Flagging', icon: () => <span className="text-lg">➕</span> },
+  { id: 'resume', label: 'Resume Feedback', icon: () => <span className="text-lg">💬</span> },
+  { id: 'course', label: 'Course Alerts', icon: () => <span className="text-lg">📊</span> },
+]
 
 const Toggle = ({ checked, onChange, label }) => (
   <label className="flex items-center gap-3 cursor-pointer select-none">
@@ -51,17 +42,17 @@ const Toggle = ({ checked, onChange, label }) => (
 )
 
 const AlertsAutomation = () => {
-  const [activeToolbarTab, setActiveToolbarTab] = useState('expiry')
+  const [activeTab, setActiveTab] = useState(0)
 
   const renderActiveTab = () => {
-    switch (activeToolbarTab) {
-      case 'expiry':
+    switch (activeTab) {
+      case 0:
         return <ExpiryReminder />
-      case 'auto-flag':
+      case 1:
         return <AutoFlagging />
-      case 'resume':
+      case 2:
         return <ResumeFeedback />
-      case 'course':
+      case 3:
         return <CourseAlerts />
       default:
         return <ExpiryReminder />
@@ -70,16 +61,18 @@ const AlertsAutomation = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-center items-center">
-        <div className="text-center">
-          <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Alerts & Automation</h1>
-          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Manage automated alerts, flagging system, and notification workflows</p>
-        </div>
-      </div>
+      <MatrixCard 
+        title="Alerts & Automation"
+        subtitle="Manage automated alerts, flagging system, and notification workflows"
+      />
 
-      <StatCards />
+      <Horizontal4Cards data={alertMetrics} />
 
-      <Toolbar active={activeToolbarTab} setActive={setActiveToolbarTab} />
+      <PillNavigation 
+        tabs={navigationTabs} 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+      />
 
       {renderActiveTab()}
     </div>

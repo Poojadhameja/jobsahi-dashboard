@@ -165,7 +165,7 @@ export default function EmployerManagement() {
         <MatrixCard 
           title="Employer Management"
           subtitle="Comprehensive employer management system with approval work flows and analytics"
-          className="mb-6"
+          className=""
         />
         
         <div className="flex items-center justify-end gap-3">

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js'
-import NavigationTabs from '../../../../shared/components/navigation'
+import { PillNavigation } from '../../../../shared/components/navigation'
+import { MatrixCard } from '../../components/metricCard.jsx'
 import CMSEditor from './cms_editor'
 import SEOSetting from './seo_setting'
 import BrandingConfig from './branding_config'
@@ -15,7 +16,7 @@ import {
 } from 'react-icons/lu'
 
 export default function SystemSetting() {
-  const [activeTab, setActiveTab] = useState('cms-editor')
+  const [activeTab, setActiveTab] = useState(0)
 
   const navigationTabs = [
     {
@@ -47,38 +48,33 @@ export default function SystemSetting() {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'cms-editor':
+      case 0:
         return <CMSEditor />
-      case 'seo-settings':
+      case 1:
         return <SEOSetting />
-      case 'branding-config':
+      case 2:
         return <BrandingConfig />
-      case 'app-version':
+      case 3:
         return <AppVersionMonitor />
-      case 'api-key':
+      case 4:
         return <ApiKeyWebhookControl />
       default:
-        return null
+        return <CMSEditor />
     }
   }
 
   return (
-    <div className="p-5 space-y-6">
-      {/* Header Section */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold" style={{ color: COLORS.PRIMARY }}>
-          System Settings & Configuration
-        </h1>
-        <p className="text-lg" style={{ color: COLORS.PRIMARY_LIGHT }}>
-          Manage your job portal system settings and integration
-        </p>
-      </div>
+    <div className=" space-y-6">
+      <MatrixCard 
+        title="System Settings & Configuration"
+        subtitle="Manage your job portal system settings and integration"
+      />
 
       {/* Navigation Tabs */}
-      <NavigationTabs
-        navigationTabs={navigationTabs}
-        activeNavTab={activeTab}
-        setActiveNavTab={setActiveTab}
+      <PillNavigation
+        tabs={navigationTabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
 
       {/* Tab Content */}

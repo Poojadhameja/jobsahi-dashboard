@@ -86,7 +86,7 @@ export const MatrixCard = ({
     <div
       className={`bg-white rounded-lg border border-[#0b537d28] shadow-sm p-6 text-center ${className}`}
     >
-      <h2 className={`text-xl md:text-2xl font-semibold ${titleColor} mb-2`}>
+      <h2 className={`text-xl md:text-2xl font-bold ${titleColor} mb-2`}>
         {title}
       </h2>
       <p className={`text-base md:text-md ${subtitleColor}`}>{subtitle}</p>

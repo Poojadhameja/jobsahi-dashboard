@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
-import Button, { BackToOverviewButton } from '../../../../shared/components/Button'
-import { LuPlus, LuUpload, LuSearch, LuUsers, LuLayers, LuMonitor, LuKey } from 'react-icons/lu'
+import { PrimaryButton } from '../../../../shared/components/Button'
+import { LuPlus, LuUpload, LuArrowLeft } from 'react-icons/lu'
 
 export default function SEOSetting() {
   const [seoData, setSeoData] = useState({
@@ -31,113 +31,127 @@ export default function SEOSetting() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Top: SEO Settings Card */}
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div
-              className="h-8 w-8 rounded-full flex items-center justify-center mt-0.5"
-              style={{ backgroundColor: COLORS?.GREEN_PRIMARY || '#059669' }}
-            >
-              <LuPlus className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">SEO Settings</h2>
-              <p className="text-sm text-slate-600">Public pages optimization</p>
-            </div>
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
+      {/* Header Section */}
+      <div className="flex items-start bg-white p-4 border border-[#0b537d2c] rounded-lg justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
+            <LuPlus className="h-4 w-4 text-green-600" />
           </div>
-
-          {/* Back to overview (pill) */}
-          <BackToOverviewButton
-            onClick={handleBack}
-          />
+          <div>
+            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>SEO Settings</h2>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Public pages optimization</p>
+          </div>
         </div>
 
-        {/* Site title + Meta desc */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Site title</label>
+        {/* Back to overview button */}
+        <PrimaryButton
+          onClick={handleBack}
+          className="h-10 px-4 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-sm font-medium"
+          icon={<LuArrowLeft className="w-4 h-4" />}
+        >
+          Back to overview
+        </PrimaryButton>
+      </div>
+
+      {/* SEO Settings Card */}
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <div className="flex items-start gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
+              <LuPlus className="h-4 w-4 text-green-600" />
+            </div>
+            <div>
+              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>SEO Settings</h3>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Public pages optimization</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {/* Site title */}
+          <div className="space-y-2">
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Site title</label>
             <input
               type="text"
               value={seoData.siteTitle}
               onChange={(e) => handleInputChange('siteTitle', e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
               placeholder="Job Portal – Find your dream job"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Meta Description</label>
+
+          {/* Keywords */}
+          <div className="space-y-2">
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Keywords</label>
+            <input
+              type="text"
+              value={seoData.keywords}
+              onChange={(e) => handleInputChange('keywords', e.target.value)}
+              className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              placeholder="jobs, careers, employment, hiring"
+            />
+          </div>
+
+          {/* Meta Description */}
+          <div className="space-y-2">
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Meta Description</label>
             <input
               type="text"
               value={seoData.metaDescription}
               onChange={(e) => handleInputChange('metaDescription', e.target.value)}
-              className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+              className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
               placeholder="Discover thousands of job opportunities"
             />
           </div>
-        </div>
-
-        {/* Keywords */}
-        <div className="mt-6">
-          <label className="block text-sm font-medium text-slate-700 mb-2">Keywords</label>
-          <input
-            type="text"
-            value={seoData.keywords}
-            onChange={(e) => handleInputChange('keywords', e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
-            placeholder="jobs, careers, employment, hiring"
-          />
         </div>
       </div>
 
       {/* Bottom: Social + Analytics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Social Media */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
-          <div className="mb-4">
-            <h3 className="text-slate-900 font-semibold">Social Media</h3>
-            <p className="text-sm text-slate-600">Open graph & Twitter cards</p>
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+          <div className="mb-6">
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Social Media</h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Open graph & Twitter cards</p>
           </div>
 
-          <div className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">OG Title</label>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>OG Title</label>
               <input
                 type="text"
                 value={seoData.ogTitle}
                 onChange={(e) => handleInputChange('ogTitle', e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                 placeholder="Job Portal"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">OG Description</label>
+            <div className="space-y-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>OG Description</label>
               <input
                 type="text"
                 value={seoData.ogDescription}
                 onChange={(e) => handleInputChange('ogDescription', e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                 placeholder="Find your next career opportunity"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">OG Image</label>
-              <div className="relative">
+            <div className="space-y-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Image URL</label>
+              <div className="flex gap-2">
                 <input
                   type="text"
                   value={seoData.ogImage}
                   onChange={(e) => handleInputChange('ogImage', e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 pr-12 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                  className="flex-1 h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                   placeholder="Image URL"
                 />
-                {/* Trailing upload button inside input */}
                 <button
                   type="button"
-                  className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 rounded-lg grid place-items-center text-white hover:opacity-95"
-                  style={{ backgroundColor: COLORS?.GREEN_PRIMARY || '#059669' }}
+                  className="h-12 w-12 bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg flex items-center justify-center"
                   title="Upload"
                 >
                   <LuUpload className="h-5 w-5" />
@@ -148,31 +162,31 @@ export default function SEOSetting() {
         </div>
 
         {/* Analytics */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6">
-          <div className="mb-4">
-            <h3 className="text-slate-900 font-semibold">Analytics</h3>
-            <p className="text-sm text-slate-600">Tracking & Performance</p>
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+          <div className="mb-6">
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Analytics</h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Tracking & Performance</p>
           </div>
 
-          <div className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Google Analytics ID</label>
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Google Analytics ID</label>
               <input
                 type="text"
                 value={seoData.googleAnalyticsId}
                 onChange={(e) => handleInputChange('googleAnalyticsId', e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
-                placeholder="GA-XXXXXXXXX-X"
+                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                placeholder="GA-XXXXXXXX-X"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Google Tag Manager</label>
+            <div className="space-y-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Google Tag Manager</label>
               <input
                 type="text"
                 value={seoData.googleTagManager}
                 onChange={(e) => handleInputChange('googleTagManager', e.target.value)}
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
                 placeholder="GTM-XXXXX"
               />
             </div>
@@ -181,32 +195,19 @@ export default function SEOSetting() {
             <button
               type="button"
               onClick={() => handleInputChange('searchConsoleEnabled', !seoData.searchConsoleEnabled)}
-              className="w-full text-left rounded-lg px-4 py-3 border bg-emerald-50"
-              style={{ borderColor: '#A7F3D0' /* emerald-200 */ }}
+              className={`w-full text-left rounded-lg p-4 border-2 transition-colors duration-200 ${
+                seoData.searchConsoleEnabled 
+                  ? 'border-[#5B9821] bg-green-50' 
+                  : 'border-gray-200 bg-white hover:border-green-300'
+              }`}
             >
-              <p className="font-medium" style={{ color: COLORS?.GREEN_PRIMARY || '#059669' }}>
+              <p className={`font-medium ${seoData.searchConsoleEnabled ? 'text-[#5B9821]' : 'text-gray-900'}`}>
                 Enable Search Console
               </p>
-              <p className="text-slate-500 text-sm">Submit sitemap automatically</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Submit sitemap automatically</p>
             </button>
           </div>
         </div>
-      </div>
-
-      {/* Save */}
-      <div className="mt-8 flex justify-end">
-        <Button
-          variant="primary"
-          size="md"
-          onClick={handleSave}
-          className="px-6"
-          style={{
-            backgroundColor: TAILWIND_COLORS?.SUCCESS || COLORS?.GREEN_PRIMARY,
-            borderColor: TAILWIND_COLORS?.SUCCESS || COLORS?.GREEN_PRIMARY
-          }}
-        >
-          Save Settings
-        </Button>
       </div>
     </div>
   )

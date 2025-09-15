@@ -1,14 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { LuBell, LuChevronDown, LuSearch } from "react-icons/lu";
-import { TAILWIND_COLORS, COLORS } from "../../../../shared/WebConstant.js";
-import { 
-  LaunchCampaignButton, 
-  SaveDraftButton, 
-  PreviewButton, 
-  FilterButton, 
-  NewCampaignButton, 
-  ViewCampaignButton 
-} from "../../../../shared/components/Button.jsx";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant.js";
+import Button from "../../../../shared/components/Button.jsx";
 
 // Constants
 const TABS = {
@@ -155,12 +148,12 @@ ${form.content}
 
   // Component: Header Section
   const HeaderSection = () => (
-    <div className="mb-6 flex items-center gap-3">
-      <span className={`grid h-9 w-9 place-items-center rounded-full ${TAILWIND_COLORS.BG_PRIMARY} ${TAILWIND_COLORS.TEXT_PRIMARY} ring-1 ring-[${COLORS.PRIMARY_50}]`}>
-        <LuBell className="h-5 w-5" />
-      </span>
+    <div className="flex items-center space-x-3 mb-6">
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 flex-shrink-0">
+        <LuBell className="h-5 w-5 text-green-600" />
+      </div>
       <div>
-        <h1 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+        <h1 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
           Email & SMS Campaign Manager
         </h1>
         <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
@@ -172,14 +165,14 @@ ${form.content}
 
   // Component: Tab Navigation
   const TabNavigation = () => (
-    <div className="mb-6 grid grid-cols-2 gap-4 md:max-w-xl">
+    <div className="mb-6 grid grid-cols-2 gap-4 max-w-xl">
       <button
         type="button"
         onClick={() => setActiveTab(TABS.CREATE)}
         className={`h-10 rounded-lg border px-4 text-sm font-medium transition
         ${activeTab === TABS.CREATE
-            ? `border-[${COLORS.PRIMARY}] bg-[${COLORS.PRIMARY_30}] ${TAILWIND_COLORS.TEXT_PRIMARY}`
-            : `${TAILWIND_COLORS.BORDER} bg-white ${TAILWIND_COLORS.TEXT_MUTED} hover:bg-gray-50`
+            ? `border-blue-500 bg-blue-50 text-gray-900`
+            : `border-gray-300 bg-white text-gray-600 hover:bg-gray-50`
           }`}
       >
         Create Campaign
@@ -189,8 +182,8 @@ ${form.content}
         onClick={() => setActiveTab(TABS.MANAGE)}
         className={`h-10 rounded-lg border px-4 text-sm font-medium transition
         ${activeTab === TABS.MANAGE
-            ? `border-[${COLORS.PRIMARY}] bg-[${COLORS.PRIMARY_30}] ${TAILWIND_COLORS.TEXT_PRIMARY}`
-            : `${TAILWIND_COLORS.BORDER} bg-white ${TAILWIND_COLORS.TEXT_MUTED} hover:bg-gray-50`
+            ? `border-blue-500 bg-blue-50 text-gray-900`
+            : `border-gray-300 bg-white text-gray-600 hover:bg-gray-50`
           }`}
       >
         Manage Campaign
@@ -207,18 +200,22 @@ ${form.content}
           <input
             type="text"
             placeholder="Search campaigns..."
-            className={`w-full rounded-lg ${TAILWIND_COLORS.BORDER} bg-white pl-10 pr-4 py-2 text-sm focus:border-[${COLORS.PRIMARY}] focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY_30}]`}
+            className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
           />
         </div>
-        <FilterButton />
+        <Button variant="outline" size="sm">
+          Filter
+        </Button>
       </div>
-      <NewCampaignButton onClick={() => setActiveTab(TABS.CREATE)} />
+      <Button variant="primary" size="sm" onClick={() => setActiveTab(TABS.CREATE)}>
+        New Campaign
+      </Button>
     </div>
   );
 
   // Component: Campaign Card
   const CampaignCard = ({ title, channel, recipients, status, iconColor, bgColor }) => (
-    <div className={`${TAILWIND_COLORS.CARD} p-4`}>
+    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className={`h-10 w-10 rounded-full ${bgColor} flex items-center justify-center`}>
@@ -231,13 +228,15 @@ ${form.content}
         </div>
         <div className="flex items-center gap-2">
           <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-            status === CAMPAIGN_STATUS.ACTIVE ? TAILWIND_COLORS.BADGE_SUCCESS :
-            status === CAMPAIGN_STATUS.DRAFT ? TAILWIND_COLORS.BADGE_WARN :
-            TAILWIND_COLORS.BADGE_ERROR
+            status === CAMPAIGN_STATUS.ACTIVE ? 'bg-green-100 text-green-800' :
+            status === CAMPAIGN_STATUS.DRAFT ? 'bg-yellow-100 text-yellow-800' :
+            'bg-red-100 text-red-800'
           }`}>
             {status}
           </span>
-          <ViewCampaignButton />
+          <Button variant="outline" size="sm">
+            View
+          </Button>
         </div>
       </div>
     </div>
@@ -274,8 +273,8 @@ ${form.content}
     >
       {/* Row: Campaign Name + Channel */}
       <div className="grid gap-4 md:grid-cols-[1fr,280px]">
-        <div>
-          <label className={`mb-1 block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
+        <div className="space-y-2">
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Campaign Name
           </label>
           <input
@@ -284,12 +283,12 @@ ${form.content}
             value={form.name}
             onChange={onChange}
             placeholder="Enter campaign name"
-            className={`h-11 w-full rounded-lg ${TAILWIND_COLORS.BORDER} bg-white px-3 text-gray-900 placeholder:text-gray-400 focus:border-[${COLORS.PRIMARY}] focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY_30}]`}
+            className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
           />
         </div>
 
-        <div>
-          <label className={`mb-1 block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
+        <div className="space-y-2">
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Channel
           </label>
           <div className="relative">
@@ -297,7 +296,7 @@ ${form.content}
               name="channel"
               value={form.channel}
               onChange={onChange}
-              className={`h-11 w-full appearance-none rounded-lg ${TAILWIND_COLORS.BORDER} bg-white px-3 pr-9 text-gray-900 focus:border-[${COLORS.PRIMARY}] focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY_30}]`}
+              className="h-12 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 pr-9 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
             >
               {CHANNELS.map((channel) => (
                 <option key={channel.value} value={channel.value}>
@@ -311,8 +310,8 @@ ${form.content}
       </div>
 
       {/* Subject Line */}
-      <div>
-        <label className={`mb-1 block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
+      <div className="space-y-2">
+        <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
           Subject Line
         </label>
         <input
@@ -321,13 +320,13 @@ ${form.content}
           value={form.subject}
           onChange={onChange}
           placeholder="Enter email subject or SMS preview"
-          className={`h-11 w-full rounded-lg ${TAILWIND_COLORS.BORDER} bg-[${COLORS.lightblue}] px-3 text-gray-900 placeholder:text-gray-400 focus:border-[${COLORS.PRIMARY}] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY_30}]`}
+          className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
         />
       </div>
 
       {/* Campaign Content */}
-      <div>
-        <label className={`mb-1 block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
+      <div className="space-y-2">
+        <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
           Campaign Content
         </label>
         <textarea
@@ -336,35 +335,54 @@ ${form.content}
           onChange={onChange}
           rows={4}
           placeholder="Enter your campaign message"
-          className={`w-full rounded-lg ${TAILWIND_COLORS.BORDER} bg-[${COLORS.lightblue}] px-3 py-2 text-gray-900 placeholder:text-gray-400 focus:border-[${COLORS.PRIMARY}] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY_30}]`}
+          className="w-full h-24 rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200 resize-none"
         />
       </div>
 
       {/* Actions */}
       <div className="flex flex-wrap gap-3 pt-2">
-        <LaunchCampaignButton
+        <Button
           type="submit"
+          variant="primary"
+          size="md"
           disabled={!canLaunch}
-          loading={isLaunching}
+          className="h-12"
           onClick={onLaunch}
-        />
+          icon={
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          }
+        >
+          Launch Campaign
+        </Button>
 
-        <SaveDraftButton
+        <Button
           type="button"
+          variant="outline"
+          size="md"
+          className="h-12 border-2 border-[#5B9821] text-[#5B9821]"
           onClick={onSaveDraft}
-        />
+        >
+          Save draft
+        </Button>
 
-        <PreviewButton
+        <Button
           type="button"
+          variant="outline"
+          size="md"
+          className="h-12 border-2 border-[#5B9821] text-[#5B9821]"
           onClick={onPreview}
-        />
+        >
+          Preview
+        </Button>
       </div>
     </form>
   );
 
   return (
-    <div className={`min-h-screen ${TAILWIND_COLORS.BG_PRIMARY} p-6`}>
-      <div className={`mx-auto w-full max-w-6xl ${TAILWIND_COLORS.CARD} p-6`}>
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm">
         <HeaderSection />
         <TabNavigation />
 

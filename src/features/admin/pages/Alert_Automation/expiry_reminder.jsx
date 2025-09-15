@@ -32,19 +32,23 @@ const SpamDetectionRules = ({ rules, onRulesChange, onUpdateRules }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full h-96 flex flex-col">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-[#5C9A24] text-lg">🚩</span>
-        <h2 className="text-lg font-semibold text-[#0B537D]">Spam Detection Rules</h2>
+        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-100">
+          <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Spam Detection Rules</h2>
       </div>
-      <p className="text-sm text-gray-600 mb-6">Configure automatic job spam detection</p>
+      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Configure automatic job spam detection</p>
 
       {/* Form Content */}
-      <div className="space-y-2 flex-1">
+      <div className="space-y-6 flex-1">
         {/* Keywords Filter */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="space-y-2">
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Keywords Filters
           </label>
           <input
@@ -52,45 +56,45 @@ const SpamDetectionRules = ({ rules, onRulesChange, onUpdateRules }) => {
             value={keywords}
             onChange={(e) => onRulesChange({ ...rules, keywords: e.target.value })}
             placeholder="Enter spam keywords (comma separated)"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent text-sm"
+            className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
           />
         </div>
 
         {/* Minimum Length */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Minimum Description Length
+        <div className="space-y-2">
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+            Minimum job description length
           </label>
           <input
             type="number"
             value={minLength}
             onChange={(e) => onRulesChange({ ...rules, minLength: e.target.value })}
             placeholder="50"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent text-sm"
+            className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
           />
         </div>
 
         {/* Toggle Switches */}
-        <div className="space-y-2 pt-2">
+        <div className="space-y-4">
           <Toggle 
             checked={autoFlag} 
             onChange={(checked) => onRulesChange({ ...rules, autoFlag: checked })} 
-            label="Auto-flag suspicious posts" 
+            label="Auto-flag suspicious jobs" 
           />
           <Toggle 
             checked={flagInactive} 
             onChange={(checked) => onRulesChange({ ...rules, flagInactive: checked })} 
-            label="Flag inactive user posts" 
+            label="Flag inactive users (90+ days)" 
           />
         </div>
 
         {/* Update Button */}
-        <div className="pt-2">
+        <div className="pt-4">
           <PrimaryButton 
             onClick={handleSubmit}
-            className="bg-[#5C9A24] hover:bg-[#4A7D1A] text-white px-4 py-2 rounded-lg text-sm font-medium"
+            className="w-full h-12 bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg text-sm font-medium"
           >
-            Save Rules
+            Update Rules
           </PrimaryButton>
         </div>
       </div>
@@ -101,27 +105,31 @@ const SpamDetectionRules = ({ rules, onRulesChange, onUpdateRules }) => {
 // Flagged Items Review Card
 const FlaggedItemsReview = ({ flaggedItems, onReviewItem }) => {
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full h-96 flex flex-col">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-[#5C9A24] text-lg">🚩</span>
-        <h2 className="text-lg font-semibold text-[#0B537D]">Flagged Items Review</h2>
+        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-100">
+          <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Flagged Items</h2>
       </div>
-      <p className="text-sm text-gray-600 mb-6">Review and manage flagged content</p>
+      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Review automatically flagged content</p>
 
       {/* Flagged Items List */}
-      <div className="space-y-4 flex-1 overflow-y-auto">
+      <div className="space-y-3 flex-1">
         {flaggedItems.map((item, index) => (
           <div 
             key={index} 
-            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200"
           >
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                 {item.title}
-              </p>
-              <p className="text-xs text-gray-600 truncate">
+              </h3>
+              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
                 {item.reason}
               </p>
             </div>
@@ -130,20 +138,20 @@ const FlaggedItemsReview = ({ flaggedItems, onReviewItem }) => {
             <div className="flex items-center gap-2 ml-4">
               {/* Status Badge */}
               <span
-                className={`px-3 py-1 text-xs font-medium rounded-full ${
-                  item.status === 'Approved' 
-                    ? 'bg-white border border-[#5C9A24] text-[#5C9A24]' 
-                    : 'bg-[#5C9A24] text-white'
+                className={`px-3 py-1 text-sm font-medium rounded-md whitespace-nowrap ${
+                  item.status === 'Reviewed' 
+                    ? 'bg-[#5B9821] text-white' 
+                    : 'text-[#5B9821] border-2 border-[#5B9821] hover:bg-[#5B9821] hover:text-white'
                 }`}
               >
                 {item.status}
               </span>
               
               {/* Review Button */}
-              {item.status === 'Flagged' && (
+              {item.status === 'Pending' && (
                 <OutlineButton 
                   onClick={() => onReviewItem(index)}
-                  className="border-[#5C9A24] text-[#5C9A24] hover:bg-[rgba(92,154,36,0.1)] px-3 py-1 text-xs font-medium rounded-lg"
+                  className="border-2 border-[#5B9821] text-[#5B9821] px-3 py-1 text-sm font-medium rounded-md"
                 >
                   Review
                 </OutlineButton>
@@ -160,28 +168,28 @@ const FlaggedItemsReview = ({ flaggedItems, onReviewItem }) => {
 const ExpiryReminder = () => {
   // State management for spam detection rules
   const [rules, setRules] = useState({
-    keywords: 'spam, fake, scam, urgent',
+    keywords: '',
     minLength: '50',
-    autoFlag: true,
-    flagInactive: false
+    autoFlag: false,
+    flagInactive: true
   })
 
   // Sample flagged items data
   const [flaggedItems, setFlaggedItems] = useState([
     {
-      title: "URGENT: High Paying Job - No Experience Required",
-      reason: "Contains spam keywords",
-      status: "Flagged"
+      title: "Work from home opportunity",
+      reason: "Job post - spam keywords",
+      status: "Pending"
     },
     {
-      title: "Software Engineer Position", 
-      reason: "Approved by admin",
-      status: "Approved"
+      title: "inactive_user@gmail.com", 
+      reason: "User - 90+ days inactive",
+      status: "Reviewed"
     },
     {
-      title: "Work from home - Earn $5000 daily",
-      reason: "Suspicious content",
-      status: "Flagged"
+      title: "Easy money fast",
+      reason: "Job post - suspicious content",
+      status: "Pending"
     }
   ])
 
@@ -199,7 +207,7 @@ const ExpiryReminder = () => {
     setFlaggedItems(prev => 
       prev.map((item, index) => 
         index === itemIndex 
-          ? { ...item, status: item.status === 'Flagged' ? 'Approved' : 'Flagged' }
+          ? { ...item, status: item.status === 'Pending' ? 'Reviewed' : 'Pending' }
           : item
       )
     )
@@ -207,26 +215,24 @@ const ExpiryReminder = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Column - Spam Detection Rules */}
-          <div>
-            <SpamDetectionRules 
-              rules={rules} 
-              onRulesChange={handleRulesChange}
-              onUpdateRules={handleUpdateRules}
-            />
-          </div>
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column - Spam Detection Rules */}
+        <div>
+          <SpamDetectionRules 
+            rules={rules} 
+            onRulesChange={handleRulesChange}
+            onUpdateRules={handleUpdateRules}
+          />
+        </div>
 
-          {/* Right Column - Flagged Items Review */}
-          <div>
-            <FlaggedItemsReview 
-              flaggedItems={flaggedItems}
-              onReviewItem={handleReviewItem}
-            />
-          </div>
+        {/* Right Column - Flagged Items Review */}
+        <div>
+          <FlaggedItemsReview 
+            flaggedItems={flaggedItems}
+            onReviewItem={handleReviewItem}
+          />
         </div>
       </div>
     </div>

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js';
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
+import Button from '../../../../shared/components/Button.jsx';
+import { Horizontal4Cards } from '../../components/metricCard.jsx';
 
 const SegmentBasedMessaging = () => {
   const [formData, setFormData] = useState({
@@ -8,6 +10,14 @@ const SegmentBasedMessaging = () => {
     priority: '',
     messageContent: ''
   });
+
+  // User segments data for Horizontal4Cards
+  const userSegments = [
+    { title: "Active job seekers", value: "1,234", icon: "👥" },
+    { title: "Employers", value: "852", icon: "🏢" },
+    { title: "Premium Users", value: "456", icon: "⭐" },
+    { title: "Inactive users", value: "1,234", icon: "😴" }
+  ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -30,80 +40,106 @@ const SegmentBasedMessaging = () => {
   return (
     <div className="p-4 sm:p-0 space-y-6">
       {/* System-wide Push Notifications Section */}
-      <div className={`${TAILWIND_COLORS.CARD} p-4 sm:p-6`}>
-        <div className="mb-4 sm:mb-6">
-          <div className="flex items-center space-x-2 mb-1">
-            <svg className="w-5 h-5" style={{ color: COLORS.PRIMARY }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-4.126-.98L3 20l1.98-5.874A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
+      <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm">
+        <div className="flex items-center space-x-3 mb-6">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 flex-shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
-            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>System-wide Push Notifications</h2>
           </div>
-          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>System-wide Push Notifications</p>
+          <div>
+            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>System-wide Push Notifications</h2>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>System-wide Push Notifications</p>
+          </div>
         </div>
 
-        <div className="space-y-4">
-          {/* Target Segment */}
-          <div>
-            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+        <div className="space-y-6">
+         
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+             {/* Target Segment */}
+          <div className="space-y-2">
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               Target segment
             </label>
-            <select
-              name="targetSegment"
-              value={formData.targetSegment}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Select user segment</option>
-              <option value="active-job-seekers">Active job seekers</option>
-              <option value="employers">Employers</option>
-              <option value="premium-users">Premium Users</option>
-              <option value="inactive-users">Inactive users</option>
-            </select>
+            <div className="relative">
+              <select
+                name="targetSegment"
+                value={formData.targetSegment}
+                onChange={handleInputChange}
+                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm appearance-none bg-white"
+              >
+                <option value="">Select user segment</option>
+                <option value="active-job-seekers">Active job seekers</option>
+                <option value="employers">Employers</option>
+                <option value="premium-users">Premium Users</option>
+                <option value="inactive-users">Inactive users</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </div>
           </div>
 
-          {/* Message Type and Priority Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+          {/* Message Type */}
+         
+            <div className="space-y-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                 Message Type
               </label>
-              <select
-                name="messageType"
-                value={formData.messageType}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">select message type</option>
-                <option value="promotional">Promotional</option>
-                <option value="informational">Informational</option>
-                <option value="urgent">Urgent</option>
-                <option value="reminder">Reminder</option>
-              </select>
+              <div className="relative">
+                <select
+                  name="messageType"
+                  value={formData.messageType}
+                  onChange={handleInputChange}
+                  className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm appearance-none bg-white"
+                >
+                  <option value="">select message type</option>
+                  <option value="promotional">Promotional</option>
+                  <option value="informational">Informational</option>
+                  <option value="urgent">Urgent</option>
+                  <option value="reminder">Reminder</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </div>
+              </div>
             </div>
-            <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+
+             {/* priority */}
+            <div className="space-y-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                 Priority
               </label>
-              <select
-                name="priority"
-                value={formData.priority}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">select priority</option>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
+              <div className="relative">
+                <select
+                  name="priority"
+                  value={formData.priority}
+                  onChange={handleInputChange}
+                  className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm appearance-none bg-white"
+                >
+                  <option value="">select priority</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Message Content */}
-          <div>
-            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+          <div className="space-y-2">
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               Message content
             </label>
             <textarea
@@ -112,88 +148,47 @@ const SegmentBasedMessaging = () => {
               onChange={handleInputChange}
               rows={4}
               placeholder="Enter your targeted message"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none"
             />
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
-            <button
+            <Button 
+              type="button" 
+              variant="primary" 
+              size="md"
+              className="w-full sm:w-auto h-12"
               onClick={handleSendToSegment}
-              className="flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors duration-200"
+              icon={
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                </svg>
+              }
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-              <span>Send to segment</span>
-            </button>
-            <button
+              Send to segment
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="md"
+              className="w-full sm:w-auto h-12 border-2 border-[#5B9821] text-[#5B9821]"
               onClick={handlePreview}
-              className="flex items-center justify-center space-x-2 border border-green-600 text-green-600 hover:bg-green-50 px-4 py-2 rounded-md font-medium transition-colors duration-200"
             >
-              <span>Preview</span>
-            </button>
+              Preview
+            </Button>
           </div>
         </div>
       </div>
 
       {/* User Segments Overview */}
-      <div className={`${TAILWIND_COLORS.CARD} p-4 sm:p-6`}>
-        <div className="mb-4 sm:mb-6">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm">
+        <div className="mb-6">
           <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>User Segments</h2>
           <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Manage and view your user segments</p>
         </div>
 
-        {/* Segment Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {/* Active Job Seekers */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-              <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
-              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>Active job seekers</h3>
-            </div>
-            <div className="space-y-2">
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">1,234</p>
-              <p className="text-xs text-green-600 font-medium">+5% last month</p>
-            </div>
-          </div>
-
-          {/* Employers */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-              <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
-              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>Employers</h3>
-            </div>
-            <div className="space-y-2">
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">852</p>
-              <p className="text-xs text-green-600 font-medium">+5% last month</p>
-            </div>
-          </div>
-
-          {/* Premium Users */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-              <div className="w-3 h-3 bg-green-500 rounded-full flex-shrink-0"></div>
-              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>Premium Users</h3>
-            </div>
-            <div className="space-y-2">
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">456</p>
-              <p className="text-xs text-green-600 font-medium">+5% last month</p>
-            </div>
-          </div>
-
-          {/* Inactive Users */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-center space-x-3 mb-3 sm:mb-4">
-              <div className="w-3 h-3 bg-red-500 rounded-full flex-shrink-0"></div>
-              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>Inactive users</h3>
-            </div>
-            <div className="space-y-2">
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">1,234</p>
-              <p className="text-xs text-red-600 font-medium">-5% last month</p>
-            </div>
-          </div>
-        </div>
+        <Horizontal4Cards data={userSegments} />
       </div>
     </div>
   );
