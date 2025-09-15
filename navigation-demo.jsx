@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import NavigationTabs from './src/shared/components/navigation';
+import NavigationTabs from './src/shared/components/navigation.jsx';
 
 // Demo component to show how navigation adapts to different numbers of tabs
 const NavigationDemo = () => {
