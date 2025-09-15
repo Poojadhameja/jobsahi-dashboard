@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant'
-import { MatrixCard, MetricPillRow } from '../../../components/metricCard'
+import { MatrixCard, MetricPillRow } from '../../../../../shared/components/metricCard'
 import PendingRecruiterApprovals from './pending_recruiter'
 import JobPostingAnalytics from './job_posting'
 import PaymentHistory from './payment'

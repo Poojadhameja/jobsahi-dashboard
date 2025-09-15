@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import MetricCard, { MatrixCard, Horizontal4Cards } from '../../components/metricCard.jsx';
+import MetricCard, { MatrixCard, Horizontal4Cards } from '../../../../shared/components/metricCard.jsx';
 import { PillNavigation } from '../../../../shared/components/navigation.jsx';
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';

@@ -5,7 +5,7 @@ import {
   LuCreditCard, 
   LuStar 
 } from 'react-icons/lu'
-import { MatrixCard } from '../../components/metricCard'
+import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
 import RevenueDashboard from './revenue_dashboard'
 import OrderHistory from './order_history'

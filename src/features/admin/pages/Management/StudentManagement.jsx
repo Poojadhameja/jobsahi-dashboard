@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant'
-import { MatrixCard, MetricPillRow } from '../../components/metricCard'
+import { MatrixCard, MetricPillRow } from '../../../../shared/components/metricCard'
 import { 
   LuUsers, 
   LuSearch,

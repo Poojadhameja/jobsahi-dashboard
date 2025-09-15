@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MatrixCard } from '../../../components/metricCard'
+import { MatrixCard } from '../../../../../shared/components/metricCard'
 import PendingInstituteApprovals from './pending_institute'
 import CourseMonitoring from './course_monitoring'
 import PlacementStudent from './placement_student'

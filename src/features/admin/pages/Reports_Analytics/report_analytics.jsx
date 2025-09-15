@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MatrixCard, Horizontal4Cards } from '../../components/metricCard.jsx'
+import { MatrixCard, Horizontal4Cards } from '../../../../shared/components/metricCard.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import ConversionReports from './conversion_reports.jsx'
 import HiringFunnel from './hiring_funnel.jsx'
