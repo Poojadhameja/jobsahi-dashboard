@@ -13,7 +13,7 @@ export default function AdminProfile() {
             <div className="text-sm text-gray-500">admin@jobsahi.com</div>
           </div>
         </div>
-        <button className={`px-4 py-2 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`}>Edit Profile</button>
+        <Button className={`px-4 py-2 rounded-lg`} variant="light">Edit Profile</Button>
       </div>
     </div>
   )

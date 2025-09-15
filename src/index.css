@@ -1,9 +1,13 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 
 /* (optional) your custom styles */
 
 html, body, #root { height: 100%; }
 body { margin: 0; }
+
 
 
 /* Hide scrollbar utility */
