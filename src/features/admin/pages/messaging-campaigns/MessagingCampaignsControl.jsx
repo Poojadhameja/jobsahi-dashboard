@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import MetricCard, { MatrixCard, Horizontal4Cards } from '../../components/metricCard.jsx';
+import MetricCard, { MatrixCard, Horizontal4Cards } from '../../components/metricCard';
 import { PillNavigation } from '../../../../shared/components/navigation.jsx';
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';
 import { FilterButton, NewCampaignButton } from '../../../../shared/components/Button.jsx';
-import SystemwidePush from './SystemwidePush.jsx';
+import SystemWidePush from './SystemWidePush.jsx';
 import SegmentBasedMessaging from './SegmentBasedMessaging.jsx';
-import EmailSMSCampaignsManager from './email_sms_campaignsmanager.jsx'; 
-import NotificationTemplatesManager from './notification_templates_manager.jsx';
+import EmailSmsCampaignsManager from './EmailSmsCampaignsManager.jsx'; 
+import NotificationTemplatesManager from './NotificationTemplatesManager.jsx';
 
 const MessagingCampaignsView = () => {
   // Tabs synced to URL (?tab=messaging|segments|analytics|templates)
@@ -120,13 +120,13 @@ const MessagingCampaignsView = () => {
       </div>
 
       {/* Content based on active navigation tab */}
-      {activeTab === 0 && <SystemwidePush />}
+      {activeTab === 0 && <SystemWidePush />}
 
       {/* Segment-Based Messaging Content */}
       {activeTab === 1 && <SegmentBasedMessaging />}
 
       {/* Email & SMS Campaigns Management Content */}
-      {activeTab === 2 && <EmailSMSCampaignsManager />}    
+      {activeTab === 2 && <EmailSmsCampaignsManager />}    
 
       {/* Notification Templates Manager Content */}
       {activeTab === 3 && <NotificationTemplatesManager />}

@@ -1,6 +1,6 @@
 import React from 'react'
 import { TAILWIND_COLORS } from '../../../shared/WebConstant.js'
-import MetricCard, { MatrixCard, Horizontal4Cards } from '../components/metricCard.jsx'
+import MetricCard, { MatrixCard, Horizontal4Cards } from '../components/metricCard'
 import { Line, Doughnut } from 'react-chartjs-2'
 import {
   Chart as ChartJS,

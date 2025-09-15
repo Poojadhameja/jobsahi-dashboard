@@ -1,7 +1,7 @@
 import React from 'react'
 import AppLayout from '../../../shared/components/AppLayout'
 import RecruiterHeader from './RecruiterHeader'
-import { recruiterSidebarItems } from './recruiterSidebarItems.jsx'
+import { recruiterSidebarItems } from './RecruiterSidebarItems.jsx'
 
 export default function RecruiterLayout() {
   return (

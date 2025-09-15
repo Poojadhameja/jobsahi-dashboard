@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { MatrixCard } from '../../components/metricCard.jsx'
+import { MatrixCard } from '../../components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
-import ActivityLogs from './Activity_logs.jsx'
-import ErrorLogs from './Error_logs.jsx'
-import MessageLogs from './Message_logs.jsx'
-import RoleManagement from './Role_management.jsx'
+import ActivityLogs from './ActivityLogs.jsx'
+import ErrorLogs from './ErrorLogs.jsx'
+import MessageLogs from './MessageLogs.jsx'
+import RoleManagement from './RoleManagement.jsx'
 
 export default function AdminTools() {
   const [activeTab, setActiveTab] = useState(0)
