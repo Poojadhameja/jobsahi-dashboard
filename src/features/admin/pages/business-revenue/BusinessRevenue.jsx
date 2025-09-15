@@ -5,12 +5,12 @@ import {
   LuCreditCard, 
   LuStar 
 } from 'react-icons/lu'
-import { MatrixCard } from '../../components/metricCard'
-import { PillNavigation } from '../../../../shared/components/navigation.jsx'
-import RevenueDashboard from './RevenueDashboard'
-import OrderHistory from './OrderHistory'
-import SubscriptionPlan from './SubscriptionPlan'
-import FeaturedContent from './FeaturedContent'
+import { MatrixCard } from '../../../../shared/components/metricCard'
+import { PillNavigation } from '../../../../shared/components/navigation'
+import RevenueDashboard from './revenue_dashboard'
+import OrderHistory from './order_history'
+import SubscriptionPlan from './subscription_plan'
+import FeaturedContent from './featured_content'
 
 export default function BusinessRevenue() {
     const [activeTab, setActiveTab] = useState(0)

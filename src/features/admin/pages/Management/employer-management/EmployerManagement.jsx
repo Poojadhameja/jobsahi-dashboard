@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant'
-import { MatrixCard, MetricPillRow } from '../../../components/metricCard'
-import PendingRecruiterApprovals from './PendingRecruiter'
-import JobPostingAnalytics from './JobPosting'
-import PaymentHistory from './Payment'
-import EmployerRatings from './EmployerRating'
-import ResumeUsageTracker from './ResumeUsage'
-import FraudControlSystem from './FraudControl'
+import { MatrixCard, MetricPillRow } from '../../../../../shared/components/metricCard'
+import PendingRecruiterApprovals from './pending_recruiter'
+import JobPostingAnalytics from './job_posting'
+import PaymentHistory from './payment'
+import EmployerRatings from './employer_rating'
+import ResumeUsageTracker from './resume_usage'
+import FraudControlSystem from './fraud_control'
 import { 
   LuBriefcase, 
   LuBuilding, 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { PrimaryButton } from '../../../../shared/components/Button'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
-import { Horizontal4Cards } from '../../components/metricCard'
+import { Horizontal4Cards } from '../../../../shared/components/metricCard.jsx'
 import { 
   LuArrowLeft, 
   LuUpload, 

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { LuChevronDown, LuCreditCard, LuWallet, LuUsers } from 'react-icons/lu'
-import { Horizontal4Cards } from '../../components/metricCard'
+import { Horizontal4Cards } from '../../../../shared/components/metricCard'
 
 const INR = (n) => `₹${Number(n).toLocaleString('en-IN')}`
 

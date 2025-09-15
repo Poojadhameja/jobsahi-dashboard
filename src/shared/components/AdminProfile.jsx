@@ -1,5 +1,5 @@
 import React from 'react'
-import { TAILWIND_COLORS } from '../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../WebConstant'
 
 export default function AdminProfile() {
   return (

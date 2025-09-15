@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MatrixCard } from '../../components/metricCard'
+import { MatrixCard } from '../../../../shared/components/metricCard.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import ActivityLogs from './ActivityLogs.jsx'
 import ErrorLogs from './ErrorLogs.jsx'

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import MetricCard, { MatrixCard, Horizontal4Cards } from '../../components/metricCard'
+import MetricCard, { MatrixCard, Horizontal4Cards } from '../../../../shared/components/metricCard.jsx'
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant'

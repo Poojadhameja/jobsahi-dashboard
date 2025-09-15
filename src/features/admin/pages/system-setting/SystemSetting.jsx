@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js'
+<<<<<<< HEAD:src/features/admin/pages/system-setting/SystemSetting.jsx
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import { MatrixCard } from '../../components/metricCard'
 import CMSEditor from './CmsEditor'
@@ -7,6 +8,15 @@ import SEOSetting from './SeoSetting'
 import BrandingConfig from './BrandingConfig'
 import AppVersionMonitor from './AppVersion'
 import ApiKeyWebhookControl from './ApiKey'
+=======
+import { PillNavigation } from '../../../../shared/components/navigation'
+import { MatrixCard } from '../../../../shared/components/metricCard.jsx'
+import CMSEditor from './cms_editor'
+import SEOSetting from './seo_setting'
+import BrandingConfig from './branding_config'
+import AppVersionMonitor from './app_version'
+import ApiKeyWebhookControl from './api_key'
+>>>>>>> 74d8658f62d2a63b9e366c3d2dabf4e521f8a23f:src/features/admin/pages/System_Setting/system_setting.jsx
 import {  
   LuUsers,
   LuPlus,

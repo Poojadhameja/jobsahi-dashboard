@@ -7,7 +7,7 @@ import {
 } from 'react-icons/lu';
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant';
 import { PrimaryButton } from '../../../../shared/components/Button';
-import { Horizontal4Cards } from '../../components/metricCard';
+import { Horizontal4Cards } from '../../../../shared/components/metricCard';
 
 export default function AppVersionMonitor() {
   const [autoUpdates, setAutoUpdates] = useState(false);
