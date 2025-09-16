@@ -4,7 +4,7 @@ import { LuUsers, LuPlus, LuBuilding2, LuMenu, LuX } from 'react-icons/lu'
 
 const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
+ 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
       {/* Mobile Toggle Button */}
