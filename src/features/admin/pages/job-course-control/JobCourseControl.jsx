@@ -4,8 +4,8 @@ import MetricCard, { MatrixCard, Horizontal4Cards } from '../../../../shared/com
 import { PillNavigation } from '../../../../shared/components/navigation.jsx';
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant';
 import Button from '../../../../shared/components/Button.jsx';
-import CourseOversight from './course_oversight.jsx';
-import JobPosting from './job_posting.jsx';
+import CourseOversight from './CourseOversight.jsx';
+import JobPosting from './JobPosting.jsx';
 
 const JobCourseControlView = () => {
   // ====== STATE MANAGEMENT ======

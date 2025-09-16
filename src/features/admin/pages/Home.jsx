@@ -1,14 +1,13 @@
 import React from 'react'
 import { TAILWIND_COLORS } from '../../../shared/WebConstant.js'
 import MetricCard, { MatrixCard, Horizontal4Cards } from '../../../shared/components/metricCard.jsx'
-import { Line, Doughnut } from 'react-chartjs-2'
+import { Line } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  ArcElement,
   Tooltip,
   Legend,
   Filler,
@@ -19,8 +18,9 @@ import {
   LuUserCheck,
   LuTrendingUp,
 } from 'react-icons/lu'
+import { DoubleCircleChart } from '../../../shared/components/charts'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler)
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler)
 
 function PlacementSuccess() {
   const items = [
@@ -77,22 +77,6 @@ export default function Dashboard() {
     },
   }
 
-  const doughnutData = {
-    labels: ['JavaScript', 'Python', 'Java', 'React', 'Node.js', 'Others'],
-    datasets: [
-      {
-        data: [30, 18, 12, 15, 10, 15],
-        backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#94A3B8'],
-        borderWidth: 0,
-      },
-    ],
-  }
-  const doughnutOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } },
-    cutout: '60%'
-  }
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -115,9 +99,7 @@ export default function Dashboard() {
 
         <div className={`${TAILWIND_COLORS.CARD} p-3 sm:p-4`}>
           <div className="font-medium my-3 sm:my-4 md:mb-6 lg:mb-10 text-lg sm:text-xl text-center md:text-left">Top Skills in Demand</div>
-          <div className="h-48 sm:h-56 md:h-64">
-            <Doughnut data={doughnutData} options={doughnutOptions} />
-          </div>
+          <DoubleCircleChart />
         </div>
       </section>
     </div>

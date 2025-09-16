@@ -3,10 +3,10 @@ import MetricCard, { MatrixCard, Horizontal4Cards } from '../../../../shared/com
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import ExpiryReminder from './expiry_reminder.jsx'
-import AutoFlagging from './auto_flagging.jsx'
-import ResumeFeedback from './resume_feedback.jsx'
-import CourseAlerts from './course_alerts.jsx'
+import ExpiryReminder from './ExpiryReminder.jsx'
+import AutoFlagging from './AutoFlagging.jsx'
+import ResumeFeedback from './ResumeFeedback.jsx'
+import CourseAlerts from './CourseAlerts.jsx'
 
 // Alert automation metrics data
 const alertMetrics = [

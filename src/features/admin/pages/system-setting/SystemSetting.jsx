@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js'
-import { PillNavigation } from '../../../../shared/components/navigation'
+// <<<<<<< HEAD:src/features/admin/pages/system-setting/SystemSetting.jsx
+import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import { MatrixCard } from '../../../../shared/components/metricCard.jsx'
-import CMSEditor from './cms_editor'
-import SEOSetting from './seo_setting'
-import BrandingConfig from './branding_config'
-import AppVersionMonitor from './app_version'
-import ApiKeyWebhookControl from './api_key'
+import CMSEditor from './CmsEditor'
+import SEOSetting from './SeoSetting'
+import BrandingConfig from './BrandingConfig'
+import AppVersionMonitor from './AppVersion'
+import ApiKeyWebhookControl from './ApiKey'
+
 import {  
   LuUsers,
   LuPlus,
