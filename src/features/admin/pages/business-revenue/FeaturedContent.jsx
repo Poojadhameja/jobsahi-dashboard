@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { PillNavigation } from '../../../../shared/components/navigation'
 
 export default function FeaturedContent() {
   const [activeTab, setActiveTab] = useState(0)
@@ -65,9 +66,9 @@ export default function FeaturedContent() {
   ]
 
   const tabs = [
-    { id: 0, label: 'Featured Jobs' },
-    { id: 1, label: 'Featured Courses' },
-    { id: 2, label: 'Priority Banners' }
+    { id: 'featured-jobs', label: 'Featured Jobs' },
+    { id: 'featured-courses', label: 'Featured Courses' },
+    { id: 'priority-banners', label: 'Priority Banners' }
   ]
 
   const getCurrentData = () => {
@@ -147,22 +148,12 @@ export default function FeaturedContent() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className=" w-1/2 px-2">
-        <div className="bg-[#F6FAFF] border border-[#0b537d3c] flex space-x-1 p-1 rounded-lg">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-                activeTab === tab.id
-                  ? 'bg-white text-gray-900 shadow-sm border border-[#0b537d3c]'
-                  : 'text-gray-700 hover:text-gray-900'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+      <div className="w-1/2 px-2">
+        <PillNavigation 
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
       </div>
 
        {/* Content Area */}
