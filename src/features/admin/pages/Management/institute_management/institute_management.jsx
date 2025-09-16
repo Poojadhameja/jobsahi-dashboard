@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { MatrixCard } from '../../../components/metricCard'
+import { PillNavigation } from '../../../../../shared/components/navigation'
 import PendingInstituteApprovals from './pending_institute'
 import CourseMonitoring from './course_monitoring'
 import PlacementStudent from './placement_student'
@@ -8,7 +9,16 @@ import MessageInstitute from './message_institute'
 
 
 export default function InstituteManagement() {
-  const [activeButton, setActiveButton] = useState('verify-approve')
+  const [activeTab, setActiveTab] = useState(0)
+
+  // Navigation tabs configuration
+  const navigationTabs = [
+    { id: 'verify-approve', label: 'Verify / Approve Institute' },
+    { id: 'course-monitoring', label: 'Course & Enrollment Monitoring' },
+    { id: 'placement-students', label: 'Placement-Ready Students' },
+    { id: 'certificate-issuance', label: 'Certificate Issuance' },
+    { id: 'message-institute', label: 'Message Specific Institute' }
+  ]
 
   return (
     <div className="space-y-6">
@@ -19,80 +29,33 @@ export default function InstituteManagement() {
         className="mb-6"  
       />
 
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-2">
-        <button 
-          onClick={() => setActiveButton('verify-approve')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
-            activeButton === 'verify-approve' 
-              ? 'bg-[#0B537D] text-white' 
-              : 'bg-white text-black border border-blue-200'
-          }`}
-        >
-          Verify / Approve Institute
-        </button>
-        <button 
-          onClick={() => setActiveButton('course-monitoring')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
-            activeButton === 'course-monitoring' 
-              ? 'bg-[#0B537D] text-white' 
-              : 'bg-white text-black border border-blue-200'
-          }`}
-        >
-          Course & Enrollment Monitoring
-        </button>
-        <button 
-          onClick={() => setActiveButton('placement-students')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
-            activeButton === 'placement-students' 
-              ? 'bg-[#0B537D] text-white' 
-              : 'bg-white text-black border border-blue-200'
-          }`}
-        >
-          Placement-Ready Students
-        </button>
-        <button 
-          onClick={() => setActiveButton('certificate-issuance')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
-            activeButton === 'certificate-issuance' 
-              ? 'bg-[#0B537D] text-white' 
-              : 'bg-white text-black border border-blue-200'
-          }`}
-        >
-          Certificate Issuance
-        </button>
-        <button 
-          onClick={() => setActiveButton('message-institute')}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors duration-200 ${
-            activeButton === 'message-institute' 
-              ? 'bg-[#0B537D] text-white' 
-              : 'bg-white text-black border border-blue-200'
-          }`}
-        >
-          Message Specific Institute
-        </button>
-      </div>
+      {/* Navigation Tabs */}
+      <PillNavigation 
+        tabs={navigationTabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
       {/* Conditional Content */}
-      {activeButton === 'verify-approve' && (
+      {activeTab === 0 && (
         <PendingInstituteApprovals />
       )}
 
-      {activeButton === 'course-monitoring' && (
+      {activeTab === 1 && (
         <CourseMonitoring />
       )}
 
-      {activeButton === 'placement-students' && (
+      {activeTab === 2 && (
         <PlacementStudent />
       )}
 
-       {activeButton === 'certificate-issuance' && (
-         <CertificateInsurance />
-       )}
+      {activeTab === 3 && (
+        <CertificateInsurance />
+      )}
 
-       {activeButton === 'message-institute' && (
-         <MessageInstitute />
-       )}
+      {activeTab === 4 && (
+        <MessageInstitute />
+      )}
      </div>
   )
 }

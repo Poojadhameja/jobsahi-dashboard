@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { LuBell, LuChevronDown, LuSearch } from "react-icons/lu";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant.js";
 import Button from "../../../../shared/components/Button.jsx";
+import { PillNavigation } from "../../../../shared/components/navigation.jsx";
 
 // Constants
 const TABS = {
@@ -23,7 +24,7 @@ const CAMPAIGN_STATUS = {
 };
 
 export default function EmailSmsCampaignsManager() {
-  const [activeTab, setActiveTab] = useState(TABS.CREATE);
+  const [activeTab, setActiveTab] = useState(0);
   const [isLaunching, setIsLaunching] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -64,6 +65,12 @@ export default function EmailSmsCampaignsManager() {
   const canLaunch = useMemo(() => {
     return form.name.trim() && form.channel && form.subject.trim() && form.content.trim();
   }, [form]);
+
+  // Navigation tabs for the component
+  const navigationTabs = [
+    { id: 'create', label: 'Create Campaign' },
+    { id: 'manage', label: 'Manage Campaign' }
+  ];
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -118,7 +125,7 @@ export default function EmailSmsCampaignsManager() {
       alert(`Campaign "${form.name}" launched successfully! 🚀`);
       
       // Switch to manage tab to see the new campaign
-      setActiveTab(TABS.MANAGE);
+      setActiveTab(1);
 
     } catch (error) {
       console.error('Error launching campaign:', error);
@@ -165,29 +172,12 @@ ${form.content}
 
   // Component: Tab Navigation
   const TabNavigation = () => (
-    <div className="mb-6 grid grid-cols-2 gap-4 max-w-xl">
-      <button
-        type="button"
-        onClick={() => setActiveTab(TABS.CREATE)}
-        className={`h-10 rounded-lg border px-4 text-sm font-medium transition
-        ${activeTab === TABS.CREATE
-            ? `border-blue-500 bg-blue-50 text-gray-900`
-            : `border-gray-300 bg-white text-gray-600 hover:bg-gray-50`
-          }`}
-      >
-        Create Campaign
-      </button>
-      <button
-        type="button"
-        onClick={() => setActiveTab(TABS.MANAGE)}
-        className={`h-10 rounded-lg border px-4 text-sm font-medium transition
-        ${activeTab === TABS.MANAGE
-            ? `border-blue-500 bg-blue-50 text-gray-900`
-            : `border-gray-300 bg-white text-gray-600 hover:bg-gray-50`
-          }`}
-      >
-        Manage Campaign
-      </button>
+    <div className="mb-6">
+      <PillNavigation 
+        tabs={navigationTabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
     </div>
   );
 
@@ -207,7 +197,7 @@ ${form.content}
           Filter
         </Button>
       </div>
-      <Button variant="primary" size="sm" onClick={() => setActiveTab(TABS.CREATE)}>
+      <Button variant="primary" size="sm" onClick={() => setActiveTab(0)}>
         New Campaign
       </Button>
     </div>
@@ -386,7 +376,7 @@ ${form.content}
         <HeaderSection />
         <TabNavigation />
 
-        {activeTab === TABS.MANAGE ? (
+        {activeTab === 1 ? (
           <CampaignManagementSection />
         ) : (
           <CampaignCreateForm 
