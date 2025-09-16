@@ -2,11 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* PrimeReact CSS */
+@import 'primereact/resources/themes/lara-light-cyan/theme.css';
+@import 'primereact/resources/primereact.min.css';
+
 
 /* (optional) your custom styles */
 
 html, body, #root { height: 100%; }
-body { margin: 0; }
+body { margin: 0;  }
 
 
 
@@ -35,5 +39,35 @@ body { margin: 0; }
 /* For Firefox */
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: #0C5A8D #0B537D;
+  scrollbar-color: #0a4b6b71 white;
+}
+
+/* PrimeReact Editor Custom Styling */
+.p-editor-container .p-editor-content {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  min-height: 200px;
+}
+
+.p-editor-container .p-editor-content:focus-within {
+  border-color: #5C9A24;
+  box-shadow: 0 0 0 2px rgba(92, 154, 36, 0.2);
+}
+
+.p-editor-toolbar {
+  border: 1px solid #d1d5db;
+  border-bottom: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background-color: #f9fafb;
+}
+
+.p-editor-content .ql-editor {
+  min-height: 200px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.p-editor-content .ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: normal;
 }

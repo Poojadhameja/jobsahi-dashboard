@@ -1,48 +1,39 @@
 import React, { useState } from 'react'
 import { Pie } from 'react-chartjs-2'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
-import { FaBriefcase, FaUsers, FaCalendarAlt, FaEnvelope, FaCheck, FaTimes, FaEllipsisV } from 'react-icons/fa'
+import { FaBriefcase, FaUsers, FaCalendarAlt, FaEnvelope, FaCheck, FaTimes, FaEllipsisV, FaWrench } from 'react-icons/fa'
 import { TradesPieChart } from '../../../shared/components/charts'
+import { Horizontal4Cards } from '../../../shared/components/metricCard'
+import Calendar from '../../../shared/components/Calendar'
+import DataTable from '../../../shared/components/DataTable'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 const Dashboard = () => {
-  // Metric cards data matching the image
-  const metricCards = [
+  // Metric cards data for Horizontal4Cards
+  const metricCardsData = [
     {
       title: 'Jobs Posted',
       value: '79',
-      color: 'bg-green-500',
-      icon: FaBriefcase 
+      icon: <FaBriefcase className="w-5 h-5" />
     },
     {
       title: 'Applied Job',
       value: '7',
-      color: 'bg-green-400',
-      icon: FaUsers
+      icon: <FaUsers className="w-5 h-5" />
     },
     {
       title: 'Interview Job',
       value: '160',
-      color: 'bg-orange-500',
-      icon: FaCalendarAlt
+      icon: <FaCalendarAlt className="w-5 h-5" />
     },
     {
       title: 'Interview Job',
       value: '18',
-      color: 'bg-blue-400',
-      icon: FaEnvelope
+      icon: <FaEnvelope className="w-5 h-5" />
     }
   ]
 
-  // Calendar data for August with interview information
-  const calendarDays = [
-    { day: 'MON', date: 1 }, { day: 'TUE', date: 2 }, { day: 'WED', date: 3 }, { day: 'THU', date: 4 }, { day: 'FRI', date: 5 }, { day: 'SAT', date: 6 }, { day: 'SUN', date: 7 },
-    { day: 'MON', date: 8 }, { day: 'TUE', date: 9 }, { day: 'WED', date: 10, hasInterview: true }, { day: 'THU', date: 11 }, { day: 'FRI', date: 12 }, { day: 'SAT', date: 13 }, { day: 'SUN', date: 14 },
-    { day: 'MON', date: 15 }, { day: 'TUE', date: 16 }, { day: 'WED', date: 17, hasInterview: true }, { day: 'THU', date: 18 }, { day: 'FRI', date: 19 }, { day: 'SAT', date: 20 }, { day: 'SUN', date: 21 },
-    { day: 'MON', date: 22 }, { day: 'TUE', date: 23 }, { day: 'WED', date: 24 }, { day: 'THU', date: 25, hasInterview: true }, { day: 'FRI', date: 26 }, { day: 'SAT', date: 27 }, { day: 'SUN', date: 28 },
-    { day: 'MON', date: 29 }, { day: 'TUE', date: 30 }, { day: 'WED', date: 31 }
-  ]
 
   // Interview details for different dates
   const interviewDetailsData = {
@@ -119,6 +110,18 @@ const Dashboard = () => {
       applications: '64 Applications',
       newCount: '06 new',
       icon: FaBriefcase
+    },
+    {
+      title: 'Plumber Assistant',
+      applications: '42 Applications',
+      newCount: '03 new',
+      icon: FaWrench
+    },
+    {
+      title: 'Carpenter Helper',
+      applications: '38 Applications',
+      newCount: '02 new',
+      icon: FaBriefcase
     }
   ]
 
@@ -154,95 +157,112 @@ const Dashboard = () => {
     }
   ]
 
+  // Table configuration
+  const tableColumns = [
+    { key: 'name', header: 'Name of applicants' },
+    { key: 'jobTitle', header: 'Job Title' },
+    { key: 'datePosted', header: 'Date of posted' }
+  ]
+
+  const tableActions = [
+    {
+      label: 'Accept',
+      variant: 'success',
+      onClick: (row) => console.log('Accept', row)
+    },
+    {
+      label: 'Decline',
+      variant: 'danger',
+      onClick: (row) => console.log('Decline', row)
+    }
+  ]
+
+  // Dropdown handlers
+  const handleViewDetails = (row) => {
+    console.log('View Details for:', row)
+    // Add your view details logic here
+  }
+
+  const handleDownloadCV = (row) => {
+    console.log('Download CV for:', row)
+    // Add your download CV logic here
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-[#F6FAFF]">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Hi! Brightorial</h1>
+      <div className="mb-5">
+        <h1 className="text-3xl font-semibold text-[#0B537D]">Hi! Brightorial</h1>
       </div>
 
       {/* Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {metricCards.map((card, index) => {
-          const IconComponent = card.icon
-          return (
-            <div key={index} className={`${card.color} rounded-lg p-6 text-white shadow-lg`}>
-            <div className="flex items-center justify-between">
-              <div>
-                  <p className="text-4xl font-bold mb-2">{card.value}</p>
-                  <p className="text-white/90 text-sm">{card.title}</p>
-              </div>
-                <IconComponent className="text-3xl text-white/80" />
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <Horizontal4Cards data={metricCardsData} className="mb-5" />
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
         {/* Left Column - Calendar and Interview Details */}
-        <div className="space-y-6">
-          {/* August Calendar */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">August</h3>
-            <div className="grid grid-cols-7 gap-2">
-              {calendarDays.map((day, index) => (
-                <div key={index} className="text-center">
-                  <div className="text-xs text-gray-500 mb-1">{day.day}</div>
-                  <button
-                    onClick={() => setSelectedDate(day.date)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-full text-sm transition-all duration-200 ${
-                      selectedDate === day.date
-                        ? 'bg-green-500 text-white shadow-lg' 
-                        : day.hasInterview
-                        ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border-2 border-blue-300'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    {day.date}
-                  </button>
-                  {day.hasInterview && selectedDate !== day.date && (
-                    <div className="w-1 h-1 bg-blue-500 rounded-full mx-auto mt-1"></div>
-                  )}
-                </div>
-              ))}
-          </div>
-        </div>
+        <div className="space-y-4 bg-white rounded-lg border border-[#0B537D3C]">
+            {/* Calendar */}
+            <Calendar 
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+              interviewDates={[10, 17, 25]}
+            />
 
           {/* Candidate Interview Details */}
-          <div className="bg-white rounded-lg shadow-md">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-bold text-blue-900">Candidate Interview Details</h3>
-          </div>
-            <div className="p-6 max-h-64 overflow-y-auto">
+          <div className="">
+            <div className="px-5 py-2 ">
+              <h3 className="text-lg font-bold text-[#0B537D]">Candidate Interview Details</h3>
+            </div>
+            <div className="flex flex-col h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-white-300 scrollbar-track-white-100">
+            <div className="p-2 md:p-4 border border-[#0B537D3C] m-4 rounded-lg ">
               {interviewDetailsData[selectedDate] ? (
-            <div className="space-y-4">
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Name:</p>
-                    <p className="text-base font-semibold text-gray-900">{interviewDetailsData[selectedDate].name}</p>
+                <div className="space-y-4 ">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">Name:</span>
+                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].name}</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Job Title:</p>
-                    <p className="text-base font-semibold text-gray-900">{interviewDetailsData[selectedDate].jobTitle}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">Job Title:</span>
+                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].jobTitle}</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Mode of Interview:</p>
-                    <p className="text-base font-semibold text-gray-900">{interviewDetailsData[selectedDate].mode}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">Mode of Interview:</span>
+                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].mode}</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Time:</p>
-                    <p className="text-base font-semibold text-gray-900">{interviewDetailsData[selectedDate].time}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">Time:</span>
+                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].time}</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Status:</p>
-                    <span className={`inline-flex px-3 py-1 text-sm font-medium rounded-full ${
-                      interviewDetailsData[selectedDate].status === 'Confirmed' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {interviewDetailsData[selectedDate].status}
-                    </span>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="text-gray-400 mb-3">
+                    <FaCalendarAlt className="text-4xl mx-auto" />
+              </div>
+                  <p className="text-gray-500 text-sm font-medium">No interview scheduled for August {selectedDate}</p>
+                  <p className="text-gray-400 text-xs mt-2">Click on a date with a blue indicator to view interview details</p>
+              </div>
+              )}
+            </div>
+            <div className="p-2 md:p-4 border border-[#0B537D3C] m-4 rounded-lg ">
+              {interviewDetailsData[selectedDate] ? (
+                <div className="space-y-4 ">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">Name:</span>
+                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].name}</span>
+          </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">Job Title:</span>
+                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].jobTitle}</span>
+      </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">Mode of Interview:</span>
+                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].mode}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-600">Time:</span>
+                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].time}</span>
                   </div>
                 </div>
               ) : (
@@ -255,12 +275,13 @@ const Dashboard = () => {
                 </div>
               )}
             </div>
+            </div>
           </div>
         </div>
 
         {/* Right Column - Trades Chart */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          <div className="bg-white rounded-lg border border-[#0B537D3C] p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold text-gray-900">Total applicants this week by trades wise</h3>
               <span className="text-sm text-gray-500">Nov, 01-07</span>
@@ -268,102 +289,54 @@ const Dashboard = () => {
             
             <TradesPieChart />
           </div>
-        </div>
+          
+          {/* Total Applicants Section */}
+          <div className="bg-white rounded-lg border border-[#0B537D3C] p-6">
+            <h3 className="text-xl font-bold text-[#0B537D] mb-6">Total Applicants</h3>
+            
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+              {applicantCards.map((card, index) => {
+                const IconComponent = card.icon
+                return (
+                  <div key={index} className="bg-[#F6FAFF] border border-[#0B537D3C] rounded-lg p-4 min-w-[280px] flex-shrink-0">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <IconComponent className="text-gray-600 text-sm" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-gray-700 text-sm mb-1">{card.title}</h4>
+                        <div className="flex items-baseline space-x-2">
+                          <span className="text-2xl font-bold text-gray-700">{card.applications.split(' ')[0]}</span>
+                          <span className="text-sm text-gray-500">Aplications</span>
+                        </div>
+                      </div>
+                      <div className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                        {card.newCount}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+      </div>
+
+        
       </div>
 
       {/* Bottom Section */}
-      <div className="space-y-6">
-        {/* Total Applicants Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {applicantCards.map((card, index) => {
-            const IconComponent = card.icon
-            return (
-              <div key={index} className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <IconComponent className="text-gray-600 text-xl" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-gray-900">{card.title}</h4>
-                    <p className="text-sm text-gray-600">{card.applications}</p>
-                  </div>
-                  <div className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
-                    {card.newCount}
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+      
 
         {/* Recent Applicants Table */}
-        <div className="bg-white rounded-lg shadow-md">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Applicants</h3>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                All Applicants
-              </button>
-            </div>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name of applicants
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Job Title
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date of posted
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {recentApplicants.map((applicant) => (
-                  <tr key={applicant.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium text-gray-600 mr-3">
-                          {applicant.avatar}
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">{applicant.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {applicant.jobTitle}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {applicant.datePosted}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button className="bg-green-100 text-green-800 px-3 py-1 rounded text-xs hover:bg-green-200">
-                          <FaCheck className="inline mr-1" />
-                          Accept
-          </button>
-                        <button className="bg-red-100 text-red-800 px-3 py-1 rounded text-xs hover:bg-red-200">
-                          <FaTimes className="inline mr-1" />
-                          Decline
-          </button>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <FaEllipsisV />
-          </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+        <DataTable
+          title="Recent Applicants"
+          columns={tableColumns}
+          data={recentApplicants}
+          actions={tableActions}
+          onViewDetails={handleViewDetails}
+          onDownloadCV={handleDownloadCV}
+        />
+      {/* </div> */}
     </div>
   )
 }

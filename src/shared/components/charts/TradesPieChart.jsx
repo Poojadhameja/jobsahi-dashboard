@@ -5,7 +5,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 const TradesPieChart = ({ 
-  height = "h-48 sm:h-56 md:h-64",
+  // height = "",
   className = ""
 }) => {
   const pieData = {
@@ -71,7 +71,7 @@ const TradesPieChart = ({
   ]
 
   return (
-    <div className={`${height} ${className}`}>
+    <div className={`${className}`}>
       <div className="flex items-center justify-between h-full">
         {/* Legend */}
         <div className="flex-1 pr-6">
@@ -89,7 +89,7 @@ const TradesPieChart = ({
         </div>
         
         {/* Pie Chart */}
-        <div className="w-48 h-48 flex-shrink-0">
+        <div className="w-48 h-48 md:h-72 md:w-72 flex-shrink-0">
           <Pie data={pieData} options={pieOptions} />
         </div>
       </div>

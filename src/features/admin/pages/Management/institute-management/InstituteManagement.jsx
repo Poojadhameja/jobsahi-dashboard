@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
-import { MatrixCard } from '../../../components/metricCard'
+import { MatrixCard } from '../../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../../shared/components/navigation'
-import PendingInstituteApprovals from './pending_institute'
-import CourseMonitoring from './course_monitoring'
-import PlacementStudent from './placement_student'
-import CertificateInsurance from './certificate_insurance'
-import MessageInstitute from './message_institute'
+import PendingInstituteApprovals from './PendingInstitute'
+import CourseMonitoring from './CourseMonitoring'
+import PlacementStudent from './PlacementStudent'
+import CertificateInsurance from './CertificateInsurance'
+import MessageInstitute from './MessageInstitute'
 
 
 export default function InstituteManagement() {
