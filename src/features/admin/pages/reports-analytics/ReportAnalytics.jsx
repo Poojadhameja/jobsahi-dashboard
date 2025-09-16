@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { MatrixCard, Horizontal4Cards } from '../../components/metricCard.jsx'
+import { MatrixCard, Horizontal4Cards } from '../../../../shared/components/metricCard.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
-import ConversionReports from './conversion_reports.jsx'
-import HiringFunnel from './hiring_funnel.jsx'
-import CompletionRates from './completeion_rates.jsx'
-import CoursePerformance from './course_performance.jsx'
+import ConversionReports from './ConversionReports.jsx'
+import HiringFunnel from './HiringFunnel.jsx'
+import CompletionRates from './CompletionRates.jsx'
+import CoursePerformance from './CoursePerformance.jsx'
 
 export default function ReportAnalytics() {
   const [activeTab, setActiveTab] = useState(0)

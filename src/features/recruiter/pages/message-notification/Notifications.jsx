@@ -1,303 +1,363 @@
-import React, { useState } from 'react';
-import { LuPlus, LuPencil, LuTrash2, LuX, LuSave } from 'react-icons/lu';
+import React, { useState } from "react";
+import {
+  LuPlus,
+  LuEye,
+  LuPencil,
+  LuTrash2,
+  LuX,
+  LuSave,
+  LuFileText,
+} from "react-icons/lu";
 
-const Notifications = () => {
-  const [activeCategory, setActiveCategory] = useState('all');
+const GREEN = "#5B9821";
+const GREEN_SOFT = "#EAF5E2";
+const BLUE_DARK = "#1F4961";
+const BLUE_BTN = "#0B537D";
+const CARD_BG = "#D6E7F2"; // light blue like the mock
+
+export default function Notifications() {
+  const [activeCategory, setActiveCategory] = useState("all");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState(null);
   const [editingTemplate, setEditingTemplate] = useState(null);
 
   const categories = [
-    { id: 'all', label: 'All', active: true },
-    { id: 'interview', label: 'Interview', active: false },
-    { id: 'application', label: 'Application', active: false },
-    { id: 'rejection', label: 'Rejection', active: false },
-    { id: 'offers', label: 'Offers', active: false },
-    { id: 'follow-up', label: 'Follow-up', active: false }
+    { id: "all", label: "All" },
+    { id: "interview", label: "Interview" },
+    { id: "application", label: "Application" },
+    { id: "rejection", label: "Rejection" },
+    { id: "offers", label: "Offers" },
+    { id: "follow-up", label: "Follow-up" },
   ];
 
   const [emailTemplates, setEmailTemplates] = useState([
     {
       id: 1,
       title: "Interview Invitation",
-      category: "Interview",
-      subject: "Interview Invitation - [[position]] at JOBSAHI",
-      body: "Dear {{candidate_name}}, We are pleased to inform you that your application for the [[position]] position has been reviewed and we would like to invite you for an interview. Please let us know your availability for the following time slots: [Date and Time]. We look forward to meeting you!",
-      categoryColor: "bg-blue-100 text-blue-800"
+      category: "interview",
+      subject: "Interview Invitation – [[position]] at JOBSAHI",
+      body:
+        "Dear {{candidate_name}}, We are pleased to inform you that your application for the [[position]] position has been reviewed...",
     },
     {
       id: 2,
       title: "Application Received",
-      category: "Application",
-      subject: "Application invitation - [[position]] at JOBSAHI",
-      body: "Hello {{candidate_name}}, Thank you for applying for the [[position]] position at JOBSAHI. We have received your application and our team will review it carefully. We will get back to you within 3-5 business days with the next steps.",
-      categoryColor: "bg-blue-100 text-blue-800"
+      category: "application",
+      subject: "Application invitation – [[position]] at JOBSAHI",
+      body:
+        "Hello {{candidate_name}}, Thank you for applying for the [[position]] position at JOBSAHI. We have received your application...",
     },
     {
       id: 3,
       title: "Interview Confirmation",
-      category: "Interview",
-      subject: "Interview Confirmation - [[position]] at JOBSAHI",
-      body: "Dear {{candidate_name}}, This is to confirm your interview for the [[position]] position scheduled as follows: Date: [Date], Time: [Time], Location: [Location/Video Call]. Please arrive 10 minutes early. If you have any questions, feel free to contact us.",
-      categoryColor: "bg-blue-100 text-blue-800"
+      category: "interview",
+      subject: "Interview Confirmation – [[position]] at JOBSAHI",
+      body:
+        "Dear {{candidate_name}}, This is to confirm your interview for the [[position]] position scheduled as follows...",
     },
     {
       id: 4,
       title: "Polite Rejection",
-      category: "Rejection",
-      subject: "Application Status - [[position]]",
-      body: "Dear {{candidate_name}}, Thank you for your interest in the [[position]] position at JOBSAHI and for taking the time to apply. After careful consideration, we have decided to move forward with other candidates. We encourage you to apply for future opportunities that match your skills.",
-      categoryColor: "bg-blue-100 text-blue-800"
+      category: "rejection",
+      subject: "Application Status – [[position]]",
+      body:
+        "Dear {{candidate_name}}, Thank you for your interest in the [[position]] position at JOBSAHI and for taking the time to apply...",
     },
     {
       id: 5,
       title: "Follow-up Message",
-      category: "Follow-up",
-      subject: "Following up on your application - [[position]]",
-      body: "Hello {{candidate_name}}, I hope this message finds you well. I wanted to follow up on your application for the {{position}} position. We are still in the review process and will have an update for you soon. Thank you for your patience.",
-      categoryColor: "bg-blue-100 text-blue-800"
+      category: "follow-up",
+      subject: "Following up on your application – [[position]]",
+      body:
+        "Hello {{candidate_name}}, I hope this message finds you well. I wanted to follow up on your application for the [[position]]...",
     },
-    {
-      id: 6,
-      title: "Job Offer",
-      category: "Offers",
-      subject: "Job Offer - [[position]] at JOBSAHI",
-      body: "Dear {{candidate_name}}, Congratulations! We are pleased to offer you the position of [[position]] at JOBSAHI. We were impressed with your qualifications and believe you will be a great addition to our team. Please review the attached offer letter and let us know your decision by [Date].",
-      categoryColor: "bg-green-100 text-green-800"
-    },
-    {
-      id: 7,
-      title: "Welcome Email",
-      category: "Offers",
-      subject: "Welcome to JOBSAHI - [[position]]",
-      body: "Dear {{candidate_name}}, Welcome to JOBSAHI! We are excited to have you join our team as [[position]]. Your first day will be [Date] at [Time]. Please find attached your onboarding schedule and company policies. We look forward to working with you!",
-      categoryColor: "bg-green-100 text-green-800"
-    }
   ]);
 
-  // Template management functions
-
-  const handleEditTemplate = (template) => {
-    setEditingTemplate({ ...template });
+  // helpers
+  const handleEditTemplate = (t) => {
+    setEditingTemplate({ ...t });
     setIsEditModalOpen(true);
   };
-
-  const handleDeleteTemplate = (template) => {
-    setTemplateToDelete(template);
+  const handleDeleteTemplate = (t) => {
+    setTemplateToDelete(t);
     setIsDeleteModalOpen(true);
   };
-
   const confirmDelete = () => {
-    if (templateToDelete) {
-      setEmailTemplates(templates => templates.filter(t => t.id !== templateToDelete.id));
-      setIsDeleteModalOpen(false);
-      setTemplateToDelete(null);
-    }
+    if (!templateToDelete) return;
+    setEmailTemplates((arr) => arr.filter((x) => x.id !== templateToDelete.id));
+    setIsDeleteModalOpen(false);
+    setTemplateToDelete(null);
   };
-
   const handleSaveEdit = () => {
-    if (editingTemplate) {
-      setEmailTemplates(templates => 
-        templates.map(t => t.id === editingTemplate.id ? editingTemplate : t)
-      );
-      setIsEditModalOpen(false);
-      setEditingTemplate(null);
-    }
+    if (!editingTemplate) return;
+    setEmailTemplates((arr) =>
+      arr.map((x) => (x.id === editingTemplate.id ? editingTemplate : x))
+    );
+    setIsEditModalOpen(false);
+    setEditingTemplate(null);
   };
+  const handleUseTemplate = (t) => alert(`Using template: ${t.title}`);
 
-  const handleUseTemplate = (template) => {
-    // This would typically open a compose email dialog or redirect to email composition
-    alert(`Using template: ${template.title}`);
-  };
-
-  const filteredTemplates = activeCategory === 'all' 
-    ? emailTemplates 
-    : emailTemplates.filter(template => 
-        template.category.toLowerCase() === activeCategory
-      );
+  const filtered =
+    activeCategory === "all"
+      ? emailTemplates
+      : emailTemplates.filter((t) => t.category === activeCategory);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Categories</h1>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#0B537D] text-white rounded-lg hover:bg-[#0a4a6b] transition-colors">
-            <LuPlus className="w-5 h-5" />
-            Create Template
-          </button>
-        </div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-[28px] font-semibold text-slate-800">Categories</h1>
+
+        <button
+          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-white shadow-sm"
+          style={{ backgroundColor: BLUE_BTN }}
+        >
+          <span className="grid h-6 w-6 place-items-center rounded-full bg-white/25">
+            <LuPlus className="h-4 w-4 text-white" />
+          </span>
+          <span className="font-medium">Create Template</span>
+        </button>
       </div>
 
-      {/* Category Filters */}
-      <div className="flex gap-2 mb-8">
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            onClick={() => setActiveCategory(category.id)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-              activeCategory === category.id
-                ? 'bg-[#5B9821] text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {category.label}
-          </button>
-        ))}
+      {/* Category chips */}
+      <div className="flex flex-wrap gap-3 mb-10">
+        {categories.map((c) => {
+          const active = c.id === activeCategory;
+          return (
+            <button
+              key={c.id}
+              onClick={() => setActiveCategory(c.id)}
+              className={`rounded-full px-6 py-2 text-sm font-medium transition-all`}
+              style={{
+                backgroundColor: active ? GREEN : GREEN_SOFT,
+                color: active ? "#fff" : GREEN,
+              }}
+            >
+              {c.label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Template Cards Grid */}
+      {/* Cards grid — matches 3 across like the mock (wraps to 2 below) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredTemplates.map((template) => (
-          <div
-            key={template.id}
-            className="bg-gray-50 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+        {filtered.map((t) => (
+          <article
+            key={t.id}
+            className="rounded-xl border border-transparent shadow-sm transition hover:shadow-md"
+            style={{ backgroundColor: CARD_BG }}
           >
-            {/* Template Title */}
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              {template.title}
-            </h3>
+            <div className="p-4">
+              {/* tiny category chip (blue) */}
+              <div className="mb-3">
+                <span className="inline-block rounded-full border border-white/40 bg-white/30 px-2.5 py-1 text-xs font-semibold text-[#1b3a4a]">
+                  {t.category.charAt(0).toUpperCase() + t.category.slice(1)}
+                </span>
+              </div>
 
-            {/* Category Tag */}
-            <div className="mb-4">
-              <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${template.categoryColor}`}>
-                {template.category}
-              </span>
-            </div>
+              <h3 className="mb-1 text-[18px] font-semibold text-[#163a52]">
+                {t.title}
+              </h3>
 
-            {/* Subject */}
-            <div className="mb-3">
-              <p className="text-sm font-medium text-gray-700 mb-1">Subject:</p>
-              <p className="text-sm text-gray-600 bg-white p-2 rounded border">
-                {template.subject}
-              </p>
-            </div>
+              <div className="mb-2 text-[12px] font-semibold text-[#163a52]">
+                Subject:
+              </div>
+              <div className="mb-3 rounded-md bg-white/60 px-3 py-2 text-sm text-[#1a2f3d]">
+                {t.subject}
+              </div>
 
-            {/* Body Preview */}
-            <div className="mb-6">
-              <p className="text-sm font-medium text-gray-700 mb-1">Body:</p>
-              <p className="text-sm text-gray-600 bg-white p-2 rounded border overflow-hidden" style={{display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical'}}>
-                {template.body}
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-center justify-between">
-              <button 
-                onClick={() => handleUseTemplate(template)}
-                className="px-4 py-2 bg-[#0B537D] text-white text-sm rounded-lg hover:bg-[#0a4a6b] transition-colors"
+              <div className="mb-4 text-[12px] font-semibold text-[#163a52]">
+                Body:
+              </div>
+              <p
+                className="rounded-md bg-white/60 px-3 py-2 text-sm leading-relaxed text-[#1a2f3d]"
+                style={{
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
               >
+                {t.body}
+              </p>
+            </div>
+
+            {/* Footer actions */}
+            <div className="flex items-center justify-between px-4 pb-4">
+              <button
+                onClick={() => handleUseTemplate(t)}
+                className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-white"
+                style={{ backgroundColor: BLUE_DARK }}
+              >
+                <LuFileText className="h-4 w-4" />
                 Use Template
               </button>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => handleEditTemplate(template)}
-                  className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
-                  title="Edit Template"
+
+              <div className="flex items-center gap-3">
+                {/* tiny progress dots like the mock */}
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-[#1a2f3d]/40"></span>
+                  <span className="h-2 w-2 rounded-full bg-[#1a2f3d]/40"></span>
+                  <span className="h-2 w-2 rounded-full bg-[#1a2f3d]/40"></span>
+                </div>
+
+                <button
+                  title="View"
+                  onClick={() => handleEditTemplate(t)}
+                  className="rounded-md p-2 text-[#163a52] hover:bg-white/50"
                 >
-                  <LuPencil className="w-4 h-4" />
+                  <LuEye className="h-4 w-4" />
                 </button>
-                <button 
-                  onClick={() => handleDeleteTemplate(template)}
-                  className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                  title="Delete Template"
+                <button
+                  title="Edit"
+                  onClick={() => handleEditTemplate(t)}
+                  className="rounded-md p-2 text-[#163a52] hover:bg-white/50"
                 >
-                  <LuTrash2 className="w-4 h-4" />
+                  <LuPencil className="h-4 w-4" />
+                </button>
+                <button
+                  title="Delete"
+                  onClick={() => handleDeleteTemplate(t)}
+                  className="rounded-md p-2 text-red-600 hover:bg-white/50"
+                >
+                  <LuTrash2 className="h-4 w-4" />
                 </button>
               </div>
             </div>
-          </div>
+          </article>
         ))}
       </div>
 
-      {/* Empty State */}
-      {filteredTemplates.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LuPlus className="w-8 h-8 text-gray-400" />
+      {/* Empty state */}
+      {filtered.length === 0 && (
+        <div className="py-16 text-center">
+          <div className="mx-auto mb-6 grid h-20 w-20 place-items-center rounded-full bg-gray-100">
+            <LuPlus className="h-10 w-10 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-500 mb-2">No Templates Found</h3>
-          <p className="text-gray-400 mb-4">No templates found for the selected category.</p>
-          <button className="px-4 py-2 bg-[#0B537D] text-white rounded-lg hover:bg-[#0a4a6b] transition-colors">
+          <h3 className="mb-2 text-xl font-semibold text-gray-700">
+            No Templates Found
+          </h3>
+          <p className="mx-auto mb-6 max-w-md text-gray-500">
+            No templates for this category. Create your first template to get
+            started.
+          </p>
+          <button
+            className="rounded-lg px-6 py-3 font-medium text-white"
+            style={{ backgroundColor: BLUE_BTN }}
+          >
             Create Your First Template
           </button>
         </div>
       )}
 
-      {/* Edit Template Modal */}
+      {/* Edit Modal */}
       {isEditModalOpen && editingTemplate && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-900">Edit Template</h3>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
+          <div className="w-full max-w-3xl rounded-xl bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-2xl font-semibold text-slate-800">
+                Edit Template
+              </h3>
               <button
                 onClick={() => setIsEditModalOpen(false)}
-                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="rounded-md p-2 text-gray-500 hover:bg-gray-100"
               >
-                <LuX className="w-5 h-5" />
+                <LuX className="h-5 w-5" />
               </button>
             </div>
-            
-            <div className="space-y-4">
+
+            <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Title
+                </label>
                 <input
-                  type="text"
                   value={editingTemplate.title}
-                  onChange={(e) => setEditingTemplate({...editingTemplate, title: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+                  onChange={(e) =>
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      title: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B537D]"
                 />
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                <select
-                  value={editingTemplate.category}
-                  onChange={(e) => setEditingTemplate({...editingTemplate, category: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
-                >
-                  <option value="Interview">Interview</option>
-                  <option value="Application">Application</option>
-                  <option value="Rejection">Rejection</option>
-                  <option value="Offers">Offers</option>
-                  <option value="Follow-up">Follow-up</option>
-                </select>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Category
+                  </label>
+                  <select
+                    value={editingTemplate.category}
+                    onChange={(e) =>
+                      setEditingTemplate({
+                        ...editingTemplate,
+                        category: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B537D]"
+                  >
+                    {categories
+                      .filter((c) => c.id !== "all")
+                      .map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.label}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                    Subject
+                  </label>
+                  <input
+                    value={editingTemplate.subject}
+                    onChange={(e) =>
+                      setEditingTemplate({
+                        ...editingTemplate,
+                        subject: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B537D]"
+                  />
+                </div>
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                <input
-                  type="text"
-                  value={editingTemplate.subject}
-                  onChange={(e) => setEditingTemplate({...editingTemplate, subject: e.target.value})}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Body</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Body
+                </label>
                 <textarea
+                  rows={10}
                   value={editingTemplate.body}
-                  onChange={(e) => setEditingTemplate({...editingTemplate, body: e.target.value})}
-                  rows={8}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+                  onChange={(e) =>
+                    setEditingTemplate({
+                      ...editingTemplate,
+                      body: e.target.value,
+                    })
+                  }
+                  className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0B537D]"
                 />
               </div>
             </div>
-            
-            <div className="flex justify-end gap-3 mt-6">
+
+            <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => setIsEditModalOpen(false)}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 bg-[#0B537D] text-white rounded-lg hover:bg-[#0a4a6b] transition-colors flex items-center gap-2"
+                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 font-medium text-white"
+                style={{ backgroundColor: BLUE_BTN }}
               >
-                <LuSave className="w-4 h-4" />
+                <LuSave className="h-4 w-4" />
                 Save Changes
               </button>
             </div>
@@ -305,41 +365,42 @@ const Notifications = () => {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal */}
       {isDeleteModalOpen && templateToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-900">Delete Template</h3>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-2xl font-semibold text-slate-800">
+                Delete Template
+              </h3>
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="rounded-md p-2 text-gray-500 hover:bg-gray-100"
               >
-                <LuX className="w-5 h-5" />
+                <LuX className="h-5 w-5" />
               </button>
             </div>
-            
-            <div className="mb-6">
-              <p className="text-gray-600 mb-2">
-                Are you sure you want to delete the template <strong>"{templateToDelete.title}"</strong>?
-              </p>
-              <p className="text-sm text-gray-500">
-                This action cannot be undone.
-              </p>
-            </div>
-            
+
+            <p className="mb-4 text-gray-700">
+              Are you sure you want to delete{" "}
+              <strong>"{templateToDelete.title}"</strong>?
+            </p>
+            <p className="mb-6 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              This action can’t be undone.
+            </p>
+
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="rounded-lg border border-gray-300 px-5 py-2.5 text-gray-700 hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 font-medium text-white hover:bg-red-700"
               >
-                <LuTrash2 className="w-4 h-4" />
+                <LuTrash2 className="h-4 w-4" />
                 Delete Template
               </button>
             </div>
@@ -348,6 +409,4 @@ const Notifications = () => {
       )}
     </div>
   );
-};
-
-export default Notifications;
+}

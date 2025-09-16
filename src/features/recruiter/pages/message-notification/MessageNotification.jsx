@@ -3,7 +3,7 @@ import {
   LuBell,
   LuMessageSquare,
 } from "react-icons/lu";
-import { MatrixCard } from "../../../admin/components/metricCard";
+import { MatrixCard } from "../../../../shared/components/metricCard";
 import { PillNavigation } from "../../../../shared/components/navigation";
 import MessagesCenter from "./Message";
 import Notifications from "./Notifications";
@@ -18,7 +18,7 @@ const MessageNotification = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="space-y-5">
       {/* Header Section */}
       <div className="max-w-6xl mx-auto mb-6">
         <MatrixCard 

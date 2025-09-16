@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';
-import { Horizontal4Cards } from '../../components/metricCard.jsx';
+import { Horizontal4Cards } from '../../../../shared/components/metricCard.jsx';
 
 const SegmentBasedMessaging = () => {
   const [formData, setFormData] = useState({

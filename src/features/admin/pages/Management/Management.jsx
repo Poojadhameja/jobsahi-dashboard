@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { PillNavigation, MANAGEMENT_TABS } from '../../../../shared/components/navigation'
+import { PillNavigation, MANAGEMENT_TABS } from '../../../../shared/components/navigation.jsx'
 import StudentManagement from './StudentManagement'
-import EmployerManagement from './employer_management/employer_management'
-import InstituteManagement from './institute_management/institute_management'
+import EmployerManagement from './employer-management/EmployerManagement'
+import InstituteManagement from './institute-management/InstituteManagement'
 
 // Active Tab Content Component
 function ActiveTabContent({ activeTab }) {

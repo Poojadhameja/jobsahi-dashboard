@@ -10,7 +10,7 @@ import CompanyInfo from './CompanyInfo'
 import TeamManagement from './TeamManagement'
 import Preferences from './Preferences'
 import { PillNavigation } from "@shared/components/navigation";
-import { MatrixCard } from "../../../admin/components/metricCard";
+import { MatrixCard } from "../../../../shared/components/metricCard";
 import { COLORS } from "@shared/WebConstant";
 
 const CompanyProfile = () => {
@@ -25,7 +25,7 @@ const CompanyProfile = () => {
   const activeTab = tabs[activeIndex]?.id || "company-info";
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="space-y-5">
       {/* Header Section */}
       <div className="max-w-6xl mx-auto mb-6">
         <MatrixCard 
