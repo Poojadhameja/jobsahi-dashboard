@@ -1,16 +1,11 @@
 import React, { useState } from 'react'
 import { Pie } from 'react-chartjs-2'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
-<<<<<<< HEAD
-import { FaBriefcase, FaUsers, FaCalendarAlt, FaEnvelope, FaCheck, FaTimes, FaEllipsisV } from 'react-icons/fa'
-import TradesPieChart from '../../../shared/components/charts/TradesPieChart'
-=======
 import { FaBriefcase, FaUsers, FaCalendarAlt, FaEnvelope, FaCheck, FaTimes, FaEllipsisV, FaWrench } from 'react-icons/fa'
 import { TradesPieChart } from '../../../shared/components/charts'
 import { Horizontal4Cards } from '../../../shared/components/metricCard'
 import Calendar from '../../../shared/components/Calendar'
 import DataTable from '../../../shared/components/DataTable'
->>>>>>> db6da75b86717982ae0d0ab794f6a71dcdddf27f
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
