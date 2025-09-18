@@ -1,132 +1,107 @@
-import React, { useState, useEffect } from 'react'
-import { FaCalendarAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
+import React, { useState } from 'react'
+import { LuChevronLeft, LuChevronRight } from 'react-icons/lu'
 
-const Calendar = ({ 
-  selectedDate = 10,
-  onDateSelect = () => {},
-  interviewDates = [],
-  className = ""
-}) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date())
-  const [selectedDay, setSelectedDay] = useState(selectedDate)
-
+const Calendar = ({ selectedDate = new Date(), onDateSelect, className = '' }) => {
+  const [currentDate, setCurrentDate] = useState(new Date()) // Current date
+  
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ]
-
-  const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
-
-  // Generate calendar days for current month
-  const generateCalendarDays = () => {
-    const year = currentMonth.getFullYear()
-    const month = currentMonth.getMonth()
+  
+  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+  
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear()
+    const month = date.getMonth()
     const firstDay = new Date(year, month, 1)
     const lastDay = new Date(year, month + 1, 0)
     const daysInMonth = lastDay.getDate()
     const startingDay = firstDay.getDay()
-
+    
     const days = []
     
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDay; i++) {
-      days.push({ date: null, isEmpty: true })
+      days.push(null)
     }
     
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const hasInterview = interviewDates.includes(day)
-      days.push({ 
-        date: day, 
-        isEmpty: false, 
-        hasInterview,
-        dayOfWeek: daysOfWeek[new Date(year, month, day).getDay()]
-      })
+      days.push(new Date(year, month, day))
     }
     
     return days
   }
-
-  const calendarDays = generateCalendarDays()
-
-  const goToPreviousMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
+  
+  const navigateMonth = (direction) => {
+    setCurrentDate(prev => {
+      const newDate = new Date(prev)
+      newDate.setMonth(prev.getMonth() + direction)
+      return newDate
+    })
   }
-
-  const goToNextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
+  
+  const isSelected = (date) => {
+    if (!date) return false
+    if (!selectedDate) return false
+    if (!(selectedDate instanceof Date)) return false
+    if (!(date instanceof Date)) return false
+    return date.toDateString() === selectedDate.toDateString()
   }
-
-  const handleDateClick = (date) => {
-    if (date && !date.isEmpty) {
-      setSelectedDay(date)
-      onDateSelect(date)
-    }
+  
+  const isToday = (date) => {
+    if (!date) return false
+    const today = new Date()
+    return date.toDateString() === today.toDateString()
   }
-
-  // Update selected day when prop changes
-  useEffect(() => {
-    setSelectedDay(selectedDate)
-  }, [selectedDate])
-
+  
+  const daysInMonth = getDaysInMonth(currentDate)
+  
   return (
-    <div className={`p-4 ${className}`}>
-      {/* Month Navigation Header */}
+    <div className={`bg-gray-50 rounded-lg border border-gray-200 p-4 ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <button
-          onClick={goToPreviousMonth}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          onClick={() => navigateMonth(-1)}
+          className="p-1 hover:bg-gray-200 rounded transition-colors"
         >
-          <FaChevronLeft className="w-4 h-4 text-gray-600" />
+          <LuChevronLeft className="w-4 h-4 text-gray-600" />
         </button>
-        
-        <h3 className="text-lg font-semibold text-gray-900">
-          {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        <h3 className="text-lg font-bold text-gray-900">
+          {months[currentDate.getMonth()]} {currentDate.getFullYear()}
         </h3>
-        
         <button
-          onClick={goToNextMonth}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200"
+          onClick={() => navigateMonth(1)}
+          className="p-1 hover:bg-gray-200 rounded transition-colors"
         >
-          <FaChevronRight className="w-4 h-4 text-gray-600" />
+          <LuChevronRight className="w-4 h-4 text-gray-600" />
         </button>
       </div>
-
-      {/* Days of Week Header */}
-      <div className="grid grid-cols-7 gap-2 mb-2">
-        {daysOfWeek.map((day) => (
-          <div key={day} className="text-center">
-            <div className="text-xs text-gray-500 font-medium">{day}</div>
+      
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {days.map(day => (
+          <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
+            {day}
           </div>
         ))}
       </div>
-
-      {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-2">
-        {calendarDays.map((day, index) => (
-          <div key={index} className="text-center">
-            {!day.isEmpty ? (
-              <>
-                <button
-                  onClick={() => handleDateClick(day)}
-                  className={`w-8 h-8 flex items-center justify-center rounded-full text-sm transition-all duration-200 ${
-                    selectedDay === day.date
-                      ? 'bg-green-500 text-white shadow-lg' 
-                      : day.hasInterview
-                      ? 'bg-blue-50 text-blue-700 hover:bg-blue-200 border border-blue-300'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  {day.date}
-                </button>
-                {day.hasInterview && selectedDay !== day.date && (
-                  <div className="w-1 h-1 bg-blue-500 rounded-full mx-auto mt-1"></div>
-                )}
-              </>
-            ) : (
-              <div className="w-6 h-6"></div>
-            )}
-          </div>
+      
+      <div className="grid grid-cols-7 gap-1">
+        {daysInMonth.map((date, index) => (
+          <button
+            key={index}
+            onClick={() => date && onDateSelect && onDateSelect(date)}
+            className={`
+              w-8 h-8 text-sm rounded transition-colors flex items-center justify-center
+              ${!date ? 'cursor-default' : 'hover:bg-gray-200 cursor-pointer'}
+              ${isSelected(date) ? 'bg-[#5b9a2431] text-[#5C9A24] font-bold border border-[#5C9A24] ' : ''}
+              ${!isSelected(date) && isToday(date) ? 'bg-[#5b9a2431] text-[#5C9A24] font-bold border border-[#5C9A24] ' : ''}
+              ${!isSelected(date) && !isToday(date) ? 'text-gray-700' : ''}
+            `}
+            disabled={!date}
+          >
+            {date ? date.getDate() : ''}
+          </button>
         ))}
       </div>
     </div>
