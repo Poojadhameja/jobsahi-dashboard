@@ -10,6 +10,7 @@ import CompanyInfo from './CompanyInfo'
 import TeamManagement from './TeamManagement'
 import Preferences from './Preferences'
 import { PillNavigation } from "@shared/components/navigation";
+import { MatrixCard } from "../../../../shared/components/metricCard";
 import { COLORS } from "@shared/WebConstant";
 
 const CompanyProfile = () => {
@@ -24,27 +25,27 @@ const CompanyProfile = () => {
   const activeTab = tabs[activeIndex]?.id || "company-info";
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: COLORS.lightblue }}>
-      {/* Title */}
-      <div className="max-w-6xl mx-auto px-4 pt-8">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-semibold" style={{ color: COLORS.PRIMARY }}>
-            Company Profile &amp; Settings
-          </h1>
-          <p style={{ color: COLORS.GRAY_600 }}>
-            Manage your company information and team settings
-          </p>
-        </div>
-
-        {/* Tabs — USING YOUR PillNavigation */}
-        <PillNavigation
-          tabs={tabs}
-          activeTab={activeIndex}
-          onTabChange={setActiveIndex}
-          className="mb-8"
+    <div className="space-y-5">
+      {/* Header Section */}
+      <div className="max-w-6xl mx-auto mb-6">
+        <MatrixCard 
+          title="Company Profile & Settings"
+          subtitle="Manage your company information and team settings"
+          className="mb-6"
         />
+        
+        {/* Navigation Tabs */}
+        <div className="flex justify-center mb-6">
+          <PillNavigation 
+            tabs={tabs}
+            activeTab={activeIndex}
+            onTabChange={setActiveIndex}
+          />
+        </div>
+      </div>
 
-        {/* CONTENT */}
+      {/* Main content will be rendered based on activeTab */}
+      <div className="max-w-6xl mx-auto">
         {activeTab === "company-info" && <CompanyInfo />}
         {activeTab === "team-management" && <TeamManagement />}
         {activeTab === "preferences" && <Preferences />}
