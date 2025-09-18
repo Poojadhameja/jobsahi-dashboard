@@ -4,6 +4,7 @@ import Login from './shared/auth/Login.jsx'
 import CreateAccount from './shared/auth/CreateAccount.jsx'
 
 const AdminRoutes = lazy(() => import('./features/admin/routes.jsx'))
+const RecruiterRoutes = lazy(() => import('./features/recruiter/routes.jsx'))
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/admin/*" element={<AdminRoutes />} />
+          <Route path="/recruiter/*" element={<RecruiterRoutes />} />
           <Route path="*" element={<div className="p-8">404 — Not Found</div>} />
         </Routes>
       </Suspense>
