@@ -446,7 +446,7 @@ const Dashboard = () => {
               })}
             </div>
           </div>
-      </div>
+        </div>
 
         
       </div>
@@ -477,7 +477,7 @@ const Dashboard = () => {
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <FaTimes className="w-6 h-6" />
-              </button>
+          </button>
             </div>
 
             {/* Modal Content */}
@@ -598,15 +598,15 @@ const Dashboard = () => {
                 >
                   <FaDownload className="w-4 h-4" />
                   <span>Download CV</span>
-                </button>
+          </button>
                 <button
                   onClick={closeDetailsModal}
                   className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                 >
                   Close
-                </button>
-              </div>
-            </div>
+          </button>
+        </div>
+      </div>
           </div>
         </div>
       )}

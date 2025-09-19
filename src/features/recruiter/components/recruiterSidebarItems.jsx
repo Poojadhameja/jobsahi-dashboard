@@ -18,7 +18,7 @@ const Icon = {
   MessageNotification: <LuMessageSquare size={20} />,
   AnalyticsReports: <FiPieChart size={20} />,
   CompanyProfile: <LuBuilding size={20} />,
-  Settings: <LuSettings size={20} />,
+  // Settings: <LuSettings size={20} />,
 }
 
 export const recruiterSidebarItems = [
@@ -28,6 +28,6 @@ export const recruiterSidebarItems = [
   { to: '/recruiter/interview-scheduler', activePath: '/recruiter/interview-scheduler', label: 'Interview Scheduler', icon: Icon.InterviewScheduler },
   { to: '/recruiter/message-notification', activePath: '/recruiter/message-notification', label: 'Message & Notification', icon: Icon.MessageNotification },
   { to: '/recruiter/analytics-reports', activePath: '/recruiter/analytics-reports', label: 'Analytics & Reports', icon: Icon.AnalyticsReports },
-  { to: '/recruiter/company-profile', activePath: '/recruiter/company-profile', label: 'Company Profile', icon: Icon.CompanyProfile },
-  { to: '/recruiter/profile', activePath: '/recruiter/profile', label: 'Settings', icon: Icon.Settings },
+  { to: '/recruiter/company-profile', activePath: '/recruiter/company-profile', label: 'Company Profile & Settings', icon: Icon.CompanyProfile },
+  // { to: '/recruiter/profile', activePath: '/recruiter/profile', label: 'Settings', icon: Icon.Settings },
 ]

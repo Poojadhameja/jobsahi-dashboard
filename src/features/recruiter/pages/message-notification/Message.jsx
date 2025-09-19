@@ -1,281 +1,389 @@
-import React, { useMemo, useRef, useState, useEffect } from "react";
-import {
-  LuSearch,
-  LuChevronLeft,
-  LuPhone,
-  LuEllipsis,
-  LuPaperclip,
-  LuSmile,
-  LuSend,
-} from "react-icons/lu";
+import React, { useState, useRef, useEffect } from "react";
+import { LuArrowLeft, LuPhone, LuSettings, LuSearch, LuSend, LuPaperclip, LuSmile, LuTrash2, LuCheck, LuMessageSquare } from "react-icons/lu";
 
-const people = [
-  {
-    id: 1,
-    name: "Yashu Mukhija",
-    role: "Electrician Apprentice",
-    last: "Hello",
-    time: "Fri",
-    initial: "Y",
-    color: "bg-[#5B9821]",
-  },
-  {
-    id: 2,
-    name: "Pakhi Parekh",
-    role: "Electrician Apprentice",
-    last: "Hello",
-    time: "1 Hour Ago",
-    initial: "P",
-    color: "bg-[#4D7C0F]",
-  },
-  { 
-    id: 3,
-    name: "Pakhi Parekh", 
-    role: "Electrician Apprentice", 
-    last: "Hello", 
-    time: "1 Hour Ago", 
-    initial: "P", 
-    color: "bg-[#4D7C0F]" 
-  },
-  { 
-    id: 4, 
-    name: "Pakhi Parekh", 
-    role: "Electrician Apprentice", 
-    last: "Hello", 
-    time: "1 Hour Ago", 
-    initial: "P", 
-    color: "bg-[#4D7C0F]" 
-  },
-  {
-    id: 5, 
-    name: "Pakhi Parekh", 
-    role: "Electrician Apprentice", 
-    last: "Hello", 
-    time: "1 Hour Ago", 
-    initial: "P", 
-    color: "bg-[#4D7C0F]" 
-  },
-];
+const Message = () => {
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [newMessage, setNewMessage] = useState("");
+  const [selectedMessages, setSelectedMessages] = useState([]);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const messagesEndRef = useRef(null);
+  const [conversations, setConversations] = useState([
+    {
+      id: 0,
+      name: "Yashu Mukhija",
+      role: "Electrician Apprentice",
+      lastMessage: "Hello",
+      timestamp: "Fri",
+      avatar: "Y",
+      isSelected: true,
+      messages: [
+        { id: 1, sender: "Yashu Mukhija", content: "Good Morning!", time: "10:30 AM", isIncoming: true },
+        { id: 2, sender: "You", content: "Good Morning!", time: "10:30 AM", isIncoming: false },
+        { id: 3, sender: "Yashu Mukhija", content: "Hello, I submitted my application for the Electrician Apprentice position", time: "10:30 AM", isIncoming: true },
+        { id: 4, sender: "You", content: "Thank you for your application. We will review it and get back to you soon.", time: "10:30 AM", isIncoming: false },
+        { id: 5, sender: "Yashu Mukhija", content: "Thank you for considering my application. I look forward to hearing from you.", time: "10:30 AM", isIncoming: true }
+      ]
+    },
+    {
+      id: 1,
+      name: "Pakhi Parekh",
+      role: "Electrician Apprentice",
+      lastMessage: "Hello",
+      timestamp: "1 Hour Ago",
+      avatar: "P",
+      isSelected: false,
+      messages: [
+        { id: 1, sender: "Pakhi Parekh", content: "Hello", time: "1 Hour Ago", isIncoming: true }
+      ]
+    },
+    {
+      id: 2,
+      name: "Pakhi Parekh",
+      role: "Electrician Apprentice",
+      lastMessage: "Hello",
+      timestamp: "1 Hour Ago",
+      avatar: "P",
+      isSelected: false,
+      messages: [
+        { id: 1, sender: "Pakhi Parekh", content: "Hello", time: "1 Hour Ago", isIncoming: true }
+      ]
+    },
+    {
+      id: 3,
+      name: "Pakhi Parekh",
+      role: "Electrician Apprentice",
+      lastMessage: "Hello",
+      timestamp: "1 Hour Ago",
+      avatar: "P",
+      isSelected: false,
+      messages: [
+        { id: 1, sender: "Pakhi Parekh", content: "Hello", time: "1 Hour Ago", isIncoming: true }
+      ]
+    },
+    {
+      id: 4,
+      name: "Pakhi Parekh",
+      role: "Electrician Apprentice",
+      lastMessage: "Hello",
+      timestamp: "1 Hour Ago",
+      avatar: "P",
+      isSelected: false,
+      messages: [
+        { id: 1, sender: "Pakhi Parekh", content: "Hello", time: "1 Hour Ago", isIncoming: true }
+      ]
+    }
+  ]);
 
-const demoThread = [
-  { id: "m1", by: "them", text: "Good Morning!", at: "10:30 AM" },
-  {
-    id: "m2",
-    by: "them",
-    text: "Hello, I submitted my application for the Electrician Apprentice position",
-    at: "10:30 AM",
-  },
-  { id: "m3", by: "me", text: "Good Morning!", at: "10:30 AM" },
-  {
-    id: "m4",
-    by: "me",
-    text: "Thank you for your application.\nWe will review it and get back to you soon.",
-    at: "10:30 AM",
-  },
-  {
-    id: "m5",
-    by: "them",
-    text: "Thank you for considering my application. I look forward to hearing from you.",
-    at: "10:30 AM",
-  },
-];
-
-function Avatar({ initial, className = "" }) {
-  return (
-    <div
-      className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-white ${className}`}
-    >
-      <span className="font-semibold">{initial}</span>
-    </div>
+  const filteredConversations = conversations.filter(conversation =>
+    conversation.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-}
 
-export default function MessagesCenter() {
-  const [selectedId, setSelectedId] = useState(people[0].id);
-  const [input, setInput] = useState("");
-  const [thread, setThread] = useState(demoThread);
-  const scrollRef = useRef(null);
+  const currentConversation = selectedMessage !== null ? conversations.find(conv => conv.id === selectedMessage) : null;
 
-  const selected = useMemo(
-    () => people.find((p) => p.id === selectedId) || people[0],
-    [selectedId]
-  );
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [thread, selectedId]);
+    scrollToBottom();
+  }, [currentConversation?.messages]);
 
-  const send = () => {
-    const text = input.trim();
-    if (!text) return;
-    setThread((t) => [...t, { id: crypto.randomUUID(), by: "me", text, at: "now" }]);
-    setInput("");
+  const handleSendMessage = () => {
+    if (newMessage.trim() === "") return;
+
+    const newMessageObj = {
+      id: Date.now(),
+      sender: "You",
+      content: newMessage.trim(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isIncoming: false
+    };
+
+    setConversations(prevConversations => 
+      prevConversations.map(conversation => 
+        conversation.id === selectedMessage
+          ? {
+              ...conversation,
+              messages: [...conversation.messages, newMessageObj],
+              lastMessage: newMessage.trim(),
+              timestamp: "Now"
+            }
+          : conversation
+      )
+    );
+
+    setNewMessage("");
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const toggleSelectMode = () => {
+    setIsSelectMode(!isSelectMode);
+    setSelectedMessages([]);
+  };
+
+  const toggleMessageSelection = (messageId) => {
+    setSelectedMessages(prev => 
+      prev.includes(messageId) 
+        ? prev.filter(id => id !== messageId)
+        : [...prev, messageId]
+    );
+  };
+
+  const deleteSelectedMessages = () => {
+    if (selectedMessages.length === 0) return;
+
+    setConversations(prevConversations => 
+      prevConversations.map(conversation => 
+        conversation.id === selectedMessage
+          ? {
+              ...conversation,
+              messages: conversation.messages.filter(msg => !selectedMessages.includes(msg.id))
+            }
+          : conversation
+      )
+    );
+    
+    setSelectedMessages([]);
+    setIsSelectMode(false);
+  };
+
+  const selectAllMessages = () => {
+    const allMessageIds = currentConversation?.messages.map(msg => msg.id) || [];
+    setSelectedMessages(allMessageIds);
   };
 
   return (
-    <div className="min-h-screen bg-white p-6">
-      {/* Main content */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Left: Conversation list */}
-          <section className="lg:col-span-2 rounded-xl border border-[#2B6CB0] p-3">
-            <div className="relative mb-3">
-              <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+    <div className="h-screen flex flex-col lg:flex-row bg-white">
+      {/* Left Sidebar - Message List */}
+      <div className="w-full lg:w-[30%] border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col h-1/2 lg:h-full">
+        {/* Search Bar */}
+        <div className="p-3 sm:p-4 border-b border-gray-200">
+          <div className="relative">
+            <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <input
+              type="text"
+              placeholder="Search messages..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        {/* Conversation List */}
+        <div className="flex-1 overflow-y-auto">
+          {filteredConversations.map((conversation) => (
+            <div
+              key={conversation.id}
+              onClick={() => setSelectedMessage(conversation.id)}
+              className={`p-3 sm:p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
+                selectedMessage === conversation.id ? 'bg-[#0b537d18]' : ''
+              }`}
+            >
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#5b9a24] rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-lg">
+                  {conversation.avatar}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{conversation.name}</h3>
+                    <span className="text-xs sm:text-sm text-gray-500">{conversation.timestamp}</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-[#0B537D] font-medium truncate">{conversation.role}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 truncate">{conversation.lastMessage}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right Side - Chat Area */}
+      <div className="flex-1 flex flex-col h-1/2 lg:h-full">
+        {/* Chat Header */}
+        {currentConversation && (
+          <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg">
+                <LuArrowLeft size={16} className="text-gray-600 sm:hidden" />
+                <LuArrowLeft size={20} className="text-gray-600 hidden sm:block" />
+              </button>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#5b9a24] rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base">
+                {currentConversation.avatar}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{currentConversation.name}</h3>
+                <p className="text-xs sm:text-sm text-[#0B537D] truncate">{currentConversation.role}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <button className="p-1.5 sm:p-2 rounded-lg">
+                <LuPhone size={16} className="text-gray-600 sm:hidden" />
+                <LuPhone size={20} className="text-gray-600 hidden sm:block" />
+              </button>
+              {!isSelectMode ? (
+                <button 
+                  onClick={toggleSelectMode}
+                  className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg"
+                  title="Select Messages"
+                >
+                  <LuCheck size={16} className="text-gray-600 sm:hidden" />
+                  <LuCheck size={20} className="text-gray-600 hidden sm:block" />
+                </button>
+              ) : (
+                <>
+                  <button 
+                    onClick={selectAllMessages}
+                    className="px-2 py-1 text-xs sm:text-sm text-[#0B537D] hover:bg-gray-100 rounded-lg"
+                  >
+                    All
+                  </button>
+                  <button 
+                    onClick={deleteSelectedMessages}
+                    disabled={selectedMessages.length === 0}
+                    className={`p-1.5 sm:p-2 rounded-lg ${
+                      selectedMessages.length > 0 
+                        ? 'text-red-600 hover:bg-red-50' 
+                        : 'text-gray-400 cursor-not-allowed'
+                    }`}
+                    title="Delete Selected"
+                  >
+                    <LuTrash2 size={16} className="sm:hidden" />
+                    <LuTrash2 size={20} className="hidden sm:block" />
+                  </button>
+                  <button 
+                    onClick={toggleSelectMode}
+                    className="px-2 py-1 text-xs sm:text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4" style={{ maxHeight: 'calc(100vh - 180px)' }}>
+          {currentConversation ? (
+            <>
+              {/* Date Separator */}
+              <div className="text-center">
+                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Today</span>
+              </div>
+
+              {/* Messages */}
+              {currentConversation.messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.isIncoming ? 'justify-start' : 'justify-end'} gap-3 ${
+                isSelectMode ? 'cursor-pointer' : ''
+              }`}
+              onClick={() => isSelectMode && toggleMessageSelection(message.id)}
+            >
+              {message.isIncoming && (
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#5b9a24] rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0">
+                  {currentConversation.avatar}
+                </div>
+              )}
+              <div className={`max-w-[70%] sm:max-w-xs lg:max-w-md ${message.isIncoming ? 'order-2' : 'order-1'} ${
+                isSelectMode ? 'flex items-start gap-2' : ''
+              }`}>
+                {isSelectMode && (
+                  <div className="flex-shrink-0 mt-1">
+                    <input
+                      type="checkbox"
+                      checked={selectedMessages.includes(message.id)}
+                      onChange={() => toggleMessageSelection(message.id)}
+                      className="w-3 h-3 sm:w-4 sm:h-4 text-[#0B537D] border-gray-300 rounded focus:ring-[#0B537D]"
+                    />
+                  </div>
+                )}
+                <div>
+                  <div
+                    className={`px-3 py-2 sm:px-4 sm:py-2 rounded-2xl ${
+                      message.isIncoming
+                        ? 'bg-gray-200 text-gray-900'
+                        : 'bg-[#0B537D] text-white'
+                    } ${
+                      isSelectMode && selectedMessages.includes(message.id)
+                        ? 'ring-2 ring-[#0B537D] ring-opacity-50'
+                        : ''
+                    }`}
+                  >
+                    <p className="text-xs sm:text-sm break-words">{message.content}</p>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1 px-2">
+                    {message.time}
+                  </p>
+                </div>
+              </div>
+              {!message.isIncoming && (
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#0B537D] rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0 order-2">
+                  Y
+                </div>
+              )}
+            </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <LuMessageSquare size={32} className="text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a conversation</h3>
+                <p className="text-gray-500">Choose a conversation from the list to start messaging</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Message Input */}
+        {currentConversation && (
+          <div className="p-4 border-t border-gray-200">
+          <div className="flex items-center gap-3">
+            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
+              <LuPaperclip size={20} />
+            </button>
+            <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
+              <LuSmile size={20} />
+            </button>
+            <div className="flex-1">
               <input
                 type="text"
-                placeholder="Search"
-                className="w-full rounded-xl border border-gray-200 bg-white pl-10 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5B9821]"
+                placeholder="Type something..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
               />
             </div>
-
-            <div className="divide-y">
-              {people.map((p) => {
-                const active = p.id === selectedId;
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => setSelectedId(p.id)}
-                    className={`w-full text-left`}
-                  >
-                    <div
-                      className={`flex items-start justify-between gap-3 px-3 py-4 ${
-                        active ? "bg-gray-100 rounded-md" : ""
-                      }`}
-                    >
-                      <div className="flex items-start gap-3 min-w-0">
-                        <Avatar initial={p.initial} className={`${p.color}`} />
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p
-                              className={`truncate font-semibold ${
-                                active ? "text-[#5B9821]" : "text-slate-800"
-                              }`}
-                            >
-                              {p.name}
-                            </p>
-                          </div>
-                          <p className="text-sm text-gray-500">{p.role}</p>
-                          <p className="text-sm text-gray-400 truncate">
-                            {p.last}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-400 shrink-0">{p.time}</p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Right: Chat thread */}
-          <section className="lg:col-span-3 rounded-xl border border-gray-200">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b px-4 py-3">
-              <div className="flex items-center gap-3">
-                <button className="p-2 rounded-md hover:bg-gray-100">
-                  <LuChevronLeft className="text-gray-600" />
-                </button>
-                <Avatar initial={selected.initial} className={selected.color} />
-                <div>
-                  <p className="font-semibold text-slate-800 leading-5">
-                    {selected.name}
-                  </p>
-                  <p className="text-sm text-gray-500 -mt-0.5">
-                    {selected.role}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button className="p-2 rounded-md hover:bg-gray-100">
-                  <LuPhone />
-                </button>
-                <button className="p-2 rounded-md hover:bg-gray-100">
-                  <LuEllipsis />
-                </button>
-
-                {/* Templates pane */}
-                <div className="ml-3 w-40 border rounded-md text-right">
-                  <button className="w-full h-full px-3 py-2 text-gray-600">
-                    Use Templates
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Day label */}
-            <div className="py-2 text-center text-xs text-gray-400">Today</div>
-
-            {/* Messages */}
-            <div ref={scrollRef} className="h-[46vh] overflow-y-auto px-4 pb-4 space-y-3">
-              {thread.map((m) => {
-                const mine = m.by === "me";
-                return (
-                  <div
-                    key={m.id}
-                    className={`flex ${mine ? "justify-end" : "justify-start"} items-end`}
-                  >
-                    {!mine && (
-                      <Avatar
-                        initial={selected.initial}
-                        className={`mr-2 ${selected.color}`}
-                      />
-                    )}
-
-                    <div className={`max-w-[70%]`}>
-                      <div
-                        className={`whitespace-pre-line rounded-2xl px-4 py-2 text-[15px] leading-relaxed shadow-sm
-                        ${
-                          mine
-                            ? "bg-[#1F4961] text-white rounded-tr-md"
-                            : "bg-gray-100 text-gray-800 rounded-tl-md"
-                        }`}
-                      >
-                        {m.text}
-                      </div>
-                      <div
-                        className={`mt-1 text-[11px] ${
-                          mine ? "text-right text-gray-400" : "text-gray-400"
-                        }`}
-                      >
-                        {m.at}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Composer */}
-            <div className="border-t px-4 py-3">
-              <div className="flex items-center gap-2">
-                <button className="p-2 rounded-md hover:bg-gray-100" title="Attach">
-                  <LuPaperclip className="text-[#1F4961]" />
-                </button>
-                <button className="p-2 rounded-md hover:bg-gray-100" title="Emoji">
-                  <LuSmile className="text-[#1F4961]" />
-                </button>
-
-                <input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Type something..."
-                  className="flex-1 rounded-full border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#5B9821]"
-                />
-
-                <button
-                  onClick={send}
-                  className="ml-1 grid h-10 w-10 place-items-center rounded-full bg-[#1F4961] text-white hover:opacity-95"
-                  title="Send"
-                >
-                  <LuSend />
-                </button>
-              </div>
-            </div>
-          </section>
-        </div>
+            <button 
+              onClick={handleSendMessage}
+              disabled={!newMessage.trim()}
+              className={`p-2 rounded-lg ${
+                newMessage.trim() 
+                  ? 'text-[#0B537D] hover:text-[#0B537D] hover:bg-gray-100' 
+                  : 'text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              <LuSend size={20} />
+            </button>
+          </div>
+          </div>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default Message;

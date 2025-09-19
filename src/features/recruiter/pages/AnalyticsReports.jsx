@@ -162,7 +162,7 @@ ${reportData.keyMetrics.map(metric =>
   }
 
   return (
-    <div className="p-6">
+    <div className="p-2">
       {/* Header */}
       <div className="mb-8">
         <MatrixCard 
@@ -203,21 +203,21 @@ ${reportData.keyMetrics.map(metric =>
         <div className="flex items-center gap-3">
           <button
             onClick={handleCreateReport}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-[#5B9821] text-white rounded-lg hover:bg-[#437119] transition-colors text-sm font-medium"
           >
             <LuFileText className="w-4 h-4" />
             + Create Report
           </button>
           <button
             onClick={handleCSVDownload}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 border-2 border-[#5B9821] text-[#5B9821] rounded-lg hover:bg-[#5B9821] hover:text-white transition-colors text-sm font-medium"
           >
             <LuFileSpreadsheet className="w-4 h-4" />
             CSV
           </button>
           <button
             onClick={handlePDFDownload}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 border-2 border-[#5B9821] text-[#5B9821] rounded-lg hover:bg-[#5B9821] hover:text-white transition-colors text-sm font-medium"
           >
             <LuFileText className="w-4 h-4" />
             PDF

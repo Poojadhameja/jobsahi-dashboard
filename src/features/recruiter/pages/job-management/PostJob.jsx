@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { LuUpload, LuCalendar } from 'react-icons/lu'
+import RichTextEditor from '@shared/components/RichTextEditor'
 
 const PostJob = ({ onJobSubmit }) => {
   const [formData, setFormData] = useState({
@@ -46,6 +47,13 @@ const PostJob = ({ onJobSubmit }) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }))
+  }
+
+  const handleRichTextChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      jobDescription: value
     }))
   }
 
@@ -272,14 +280,11 @@ const PostJob = ({ onJobSubmit }) => {
                 <p className="text-sm text-gray-500">For effective candidate selection, enhance the job description with</p>
               </div>
               <div className="lg:col-span-2">
-                <textarea
-                  name="jobDescription"
+                <RichTextEditor
                   value={formData.jobDescription}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none resize-none"
+                  onChange={handleRichTextChange}
                   placeholder="Describe the job responsibilities, requirements, and benefits..."
-                  required
+                  height="200px"
                 />
               </div>
             </div>
