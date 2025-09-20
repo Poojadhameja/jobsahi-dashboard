@@ -322,7 +322,7 @@ export const LaunchCampaignButton = ({ onClick, loading = false, disabled = fals
   <Button 
     variant="primary" 
     size="md"
-    className={`font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY_30}] disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+    className={`font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
     onClick={onClick}
     loading={loading}
     disabled={disabled || loading}
@@ -341,7 +341,7 @@ export const SaveDraftButton = ({ onClick, className = '', ...props }) => (
   <Button 
     variant="outline" 
     size="md"
-    className={`font-semibold focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY_30}] ${className}`}
+    className={`font-semibold focus:outline-none focus:ring-2 focus:ring-primary-30 ${className}`}
     onClick={onClick}
     icon={
       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

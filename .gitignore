@@ -17,7 +17,7 @@ pnpm-debug.log*
 # environment
 .env
 
-package-lock.json
-package.json
-node_modules
+# metadata
 _metadata.json
+
+# Note: package.json and package-lock.json should be committed to version control
