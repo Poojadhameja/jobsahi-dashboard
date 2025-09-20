@@ -33,7 +33,7 @@ export default function SEOSetting() {
   return (
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
       {/* Header Section */}
-      <div className="flex items-start bg-white p-4 border border-[#0b537d2c] rounded-lg justify-between gap-4">
+      <div className="flex items-start bg-white p-4 border border-[var(--color-primary)2c] rounded-lg justify-between gap-4">
         <div className="flex items-start gap-3">
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
             <LuPlus className="h-4 w-4 text-green-600" />
@@ -47,7 +47,7 @@ export default function SEOSetting() {
         {/* Back to overview button */}
         <PrimaryButton
           onClick={handleBack}
-          className="h-10 px-4 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-sm font-medium"
+          className="h-10 px-4 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-sm font-medium"
           icon={<LuArrowLeft className="w-4 h-4" />}
         >
           Back to overview
@@ -151,7 +151,7 @@ export default function SEOSetting() {
                 />
                 <button
                   type="button"
-                  className="h-12 w-12 bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg flex items-center justify-center"
+                  className="h-12 w-12 bg-[var(--color-secondary)] hover:bg-secondary-dark text-white rounded-lg flex items-center justify-center"
                   title="Upload"
                 >
                   <LuUpload className="h-5 w-5" />
@@ -197,11 +197,11 @@ export default function SEOSetting() {
               onClick={() => handleInputChange('searchConsoleEnabled', !seoData.searchConsoleEnabled)}
               className={`w-full text-left rounded-lg p-4 border-2 transition-colors duration-200 ${
                 seoData.searchConsoleEnabled 
-                  ? 'border-[#5B9821] bg-green-50' 
+                  ? 'border-[var(--color-secondary)] bg-green-50' 
                   : 'border-gray-200 bg-white hover:border-green-300'
               }`}
             >
-              <p className={`font-medium ${seoData.searchConsoleEnabled ? 'text-[#5B9821]' : 'text-gray-900'}`}>
+              <p className={`font-medium ${seoData.searchConsoleEnabled ? 'text-[var(--color-secondary)]' : 'text-gray-900'}`}>
                 Enable Search Console
               </p>
               <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Submit sitemap automatically</p>

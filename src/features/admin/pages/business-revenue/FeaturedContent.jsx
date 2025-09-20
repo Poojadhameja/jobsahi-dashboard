@@ -131,7 +131,7 @@ export default function FeaturedContent() {
   const currentData = getCurrentData()
 
   return (
-    <div className="max-w-7xl mx-auto bg-white border border-[#0b537d3c] space-y-6 rounded-lg">
+    <div className="max-w-7xl mx-auto bg-white border border-primary-30 space-y-6 rounded-lg">
       {/* Header */}
       <div className="p-5">
         <div className="flex items-center justify-between">
@@ -141,7 +141,7 @@ export default function FeaturedContent() {
           </div>
           <button 
             onClick={handleAddFeatured}
-            className="bg-white hover:bg-[#5B9821] hover:text-white border-2 border-[#5B9821] text-[#5B9821] px-4 py-2 rounded-lg font-medium transition-colors">
+            className="bg-white hover:bg-secondary hover:text-white border-2 border-secondary text-secondary px-4 py-2 rounded-lg font-medium transition-colors">
             + Add featured Content
           </button>
         </div>
@@ -182,7 +182,7 @@ export default function FeaturedContent() {
                       value={bannerForm.title}
                       onChange={(e) => handleBannerFormChange('title', e.target.value)}
                       placeholder="New year special offer"
-                      className="w-full p-2 bg-[#F6FAFF] border border-[#0b537d3c] rounded-lg focus:outline-none text-gray-700 placeholder-gray-500"
+                      className="w-full p-2 bg-bg-primary border border-primary-30 rounded-lg focus:outline-none text-gray-700 placeholder-gray-500"
                     />
                   </div>
 
@@ -194,7 +194,7 @@ export default function FeaturedContent() {
                       <select
                         value={bannerForm.priority}
                         onChange={(e) => handleBannerFormChange('priority', e.target.value)}
-                        className="w-full p-2 bg-[#F6FAFF] border border-[#0b537d3c] rounded-lg focus:outline-none text-gray-700">
+                        className="w-full p-2 bg-bg-primary border border-primary-30 rounded-lg focus:outline-none text-gray-700">
                         <option value="" className="text-gray-500">Select priority</option>
                         <option value="High">High</option>
                         <option value="Medium">Medium</option>
@@ -213,7 +213,7 @@ export default function FeaturedContent() {
                       onChange={(e) => handleBannerFormChange('description', e.target.value)}
                       placeholder="Banner description..."
                       rows={4}
-                      className="w-full p-2 bg-[#F6FAFF] border border-[#0b537d3c] rounded-lg focus:outline-none text-gray-700 placeholder-gray-500 resize-none"
+                      className="w-full p-2 bg-bg-primary border border-primary-30 rounded-lg focus:outline-none text-gray-700 placeholder-gray-500 resize-none"
                     />
                   </div>
 
@@ -222,7 +222,7 @@ export default function FeaturedContent() {
                     <button
                       onClick={() => handleBannerFormChange('isActive', !bannerForm.isActive)}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none  ${
-                        bannerForm.isActive ? 'bg-[#5B9821]' : 'bg-gray-200'
+                        bannerForm.isActive ? 'bg-secondary' : 'bg-gray-200'
                       }`}
                     >
                       <span
@@ -237,7 +237,7 @@ export default function FeaturedContent() {
                   <div className="pt-2">
                     <button
                       onClick={handleSaveBanner}
-                      className="px-5 bg-[#5B9821] hover:bg-[#4A7D1A] text-white font-bold py-3 rounded-lg transition-colors"
+                      className="px-5 bg-secondary hover:bg-secondary-dark text-white font-bold py-3 rounded-lg transition-colors"
                     >
                       Save Banner
                     </button>
@@ -271,7 +271,7 @@ export default function FeaturedContent() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex border items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           item.priority === 'High' 
-                            ? 'bg-green-100 text-[#5B9821]' 
+                            ? 'bg-green-100 text-secondary' 
                             : item.priority === 'Medium'
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-gray-100 text-gray-800'
@@ -282,7 +282,7 @@ export default function FeaturedContent() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           item.status === 'Active' 
-                            ? 'bg-green-100 text-[#5B9821]' 
+                            ? 'bg-green-100 text-secondary' 
                             : 'bg-gray-100 text-gray-800'
                         }`}>
                           {item.status}

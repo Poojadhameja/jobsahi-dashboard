@@ -76,7 +76,7 @@ export default function SubscriptionPlan() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto  space-y-4 bg-white border border-[#0b537d3c] rounded-lg p-2 md:p-4">
+    <div className="max-w-7xl mx-auto  space-y-4 bg-white border border-[var(--color-primary)3c] rounded-lg p-2 md:p-4">
       {/* Header */}
       <div className=" rounded-lg shadow-sm p-6">
         <div className="flex items-center justify-between">
@@ -86,7 +86,7 @@ export default function SubscriptionPlan() {
           </div>
           <button 
             onClick={handleCreateNew}
-            className="bg-white hover:bg-[#5B9821] hover:text-white border-2 border-[#5B9821] text-[#5B9821] px-4 py-2 rounded-lg font-medium transition-colors"
+            className="bg-white hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] px-4 py-2 rounded-lg font-medium transition-colors"
           >
             + Create New Plan
           </button>
@@ -96,14 +96,14 @@ export default function SubscriptionPlan() {
       {/* Subscription Plans Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {plans.map((plan) => (
-          <div key={plan.id} className="hover:shadow-md rounded-lg border border-[#0b537d3c] p-4">
+          <div key={plan.id} className="hover:shadow-md rounded-lg border border-[var(--color-primary)3c] p-4">
             {/* Plan Header */}
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
                 <p className="text-sm text-gray-600 mt-1">{plan.targetAudience}</p>
               </div>
-              <span className={`inline-flex items-center px-3 border-[#5B9821] border py-1 rounded-full text-xs font-medium ${
+              <span className={`inline-flex items-center px-3 border-[var(--color-secondary)] border py-1 rounded-full text-xs font-medium ${
                 plan.status === 'Active' 
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-red-100 text-red-800'

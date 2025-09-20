@@ -49,10 +49,10 @@ const BarChart = ({ title, data, onDownload }) => {
         }
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'var(--color-gray-700)',
         titleColor: 'white',
         bodyColor: 'white',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: 'var(--color-gray-600)',
         borderWidth: 1,
       }
     },
@@ -70,7 +70,7 @@ const BarChart = ({ title, data, onDownload }) => {
       y: {
         beginAtZero: true,
         grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
+          color: 'var(--color-gray-200)',
         },
         ticks: {
           font: {

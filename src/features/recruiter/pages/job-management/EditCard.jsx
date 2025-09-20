@@ -167,7 +167,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
           {/* Basic Information Form */}
-          <div className="bg-white rounded-xl border border-[#0B537D3C] p-5">
+          <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
             <h2 className="text-xl font-bold text-gray-900 mb-8">Basic Information</h2>
             
             <div className="space-y-8">
@@ -185,7 +185,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     name="jobTitle"
                     value={formData.jobTitle}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                       errors.jobTitle ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Enter job title"
@@ -210,7 +210,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     name="jobSector"
                     value={formData.jobSector}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                       errors.jobSector ? 'border-red-500' : 'border-gray-300'
                     }`}
                     required
@@ -243,7 +243,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     value={formData.jobDescription}
                     onChange={handleInputChange}
                     rows={4}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none resize-none ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none resize-none ${
                       errors.jobDescription ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Describe the job responsibilities, requirements, and benefits..."
@@ -269,7 +269,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                       name="salaryType"
                       value={formData.salaryType}
                       onChange={handleInputChange}
-                      className={`px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                      className={`px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                         errors.salaryType ? 'border-red-500' : 'border-gray-300'
                       }`}
                       required
@@ -286,7 +286,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                         name="minSalary"
                         value={formData.minSalary}
                         onChange={handleInputChange}
-                        className={`w-24 px-3 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                        className={`w-24 px-3 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                           errors.minSalary ? 'border-red-500' : 'border-gray-300'
                         }`}
                         placeholder="Min"
@@ -300,7 +300,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                         name="maxSalary"
                         value={formData.maxSalary}
                         onChange={handleInputChange}
-                        className={`w-24 px-3 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                        className={`w-24 px-3 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                           errors.maxSalary ? 'border-red-500' : 'border-gray-300'
                         }`}
                         placeholder="Max"
@@ -329,7 +329,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     name="jobType"
                     value={formData.jobType}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                       errors.jobType ? 'border-red-500' : 'border-gray-300'
                     }`}
                     required
@@ -360,7 +360,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     name="requiredSkills"
                     value={formData.requiredSkills}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                     placeholder="e.g., JavaScript, React, Node.js, Python"
                   />
                 </div>
@@ -379,7 +379,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     name="experience"
                     value={formData.experience}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   >
                     <option value="">Choose experience</option>
                     <option value="0-1 Year">0-1 Year</option>
@@ -400,10 +400,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                 </div>
                 <div className="lg:col-span-2">
                   <div className="space-y-4">
-                    <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-[#5C9A24] rounded-lg cursor-pointer bg-[#5b9a241f] hover:bg-[#5b9a2430] transition-colors">
+                    <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-[var(--color-secondary)] rounded-lg cursor-pointer bg-secondary-10 hover:bg-secondary-10 transition-colors">
                       <div className="flex flex-col items-center">
-                        <LuUpload className="text-[#5C9A24] mb-2" size={24} />
-                        <span className="text-[#5C9A24] font-medium">↑ Upload Files</span>
+                        <LuUpload className="text-[var(--color-secondary)] mb-2" size={24} />
+                        <span className="text-[var(--color-secondary)] font-medium">↑ Upload Files</span>
                       </div>
                       <input
                         type="file"
@@ -437,7 +437,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
           </div>
 
           {/* Address / Location Form */}
-          <div className="bg-white rounded-xl border border-[#0B537D3C] p-5">
+          <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
             <h2 className="text-xl font-bold text-gray-900 mb-8">Address / Location</h2>
             
             <div className="space-y-8">
@@ -454,7 +454,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     name="country"
                     value={formData.country}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                       errors.country ? 'border-red-500' : 'border-gray-300'
                     }`}
                     required
@@ -484,7 +484,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     name="city"
                     value={formData.city}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                       errors.city ? 'border-red-500' : 'border-gray-300'
                     }`}
                     required
@@ -514,7 +514,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     name="state"
                     value={formData.state}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                       errors.state ? 'border-red-500' : 'border-gray-300'
                     }`}
                     required
@@ -545,7 +545,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     name="fullAddress"
                     value={formData.fullAddress}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                       errors.fullAddress ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Enter complete address with street, area, landmark"
@@ -562,7 +562,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
           {/* Contact Information and Dates and Status */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Contact Information Form */}
-            <div className="bg-white rounded-xl border border-[#0B537D3C] p-5">
+            <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
               <h2 className="text-xl font-bold text-gray-900 mb-8">Contact information</h2>
               
               <div className="space-y-8">
@@ -580,7 +580,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                       name="contactPerson"
                       value={formData.contactPerson}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                       placeholder="Enter contact person's full name"
                     />
                   </div>
@@ -600,7 +600,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                       placeholder="Enter 10-digit mobile number"
                     />
                   </div>
@@ -620,7 +620,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                       name="additionalContact"
                       value={formData.additionalContact}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                       placeholder="Enter email address"
                     />
                   </div>
@@ -629,7 +629,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
             </div>
 
             {/* Dates and Status Form */}
-            <div className="bg-white rounded-xl border border-[#0B537D3C] p-5">
+            <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
               <h2 className="text-xl font-bold text-gray-900 mb-8">Dates and Status</h2>
               
               <div className="space-y-8">
@@ -646,7 +646,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                       name="vacancyStatus"
                       value={formData.vacancyStatus}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                         errors.vacancyStatus ? 'border-red-500' : 'border-gray-300'
                       }`}
                       required
@@ -677,7 +677,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                         name="openingDate"
                         value={formData.openingDate}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none pr-10 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none pr-10 ${
                           errors.openingDate ? 'border-red-500' : 'border-gray-300'
                         }`}
                         required
@@ -705,7 +705,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                         name="closingDate"
                         value={formData.closingDate}
                         onChange={handleInputChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none pr-10 ${
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none pr-10 ${
                           errors.closingDate ? 'border-red-500' : 'border-gray-300'
                         }`}
                         required
@@ -732,7 +732,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
             </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-[#5C9A24] text-white rounded-lg hover:bg-[#4a7a1e] transition-colors font-medium"
+              className="px-6 py-3 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors font-medium"
             >
               Update Job
             </button>

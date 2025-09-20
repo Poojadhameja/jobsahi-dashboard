@@ -82,7 +82,7 @@ const JobPosting = () => {
                 placeholder="Search Jobs & Companies"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
               />
             </div>
           </div>
@@ -91,7 +91,7 @@ const JobPosting = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
             >
               <option value="All Status">All Status</option>
               <option value="Pending">Pending</option>
@@ -208,7 +208,7 @@ const JobPosting = () => {
               placeholder="e.g. J-103"
               value={promotionJobId}
               onChange={(e) => setPromotionJobId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
               />
             </div>
 
@@ -222,7 +222,7 @@ const JobPosting = () => {
                 aria-checked={highlightType === 'top-ribbon'}
                 onClick={() => setHighlightType('top-ribbon')}
                 className={`flex items-center justify-center h-6 w-6 rounded-full border-2 transition-colors duration-200 ${highlightType === 'top-ribbon' ? '' : 'border-gray-300'}`}
-                style={{ borderColor: highlightType === 'top-ribbon' ? COLORS.GREEN_PRIMARY : undefined, backgroundColor: highlightType === 'top-ribbon' ? 'rgba(92,154,36,0.1)' : undefined }}
+                style={{ borderColor: highlightType === 'top-ribbon' ? COLORS.GREEN_PRIMARY : undefined, backgroundColor: highlightType === 'top-ribbon' ? 'var(--color-primary-10)' : undefined }}
                 variant="unstyled"
               >
                 <span className={`h-2.5 w-2.5 rounded-full transition-colors duration-200 ${highlightType === 'top-ribbon' ? '' : 'bg-transparent'}`} style={{ backgroundColor: highlightType === 'top-ribbon' ? COLORS.GREEN_PRIMARY : undefined }} />
@@ -237,7 +237,7 @@ const JobPosting = () => {
                 aria-checked={highlightType === 'priority'}
                 onClick={() => setHighlightType('priority')}
                 className={`flex items-center justify-center h-6 w-6 rounded-full border-2 transition-colors duration-200 ${highlightType === 'priority' ? '' : 'border-gray-300'}`}
-                style={{ borderColor: highlightType === 'priority' ? COLORS.GREEN_PRIMARY : undefined, backgroundColor: highlightType === 'priority' ? 'rgba(92,154,36,0.1)' : undefined }}
+                style={{ borderColor: highlightType === 'priority' ? COLORS.GREEN_PRIMARY : undefined, backgroundColor: highlightType === 'priority' ? 'var(--color-primary-10)' : undefined }}
                 variant="unstyled"
               >
                 <span className={`h-2.5 w-2.5 rounded-full transition-colors duration-200 ${highlightType === 'priority' ? '' : 'bg-transparent'}`} style={{ backgroundColor: highlightType === 'priority' ? COLORS.GREEN_PRIMARY : undefined }} />

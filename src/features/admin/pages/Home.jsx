@@ -59,8 +59,8 @@ export default function Dashboard() {
       {
         label: 'Applications',
         data: [1200, 1800, 1400, 2200, 2900, 3200],
-        borderColor: '#0B537D',
-        backgroundColor: 'rgba(11,83,125,0.12)',
+        borderColor: 'var(--color-primary)',
+        backgroundColor: 'var(--color-primary-10)',
         fill: true,
         tension: 0.35,
         pointRadius: 3,
@@ -73,7 +73,7 @@ export default function Dashboard() {
     plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
     scales: {
       x: { grid: { display: false } },
-      y: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { stepSize: 500 } },
+      y: { grid: { color: 'var(--color-gray-100)' }, ticks: { stepSize: 500 } },
     },
   }
 

@@ -45,8 +45,8 @@ export default function BusinessRevenue() {
                 <MatrixCard 
                     title="Business & Revenue Panel"
                     subtitle="Manage your revenue streams, subscriptions, and featured content"
-                    titleColor="text-[#1A569A]"
-                    subtitleColor="text-[#1A569A]"
+                    titleColor="text-primary"
+                    subtitleColor="text-primary"
                 />
             </div>
 

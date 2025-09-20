@@ -35,7 +35,7 @@ export default function InstituteHeader({ toggleSidebar }) {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 sm:w-5 sm:h-5">
             <path d="M18 16V11a6 6 0 10-12 0v5l-2 2h16l-2-2z"/>
           </svg>
-          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full" style={{ backgroundColor: '#F59E0B' }} />
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full" style={{ backgroundColor: 'var(--color-warning)' }} />
         </button>
         
         {/* User Dropdown - Always visible but responsive */}

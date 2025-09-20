@@ -16,7 +16,7 @@ const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {
         >
           <div className="flex items-center gap-2">
             {navigationTabs.find(tab => tab.id === activeNavTab)?.icon && (
-              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[rgba(92,154,36,0.15)]">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--color-primary-10)]">
                 {React.createElement(navigationTabs.find(tab => tab.id === activeNavTab).icon, { 
                   size: 16, 
                   style: { color: COLORS.GREEN_PRIMARY } 
@@ -48,13 +48,13 @@ const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {
                     setIsMobileMenuOpen(false)
                   }}
                   className={`w-full flex items-center gap-3 p-3 text-left transition-all duration-200 first:rounded-t-lg last:rounded-b-lg
-                    ${isActive ? 'bg-[rgba(92,154,36,0.1)]' : 'hover:bg-gray-50'}
+                    ${isActive ? 'bg-[var(--color-primary-10)]' : 'hover:bg-gray-50'}
                   `}
                 >
                   {hasIcon && (
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200
-                        ${isActive ? 'bg-white' : 'bg-[rgba(92,154,36,0.15)]'}
+                        ${isActive ? 'bg-white' : 'bg-[var(--color-primary-10)]'}
                       `}
                     >
                       <Icon size={16} style={{ color: COLORS.GREEN_PRIMARY }} />
@@ -99,7 +99,7 @@ const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {
                     ${isActive ? COLORS.GREEN_PRIMARY : 'text-gray-600 bg-white'}
                   `}
                   style={{
-                    backgroundColor: isActive ? COLORS.GREEN_PRIMARY : '#FFFFFF',
+                    backgroundColor: isActive ? COLORS.GREEN_PRIMARY : 'white',
                   }}
                   role="tab"
                   aria-selected={isActive}
@@ -109,7 +109,7 @@ const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {
                       className={`flex items-center justify-center mr-2
                         ${isCompact ? 'w-[40px] h-[28px]' : 'w-[30px] h-[30px]'}
                         rounded-full transition-all duration-200
-                        ${isActive ? 'bg-white' : 'bg-[rgba(92,154,36,0.2)]'}
+                        ${isActive ? 'bg-white' : 'bg-[var(--color-primary-10)]'}
                       `}
                     >
                      <Icon size={12} style={{ color: isActive ? COLORS.GREEN_PRIMARY : COLORS.GREEN_PRIMARY }} />
@@ -122,7 +122,7 @@ const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {
                       ${isActive ? 'font-bold' : TAILWIND_COLORS.TEXT_MUTED}
                     `}
                     style={{
-                      color: isActive ? '#FFFFFF' : '',
+                      color: isActive ? 'white' : '',
                     }}
                   >
                     {tab.label}
@@ -154,11 +154,11 @@ export const PillNavigation = ({
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="w-full flex items-center justify-between p-3 rounded-lg border bg-white shadow-sm"
-          style={{ borderColor: 'rgba(11,83,125,0.15)' }}
+          style={{ borderColor: 'var(--color-primary-10)' }}
         >
           <div className="flex items-center gap-2">
             {tabs[activeTab]?.icon && (
-              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[rgba(92,154,36,0.15)]">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--color-primary-10)]">
                 {React.createElement(tabs[activeTab].icon, { 
                   size: 16, 
                   style: { color: COLORS.GREEN_PRIMARY } 
@@ -174,7 +174,7 @@ export const PillNavigation = ({
 
         {/* Mobile Dropdown Menu */}
         {isMobileMenuOpen && (
-          <div className="mt-2 bg-white rounded-lg border shadow-sm" style={{ borderColor: 'rgba(11,83,125,0.15)' }}>
+          <div className="mt-2 bg-white rounded-lg border shadow-sm" style={{ borderColor: 'var(--color-primary-10)' }}>
             {tabs.map((tab, index) => {
               const isActive = index === activeTab
               const Icon = tab.icon
@@ -187,13 +187,13 @@ export const PillNavigation = ({
                     setIsMobileMenuOpen(false)
                   }}
                   className={`w-full flex items-center gap-3 p-3 text-left transition-all duration-200 first:rounded-t-lg last:rounded-b-lg
-                    ${isActive ? 'bg-[rgba(92,154,36,0.1)]' : 'hover:bg-gray-50'}
+                    ${isActive ? 'bg-[var(--color-primary-10)]' : 'hover:bg-gray-50'}
                   `}
                 >
                   {Icon && (
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200
-                        ${isActive ? 'bg-white' : 'bg-[rgba(92,154,36,0.15)]'}
+                        ${isActive ? 'bg-white' : 'bg-[var(--color-primary-10)]'}
                       `}
                     >
                       <Icon size={16} style={{ color: COLORS.GREEN_PRIMARY }} />
@@ -219,8 +219,8 @@ export const PillNavigation = ({
         <div 
           className="inline-flex rounded-full p-1 items-center gap-2 max-w-full shadow-sm"
           style={{ 
-            backgroundColor: '#ffffff', 
-            border: '1px solid rgba(11,83,125,0.15)' 
+            backgroundColor: 'white', 
+            border: '1px solid var(--color-primary-10)' 
           }}
         >
           {tabs.map((tab, index) => {
@@ -241,7 +241,7 @@ export const PillNavigation = ({
                     : { 
                         backgroundColor: 'white', 
                         color: COLORS.GREEN_PRIMARY, 
-                        border: '1px solid rgba(11,83,125,0.15)' 
+                        border: '1px solid var(--color-primary-10)' 
                       }
                 }
               >
@@ -254,7 +254,7 @@ export const PillNavigation = ({
                           color: COLORS.GREEN_PRIMARY 
                         }
                       : { 
-                          backgroundColor: 'rgba(92,154,36,0.15)', 
+                          backgroundColor: 'var(--color-primary-10)', 
                           color: COLORS.GREEN_PRIMARY 
                         }
                   }

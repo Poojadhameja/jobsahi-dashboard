@@ -68,12 +68,12 @@ export default function RoleManagement() {
   }
 
   return (
-    <div className="space-y-6 bg-white rounded-lg border border-[#0b537d28] shadow-sm p-6">
+    <div className="space-y-6 bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
       {/* Header Section */}
       <div className="">
         <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-xl font-semibold text-[#1A569A] mb-2">
+            <h2 className="text-xl font-semibold text-primary mb-2">
               Manual Role Creation & Permission Control
             </h2>
             <p className="text-gray-600">
@@ -82,7 +82,7 @@ export default function RoleManagement() {
           </div>
           <button 
             onClick={() => setShowCreateForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#5B9821] text-white rounded-lg hover:bg-[#4a7d1a] transition-colors duration-200 font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors duration-200 font-medium"
           >
             <span className="text-sm">+ Create New Role</span>
           </button>
@@ -90,11 +90,11 @@ export default function RoleManagement() {
       </div>
 
       {/* Existing Roles Section */}
-      <div className="bg-[#F6FAFF] rounded-lg border border-[#0b537d28] shadow-sm p-6">
-        <h3 className="text-lg font-medium text-[#1A569A] mb-4">Existing Roles</h3>
+      <div className="bg-[var(--color-bg-primary)] rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
+        <h3 className="text-lg font-medium text-primary mb-4">Existing Roles</h3>
         <div className="space-y-4">
           {existingRoles.map((role) => (
-            <div key={role.id} className="flex items-center bg-white justify-between p-4 border border-[#0b537d28] rounded-lg transition-colors">
+            <div key={role.id} className="flex items-center bg-white justify-between p-4 border border-[var(--color-primary)28] rounded-lg transition-colors">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
                   <span className="text-gray-500 text-sm font-medium">
@@ -134,8 +134,8 @@ export default function RoleManagement() {
 
       {/* Create New Role Form */}
       {showCreateForm && (
-        <div className="bg-[#F6FAFF] rounded-lg border border-[#0b537d28] shadow-sm p-6">
-          <h3 className="text-lg font-medium text-[#1A569A] mb-4">Create New Role</h3>
+        <div className="bg-[var(--color-bg-primary)] rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
+          <h3 className="text-lg font-medium text-primary mb-4">Create New Role</h3>
           
           <div className="space-y-6">
             {/* Role Name */}
@@ -146,7 +146,7 @@ export default function RoleManagement() {
                 placeholder="Enter role name.."
                 value={newRole.name}
                 onChange={(e) => setNewRole(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-4 py-3 border border-[#0b537d28] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B9821] focus:border-transparent"
+                className="w-full px-4 py-3 border border-[var(--color-primary)28] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent"
               />
             </div>
 
@@ -158,7 +158,7 @@ export default function RoleManagement() {
                 value={newRole.description}
                 onChange={(e) => setNewRole(prev => ({ ...prev, description: e.target.value }))}
                 rows={3}
-                className="w-full px-4 py-3 border border-[#0b537d28] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B9821] focus:border-transparent"
+                className="w-full px-4 py-3 border border-[var(--color-primary)28] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent"
               />
             </div>
 
@@ -172,7 +172,7 @@ export default function RoleManagement() {
                       type="checkbox"
                       checked={newRole.permissions.includes(permission)}
                       onChange={() => handlePermissionToggle(permission)}
-                      className="w-4 h-4 text-[#5B9821] border-gray-300 rounded focus:ring-[#5B9821]"
+                      className="w-4 h-4 text-[var(--color-secondary)] border-gray-300 rounded focus:ring-[var(--color-secondary)]"
                     />
                     <span className="text-gray-700">{permission}</span>
                   </label>
@@ -184,13 +184,13 @@ export default function RoleManagement() {
             <div className="flex gap-4">
               <button
                 onClick={handleCreateRole}
-                className="px-6 py-2 bg-[#5B9821] text-white rounded-lg hover:bg-[#4a7d1a] transition-colors duration-200 font-medium"
+                className="px-6 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors duration-200 font-medium"
               >
                 Create Role
               </button>
               <button
                 onClick={() => setShowCreateForm(false)}
-                className="px-6 py-2 bg-white border-2 border-[#5B9821] text-[#5B9821] rounded-lg hover:bg-[#5B9821] hover:text-white transition-colors duration-200 font-medium"
+                className="px-6 py-2 bg-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors duration-200 font-medium"
               >
                 Cancel
               </button>

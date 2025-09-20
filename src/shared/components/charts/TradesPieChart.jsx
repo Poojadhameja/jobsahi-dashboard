@@ -14,13 +14,13 @@ const TradesPieChart = ({
       {
         data: [20, 25, 15, 20, 20, 20, 20],
         backgroundColor: [
-          '#34D399', // Light green
-          '#FB923C', // Orange
-          '#34D399', // Light green (slightly different shade)
-          '#60A5FA', // Light blue
-          '#F87171', // Red/Coral (60% segment)
-          '#FDE047', // Yellow
-          '#93C5FD'  // Light blue (slightly different shade)
+          'var(--color-secondary-light)', // Light green
+          'var(--color-warning)', // Orange
+          'var(--color-success)', // Green
+          'var(--color-primary-light)', // Light blue
+          'var(--color-error)', // Red/Coral
+          '#FDE047', // Yellow (keeping as is for contrast)
+          'var(--color-primary-30)'  // Light blue (slightly different shade)
         ],
         borderWidth: 0,
       },
@@ -36,10 +36,10 @@ const TradesPieChart = ({
       },
       tooltip: {
         enabled: true,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'var(--color-gray-700)',
         titleColor: 'white',
         bodyColor: 'white',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: 'var(--color-gray-600)',
         borderWidth: 1,
         cornerRadius: 8,
         displayColors: true,
@@ -61,13 +61,13 @@ const TradesPieChart = ({
 
   // Legend data matching the chart
   const legendItems = [
-    { color: '#34D399', label: 'Civil' },
-    { color: '#FB923C', label: 'Civil' },
-    { color: '#34D399', label: 'Civil' },
-    { color: '#60A5FA', label: 'Civil' },
-    { color: '#F87171', label: 'Civil' },
+    { color: 'var(--color-secondary-light)', label: 'Civil' },
+    { color: 'var(--color-warning)', label: 'Civil' },
+    { color: 'var(--color-success)', label: 'Civil' },
+    { color: 'var(--color-primary-light)', label: 'Civil' },
+    { color: 'var(--color-error)', label: 'Civil' },
     { color: '#FDE047', label: 'Civil' },
-    { color: '#93C5FD', label: 'Civil' }
+    { color: 'var(--color-primary-30)', label: 'Civil' }
   ]
 
   return (

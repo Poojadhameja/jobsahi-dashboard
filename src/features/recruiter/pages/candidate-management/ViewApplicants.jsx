@@ -231,13 +231,13 @@ Status: ${row.status}
   const selectedCount = selectedCandidates.length
 
   return (
-    <div className="min-h-screen bg-[#F6FAFF] p-6">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-semibold text-[#0B537D]">View Applicants</h1>
+        <h1 className="text-3xl font-semibold text-[var(--color-primary)]">View Applicants</h1>
         <button
           onClick={handleExportAll}
-          className="px-6 py-3 bg-[#5C9A24] text-white rounded-lg hover:bg-[#4a7c1f] transition-colors font-medium flex items-center gap-2"
+          className="px-6 py-3 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors font-medium flex items-center gap-2"
         >
           <LuDownload size={20} />
           EXPORT ALL
@@ -254,7 +254,7 @@ Status: ${row.status}
             placeholder="Search candidates"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
           />
         </div>
 
@@ -335,7 +335,7 @@ Status: ${row.status}
               onClick={() => handlePageChange(page)}
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 currentPage === page
-                  ? 'bg-[#5C9A24] text-white'
+                  ? 'bg-[var(--color-secondary)] text-white'
                   : 'border border-gray-300 hover:bg-gray-50'
               }`}
             >

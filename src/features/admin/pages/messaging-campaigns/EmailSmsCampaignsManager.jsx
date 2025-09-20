@@ -351,7 +351,7 @@ ${form.content}
           type="button"
           variant="outline"
           size="md"
-          className="h-12 border-2 border-[#5B9821] text-[#5B9821]"
+          className="h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
           onClick={onSaveDraft}
         >
           Save draft
@@ -361,7 +361,7 @@ ${form.content}
           type="button"
           variant="outline"
           size="md"
-          className="h-12 border-2 border-[#5B9821] text-[#5B9821]"
+          className="h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
           onClick={onPreview}
         >
           Preview

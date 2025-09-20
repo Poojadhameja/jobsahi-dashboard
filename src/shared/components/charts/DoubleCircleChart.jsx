@@ -19,12 +19,12 @@ const DoubleCircleChart = ({
       {
         data: [32, 18, 12, 18, 8, 12],
         backgroundColor: [
-          '#3B82F6', // Blue - JavaScript (largest segment)
-          '#10B981', // Green - Python
-          '#F59E0B', // Orange - Java
-          '#EF4444', // Red - React
-          '#8B5CF6', // Purple - Node.js
-          '#94A3B8'  // Grey - Others
+          'var(--color-primary)', // Blue - JavaScript (largest segment)
+          'var(--color-success)', // Green - Python
+          'var(--color-warning)', // Orange - Java
+          'var(--color-error)', // Red - React
+          '#8B5CF6', // Purple - Node.js (keeping for contrast)
+          'var(--color-gray-600)'  // Grey - Others
         ],
         borderWidth: 0,
       },
@@ -45,14 +45,14 @@ const DoubleCircleChart = ({
             size: 11,
             weight: '400'
           },
-          color: '#374151'
+          color: 'var(--color-text-muted)'
         } 
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'var(--color-gray-700)',
         titleColor: 'white',
         bodyColor: 'white',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: 'var(--color-gray-600)',
         borderWidth: 1,
         cornerRadius: 6,
         displayColors: true,

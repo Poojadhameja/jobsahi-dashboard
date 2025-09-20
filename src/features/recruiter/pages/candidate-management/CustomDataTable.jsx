@@ -130,7 +130,7 @@ const CustomDataTable = ({
   }
   
   return (
-    <div className={`bg-white rounded-lg border border-[#0B537D3C] ${className}`}>
+    <div className={`bg-white rounded-lg border border-[var(--color-primary)3C] ${className}`}>
       {showHeader && (
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center">

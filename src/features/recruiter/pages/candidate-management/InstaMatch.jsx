@@ -124,10 +124,10 @@ const InstaMatch = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6FAFF] p-2">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] p-2">
       {/* Header */}
       <div className="mb-5">
-        <h1 className="text-3xl font-semibold text-[#0B537D] mb-6">
+        <h1 className="text-3xl font-semibold text-[var(--color-primary)] mb-6">
           InstaMatch Dashboard
         </h1>
 
@@ -144,7 +144,7 @@ const InstaMatch = () => {
               placeholder="Search candidates"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
             />
           </div>
 
@@ -155,7 +155,7 @@ const InstaMatch = () => {
               <select
                 value={matchFilter}
                 onChange={(e) => setMatchFilter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none min-w-[140px]"
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[140px]"
               >
                 <option value="">Match percentage</option>
                 <option value="90-100">90-100%</option>
@@ -174,7 +174,7 @@ const InstaMatch = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none min-w-[140px]"
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[140px]"
               >
                 <option value="">All Candidates</option>
                 <option value="shortlisted">Shortlisted</option>
@@ -238,11 +238,11 @@ const InstaMatch = () => {
               <div className="flex items-center gap-2">
                 <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-[#5C9A24] rounded-full transition-all duration-300"
+                    className="h-full bg-[var(--color-secondary)] rounded-full transition-all duration-300"
                     style={{ width: `${candidate.aiMatch}%` }}
                   />
                 </div>
-                <span className="text-sm font-semibold text-[#5C9A24]">
+                <span className="text-sm font-semibold text-[var(--color-secondary)]">
                   {candidate.aiMatch}%
                 </span>
               </div>
@@ -285,7 +285,7 @@ const InstaMatch = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => handleInvite(candidate.id)}
-                className="flex items-center gap-2 p-2 border-2 border-[#5C9A24] font-bold text-[#5C9A24] rounded-md hover:bg-[#4a7c1f] hover:text-white transition-colors text-sm "
+                className="flex items-center gap-2 p-2 border-2 border-[var(--color-secondary)] font-bold text-[var(--color-secondary)] rounded-md hover:bg-secondary-dark hover:text-white transition-colors text-sm "
               >
                 <LuMail size={16} />
                 Invite
@@ -293,7 +293,7 @@ const InstaMatch = () => {
 
               <button
                 onClick={() => handleSchedule(candidate.id)}
-                className="flex items-center gap-2 p-2 border-2 border-[#5C9A24] font-bold text-[#5C9A24] rounded-md hover:bg-[#4a7c1f] hover:text-white transition-colors text-sm "
+                className="flex items-center gap-2 p-2 border-2 border-[var(--color-secondary)] font-bold text-[var(--color-secondary)] rounded-md hover:bg-secondary-dark hover:text-white transition-colors text-sm "
               >
                 <LuCalendar size={16} />
                 Schedule
@@ -303,8 +303,8 @@ const InstaMatch = () => {
                 onClick={() => handleShortlist(candidate.id)}
                 className={`p-2 rounded-lg transition-colors ${
                   candidate.isShortlisted
-                    ? "bg-[#5C9A24] text-white"
-                    : "p-2 border-2 border-[#5C9A24] font-bold text-[#5C9A24] rounded-md hover:bg-[#4a7c1f] hover:text-white transition-colors text-sm "
+                    ? "bg-[var(--color-secondary)] text-white"
+                    : "p-2 border-2 border-[var(--color-secondary)] font-bold text-[var(--color-secondary)] rounded-md hover:bg-secondary-dark hover:text-white transition-colors text-sm "
                 }`}
               >
                 <LuStar
