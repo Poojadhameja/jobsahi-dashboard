@@ -320,6 +320,7 @@ const Dashboard = () => {
       {/* Header */}
       <div className="mb-5">
         <h1 className="text-3xl font-semibold text-[#0B537D]">Hi! Brightorial</h1>
+        <h1 className="text-3xl font-semibold text-[#0B537D]">Hi! Brightorial</h1>
       </div>
 
       {/* Metric Cards */}
