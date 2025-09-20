@@ -22,12 +22,12 @@ export default function AppSidebar({ isOpen, toggleSidebar, brand = 'JOBSAHI', r
         <h1 className="text-lg sm:text-xl font-bold truncate">{brand}</h1>
       </div>
 
-      <nav className="p-2 sm:p-3 space-y-1 overflow-y-auto no-scrollbar flex-1 -mr-1 pr-1">
+      <nav className="p-2 sm:p-3 space-y-2 overflow-y-auto no-scrollbar flex-1 -mr-1 pr-1">
         {items.map((item) => (
           <Link
             key={item.to}
             to={item.to}
-            className={`flex items-center gap-2 sm:gap-3 px-2 sm:px-4 py-2 sm:py-2 rounded-lg text-sm sm:text-base ${isActive(item.activePath ?? item.to) ? 'bg-white/15' : 'hover:bg-white/10'}`}
+            className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-3 rounded-lg text-sm sm:text-base ${isActive(item.activePath ?? item.to) ? 'bg-white/15' : 'hover:bg-white/10'}`}
             onClick={onClickItem}
           >
             {item.icon ? (
