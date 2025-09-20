@@ -86,13 +86,15 @@ export default function Login() {
           localStorage.setItem("authExpiry", response.expires_in)
           localStorage.setItem("authUser", JSON.stringify(response.user))
           
-          //alert(response.message || "Login successful!")
+          alert(response.message || "Login successful!")
 
           if (response.user.role === "recruiter") {
             window.location.href = "/recruiter/dashboard"
           } else if (response.user.role === "institute") {
             window.location.href = "/institute/dashboard"
-          } else {
+          } else if (response.user.role === "student") {
+            window.location.href = "/student/dashboard"
+          }else {
             window.location.href = "/admin/dashboard"
           }
         } else {
