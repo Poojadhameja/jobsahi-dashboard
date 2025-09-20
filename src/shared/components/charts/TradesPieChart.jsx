@@ -1,6 +1,7 @@
 import React from 'react'
 import { Pie } from 'react-chartjs-2'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import { getChartColorArray, getChartTooltipStyle } from '../../utils/chartColors'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -8,19 +9,21 @@ const TradesPieChart = ({
   // height = "",
   className = ""
 }) => {
+  const chartColors = getChartColorArray();
+  
   const pieData = {
     labels: ['Civil', 'Civil', 'Civil', 'Civil', 'Civil', 'Civil', 'Civil'],
     datasets: [
       {
         data: [20, 25, 15, 20, 20, 20, 20],
         backgroundColor: [
-          'var(--color-secondary-light)', // Light green
-          'var(--color-warning)', // Orange
-          'var(--color-success)', // Green
-          'var(--color-primary-light)', // Light blue
-          'var(--color-error)', // Red/Coral
-          '#FDE047', // Yellow (keeping as is for contrast)
-          'var(--color-primary-30)'  // Light blue (slightly different shade)
+          chartColors[0], // Green
+          chartColors[1], // Orange
+          chartColors[2], // Green
+          chartColors[3], // Blue
+          chartColors[4], // Red
+          chartColors[5], // Yellow
+          chartColors[6]  // Purple
         ],
         borderWidth: 0,
       },
@@ -36,12 +39,7 @@ const TradesPieChart = ({
       },
       tooltip: {
         enabled: true,
-        backgroundColor: 'var(--color-gray-700)',
-        titleColor: 'white',
-        bodyColor: 'white',
-        borderColor: 'var(--color-gray-600)',
-        borderWidth: 1,
-        cornerRadius: 8,
+        ...getChartTooltipStyle(),
         displayColors: true,
         callbacks: {
           label: function(context) {
@@ -61,13 +59,13 @@ const TradesPieChart = ({
 
   // Legend data matching the chart
   const legendItems = [
-    { color: 'var(--color-secondary-light)', label: 'Civil' },
-    { color: 'var(--color-warning)', label: 'Civil' },
-    { color: 'var(--color-success)', label: 'Civil' },
-    { color: 'var(--color-primary-light)', label: 'Civil' },
-    { color: 'var(--color-error)', label: 'Civil' },
-    { color: '#FDE047', label: 'Civil' },
-    { color: 'var(--color-primary-30)', label: 'Civil' }
+    { color: chartColors[0], label: 'Civil' },
+    { color: chartColors[1], label: 'Civil' },
+    { color: chartColors[2], label: 'Civil' },
+    { color: chartColors[3], label: 'Civil' },
+    { color: chartColors[4], label: 'Civil' },
+    { color: chartColors[5], label: 'Civil' },
+    { color: chartColors[6], label: 'Civil' }
   ]
 
   return (

@@ -10,6 +10,7 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import { LuDownload } from 'react-icons/lu'
+import { getChartTooltipStyle } from '../../utils/chartColors'
 
 ChartJS.register(
   CategoryScale,
@@ -49,11 +50,7 @@ const BarChart = ({ title, data, onDownload }) => {
         }
       },
       tooltip: {
-        backgroundColor: 'var(--color-gray-700)',
-        titleColor: 'white',
-        bodyColor: 'white',
-        borderColor: 'var(--color-gray-600)',
-        borderWidth: 1,
+        ...getChartTooltipStyle(),
       }
     },
     scales: {

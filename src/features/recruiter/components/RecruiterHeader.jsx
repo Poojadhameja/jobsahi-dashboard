@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { TAILWIND_COLORS, COLORS } from '../../../shared/WebConstant'
 import Button from '../../../shared/components/Button.jsx'
 import UserDropdown from '../../../shared/components/UserDropdown.jsx'
+import DarkModeToggle from '../../../shared/components/DarkModeToggle.jsx'
 
 export default function RecruiterHeader({ toggleSidebar }) {
   const navigate = useNavigate()
@@ -37,6 +38,9 @@ export default function RecruiterHeader({ toggleSidebar }) {
           </svg>
           <span className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full" style={{ backgroundColor: 'var(--color-warning)' }} />
         </button>
+        
+        {/* Dark Mode Toggle */}
+        <DarkModeToggle />
         
         {/* User Dropdown - Always visible but responsive */}
         <div className="block">

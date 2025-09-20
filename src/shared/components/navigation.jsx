@@ -27,7 +27,7 @@ const NavigationTabs = ({ navigationTabs, activeNavTab, setActiveNavTab }) => {
               {navigationTabs.find(tab => tab.id === activeNavTab)?.label || 'Select Option'}
             </span>
           </div>
-          {isMobileMenuOpen ? <LuX size={20} style={{ color: COLORS.GREEN_PRIMARY }} /> : <LuMenu size={20} style={{ color: COLORS.GREEN_PRIMARY }} />}
+          {isMobileMenuOpen ? <LuX size={20} className="text-secondary" /> : <LuMenu size={20} className="text-secondary" />}
         </button>
       </div>
 
@@ -153,7 +153,7 @@ export const PillNavigation = ({
       <div className="lg:hidden w-full">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="w-full flex items-center justify-between p-3 rounded-lg border bg-white shadow-sm"
+          className="w-full flex items-center justify-between p-3 rounded-lg border bg-bg-white shadow-sm"
           style={{ borderColor: 'var(--color-primary-10)' }}
         >
           <div className="flex items-center gap-2">
@@ -165,16 +165,16 @@ export const PillNavigation = ({
                 })}
               </div>
             )}
-            <span className="text-sm font-medium" style={{ color: COLORS.GREEN_PRIMARY }}>
+            <span className="text-sm font-medium text-secondary">
               {tabs[activeTab]?.label || 'Select Option'}
             </span>
           </div>
-          {isMobileMenuOpen ? <LuX size={20} style={{ color: COLORS.GREEN_PRIMARY }} /> : <LuMenu size={20} style={{ color: COLORS.GREEN_PRIMARY }} />}
+          {isMobileMenuOpen ? <LuX size={20} className="text-secondary" /> : <LuMenu size={20} className="text-secondary" />}
         </button>
 
         {/* Mobile Dropdown Menu */}
         {isMobileMenuOpen && (
-          <div className="mt-2 bg-white rounded-lg border shadow-sm" style={{ borderColor: 'var(--color-primary-10)' }}>
+          <div className="mt-2 bg-bg-white rounded-lg border shadow-sm" style={{ borderColor: 'var(--color-primary-10)' }}>
             {tabs.map((tab, index) => {
               const isActive = index === activeTab
               const Icon = tab.icon
@@ -217,9 +217,9 @@ export const PillNavigation = ({
       {/* Desktop Navigation */}
       <div className="hidden lg:block">
         <div 
-          className="inline-flex rounded-full p-1 items-center gap-2 max-w-full shadow-sm"
+          className="inline-flex rounded-full p-1 items-center gap-2 max-w-full shadow-sm nav-tab-container"
           style={{ 
-            backgroundColor: 'white', 
+            backgroundColor: 'var(--color-bg-white)', 
             border: '1px solid var(--color-primary-10)' 
           }}
         >
@@ -231,16 +231,18 @@ export const PillNavigation = ({
               <button
                 key={tab.id || index}
                 onClick={() => onTabChange(index)}
-                className="flex items-center justify-between gap-2 rounded-full px-2 lg:pe-5 py-2 whitespace-nowrap transition-all duration-200"
+                className={`flex items-center justify-between gap-2 rounded-full px-2 lg:pe-5 py-2 whitespace-nowrap transition-all duration-200 nav-tab ${
+                  isActive ? 'active' : ''
+                }`}
                 style={
                   isActive
                     ? { 
-                        backgroundColor: COLORS.GREEN_PRIMARY, 
+                        backgroundColor: 'var(--color-secondary)', 
                         color: 'white' 
                       }
                     : { 
-                        backgroundColor: 'white', 
-                        color: COLORS.GREEN_PRIMARY, 
+                        backgroundColor: 'var(--color-bg-white)', 
+                        color: 'var(--color-secondary)', 
                         border: '1px solid var(--color-primary-10)' 
                       }
                 }
@@ -251,11 +253,11 @@ export const PillNavigation = ({
                     isActive
                       ? { 
                           backgroundColor: 'rgba(255,255,255,0.9)', 
-                          color: COLORS.GREEN_PRIMARY 
+                          color: 'var(--color-secondary)' 
                         }
                       : { 
                           backgroundColor: 'var(--color-primary-10)', 
-                          color: COLORS.GREEN_PRIMARY 
+                          color: 'var(--color-secondary)' 
                         }
                   }
                 >

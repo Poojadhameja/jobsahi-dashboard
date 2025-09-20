@@ -7,6 +7,7 @@ import {
 } from 'chart.js'
 import { Pie } from 'react-chartjs-2'
 import { LuDownload } from 'react-icons/lu'
+import { getChartTooltipStyle } from '../../utils/chartColors'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -39,11 +40,7 @@ const TradePieChart = ({ title, data, onDownload }) => {
         }
       },
       tooltip: {
-        backgroundColor: 'var(--color-gray-700)',
-        titleColor: 'white',
-        bodyColor: 'white',
-        borderColor: 'var(--color-gray-600)',
-        borderWidth: 1,
+        ...getChartTooltipStyle(),
         callbacks: {
           label: function(context) {
             const label = context.label || ''
