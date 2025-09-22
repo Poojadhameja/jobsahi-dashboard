@@ -1,6 +1,22 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LuBookOpen, LuUsers, LuMessageSquare, LuFileText, LuActivity, LuSettings } from 'react-icons/lu'
+import { 
+  LuBookOpen, 
+  LuUsers, 
+  LuMessageSquare, 
+  LuFileText, 
+  LuActivity, 
+  LuSettings,
+  LuStar,
+  LuClock,
+  // LuBarChart,
+  LuBell,
+  LuPlus,
+  LuTrophy,
+  LuTrendingUp
+} from 'react-icons/lu'
+import { Horizontal4Cards } from '../../../shared/components/metricCard'
+import ProgressChart from '../../../shared/components/charts/ProgressChart'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -29,78 +45,187 @@ export default function Dashboard() {
     navigate('/institute/profile-setting')
   }
 
+  const handleAddNewCourse = () => {
+    navigate('/institute/course-management')
+  }
+
+  const handleGenerateReports = () => {
+    navigate('/institute/reports-analytics')
+  }
+
+  const handleViewStudents = () => {
+    navigate('/institute/student-management')
+  }
+
+  const handleSendNotification = () => {
+    navigate('/institute/messaging-alerts')
+  }
+
+  // Key metrics data for Horizontal4Cards
+  const keyMetrics = [
+    {
+      title: 'Total Courses',
+      value: '24',
+      delta: '+2 from last month',
+      icon: <LuBookOpen className="w-5 h-5" />
+    },
+    {
+      title: 'Enrolled Students',
+      value: '1,234',
+      delta: '+15% from last month',
+      icon: <LuUsers className="w-5 h-5" />
+    },
+    {
+      title: 'Certified Students',
+      value: '850',
+      delta: '+8% from last month',
+      icon: <LuTrophy className="w-5 h-5" />
+    },
+    {
+      title: 'Placement Rate',
+      value: '78%',
+      delta: '+5% from last month',
+      icon: <LuTrendingUp className="w-5 h-5" />
+    }
+  ]
+
+  // Recent activities data
+  const recentActivities = [
+    {
+      id: 1,
+      text: 'New student enrolled in Welder course',
+      time: '2 minutes ago',
+      color: 'bg-blue-500'
+    },
+    {
+      id: 2,
+      text: 'Certificate generated for Priya Sharma',
+      time: '1 hour ago',
+      color: 'bg-green-500'
+    },
+    {
+      id: 3,
+      text: 'Welder course curriculum updated',
+      time: '3 hours ago',
+      color: 'bg-purple-500'
+    },
+    {
+      id: 4,
+      text: 'Monthly report generated successfully',
+      time: '1 day ago',
+      color: 'bg-orange-500'
+    }
+  ]
+
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Institute Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome to your institute management dashboard.</p>
+    <div className="p-2 bg-[#F6FAFF] min-h-screen">
+      {/* Key Metrics Section - Using Horizontal4Cards */}
+      <div className="mb-5">
+        <Horizontal4Cards data={keyMetrics} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Course Management</h3>
-            <LuBookOpen className="w-6 h-6 text-blue-600" />
+      {/* Greeting Section */}
+      <div className="mb-5">
+        <h1 className="text-2xl font-semibold text-[#0B537D]">Hi! Brightorial</h1>
+      </div>
+
+      {/* Quick Actions and Recent Activities */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        {/* Quick Actions Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+          <div className="flex items-center mb-4">
+            <LuStar className="w-6 h-6 text-yellow-500 mr-2" />
+            <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
           </div>
-          <p className="text-gray-600 mb-4">Manage your courses, create new ones, and track course performance.</p>
-          <button onClick={handleCourseManagement} className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-            Manage Courses
-          </button>
+          <p className="text-gray-600 mb-5">Frequently used actions for quick access.</p>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <button 
+              onClick={handleAddNewCourse}
+              className="bg-[#3B82F6] text-white p-4 rounded-lg hover:bg-[#276edf] transition-colors flex items-center justify-center"
+            >
+              <LuPlus className="w-5 h-5 mr-2" />
+              <span className="text-sm font-medium">Add New Course</span>
+            </button>
+            
+            <button 
+              onClick={handleGenerateReports}
+              className="bg-[#A855F7] text-white p-4 rounded-lg hover:bg-[#9421ff] transition-colors flex items-center justify-center"
+            >
+              {/* <LuBarChart className="w-5 h-5 mr-2" /> */}
+              <span className="text-sm font-medium">Generate Reports</span>
+            </button>
+            
+            <button 
+              onClick={handleViewStudents}
+              className="bg-[#22C55E] text-white p-4 rounded-lg hover:bg-[#2bae5b] transition-colors flex items-center justify-center"
+            >
+              <LuUsers className="w-5 h-5 mr-2" />
+              <span className="text-sm font-medium">View Students</span>
+            </button>
+            
+            <button 
+              onClick={handleSendNotification}
+              className="bg-[#F97316] text-white p-4 rounded-lg hover:bg-[#d56d23] transition-colors flex items-center justify-center"
+            >
+              <LuBell className="w-5 h-5 mr-2" />
+              <span className="text-sm font-medium">Send Notification</span>
+            </button>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Student Management</h3>
-            <LuUsers className="w-6 h-6 text-green-600" />
+        {/* Recent Activities Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+          <div className="flex items-center mb-5">
+            <LuClock className="w-6 h-6 text-blue-500 mr-2" />
+            <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
           </div>
-          <p className="text-gray-600 mb-4">Manage students, track progress, and assign courses.</p>
-          <button onClick={handleStudentManagement} className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
-            Manage Students
-          </button>
+          <p className="text-gray-600 mb-5">Latest updates and activities in your institute.</p>
+          
+          <div className="space-y-4">
+            {recentActivities.map((activity) => (
+              <div key={activity.id} className="flex items-start space-x-3">
+                <div className={`w-3 h-3 rounded-full ${activity.color} mt-2 flex-shrink-0`}></div>
+                <div className="flex-1">
+                  <p className="text-gray-900 text-sm">{activity.text}</p>
+                  <p className="text-gray-500 text-xs">{activity.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Messaging & Alerts</h3>
-            <LuMessageSquare className="w-6 h-6 text-purple-600" />
-          </div>
-          <p className="text-gray-600 mb-4">Send messages and manage automated alerts for students.</p>
-          <button onClick={handleMessagingAlerts} className="w-full bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors">
-            Messaging Center
-          </button>
+      {/* Performance Overview */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center mb-5">
+          <h2 className="text-xl font-semibold text-gray-900">Performance Overview</h2>
         </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Course Completion Rate */}
+          <ProgressChart 
+            percentage={85}
+            label="Course Completion Rate"
+            color="#10B981"
+            size={120}
+          />
 
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Certificates & Completion</h3>
-            <LuFileText className="w-6 h-6 text-orange-600" />
-          </div>
-          <p className="text-gray-600 mb-4">Manage certificates, templates, and track completion status.</p>
-          <button onClick={handleCertificatesCompletion} className="w-full bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors">
-            Certificates
-          </button>
-        </div>
+          {/* Student Satisfaction */}
+          <ProgressChart 
+            percentage={85}
+            label="Student Satisfaction"
+            color="#3B82F6"
+            size={120}
+          />
 
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Reports & Analytics</h3>
-            <LuActivity className="w-6 h-6 text-red-600" />
-          </div>
-          <p className="text-gray-600 mb-4">View detailed reports and analytics for your institute.</p>
-          <button onClick={handleReportsAnalytics} className="w-full bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors">
-            View Reports
-          </button>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Profile & Settings</h3>
-            <LuSettings className="w-6 h-6 text-gray-600" />
-          </div>
-          <p className="text-gray-600 mb-4">Manage your institute profile and system settings.</p>
-          <button onClick={handleProfileSetting} className="w-full bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
-            Settings
-          </button>
+          {/* Placement Success */}
+          <ProgressChart 
+            percentage={85}
+            label="Placement Success"
+            color="#8B5CF6"
+            size={120}
+          />
         </div>
       </div>
     </div>
