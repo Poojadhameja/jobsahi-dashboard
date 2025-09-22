@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuPhone, LuMail } from 'react-icons/lu'
+import { postMethod } from '../../service/api'
+import { getMethod } from '../../service/api'
+import apiService from '../../service/serviceUrl'
 
 function AuthTabs({ mode, setMode }) {
   const items = [
@@ -56,12 +59,52 @@ export default function Login() {
 
   const isEmail = mode === 'EMAIL'
 
-  const onSubmit = (e) => {
+  //const baseURL = process.env.REACT_APP_BASEURL;
+
+  const onSubmit = async (e) => {
     e.preventDefault()
     // Placeholder submit. Hook up to auth later.
     if (isEmail) {
       // eslint-disable-next-line no-console
-      console.log('login/email', { email, password })
+      //console.log('login/email', { email, password })
+      try {
+
+        var data = {
+          apiUrl: apiService.signin,
+          payload: {
+            email,
+            password,
+          },
+        };
+
+        var response = await postMethod(data);
+        console.log(response);
+
+        if (response.status === true) {
+          // Save token + expiry
+          localStorage.setItem("authToken", response.token)
+          localStorage.setItem("authExpiry", response.expires_in)
+          localStorage.setItem("authUser", JSON.stringify(response.user))
+          
+          alert(response.message || "Login successful!")
+
+          if (response.user.role === "recruiter") {
+            window.location.href = "/recruiter/dashboard"
+          } else if (response.user.role === "institute") {
+            window.location.href = "/institute/dashboard"
+          } else if (response.user.role === "student") {
+            window.location.href = "/student/dashboard"
+          }else {
+            window.location.href = "/admin/dashboard"
+          }
+        } else {
+          console.error("Login Failed:", response)
+          alert(response.message || "Invalid email or password")
+        }
+      } catch (error) {
+        console.error("API Error:", error)
+        alert("Something went wrong. Please try again.")
+      }
     } else {
       // For OTP flow, open verification modal
       setShowOtpModal(true)
@@ -97,7 +140,7 @@ export default function Login() {
           <div className="mt-4 flex items-center justify-center">
             <AuthTabs mode={mode} setMode={setMode} />
           </div>
-        {/* </div>
+          {/* </div>
 
         <div className={`rounded-2xl p-6 md:p-8 ${TAILWIND_COLORS.CARD}`}> */}
           <form onSubmit={onSubmit} className="space-y-4">
@@ -166,10 +209,10 @@ export default function Login() {
                 className="flex items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white h-12 hover:bg-gray-50"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-6 h-6">
-                  <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.602 32.091 29.221 35 24 35c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C33.64 5.108 28.999 3 24 3 12.955 3 4 11.955 4 23s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.651-.389-3.917z"/>
-                  <path fill="#FF3D00" d="M6.306 14.691l6.571 4.817C14.655 16.095 18.961 13 24 13c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C33.64 5.108 28.999 3 24 3 16.318 3 9.656 7.337 6.306 14.691z"/>
-                  <path fill="#4CAF50" d="M24 43c5.166 0 9.86-1.977 13.409-5.197l-6.191-5.238C29.164 34.091 26.72 35 24 35c-5.202 0-9.571-2.886-11.289-7.045l-6.5 5.02C9.485 38.556 16.227 43 24 43z"/>
-                  <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-1.093 3.008-3.386 5.421-6.084 6.566l.001-.001 6.191 5.238C33.164 40.355 44 34 44 23c0-1.341-.138-2.651-.389-3.917z"/>
+                  <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.602 32.091 29.221 35 24 35c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C33.64 5.108 28.999 3 24 3 12.955 3 4 11.955 4 23s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.651-.389-3.917z" />
+                  <path fill="#FF3D00" d="M6.306 14.691l6.571 4.817C14.655 16.095 18.961 13 24 13c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C33.64 5.108 28.999 3 24 3 16.318 3 9.656 7.337 6.306 14.691z" />
+                  <path fill="#4CAF50" d="M24 43c5.166 0 9.86-1.977 13.409-5.197l-6.191-5.238C29.164 34.091 26.72 35 24 35c-5.202 0-9.571-2.886-11.289-7.045l-6.5 5.02C9.485 38.556 16.227 43 24 43z" />
+                  <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-1.093 3.008-3.386 5.421-6.084 6.566l.001-.001 6.191 5.238C33.164 40.355 44 34 44 23c0-1.341-.138-2.651-.389-3.917z" />
                 </svg>
                 <span className="text-sm font-medium text-gray-700">continue with Google</span>
               </button>
@@ -179,7 +222,7 @@ export default function Login() {
                 type="button"
                 className="flex items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white h-12 hover:bg-gray-50"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-6 h-6 fill-[#0A66C2]"><path d="M100.28 448H7.4V148.9h92.88zm-46.44-340C24.29 108 0 83.5 0 53.64A53.64 53.64 0 0 1 53.83 0C83.5 0 108 24.29 108 53.64S83.5 108 53.83 108zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.7 37.7-55.7 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.7-48.3 87.9-48.3 94 0 111.3 61.9 111.3 142.3V448z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" className="w-6 h-6 fill-[#0A66C2]"><path d="M100.28 448H7.4V148.9h92.88zm-46.44-340C24.29 108 0 83.5 0 53.64A53.64 53.64 0 0 1 53.83 0C83.5 0 108 24.29 108 53.64S83.5 108 53.83 108zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.7 37.7-55.7 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.7-48.3 87.9-48.3 94 0 111.3 61.9 111.3 142.3V448z" /></svg>
                 <span className="text-sm font-medium text-gray-700">continue with Linkedin</span>
               </button>
             </div>
@@ -196,7 +239,7 @@ export default function Login() {
               className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
               onClick={() => setShowOtpModal(false)}
             >
-              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M6 18L18 6"/></svg>
+              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M6 18L18 6" /></svg>
             </button>
             <h2 className="text-2xl font-semibold text-center text-gray-800">Verification</h2>
             <p className="text-center text-gray-500 mt-1">Enter the 4–digit verification code that was sent to your SMS.</p>
@@ -222,7 +265,7 @@ export default function Login() {
             </div>
 
             <div className="mt-4 text-center text-sm text-gray-600">
-              Didn’t receive code? <button className="text-[#5B9821] hover:underline" type="button" onClick={() => {/* eslint-disable-next-line no-console */ console.log('resend-otp', { phone })}}>Resend</button>
+              Didn’t receive code? <button className="text-[#5B9821] hover:underline" type="button" onClick={() => {/* eslint-disable-next-line no-console */ console.log('resend-otp', { phone }) }}>Resend</button>
             </div>
           </div>
         </div>
