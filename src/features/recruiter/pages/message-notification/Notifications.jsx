@@ -21,7 +21,7 @@ const Notifications = () => {
       time: "4 hours ago",
       unread: true,
       icon: LuCalendar,
-      iconColor: "text-[#5C9A24]"
+      iconColor: "text-[var(--color-secondary)]"
     },
     {
       id: 3,
@@ -86,14 +86,14 @@ const Notifications = () => {
       <div className="mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-[#5C9A24] rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-[var(--color-secondary)] rounded-full flex items-center justify-center">
               <LuBell size={20} className="text-white" />
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Notifications</h1>
           </div>
           <button
             onClick={markAllAsRead}
-            className="px-3 py-2 text-xs sm:text-sm text-[#5C9A24] border border-[#5C9A24] rounded-lg hover:bg-[#5C9A24] hover:text-white font-bold transition-colors w-full sm:w-auto"
+            className="px-3 py-2 text-xs sm:text-sm text-[var(--color-secondary)] border border-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white font-bold transition-colors w-full sm:w-auto"
           >
             Mark All as Read
           </button>
@@ -116,7 +116,7 @@ const Notifications = () => {
               onClick={() => setFilter(tab.key)}
               className={`px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 filter === tab.key
-                  ? 'bg-[#5C9A24] text-white'
+                  ? 'bg-[var(--color-secondary)] text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
               }`}
             >
@@ -165,7 +165,7 @@ const Notifications = () => {
                         <div className="flex items-center gap-2">
                           <span className="text-xs sm:text-sm text-gray-500">{notification.time}</span>
                           {notification.unread && (
-                            <div className="w-2 h-2 bg-[#5C9A24] rounded-full"></div>
+                            <div className="w-2 h-2 bg-[var(--color-secondary)] rounded-full"></div>
                           )}
                         </div>
                       </div>
@@ -175,7 +175,7 @@ const Notifications = () => {
                         {notification.unread && (
                           <button
                             onClick={() => markAsRead(notification.id)}
-                            className="p-1.5 sm:p-2 text-gray-400 hover:text-[#5C9A24] hover:bg-green-100 rounded-lg transition-colors"
+                            className="p-1.5 sm:p-2 text-gray-400 hover:text-[var(--color-secondary)] hover:bg-green-100 rounded-lg transition-colors"
                             title="Mark as read"
                           >
                             <LuCheck size={14} className="sm:hidden" />

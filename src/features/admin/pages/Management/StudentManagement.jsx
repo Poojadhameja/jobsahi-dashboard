@@ -31,15 +31,15 @@ function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
 // Advanced Filters Component
 function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter }) {
   return (
-    <div className="bg-white border border-[#0b537d28] rounded-lg p-6">
+    <div className="bg-white border border-[var(--color-primary)28] rounded-lg p-6">
       <div className="flex items-center gap-2 mb-6">
         <LuFilter className="text-gray-600" size={20} />
-        <h3 className="font-medium text-[#0b537d]">Advanced Filters</h3>
+        <h3 className="font-medium text-[var(--color-primary)]">Advanced Filters</h3>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[#0b537d]">Courses</label>
+          <label className="block text-sm font-medium text-[var(--color-primary)]">Courses</label>
           <select 
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.course || 'all'}
@@ -54,7 +54,7 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
         </div>
         
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[#0b537d]">Placement Status</label>
+          <label className="block text-sm font-medium text-[var(--color-primary)]">Placement Status</label>
           <select 
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.placementStatus || 'all'}
@@ -69,7 +69,7 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
         </div>
         
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[#0b537d]">Skills</label>
+          <label className="block text-sm font-medium text-[var(--color-primary)]">Skills</label>
           <select 
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.skills || 'all'}
@@ -84,7 +84,7 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
         </div>
         
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[#0b537d]">Experience</label>
+          <label className="block text-sm font-medium text-[var(--color-primary)]">Experience</label>
           <select 
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.experience || 'all'}
@@ -102,13 +102,13 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
       <div className="flex justify-end gap-3">
         <button 
           onClick={onClearAll}
-          className="px-4 py-2 text-sm text-[#5B9821] hover:underline font-medium"
+          className="px-4 py-2 text-sm text-[var(--color-secondary)] hover:underline font-medium"
         >
           Clear All
         </button>
         <button 
           onClick={onApplyFilter}
-          className="px-4 py-2 text-sm rounded-lg bg-[#5B9821] text-white hover:bg-[#4a7c1a] transition-colors duration-200 font-medium"
+          className="px-4 py-2 text-sm rounded-lg bg-[var(--color-secondary)] text-white hover:bg-secondary-dark transition-colors duration-200 font-medium"
         >
           Apply Filter
         </button>

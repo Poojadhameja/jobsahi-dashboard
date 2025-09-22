@@ -62,8 +62,8 @@ export default function CompletionRates() {
   return (
     <div className="p-5 space-y-8">
       {/* Institute Completion Rate Report */}
-      <div className="bg-white rounded-lg border border-[#0b537d28] shadow-sm p-6">
-        <h3 className="text-xl font-semibold text-[#1A569A] mb-2">
+      <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
+        <h3 className="text-xl font-semibold text-primary mb-2">
           Institute Completion rate Report
         </h3>
         <p className="text-gray-600 mb-6">
@@ -80,7 +80,7 @@ export default function CompletionRates() {
                     className="h-2 rounded-full bg-green-500"
                     style={{ 
                       width: institute.completionRate,
-                      background: '#10B981'
+                      background: 'var(--color-success)'
                     }}
                   ></div>
                 </div>
@@ -95,8 +95,8 @@ export default function CompletionRates() {
       </div>
 
       {/* Export Options */}
-      <div className="bg-white rounded-lg border border-[#0b537d28] shadow-sm p-6">
-        <h3 className="text-xl font-semibold text-[#1A569A] mb-2">
+      <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
+        <h3 className="text-xl font-semibold text-primary mb-2">
           Export Options
         </h3>
         <p className="text-gray-600 mb-6">
@@ -108,7 +108,7 @@ export default function CompletionRates() {
             <button
               key={index}
               onClick={option.onClick}
-              className="flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-[#5B9821] text-[#5B9821] rounded-lg hover:bg-[#5B9821] hover:text-white transition-colors duration-200 font-medium"
+              className="flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors duration-200 font-medium"
             >
               <span className="text-lg">{option.icon}</span>
               <span className="text-sm">{option.label}</span>

@@ -74,14 +74,14 @@ const Dashboard = () => {
       {
         data: [60, 10, 8, 7, 6, 4, 3, 2],
         backgroundColor: [
-          '#10B981', // green
-          '#34D399', // light green
-          '#F59E0B', // orange
-          '#FBBF24', // yellow
-          '#60A5FA', // light blue
-          '#3B82F6', // dark blue
-          '#8B5CF6', // purple
-          '#EC4899'  // pink
+          'var(--color-success)', // green
+          'var(--color-success)', // light green
+          'var(--color-warning)', // orange
+          '#FBBF24', // yellow (keeping for contrast)
+          'var(--color-primary-light)', // light blue
+          'var(--color-primary)', // dark blue
+          '#8B5CF6', // purple (keeping for contrast)
+          '#EC4899'  // pink (keeping for contrast)
         ],
         borderWidth: 0
       }
@@ -316,10 +316,10 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F6FAFF]">
+    <div className="min-h-screen bg-[var(--color-bg-primary)]">
       {/* Header */}
       <div className="mb-5">
-        <h1 className="text-3xl font-semibold text-[#0B537D]">Hi! Brightorial</h1>
+        <h1 className="text-3xl font-semibold text-[var(--color-primary)]">Hi! Brightorial</h1>
       </div>
 
       {/* Metric Cards */}
@@ -328,7 +328,7 @@ const Dashboard = () => {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
         {/* Left Column - Calendar and Interview Details */}
-        <div className="space-y-4 bg-white rounded-lg border border-[#0B537D3C]">
+        <div className="space-y-4 bg-white rounded-lg border border-[var(--color-primary)3C]">
             {/* Calendar */}
             <Calendar 
               selectedDate={selectedDate}
@@ -339,10 +339,10 @@ const Dashboard = () => {
           {/* Candidate Interview Details */}
           <div className="">
             <div className="px-5 py-2 ">
-              <h3 className="text-lg font-bold text-[#0B537D]">Candidate Interview Details</h3>
+              <h3 className="text-lg font-bold text-[var(--color-primary)]">Candidate Interview Details</h3>
             </div>
             <div className="flex flex-col h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-white-300 scrollbar-track-white-100">
-            <div className="p-2 md:p-4 border border-[#0B537D3C] m-4 rounded-lg ">
+            <div className="p-2 md:p-4 border border-[var(--color-primary)3C] m-4 rounded-lg ">
               {interviewDetailsData[selectedDate] ? (
                 <div className="space-y-4 ">
                   <div className="flex justify-between items-center">
@@ -372,7 +372,7 @@ const Dashboard = () => {
               </div>
               )}
             </div>
-            <div className="p-2 md:p-4 border border-[#0B537D3C] m-4 rounded-lg ">
+            <div className="p-2 md:p-4 border border-[var(--color-primary)3C] m-4 rounded-lg ">
               {interviewDetailsData[selectedDate] ? (
                 <div className="space-y-4 ">
                   <div className="flex justify-between items-center">
@@ -408,7 +408,7 @@ const Dashboard = () => {
 
         {/* Right Column - Trades Chart */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <div className="bg-white rounded-lg border border-[#0B537D3C] p-6">
+          <div className="bg-white rounded-lg border border-[var(--color-primary)3C] p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-semibold text-gray-900">Total applicants this week by trades wise</h3>
               <span className="text-sm text-gray-500">Nov, 01-07</span>
@@ -418,14 +418,14 @@ const Dashboard = () => {
           </div>
           
           {/* Total Applicants Section */}
-          <div className="bg-white rounded-lg border border-[#0B537D3C] p-6">
-            <h3 className="text-xl font-bold text-[#0B537D] mb-6">Total Applicants</h3>
+          <div className="bg-white rounded-lg border border-[var(--color-primary)3C] p-6">
+            <h3 className="text-xl font-bold text-[var(--color-primary)] mb-6">Total Applicants</h3>
             
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               {applicantCards.map((card, index) => {
                 const IconComponent = card.icon
                 return (
-                  <div key={index} className="bg-[#F6FAFF] border border-[#0B537D3C] rounded-lg p-4 min-w-[280px] flex-shrink-0">
+                  <div key={index} className="bg-[var(--color-bg-primary)] border border-[var(--color-primary)3C] rounded-lg p-4 min-w-[280px] flex-shrink-0">
                     <div className="flex items-start space-x-3">
                       <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center flex-shrink-0">
                         <IconComponent className="text-gray-600 text-sm" />

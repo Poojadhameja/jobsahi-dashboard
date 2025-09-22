@@ -40,20 +40,20 @@ export default function OrderHistory() {
   return (
     <div className="max-w-7xl mx-auto  space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-[#0b537d3c] shadow-sm p-6">
+      <div className="bg-white rounded-lg border border-[var(--color-primary)3c] shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Order History & Payment Logs</h1>
             <p className="text-gray-600 mt-1">Track Payment, invoices, and refunds</p>
           </div>
-          <button className="bg-white hover:bg-[#5B9821] hover:text-white border-2 border-[#5B9821] text-[#5B9821] px-4 py-2 rounded-lg font-medium transition-colors">
+          <button className="bg-white hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] px-4 py-2 rounded-lg font-medium transition-colors">
             Export Data
           </button>
         </div>
 
         {/* Payment Logs Section */}
-        <div className="  rounded-lg border border-[#0b537d3c] shadow-sm">
-          <div className="p-3 border-b border-[#0b537d3c]">
+        <div className="  rounded-lg border border-[var(--color-primary)3c] shadow-sm">
+          <div className="p-3 border-b border-[var(--color-primary)3c]">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900">Payment Logs</h2>
               <div className="relative">
@@ -62,7 +62,7 @@ export default function OrderHistory() {
                   placeholder="Search orders..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-64 px-4 py-2 border border-[#0b537d3c] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-64 px-4 py-2 border border-[var(--color-primary)3c] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>

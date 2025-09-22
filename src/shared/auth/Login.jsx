@@ -5,6 +5,7 @@ import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import apiService from '../../service/serviceUrl'
 
+
 function AuthTabs({ mode, setMode }) {
   const items = [
     { key: 'OTP', label: 'OTP Login', icon: <LuPhone size={18} /> },

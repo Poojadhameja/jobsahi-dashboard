@@ -127,7 +127,7 @@ function MessageSpecificInstitute() {
             <div className="flex gap-3 pt-4">
               <button
                 onClick={handleSendMessage}
-                className="px-6 py-2 bg-[#5C9A24] text-white rounded-lg hover:bg-[#45741b] transition-colors duration-200 font-medium"
+                className="px-6 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors duration-200 font-medium"
               >
                 Send Message
               </button>
@@ -138,7 +138,7 @@ function MessageSpecificInstitute() {
                   setMessageSubject('')
                   setMessageContent('')
                 }}
-                className="px-6 py-2 border-2 border-[#5C9A24] hover:text-white rounded-lg hover:bg-[#5C9A24] transition-colors duration-200 font-medium"
+                className="px-6 py-2 border-2 border-[var(--color-secondary)] hover:text-white rounded-lg hover:bg-[var(--color-secondary)] transition-colors duration-200 font-medium"
               >
                 Clear
               </button>

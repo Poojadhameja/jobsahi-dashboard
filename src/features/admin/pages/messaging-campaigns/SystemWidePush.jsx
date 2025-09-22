@@ -48,7 +48,7 @@ const SystemwidePush = () => {
       <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm">
         <div className="flex items-center space-x-3 mb-6">
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 flex-shrink-0">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
@@ -126,7 +126,7 @@ const SystemwidePush = () => {
               type="button" 
               variant="outline" 
               size="md"
-              className="w-full sm:w-auto h-12 border-2 border-[#5B9821] text-[#5B9821] "
+              className="w-full sm:w-auto h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] "
               icon={
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -158,8 +158,8 @@ const SystemwidePush = () => {
                   const isDelivered = tag.toLowerCase() === 'delivered';
                   const base = 'px-3 py-1 text-sm font-medium rounded-md whitespace-nowrap';
                   const style = isDelivered
-                    ? 'text-[#5B9821] border-2 border-[#5B9821] hover:bg-[#5B9821] hover:text-white'
-                    : 'bg-[#5B9821] hover:bg-[#4B7F19] text-white';
+                    ? 'text-[var(--color-secondary)] border-2 border-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white'
+                    : 'bg-[var(--color-secondary)] hover:bg-secondary-dark text-white';
                   return (
                     <span key={index} className={`${base} ${style}`}>
                       {tag}

@@ -1,8 +1,9 @@
- import React from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TAILWIND_COLORS, COLORS } from '../../../shared/WebConstant'
 import Button from '../../../shared/components/Button.jsx'
 import UserDropdown from '../../../shared/components/UserDropdown.jsx'
+import DarkModeToggle from '../../../shared/components/DarkModeToggle.jsx'
 
 export default function Header({ toggleSidebar }) {
   const navigate = useNavigate()
@@ -35,8 +36,11 @@ export default function Header({ toggleSidebar }) {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 sm:w-5 sm:h-5">
             <path d="M18 16V11a6 6 0 10-12 0v5l-2 2h16l-2-2z"/>
           </svg>
-          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full" style={{ backgroundColor: '#F59E0B' }} />
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-warning" />
         </button>
+        
+        {/* Dark Mode Toggle */}
+        <DarkModeToggle />
         
         {/* User Dropdown - Always visible but responsive */}
         <div className="block">

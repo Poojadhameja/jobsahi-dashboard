@@ -135,10 +135,10 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F6FAFF] p-2">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] p-2">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-[#0B537D] mb-2">All Jobs</h1>
+        <h1 className="text-3xl font-semibold text-[var(--color-primary)] mb-2">All Jobs</h1>
         
         {/* Search and Filters */}
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
@@ -150,7 +150,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               placeholder="Search by job title, name, position"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
             />
           </div>
 
@@ -161,7 +161,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none min-w-[120px]"
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[120px]"
               >
                 <option value="">Status</option>
                 <option value="open">Open</option>
@@ -176,7 +176,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               <select
                 value={departmentFilter}
                 onChange={(e) => setDepartmentFilter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none min-w-[120px]"
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[120px]"
               >
                 <option value="">Department</option>
                 <option value="technical">Technical</option>
@@ -192,7 +192,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               <select
                 value={locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none min-w-[120px]"
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[120px]"
               >
                 <option value="">Location</option>
                 <option value="madhya-pradesh">Madhya Pradesh</option>
@@ -208,7 +208,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               <select
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none min-w-[140px]"
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[140px]"
               >
                 <option value="">Posted Date</option>
                 <option value="today">Today</option>
@@ -229,7 +229,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
             <div className="flex justify-between items-start mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#5C9A24] text-white">
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-secondary)] text-white">
                     {job.status}
                   </span>
                   <span className="text-sm text-gray-500">{job.company}</span>
@@ -240,7 +240,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
                     <LuEye size={16} />
                     <span>{job.views}</span>
                   </div>
-                  <div className="text-[#5C9A24] font-medium">{job.salary}</div>
+                  <div className="text-[var(--color-secondary)] font-medium">{job.salary}</div>
                 </div>
               </div>
               <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -250,11 +250,11 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
 
             {/* Application Dates */}
             <div className="flex gap-2 mb-4">
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#5b9a2423] text-[#5C9A24]">
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-secondary-10 text-[var(--color-secondary)]">
                 {job.openingDate}
               </span>
               <span className="text-gray-400">to</span>
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-[#5b9a2423] text-[#5C9A24]">
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-secondary-10 text-[var(--color-secondary)]">
                 {job.closingDate}
               </span>
             </div>
@@ -266,20 +266,20 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
 
             {/* Location */}
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-              <LuMapPin size={16} className='text-[#ff0000]' />
+              <LuMapPin size={16} className='text-error' />
               <span>{job.location}</span>
             </div>
 
             {/* Metrics and Actions */}
             <div className="flex justify-between items-center">
               <div className="flex gap-3">
-                <div className="flex items-center gap-1 bg-[#5C9A24] text-white p-1 pe-2 rounded-full text-xs font-medium">
-                  <div className="bg-white text-[#5C9A24] w-6 h-6 rounded-full flex items-center justify-center">{job.instaMatch}</div>
+                <div className="flex items-center gap-1 bg-[var(--color-secondary)] text-white p-1 pe-2 rounded-full text-xs font-medium">
+                  <div className="bg-white text-[var(--color-secondary)] w-6 h-6 rounded-full flex items-center justify-center">{job.instaMatch}</div>
                   <LuStar size={14} />
                   <span> InstaMatch</span>
                 </div>
-                <div className="flex items-center gap-1 bg-[#5C9A24] text-white p-1 pe-2 rounded-full text-xs font-medium">
-                  <div className="bg-white text-[#5C9A24] w-6 h-6 rounded-full flex items-center justify-center">{job.applicants}</div>
+                <div className="flex items-center gap-1 bg-[var(--color-secondary)] text-white p-1 pe-2 rounded-full text-xs font-medium">
+                  <div className="bg-white text-[var(--color-secondary)] w-6 h-6 rounded-full flex items-center justify-center">{job.applicants}</div>
                   <LuUsers size={14} />
                   <span> Applicants</span>
                 </div>
@@ -288,13 +288,13 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               <div className="flex gap-2">
                 <button 
                   onClick={() => handleViewClick(job)}
-                  className="p-2 text-gray-400 hover:text-[#5C9A24] hover:bg-[#5b9a2423] rounded-lg transition-colors"
+                  className="p-2 text-gray-400 hover:text-[var(--color-secondary)] hover:bg-secondary-10 rounded-lg transition-colors"
                 >
                   <LuFileText size={18} />
                 </button>
                 <button 
                   onClick={() => handleEditClick(job)}
-                  className="p-2 text-gray-400 hover:text-[#5C9A24] hover:bg-[#5b9a2423] rounded-lg transition-colors"
+                  className="p-2 text-gray-400 hover:text-[var(--color-secondary)] hover:bg-secondary-10 rounded-lg transition-colors"
                 >
                   <LuPencil size={18} />
                 </button>
@@ -325,8 +325,8 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
             disabled={currentPage === 1}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               currentPage === 1
-                ? 'text-[#0B537D] cursor-not-allowed'
-                : 'text-[#0B537D] hover:bg-[#0B537D1A]'
+                ? 'text-[var(--color-primary)] cursor-not-allowed'
+                : 'text-[var(--color-primary)] hover:bg-[var(--color-primary)1A]'
             }`}
           >
             <LuChevronLeft size={16} />
@@ -334,15 +334,15 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
           </button>
 
           {/* Page Numbers */}
-          <div className="flex items-center gap-1 bg-[#0B537D1A] rounded-full p-1 md:px-4">
+          <div className="flex items-center gap-1 bg-[var(--color-primary)1A] rounded-full p-1 md:px-4">
             {getPageNumbers().map((pageNum) => (
               <button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
                 className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
                   pageNum === currentPage
-                    ? 'bg-[#0B537D] text-white'
-                    : 'text-[#0B537D] hover:bg-[#0B537D1A]'
+                    ? 'bg-[var(--color-primary)] text-white'
+                    : 'text-[var(--color-primary)] hover:bg-[var(--color-primary)1A]'
                 }`}
               >
                 {pageNum}
@@ -356,8 +356,8 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
             disabled={currentPage === totalPages}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               currentPage === totalPages
-                ? 'text-[#0B537D] cursor-not-allowed'
-                : 'text-[#0B537D] hover:bg-[#0B537D1A]'
+                ? 'text-[var(--color-primary)] cursor-not-allowed'
+                : 'text-[var(--color-primary)] hover:bg-[var(--color-primary)1A]'
             }`}
           >
             <span>Next</span>

@@ -22,7 +22,7 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, jobTitle }) => {
           <div className="flex gap-4 justify-center">
             <button
               onClick={onConfirm}
-              className="px-8 py-3 bg-[#5C9A24] text-white rounded-lg font-medium hover:bg-[#4a7a1e] transition-colors duration-200"
+              className="px-8 py-3 bg-[var(--color-secondary)] text-white rounded-lg font-medium hover:bg-secondary-dark transition-colors duration-200"
             >
               Yes, Delete
             </button>

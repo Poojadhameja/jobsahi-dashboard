@@ -15,19 +15,19 @@ const AnalyticsReports = () => {
       {
         label: 'Total Applications',
         data: [250, 190, 140, 80, 120, 70],
-        backgroundColor: '#3B82F6',
+        backgroundColor: 'var(--color-primary)',
         borderRadius: 4,
       },
       {
         label: 'Interviews',
         data: [70, 40, 35, 25, 30, 20],
-        backgroundColor: '#10B981',
+        backgroundColor: 'var(--color-success)',
         borderRadius: 4,
       },
       {
         label: 'Hires',
         data: [20, 15, 20, 10, 15, 10],
-        backgroundColor: '#F59E0B',
+        backgroundColor: 'var(--color-warning)',
         borderRadius: 4,
       },
     ],
@@ -40,11 +40,11 @@ const AnalyticsReports = () => {
       {
         data: [35, 28, 20, 12, 5],
         backgroundColor: [
-          '#3B82F6', // Dark Blue
-          '#10B981', // Green
-          '#F59E0B', // Orange
-          '#EF4444', // Red
-          '#00DDFF', // Light Blue
+          'var(--color-primary)', // Dark Blue
+          'var(--color-success)', // Green
+          'var(--color-warning)', // Orange
+          'var(--color-error)', // Red
+          'var(--color-primary-light)', // Light Blue
         ],
         borderWidth: 0,
       },
@@ -203,21 +203,21 @@ ${reportData.keyMetrics.map(metric =>
         <div className="flex items-center gap-3">
           <button
             onClick={handleCreateReport}
-            className="flex items-center gap-2 px-4 py-2 bg-[#5B9821] text-white rounded-lg hover:bg-[#437119] transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors text-sm font-medium"
           >
             <LuFileText className="w-4 h-4" />
             + Create Report
           </button>
           <button
             onClick={handleCSVDownload}
-            className="flex items-center gap-2 px-4 py-2 border-2 border-[#5B9821] text-[#5B9821] rounded-lg hover:bg-[#5B9821] hover:text-white transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors text-sm font-medium"
           >
             <LuFileSpreadsheet className="w-4 h-4" />
             CSV
           </button>
           <button
             onClick={handlePDFDownload}
-            className="flex items-center gap-2 px-4 py-2 border-2 border-[#5B9821] text-[#5B9821] rounded-lg hover:bg-[#5B9821] hover:text-white transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors text-sm font-medium"
           >
             <LuFileText className="w-4 h-4" />
             PDF

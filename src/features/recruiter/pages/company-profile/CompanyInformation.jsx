@@ -129,8 +129,8 @@ const CompanyInfo = () => {
                 <div 
                   className="w-20 h-20 mx-auto mb-4 rounded-lg flex items-center justify-center shadow-sm"
                   style={{ 
-                    backgroundColor: '#f8f9fa',
-                    border: '2px solid #e5e7eb',
+                    backgroundColor: 'var(--color-bg-muted)',
+                    border: '2px solid var(--color-gray-200)',
                     color: COLORS.GREEN_PRIMARY
                   }}
                 >
@@ -267,7 +267,7 @@ const CompanyInfo = () => {
 
         {/* Save Button */}
         <div className="mt-6 flex justify-end">
-          <button className="px-6 py-2 bg-[#5B9821] text-white font-bold rounded-lg hover:bg-[#426e18] transition-colors">
+          <button className="px-6 py-2 bg-[var(--color-secondary)] text-white font-bold rounded-lg hover:bg-secondary-dark transition-colors">
             Save Changes
           </button>
         </div>

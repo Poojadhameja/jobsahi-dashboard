@@ -168,7 +168,7 @@ const PostJob = ({ onJobSubmit }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F6FAFF] p-2">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] p-2">
       {/* Warning Message */}
       {showWarning && (
         <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center">
@@ -181,7 +181,7 @@ const PostJob = ({ onJobSubmit }) => {
 
       {/* Header */}
       <div className="flex flex-col gap-5 sm:flex-row sm:justify-between items-center mb-8">
-        <h1 className="text-3xl font-semibold text-[#0B537D]">
+        <h1 className="text-3xl font-semibold text-[var(--color-primary)]">
           Create Job Posts
         </h1>
         
@@ -189,19 +189,19 @@ const PostJob = ({ onJobSubmit }) => {
         <div className="flex space-x-2">
           <button
             onClick={handleCancel}
-            className="px-5 py-2 bg-[#5b9a241f] text-[#5C9A24] rounded-full font-bold hover:bg-[#5C9A24] hover:text-white border-2 border-[#5C9A24] transition-colors duration-200 flex items-center justify-center space-x-2"
+            className="px-5 py-2 bg-secondary-10 text-[var(--color-secondary)] rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
           >
             <span>Cancel</span>
           </button>
           <button
             onClick={handleDraft}
-            className="px-5 py-2 bg-[#5b9a241f] text-[#5C9A24] rounded-full font-bold hover:bg-[#5C9A24] hover:text-white border-2 border-[#5C9A24] transition-colors duration-200 flex items-center justify-center space-x-2"
+            className="px-5 py-2 bg-secondary-10 text-[var(--color-secondary)] rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
           >
             <span>Draft</span>
           </button>
           <button
             onClick={handleSubmit}
-            className="px-5 py-2 bg-[#5C9A24] text-[#fff] rounded-full font-bold hover:bg-[#5C9A24] hover:text-white border-2 border-[#5C9A24] transition-colors duration-200 flex items-center justify-center space-x-2"
+            className="px-5 py-2 bg-[var(--color-secondary)] text-white rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
           >
             <span>Save</span>
           </button>
@@ -210,7 +210,7 @@ const PostJob = ({ onJobSubmit }) => {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Information Form */}
-        <div className="bg-white rounded-xl border border-[#0B537D3C] p-5">
+        <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
           <h2 className="text-xl font-bold text-gray-900 mb-8">Basic Information</h2>
           
           <div className="space-y-8">
@@ -228,7 +228,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="jobTitle"
                   value={formData.jobTitle}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                     errors.jobTitle ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter job title"
@@ -253,7 +253,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="jobSector"
                   value={formData.jobSector}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                     errors.jobSector ? 'border-red-500' : 'border-gray-300'
                   }`}
                   required
@@ -303,7 +303,7 @@ const PostJob = ({ onJobSubmit }) => {
                     name="salaryType"
                     value={formData.salaryType}
                     onChange={handleInputChange}
-                    className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                    className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                     required
                   >
                     <option value="">Choose salary type</option>
@@ -318,7 +318,7 @@ const PostJob = ({ onJobSubmit }) => {
                       name="minSalary"
                       value={formData.minSalary}
                       onChange={handleInputChange}
-                      className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                      className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                       placeholder="Min"
                       required
                     />
@@ -330,7 +330,7 @@ const PostJob = ({ onJobSubmit }) => {
                       name="maxSalary"
                       value={formData.maxSalary}
                       onChange={handleInputChange}
-                      className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                      className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                       placeholder="Max"
                       required
                     />
@@ -352,7 +352,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="jobType"
                   value={formData.jobType}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   required
                 >
                   <option value="">Choose job type</option>
@@ -378,7 +378,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="requiredSkills"
                   value={formData.requiredSkills}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   placeholder="e.g., JavaScript, React, Node.js, Python"
                 />
               </div>
@@ -398,7 +398,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="experience"
                   value={formData.experience}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   placeholder="e.g., 2-5 years, 1-3 years, 5+ years"
                 />
               </div>
@@ -414,10 +414,10 @@ const PostJob = ({ onJobSubmit }) => {
               </div>
               <div className="">
                 <div className="space-y-4 ">
-                  <label className="flex items-center justify-center border-2 border-dashed border-[#5C9A24] rounded-lg cursor-pointer bg-[#5b9a241f] hover:bg-[#5b9a2430] transition-colors">
+                  <label className="flex items-center justify-center border-2 border-dashed border-[var(--color-secondary)] rounded-lg cursor-pointer bg-secondary-10 hover:bg-secondary-10 transition-colors">
                     <div className="py-2 flex flex-col items-center">
-                      <LuUpload className="text-[#5C9A24] mb-2" size={24} />
-                      <span className="text-[#5C9A24] font-medium">↑ Upload Files</span>
+                      <LuUpload className="text-[var(--color-secondary)] mb-2" size={24} />
+                      <span className="text-[var(--color-secondary)] font-medium">↑ Upload Files</span>
                     </div>
                     <input
                       type="file"
@@ -454,7 +454,7 @@ const PostJob = ({ onJobSubmit }) => {
         </div>
 
         {/* Address / Location Form */}
-        <div className="bg-white rounded-xl border border-[#0B537D3C] p-5">
+        <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
           <h2 className="text-xl font-bold text-gray-900 mb-8">Address / Location</h2>
           
           <div className="space-y-8">
@@ -471,7 +471,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="country"
                   value={formData.country}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   required
                 >
                   <option value="">Select country</option>
@@ -496,7 +496,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="city"
                   value={formData.city}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   required
                 >
                   <option value="">Select city</option>
@@ -521,7 +521,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="state"
                   value={formData.state}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   required
                 >
                   <option value="">Select state</option>
@@ -547,7 +547,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="fullAddress"
                   value={formData.fullAddress}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   placeholder="Enter complete address with street, area, landmark"
                   required
                 />
@@ -558,7 +558,7 @@ const PostJob = ({ onJobSubmit }) => {
 
        <div className="flex flex-col lg:flex-row gap-4">
          {/* Contact Information Form */}
-         <div className="bg-white rounded-xl border border-[#0B537D3C] p-5 w-full lg:w-[50%]">
+         <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
           <h2 className="text-xl font-bold text-gray-900 mb-8">Contact information</h2>
           
           <div className="space-y-8">
@@ -576,7 +576,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="contactPerson"
                   value={formData.contactPerson}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   placeholder="Enter contact person's full name"
                 />
               </div>
@@ -596,7 +596,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
                     errors.phone ? 'border-red-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter 10-digit mobile number"
@@ -622,7 +622,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="additionalContact"
                   value={formData.additionalContact}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   placeholder="Enter email address"
                 />
               </div>
@@ -631,7 +631,7 @@ const PostJob = ({ onJobSubmit }) => {
         </div>
 
         {/* Dates and Status Form */}
-        <div className="bg-white rounded-xl border border-[#0B537D3C] p-5 w-full lg:w-[50%]">
+        <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
           <h2 className="text-xl font-bold text-gray-900 mb-8">Dates and Status</h2>
           
           <div className="space-y-8">
@@ -648,7 +648,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="vacancyStatus"
                   value={formData.vacancyStatus}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
                   required
                 >
                   <option value="">Select hiring status</option>
@@ -674,7 +674,7 @@ const PostJob = ({ onJobSubmit }) => {
                     name="openingDate"
                     value={formData.openingDate}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none pr-10"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none pr-10"
                     required
                   />
                   <LuCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
@@ -697,7 +697,7 @@ const PostJob = ({ onJobSubmit }) => {
                     name="closingDate"
                     value={formData.closingDate}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none pr-10"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none pr-10"
                     required
                   />
                   <LuCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />

@@ -7,7 +7,7 @@ const Toggle = ({ checked, onChange, label }) => (
   <label className="flex items-center gap-3 cursor-pointer select-none">
     <span
       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-        checked ? 'bg-[#5C9A24]' : 'bg-gray-300'
+        checked ? 'bg-[var(--color-secondary)]' : 'bg-gray-300'
       }`}
       role="switch"
       aria-checked={checked}
@@ -92,7 +92,7 @@ const SpamDetectionRules = ({ rules, onRulesChange, onUpdateRules }) => {
         <div className="pt-4">
           <PrimaryButton 
             onClick={handleSubmit}
-            className="w-full h-12 bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg text-sm font-medium"
+            className="w-full h-12 bg-[var(--color-secondary)] hover:bg-secondary-dark text-white rounded-lg text-sm font-medium"
           >
             Update Rules
           </PrimaryButton>
@@ -140,8 +140,8 @@ const FlaggedItemsReview = ({ flaggedItems, onReviewItem }) => {
               <span
                 className={`px-3 py-1 text-sm font-medium rounded-md whitespace-nowrap ${
                   item.status === 'Reviewed' 
-                    ? 'bg-[#5B9821] text-white' 
-                    : 'text-[#5B9821] border-2 border-[#5B9821] hover:bg-[#5B9821] hover:text-white'
+                    ? 'bg-[var(--color-secondary)] text-white' 
+                    : 'text-[var(--color-secondary)] border-2 border-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white'
                 }`}
               >
                 {item.status}
@@ -151,7 +151,7 @@ const FlaggedItemsReview = ({ flaggedItems, onReviewItem }) => {
               {item.status === 'Pending' && (
                 <OutlineButton 
                   onClick={() => onReviewItem(index)}
-                  className="border-2 border-[#5B9821] text-[#5B9821] px-3 py-1 text-sm font-medium rounded-md"
+                  className="border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] px-3 py-1 text-sm font-medium rounded-md"
                 >
                   Review
                 </OutlineButton>

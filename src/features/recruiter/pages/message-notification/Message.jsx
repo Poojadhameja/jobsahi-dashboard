@@ -172,7 +172,7 @@ const Message = () => {
               placeholder="Search messages..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+              className="w-full pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
             />
           </div>
         </div>
@@ -184,11 +184,11 @@ const Message = () => {
               key={conversation.id}
               onClick={() => setSelectedMessage(conversation.id)}
               className={`p-3 sm:p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
-                selectedMessage === conversation.id ? 'bg-[#0b537d18]' : ''
+                selectedMessage === conversation.id ? 'bg-[var(--color-primary)18]' : ''
               }`}
             >
               <div className="flex items-center gap-2 sm:gap-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#5b9a24] rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-lg">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-secondary rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-lg">
                   {conversation.avatar}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -196,7 +196,7 @@ const Message = () => {
                     <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{conversation.name}</h3>
                     <span className="text-xs sm:text-sm text-gray-500">{conversation.timestamp}</span>
                   </div>
-                  <p className="text-xs sm:text-sm text-[#0B537D] font-medium truncate">{conversation.role}</p>
+                  <p className="text-xs sm:text-sm text-[var(--color-primary)] font-medium truncate">{conversation.role}</p>
                   <p className="text-xs sm:text-sm text-gray-600 truncate">{conversation.lastMessage}</p>
                 </div>
               </div>
@@ -215,12 +215,12 @@ const Message = () => {
                 <LuArrowLeft size={16} className="text-gray-600 sm:hidden" />
                 <LuArrowLeft size={20} className="text-gray-600 hidden sm:block" />
               </button>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#5b9a24] rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-secondary rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base">
                 {currentConversation.avatar}
               </div>
               <div className="min-w-0 flex-1">
                 <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{currentConversation.name}</h3>
-                <p className="text-xs sm:text-sm text-[#0B537D] truncate">{currentConversation.role}</p>
+                <p className="text-xs sm:text-sm text-[var(--color-primary)] truncate">{currentConversation.role}</p>
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
@@ -241,7 +241,7 @@ const Message = () => {
                 <>
                   <button 
                     onClick={selectAllMessages}
-                    className="px-2 py-1 text-xs sm:text-sm text-[#0B537D] hover:bg-gray-100 rounded-lg"
+                    className="px-2 py-1 text-xs sm:text-sm text-[var(--color-primary)] hover:bg-gray-100 rounded-lg"
                   >
                     All
                   </button>
@@ -289,7 +289,7 @@ const Message = () => {
               onClick={() => isSelectMode && toggleMessageSelection(message.id)}
             >
               {message.isIncoming && (
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#5b9a24] rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-secondary rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0">
                   {currentConversation.avatar}
                 </div>
               )}
@@ -302,7 +302,7 @@ const Message = () => {
                       type="checkbox"
                       checked={selectedMessages.includes(message.id)}
                       onChange={() => toggleMessageSelection(message.id)}
-                      className="w-3 h-3 sm:w-4 sm:h-4 text-[#0B537D] border-gray-300 rounded focus:ring-[#0B537D]"
+                      className="w-3 h-3 sm:w-4 sm:h-4 text-[var(--color-primary)] border-gray-300 rounded focus:ring-[var(--color-primary)]"
                     />
                   </div>
                 )}
@@ -311,10 +311,10 @@ const Message = () => {
                     className={`px-3 py-2 sm:px-4 sm:py-2 rounded-2xl ${
                       message.isIncoming
                         ? 'bg-gray-200 text-gray-900'
-                        : 'bg-[#0B537D] text-white'
+                        : 'bg-[var(--color-primary)] text-white'
                     } ${
                       isSelectMode && selectedMessages.includes(message.id)
-                        ? 'ring-2 ring-[#0B537D] ring-opacity-50'
+                        ? 'ring-2 ring-[var(--color-primary)] ring-opacity-50'
                         : ''
                     }`}
                   >
@@ -326,7 +326,7 @@ const Message = () => {
                 </div>
               </div>
               {!message.isIncoming && (
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[#0B537D] rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0 order-2">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-[var(--color-primary)] rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0 order-2">
                   Y
                 </div>
               )}
@@ -364,7 +364,7 @@ const Message = () => {
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
               />
             </div>
             <button 
@@ -372,7 +372,7 @@ const Message = () => {
               disabled={!newMessage.trim()}
               className={`p-2 rounded-lg ${
                 newMessage.trim() 
-                  ? 'text-[#0B537D] hover:text-[#0B537D] hover:bg-gray-100' 
+                  ? 'text-[var(--color-primary)] hover:text-[var(--color-primary)] hover:bg-gray-100' 
                   : 'text-gray-400 cursor-not-allowed'
               }`}
             >

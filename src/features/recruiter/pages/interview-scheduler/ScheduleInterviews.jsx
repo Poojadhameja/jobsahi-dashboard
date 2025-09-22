@@ -260,7 +260,7 @@ const ScheduleInterviews = () => {
             {/* Schedule Interview Button */}
             <button
               onClick={handleScheduleInterview}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#5C9A24] text-white rounded-lg hover:bg-[#43711b] transition-colors font-medium"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors font-medium"
             >
               <LuPlus className="w-4 h-4" />
               Schedule interview

@@ -43,7 +43,7 @@ const SegmentBasedMessaging = () => {
       <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm">
         <div className="flex items-center space-x-3 mb-6">
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100 flex-shrink-0">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
             </svg>
@@ -172,7 +172,7 @@ const SegmentBasedMessaging = () => {
               type="button" 
               variant="outline" 
               size="md"
-              className="w-full sm:w-auto h-12 border-2 border-[#5B9821] text-[#5B9821]"
+              className="w-full sm:w-auto h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
               onClick={handlePreview}
             >
               Preview

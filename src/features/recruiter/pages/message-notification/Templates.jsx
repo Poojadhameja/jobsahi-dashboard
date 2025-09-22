@@ -138,12 +138,12 @@ const Templates = () => {
 
   const getCategoryColor = (category) => {
     switch (category) {
-      case "Interview": return "bg-[#5C9A24] text-white";
-      case "Application": return "bg-[#5C9A24] text-white";
-      case "Rejection": return "bg-[#5C9A24] text-white";
-      case "Offers": return "bg-[#5C9A24] text-white";
-      case "Follow-up": return "bg-[#5C9A24] text-white";
-      default: return "bg-[#5C9A24] text-white";
+      case "Interview": return "bg-[var(--color-secondary)] text-white";
+      case "Application": return "bg-[var(--color-secondary)] text-white";
+      case "Rejection": return "bg-[var(--color-secondary)] text-white";
+      case "Offers": return "bg-[var(--color-secondary)] text-white";
+      case "Follow-up": return "bg-[var(--color-secondary)] text-white";
+      default: return "bg-[var(--color-secondary)] text-white";
     }
   };
 
@@ -158,7 +158,7 @@ const Templates = () => {
         <div className="flex justify-center lg:justify-end">
           <button
             onClick={handleCreateTemplate}
-            className="bg-[#0B537D] text-white px-6 py-3 rounded-lg hover:bg-[#0B537D] transition-colors font-medium"
+            className="bg-[var(--color-primary)] text-white px-6 py-3 rounded-lg hover:bg-[var(--color-primary)] transition-colors font-medium"
           >
             <LuPlus size={20} className="inline mr-2" />
             Create Template
@@ -178,7 +178,7 @@ const Templates = () => {
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 selectedCategory === category
-                  ? 'bg-[#5b9a242e] text-[#5C9A24]'
+                  ? 'bg-secondary-10 text-[var(--color-secondary)]'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -194,7 +194,7 @@ const Templates = () => {
           <div key={template.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="mb-4">
               <h3 className="text-lg font-bold text-gray-900 mb-2">{template.name}</h3>
-              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium bg-[#5b9a241f] text-[#5C9A24] border border-[#5C9A24]`}>
+              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium bg-secondary-10 text-[var(--color-secondary)] border border-[var(--color-secondary)]`}>
                 {template.category}
               </span>
             </div>
@@ -211,7 +211,7 @@ const Templates = () => {
             </div>
 
             <div className="flex items-center justify-between">
-              <button className="bg-[#5C9A24] text-white px-4 py-2 rounded-lg hover:bg-[#5C9A24] transition-colors text-sm font-medium flex items-center gap-2">
+              <button className="bg-[var(--color-secondary)] text-white px-4 py-2 rounded-lg hover:bg-[var(--color-secondary)] transition-colors text-sm font-medium flex items-center gap-2">
                 Use Template
                 <LuChevronDown size={16} />
               </button>
@@ -275,7 +275,7 @@ const Templates = () => {
                     type="text"
                     value={templateForm.name}
                     onChange={(e) => setTemplateForm(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent"
                     placeholder="Enter template name"
                   />
                 </div>
@@ -284,7 +284,7 @@ const Templates = () => {
                   <select
                     value={templateForm.category}
                     onChange={(e) => setTemplateForm(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent"
                   >
                     <option value="">Select category</option>
                     <option value="Interview">Interview</option>
@@ -300,7 +300,7 @@ const Templates = () => {
                     type="text"
                     value={templateForm.subject}
                     onChange={(e) => setTemplateForm(prev => ({ ...prev, subject: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent"
                     placeholder="Enter email subject"
                   />
                 </div>
@@ -310,7 +310,7 @@ const Templates = () => {
                     value={templateForm.content}
                     onChange={(e) => setTemplateForm(prev => ({ ...prev, content: e.target.value }))}
                     rows={6}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent resize-none"
                     placeholder="Enter template content. Use {`{{variableName}}`} for placeholders."
                   />
                   <p className="text-xs text-gray-500 mt-1">
@@ -327,7 +327,7 @@ const Templates = () => {
                 </button>
                 <button
                   onClick={handleSaveTemplate}
-                  className="px-4 py-2 bg-[#5C9A24] text-white rounded-lg hover:bg-[#43711b] transition-colors"
+                  className="px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors"
                 >
                   {editingTemplate ? 'Update Template' : 'Create Template'}
                 </button>
@@ -389,7 +389,7 @@ const Templates = () => {
                     setShowViewModal(false);
                     handleEditTemplate(viewingTemplate);
                   }}
-                  className="px-4 py-2 bg-[#5C9A24] text-white rounded-lg hover:bg-[#43711b] transition-colors"
+                  className="px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors"
                 >
                   Edit Template
                 </button>
