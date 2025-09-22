@@ -94,11 +94,11 @@ const TeamManagement = () => {
   const getRoleColor = (role) => {
     switch (role) {
       case "Admin":
-        return "bg-[#5C9A24] text-[#ffffff] border-[#5C9A24]";
+        return "bg-[var(--color-secondary)] text-white border-[var(--color-secondary)]";
       case "Viewer":
-        return "bg-[#5b9a2422] text-[#5C9A24] border-[#5C9A24]";
+        return "bg-secondary-10 text-[var(--color-secondary)] border-[var(--color-secondary)]";
       default:
-        return "bg-[#5b9a2422] text-[#5C9A24] border-[#5C9A24]";
+        return "bg-secondary-10 text-[var(--color-secondary)] border-[var(--color-secondary)]";
     }
   };
 
@@ -224,7 +224,7 @@ const TeamManagement = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleEditMember(member.id)}
-                        className="p-2 text-[#5C9A24] hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 text-[var(--color-secondary)] hover:bg-gray-100 rounded-lg transition-colors"
                         title="Edit member"
                       >
                         <LuPencil size={16} />

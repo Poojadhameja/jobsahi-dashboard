@@ -1,6 +1,7 @@
 import React from 'react'
 import { Pie } from 'react-chartjs-2'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import { getChartColorArray, getChartTooltipStyle } from '../../utils/chartColors'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -8,19 +9,21 @@ const TradesPieChart = ({
   // height = "",
   className = ""
 }) => {
+  const chartColors = getChartColorArray();
+  
   const pieData = {
     labels: ['Civil', 'Civil', 'Civil', 'Civil', 'Civil', 'Civil', 'Civil'],
     datasets: [
       {
         data: [20, 25, 15, 20, 20, 20, 20],
         backgroundColor: [
-          '#34D399', // Light green
-          '#FB923C', // Orange
-          '#34D399', // Light green (slightly different shade)
-          '#60A5FA', // Light blue
-          '#F87171', // Red/Coral (60% segment)
-          '#FDE047', // Yellow
-          '#93C5FD'  // Light blue (slightly different shade)
+          chartColors[0], // Green
+          chartColors[1], // Orange
+          chartColors[2], // Green
+          chartColors[3], // Blue
+          chartColors[4], // Red
+          chartColors[5], // Yellow
+          chartColors[6]  // Purple
         ],
         borderWidth: 0,
       },
@@ -36,12 +39,7 @@ const TradesPieChart = ({
       },
       tooltip: {
         enabled: true,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: 'white',
-        bodyColor: 'white',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        borderWidth: 1,
-        cornerRadius: 8,
+        ...getChartTooltipStyle(),
         displayColors: true,
         callbacks: {
           label: function(context) {
@@ -61,13 +59,13 @@ const TradesPieChart = ({
 
   // Legend data matching the chart
   const legendItems = [
-    { color: '#34D399', label: 'Civil' },
-    { color: '#FB923C', label: 'Civil' },
-    { color: '#34D399', label: 'Civil' },
-    { color: '#60A5FA', label: 'Civil' },
-    { color: '#F87171', label: 'Civil' },
-    { color: '#FDE047', label: 'Civil' },
-    { color: '#93C5FD', label: 'Civil' }
+    { color: chartColors[0], label: 'Civil' },
+    { color: chartColors[1], label: 'Civil' },
+    { color: chartColors[2], label: 'Civil' },
+    { color: chartColors[3], label: 'Civil' },
+    { color: chartColors[4], label: 'Civil' },
+    { color: chartColors[5], label: 'Civil' },
+    { color: chartColors[6], label: 'Civil' }
   ]
 
   return (

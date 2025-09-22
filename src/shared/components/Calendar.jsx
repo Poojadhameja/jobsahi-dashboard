@@ -94,8 +94,8 @@ const Calendar = ({ selectedDate = new Date(), onDateSelect, className = '' }) =
             className={`
               w-8 h-8 text-sm rounded transition-colors flex items-center justify-center
               ${!date ? 'cursor-default' : 'hover:bg-gray-200 cursor-pointer'}
-              ${isSelected(date) ? 'bg-[#5b9a2431] text-[#5C9A24] font-bold border border-[#5C9A24] ' : ''}
-              ${!isSelected(date) && isToday(date) ? 'bg-[#5b9a2431] text-[#5C9A24] font-bold border border-[#5C9A24] ' : ''}
+              ${isSelected(date) ? 'bg-secondary-10 text-secondary font-bold border border-secondary ' : ''}
+              ${!isSelected(date) && isToday(date) ? 'bg-secondary-10 text-secondary font-bold border border-secondary ' : ''}
               ${!isSelected(date) && !isToday(date) ? 'text-gray-700' : ''}
             `}
             disabled={!date}

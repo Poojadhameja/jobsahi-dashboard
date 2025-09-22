@@ -21,7 +21,7 @@ const ViewJobModal = ({ isOpen, onClose, job }) => {
         {/* Content */}
         <div className="p-6 space-y-8">
           {/* Basic Information Form */}
-          <div className="bg-white rounded-xl border border-[#0B537D3C] p-5">
+          <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
             <h2 className="text-xl font-bold text-gray-900 mb-8">Basic Information</h2>
             
             <div className="space-y-8">
@@ -153,7 +153,7 @@ const ViewJobModal = ({ isOpen, onClose, job }) => {
                   <p className="text-sm text-gray-500">Upload related documents.</p>
                 </div>
                 <div className="lg:col-span-2">
-                  <button className="px-4 py-2 bg-[#5b9a241f] text-[#5C9A24] rounded-lg font-medium hover:bg-[#5b9a2430] transition-colors">
+                  <button className="px-4 py-2 bg-secondary-10 text-[var(--color-secondary)] rounded-lg font-medium hover:bg-secondary-10 transition-colors">
                     Preview
                   </button>
                 </div>
@@ -162,7 +162,7 @@ const ViewJobModal = ({ isOpen, onClose, job }) => {
           </div>
 
           {/* Address / Location Form */}
-          <div className="bg-white rounded-xl border border-[#0B537D3C] p-5">
+          <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
             <h2 className="text-xl font-bold text-gray-900 mb-8">Address / Location</h2>
             
             <div className="space-y-8">
@@ -231,7 +231,7 @@ const ViewJobModal = ({ isOpen, onClose, job }) => {
           {/* Contact Information and Dates and Status */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Contact Information Form */}
-            <div className="bg-white rounded-xl border border-[#0B537D3C] p-5">
+            <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
               <h2 className="text-xl font-bold text-gray-900 mb-8">Contact information</h2>
               
               <div className="space-y-8">
@@ -283,7 +283,7 @@ const ViewJobModal = ({ isOpen, onClose, job }) => {
             </div>
 
             {/* Dates and Status Form */}
-            <div className="bg-white rounded-xl border border-[#0B537D3C] p-5">
+            <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
               <h2 className="text-xl font-bold text-gray-900 mb-8">Dates and Status</h2>
               
               <div className="space-y-8">

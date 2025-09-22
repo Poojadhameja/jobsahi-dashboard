@@ -16,7 +16,7 @@ export default function AppSidebar({ isOpen, toggleSidebar, brand = 'JOBSAHI', r
       className={`fixed top-0 left-0 h-full w-64 z-40 transform
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-lg flex flex-col`}
-      style={{ backgroundColor: '#00395B', color: 'white' }}
+      style={{ backgroundColor: 'var(--color-primary)', color: 'white' }}
     >
       <div className="h-14 sm:h-16 flex items-center justify-center border-b border-[rgba(255,255,255,0.15)] select-none px-2">
         <h1 className="text-lg sm:text-xl font-bold truncate">{brand}</h1>

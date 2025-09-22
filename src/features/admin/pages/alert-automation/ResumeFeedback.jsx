@@ -13,7 +13,7 @@ const Toggle = ({ checked, onChange, label }) => (
       onClick={() => onChange(!checked)}
       className={[
         "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-        checked ? "bg-[#5C9A24]" : "bg-slate-300",
+        checked ? "bg-[var(--color-secondary)]" : "bg-slate-300",
         "focus:outline-none focus:ring-4 focus:ring-sky-100",
       ].join(" ")}
     >
@@ -44,7 +44,7 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
         <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-100">
-          <svg className="w-3 h-3 text-[#5C9A24]" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-3 h-3 text-[var(--color-secondary)]" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
           </svg>
         </div>
@@ -54,8 +54,8 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
       
       {/* Coming soon banner */}
       <div className="mb-6 rounded-lg bg-green-50 border border-green-200 p-4">
-        <p className="font-bold text-[#5C9A24]">Coming soon</p>
-        <p className="text-sm text-[#5C9A24] mt-1">
+        <p className="font-bold text-[var(--color-secondary)]">Coming soon</p>
+        <p className="text-sm text-[var(--color-secondary)] mt-1">
           this feature will integrate with large language models to provide automated resume feedback and suggestions to job seekers.
         </p>
       </div>
@@ -110,8 +110,8 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
               onChange={(e) =>
                 onSettingsChange({ ...settings, responseTime: e.target.value })
               }
-              className="w-full h-12 px-4 py-3 border border-[#5C9A24] rounded-lg focus:outline-none appearance-none bg-white pr-9 text-sm"
-              style={{ color: settings.responseTime ? '#5C9A24' : '#5C9A24' }}
+              className="w-full h-12 px-4 py-3 border border-[var(--color-secondary)] rounded-lg focus:outline-none appearance-none bg-white pr-9 text-sm"
+              style={{ color: settings.responseTime ? 'var(--color-secondary)' : 'var(--color-secondary)' }}
             >
               {responseOptions.map((o) => (
                 <option key={o.value} value={o.value} disabled={o.value === ""}>
@@ -120,7 +120,7 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
               ))}
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <svg className="w-4 h-4 text-[#5C9A24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-[var(--color-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -131,7 +131,7 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
         <div className="">
           <PrimaryButton
             onClick={handleSubmit}
-            className="  bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg text-sm font-medium"
+            className="  bg-[var(--color-secondary)] hover:bg-secondary-dark text-white rounded-lg text-sm font-medium"
           >
             Configure LLM Integration
           </PrimaryButton>

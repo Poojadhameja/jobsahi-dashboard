@@ -95,7 +95,7 @@ const BrandingConfig = () => {
   return (
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
       {/* Header Section */}
-      <div className="flex items-start bg-white p-4 border border-[#0b537d2c] rounded-lg justify-between gap-4">
+      <div className="flex items-start bg-white p-4 border border-[var(--color-primary)2c] rounded-lg justify-between gap-4">
         <div className="flex items-start gap-3">
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
             <LuImage className="h-4 w-4 text-green-600" />
@@ -109,7 +109,7 @@ const BrandingConfig = () => {
         {/* Back to overview button */}
         <PrimaryButton
           onClick={() => window.history.back()}
-          className="h-10 px-4 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-sm font-medium"
+          className="h-10 px-4 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-sm font-medium"
           icon={<LuArrowLeft className="w-4 h-4" />}
         >
           Back to overview

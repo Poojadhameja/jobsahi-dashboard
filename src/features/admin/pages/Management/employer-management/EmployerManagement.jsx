@@ -209,7 +209,7 @@ export default function EmployerManagement() {
       <div className="flex justify-end relative" ref={dropdownRef}>
         <button 
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="bg-[#0B537D] text-white p-3 rounded-lg shadow-lg transition-colors duration-200 hover:bg-[#0a4a6b]"
+          className="bg-primary text-white p-3 rounded-lg shadow-lg transition-colors duration-200 hover:bg-primary-dark"
         >
           <div className="flex flex-col space-y-1">
             <div className="w-6 h-0.5 bg-white"></div>
@@ -227,8 +227,8 @@ export default function EmployerManagement() {
                 onClick={() => { setActiveView('approve-reject'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
                   activeView === 'approve-reject' 
-                    ? 'bg-[#0B537D] text-white' 
-                    : 'text-[#0B537D] hover:bg-gray-50'
+                    ? 'bg-primary text-white' 
+                    : 'text-primary hover:bg-gray-50'
                 }`}
               >
                 Approve/Reject
@@ -237,8 +237,8 @@ export default function EmployerManagement() {
                 onClick={() => { setActiveView('job-tracking'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
                   activeView === 'job-tracking' 
-                    ? 'bg-[#0B537D] text-white' 
-                    : 'text-[#0B537D] hover:bg-gray-50'
+                    ? 'bg-primary text-white' 
+                    : 'text-primary hover:bg-gray-50'
                 }`}
               >
                 Job Tracking
@@ -247,8 +247,8 @@ export default function EmployerManagement() {
                 onClick={() => { setActiveView('payments'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
                   activeView === 'payments' 
-                    ? 'bg-[#0B537D] text-white' 
-                    : 'text-[#0B537D] hover:bg-gray-50'
+                    ? 'bg-primary text-white' 
+                    : 'text-primary hover:bg-gray-50'
                 }`}
               >
                 Payments
@@ -257,8 +257,8 @@ export default function EmployerManagement() {
                 onClick={() => { setActiveView('ratings'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
                   activeView === 'ratings' 
-                    ? 'bg-[#0B537D] text-white' 
-                    : 'text-[#0B537D] hover:bg-gray-50'
+                    ? 'bg-primary text-white' 
+                    : 'text-primary hover:bg-gray-50'
                 }`}
               >
                 Ratings
@@ -267,8 +267,8 @@ export default function EmployerManagement() {
                 onClick={() => { setActiveView('resume-usage'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
                   activeView === 'resume-usage' 
-                    ? 'bg-[#0B537D] text-white' 
-                    : 'text-[#0B537D] hover:bg-gray-50'
+                    ? 'bg-primary text-white' 
+                    : 'text-primary hover:bg-gray-50'
                 }`}
               >
                 Resume Usage
@@ -277,8 +277,8 @@ export default function EmployerManagement() {
                 onClick={() => { setActiveView('fraud-control'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
                   activeView === 'fraud-control' 
-                    ? 'bg-[#0B537D] text-white' 
-                    : 'text-[#0B537D] hover:bg-gray-50'
+                    ? 'bg-primary text-white' 
+                    : 'text-primary hover:bg-gray-50'
                 }`}
               >
                 Fraud Control

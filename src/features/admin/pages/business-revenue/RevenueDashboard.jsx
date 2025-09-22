@@ -55,7 +55,7 @@ export default function RevenueDashboard() {
   return (
     <div className="max-w-7xl mx-auto space-y-5 min-h-screen">
       {/* Filters & Analytics */}
-      <section className="bg-white rounded-xl border border-[#0b537d3c] p-6 shadow-sm">
+      <section className="bg-white rounded-xl border border-[var(--color-primary)3c] p-6 shadow-sm">
         <h2 className="text-xl font-semibold text-gray-800 mb-6">Filters & Analytics</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -66,7 +66,7 @@ export default function RevenueDashboard() {
               <select
                 value={range}
                 onChange={(e) => setRange(e.target.value)}
-                className="w-full px-4 py-3  border border-[#0b537d3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 cursor-pointer"
+                className="w-full px-4 py-3  border border-[var(--color-primary)3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 cursor-pointer"
               >
                 <option value="7d">Last 7 days</option>
                 <option value="30d">Last 30 days</option>
@@ -85,7 +85,7 @@ export default function RevenueDashboard() {
               <select
                 value={method}
                 onChange={(e) => setMethod(e.target.value)}
-                className="w-full px-4 py-3  border border-[#0b537d3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 cursor-pointer"
+                className="w-full px-4 py-3  border border-[var(--color-primary)3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 cursor-pointer"
               >
                 <option value="all">All Methods</option>
                 <option value="razorpay">Razorpay</option>
@@ -104,7 +104,7 @@ export default function RevenueDashboard() {
               <select
                 value={userType}
                 onChange={(e) => setUserType(e.target.value)}
-                className="w-full px-4 py-3  border border-[#0b537d3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                className="w-full px-4 py-3  border border-[var(--color-primary)3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
               >
                 <option value="" className="text-gray-400">Select user type</option>
                 <option value="employer">Employer</option>
@@ -121,7 +121,7 @@ export default function RevenueDashboard() {
       <Horizontal4Cards data={revenueCardsData} />
 
       {/* Payment Method Analytics */}
-      <section className="bg-white rounded-lg border border-[#0b537d3c] p-6 shadow-sm">
+      <section className="bg-white rounded-lg border border-[var(--color-primary)3c] p-6 shadow-sm">
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Payment Method Analytics</h2>
           <p className="text-gray-600">Revenue breakdown by payment methods</p>
@@ -129,7 +129,7 @@ export default function RevenueDashboard() {
 
         <div className="space-y-2">
           {paymentBreakup.map((p) => (
-            <div key={p.key} className="flex items-center justify-between py-2 border-b border-[#0b537d3c] last:border-b-0">
+            <div key={p.key} className="flex items-center justify-between py-2 border-b border-[var(--color-primary)3c] last:border-b-0">
               <div className="flex items-center space-x-4">
                 <div className={`w-4 h-4 ${p.dot} rounded-full`}></div>
                 <div className="flex items-center space-x-2">

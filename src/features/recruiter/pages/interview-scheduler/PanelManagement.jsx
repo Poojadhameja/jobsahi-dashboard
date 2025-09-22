@@ -187,7 +187,7 @@ const PanelManagement = () => {
             {/* Submit Button */}
             <button
               onClick={handleSubmitFeedback}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#5C9A24] text-white rounded-lg hover:bg-[#43711b] transition-colors font-medium"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors font-medium"
             >
               <LuCheck className="w-4 h-4" />
               Submit Feedback
@@ -231,7 +231,7 @@ const PanelManagement = () => {
 
                   <p className="text-sm text-gray-600 mb-3">{feedback.remarks}</p>
 
-                  <button className="w-full px-4 py-2 bg-[#5C9A24] text-white rounded-lg hover:bg-[#43711b] transition-colors font-medium text-sm">
+                  <button className="w-full px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors font-medium text-sm">
                     {feedback.decision}
                   </button>
                 </div>

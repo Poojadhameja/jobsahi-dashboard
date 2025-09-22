@@ -26,7 +26,7 @@ const CandidateManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F6FAFF]">
+    <div className="min-h-screen bg-[var(--color-bg-primary)]">
       {/* Green Navigation Pills */}
       <div className="mb-4">
         <PillNavigation
