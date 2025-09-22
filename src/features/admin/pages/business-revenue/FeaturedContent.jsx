@@ -90,7 +90,7 @@ export default function FeaturedContent() {
        case 2:
          return {
            title: 'Priority Banners',
-           subtitle: 'Manage prommotional banners and their priority',
+           subtitle: 'Manage promotional banners and their priority',
            data: priorityBanners,
            columns: ['Banner title', 'Location', 'Priority', 'Status', 'Start date', 'End date', 'Actions']
          }
@@ -142,7 +142,7 @@ export default function FeaturedContent() {
           <button 
             onClick={handleAddFeatured}
             className="bg-white hover:bg-secondary hover:text-white border-2 border-secondary text-secondary px-4 py-2 rounded-lg font-medium transition-colors">
-            + Add featured Content
+            + Add Featured Content
           </button>
         </div>
       </div>
@@ -328,7 +328,7 @@ export default function FeaturedContent() {
                     onClick={handleAddFeatured}
                     className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                   >
-                    + Add featured Content
+                    + Add Featured Content
                   </button>
                 </div>
               </div>

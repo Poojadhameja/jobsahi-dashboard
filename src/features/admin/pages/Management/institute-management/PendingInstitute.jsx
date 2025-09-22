@@ -69,7 +69,7 @@ export default function PendingInstituteApprovals() {
       location: "Mumbai, Maharashtra",
       established: "2015",
       students: "2,500+",
-      courses: "Electrican"
+      courses: "Electrician"
     },
     {
       id: 2,
@@ -79,7 +79,7 @@ export default function PendingInstituteApprovals() {
       location: "Mumbai, Maharashtra",
       established: "2015",
       students: "2,500+",
-      courses: "Electrican"
+      courses: "Electrician"
     },
     {
       id: 3,
@@ -89,7 +89,7 @@ export default function PendingInstituteApprovals() {
       location: "Mumbai, Maharashtra",
       established: "2015",
       students: "2,500+",
-      courses: "Electrican"
+      courses: "Electrician"
     }
   ]
 

@@ -350,7 +350,7 @@ export const SaveDraftButton = ({ onClick, className = '', ...props }) => (
     }
     {...props}
   >
-    Save draft
+    Save Draft
   </Button>
 );
 

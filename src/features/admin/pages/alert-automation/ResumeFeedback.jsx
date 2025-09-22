@@ -56,7 +56,7 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
       <div className="mb-6 rounded-lg bg-green-50 border border-green-200 p-4">
         <p className="font-bold text-[var(--color-secondary)]">Coming soon</p>
         <p className="text-sm text-[var(--color-secondary)] mt-1">
-          this feature will integrate with large language models to provide automated resume feedback and suggestions to job seekers.
+          This feature will integrate with large language models to provide automated resume feedback and suggestions to job seekers.
         </p>
       </div>
 
@@ -103,7 +103,7 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
 
         {/* Response time */}
         <div className="md:w-[50%] lg:md:w-[40%]">
-          <h3 className={`font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Responsive time target</h3>
+          <h3 className={`font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Response Time Target</h3>
           <div className="relative">
             <select
               value={settings.responseTime}

@@ -354,7 +354,7 @@ ${form.content}
           className="h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
           onClick={onSaveDraft}
         >
-          Save draft
+          Save Draft
         </Button>
 
         <Button
