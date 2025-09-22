@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../WebConstant'
+import LogoutConfirmationModal from '../components/LogoutConfirmationModal'
 
 export default function AdminProfile() {
-  const onLogout = () => {
-    if (typeof window !== 'undefined') window.location.href = '/login'
-  }
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [profile, setProfile] = useState({
     name: 'Admin',
     email: 'admin@jobsahi.com',
@@ -12,6 +12,34 @@ export default function AdminProfile() {
     role: 'Admin',
   })
   const [phoneError, setPhoneError] = useState('')
+
+  const handleLogout = () => {
+    setShowLogoutModal(true)
+  }
+
+  const confirmLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      // Add logout logic here (clear tokens, call logout API, etc.)
+      console.log('Logging out...')
+      
+      // Simulate logout process
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Navigate to login page
+      if (typeof window !== 'undefined') window.location.href = '/login'
+      setShowLogoutModal(false)
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Handle logout error if needed
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
+  const closeLogoutModal = () => {
+    setShowLogoutModal(false)
+  }
 
   const onChangeField = (key) => (e) => {
     let value = e.target.value
@@ -87,10 +115,19 @@ export default function AdminProfile() {
           <button className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`}>Two-Factor Authentication</button>
           <button className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ color: COLORS.ERROR, borderColor: '#FEE2E2' }}>Delete Account</button>
           <div className="pt-1">
-            <button onClick={onLogout} className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}>Logout</button>
+            <button onClick={handleLogout} className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}>Logout</button>
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+        userName={profile.name}
+        isLoading={isLoggingOut}
+      />
     </div>
   )
 }

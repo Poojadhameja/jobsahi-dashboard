@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TAILWIND_COLORS, COLORS } from '../WebConstant'
+import LogoutConfirmationModal from './LogoutConfirmationModal'
 
 const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
   const [isOpen, setIsOpen] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const dropdownRef = useRef(null)
   const navigate = useNavigate()
 
@@ -25,10 +28,32 @@ const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
   }
 
   const handleLogout = () => {
-    // Add logout logic here
-    console.log('Logging out...')
-    navigate('/login')
+    setShowLogoutModal(true)
     setIsOpen(false)
+  }
+
+  const confirmLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      // Add logout logic here (clear tokens, call logout API, etc.)
+      console.log('Logging out...')
+      
+      // Simulate logout process
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Navigate to login page
+      navigate('/login')
+      setShowLogoutModal(false)
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Handle logout error if needed
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
+  const closeLogoutModal = () => {
+    setShowLogoutModal(false)
   }
 
   const handleLogin = () => {
@@ -158,6 +183,15 @@ const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
           </div>
         </div>
       )}
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+        userName={user.name}
+        isLoading={isLoggingOut}
+      />
     </div>
   )
 }

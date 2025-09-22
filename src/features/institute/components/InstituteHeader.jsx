@@ -9,8 +9,8 @@ export default function InstituteHeader({ toggleSidebar }) {
   return (
     <header className={`sticky top-0 z-30 flex items-center justify-between ${TAILWIND_COLORS.HEADER_BG} px-2 sm:px-4 md:px-6 py-2 sm:py-3 border-b ${TAILWIND_COLORS.BORDER}`}>
       <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-        <Button className="p-1.5 sm:p-2 rounded" onClick={toggleSidebar} aria-label="Toggle Sidebar" variant="unstyled">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 sm:w-6 sm:h-6">
+        <Button className="p-1.5 sm:p-2 rounded bg-white " onClick={toggleSidebar} aria-label="Toggle Sidebar" variant="unstyled">
+          <svg viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" className="w-5 h-5 sm:w-6 sm:h-6">
             <path d="M3 6h18M3 12h18M3 18h18"/>
           </svg>
         </Button>
