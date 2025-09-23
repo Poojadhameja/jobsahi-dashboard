@@ -148,7 +148,7 @@ const UpcomingDeadlines = ({ deadlines }) => {
                 {deadline.courseName}
               </h3>
               <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                {deadline.studentCount} students - Deadlines in {deadline.deadline}
+                {deadline.studentCount} students - Deadline in {deadline.deadline}
               </p>
             </div>
 

@@ -19,7 +19,7 @@ import {
   LuTrendingUp,
 } from 'react-icons/lu'
 import { DoubleCircleChart } from '../../../shared/components/charts'
-import { getChartTooltipStyle, getChartTextColor, getChartGridColor } from '../../../shared/utils/chartColors'
+import { getChartTooltipStyle, getChartTextColor, getChartGridColor, getChartColors } from '../../../shared/utils/chartColors'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler)
 
@@ -54,17 +54,21 @@ export default function Dashboard() {
     { title:'Active Jobs', value:'23,891', icon:<LuTrendingUp className="w-5 h-5" /> },
   ]
 
+  const palette = getChartColors()
+
   const lineData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
         label: 'Applications',
         data: [1200, 1800, 1400, 2200, 2900, 3200],
-        borderColor: 'var(--color-primary)',
-        backgroundColor: 'var(--color-primary-10)',
+        borderColor: palette.info,
+        backgroundColor: 'rgba(12, 90, 141, 0.15)',
         fill: true,
         tension: 0.35,
         pointRadius: 3,
+        pointBackgroundColor: palette.info,
+        pointBorderColor: palette.info,
       },
     ],
   }

@@ -23,7 +23,7 @@ export default function BusinessRevenue() {
         },
         {
             id: 'order-history',
-            label: 'Order history & Logs',
+            label: 'Order History & Logs',
             icon: LuHistory
         },
         {

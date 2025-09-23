@@ -13,6 +13,7 @@ ChartJS.register(ArcElement, Tooltip, Legend)
 const Dashboard = () => {
   const [selectedApplicant, setSelectedApplicant] = useState(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
 
   // Metric cards data for Horizontal4Cards
   const metricCardsData = [
@@ -318,8 +319,30 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
       {/* Header */}
-      <div className="mb-5">
+      <div className="mb-5 flex items-center justify-between">
         <h1 className="text-3xl font-semibold text-[var(--color-primary)]">Hi! Brightorial</h1>
+        
+        {/* Auto Scroll Toggle */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700">Auto Scroll</span>
+          <button
+            type="button"
+            onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+            }`}
+            style={{
+              backgroundColor: autoScrollEnabled ? '#5C9A24' : undefined,
+              focusRingColor: autoScrollEnabled ? '#5C9A24' : undefined
+            }}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
+                autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Metric Cards */}
