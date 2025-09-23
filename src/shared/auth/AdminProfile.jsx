@@ -1,15 +1,26 @@
 import React, { useState } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../WebConstant'
+import { postMethod } from '../../service/api'
+import { getMethod } from '../../service/api'
+import { putMethod } from '../../service/api'
+import apiService from '../../service/serviceUrl'
 
 export default function AdminProfile() {
-  const onLogout = () => {
+
+  var authUser = localStorage.getItem("authUser")
+  var user = JSON.parse(authUser);
+
+  const onLogout = async () => {
+    localStorage.clear();
     if (typeof window !== 'undefined') window.location.href = '/login'
+    console.log('Logging out...')
+
   }
   const [profile, setProfile] = useState({
-    name: 'Admin',
-    email: 'admin@jobsahi.com',
-    phone: '9876543210',
-    role: 'Admin',
+    name: user.name,
+    email: user.email,
+    phone: user.phone_number,
+    role: user.role,
   })
   const [phoneError, setPhoneError] = useState('')
 
@@ -26,13 +37,44 @@ export default function AdminProfile() {
     setProfile((p) => ({ ...p, [key]: value }))
   }
 
-  const onSave = () => {
+  const onSave = async(e) => {
+    e.preventDefault()
     if (!/^\d{10}$/.test(profile.phone)) {
       setPhoneError('Enter a valid 10-digit phone number')
       return
     }
     // eslint-disable-next-line no-console
     console.log('save-profile', profile)
+    try {
+      var data = {
+        apiUrl: apiService.updateUser,
+        payload: {
+          uid: user.id,
+          uname: profile.name,
+          uemail: profile.email,
+          //upassword: "password123",
+          urole: profile.role,
+          uphone: profile.phone,
+          uverified: user.is_verified
+        },
+      };
+
+      var response = await postMethod(data);
+      console.log(response);
+
+      if (response.status === true) {
+        // Save token + expiry
+        alert(response.message || "User updated successfully!")
+
+        
+      } else {
+        console.error("Failed to update user:", response)
+        alert(response.message || "Failed to update user")
+      }
+    } catch (error) {
+      console.error("API Error:", error)
+      alert("Something went wrong. Please try again.")
+    }
   }
   return (
     <div className="space-y-6">
@@ -43,7 +85,7 @@ export default function AdminProfile() {
           </svg>
         </div>
         <div>
-          <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Admin Profile</h1>
+          <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{user.role?.charAt(0).toUpperCase() + user.role?.slice(1)} Profile</h1>
           <div className="text-sm text-gray-500">Manage your profile and account settings</div>
         </div>
       </div>

@@ -11,7 +11,7 @@ export default function App() {
     <Router>
       <Suspense fallback={<div className="p-8">Loading...</div>}>
         <Routes>
-          <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<Login />} />
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/admin/*" element={<AdminRoutes />} />
