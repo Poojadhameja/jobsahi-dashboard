@@ -187,7 +187,7 @@ export default function Login() {
             )}
 
             <div className="flex items-center justify-center gap-2 text-sm">
-              <a href="#" className="text-[#5B9821] hover:underline">Forgot Password?</a>
+              <a href="/forgot-password" className="text-[#5B9821] hover:underline">Forgot Password?</a>
               <span className="text-gray-400">or</span>
               <a href="/create-account" className="text-[#5B9821] hover:underline">Create new Account</a>
             </div>

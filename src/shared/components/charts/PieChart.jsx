@@ -1,25 +1,15 @@
 import React from 'react'
 import {
   Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
+  ArcElement,
   Tooltip,
   Legend,
 } from 'chart.js'
-import { Bar } from 'react-chartjs-2'
+import { Pie } from 'react-chartjs-2'
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-)
+ChartJS.register(ArcElement, Tooltip, Legend)
 
-const BarChart = ({ 
+const PieChart = ({ 
   data, 
   title = "Chart", 
   subtitle = "",
@@ -32,26 +22,18 @@ const BarChart = ({
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false,
+        position: 'right',
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+          font: {
+            size: 14,
+            weight: '500'
+          }
+        }
       },
       title: {
         display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: 'var(--color-gray-200)',
-        },
-        ticks: {
-          stepSize: 50,
-        },
-      },
-      x: {
-        grid: {
-          display: false,
-        },
       },
     },
   }
@@ -80,11 +62,13 @@ const BarChart = ({
       </div>
 
       {/* Chart */}
-      <div className="h-80">
-        <Bar data={data} options={options} />
+      <div className="h-80 flex items-center justify-center">
+        <div className="w-80 h-80">
+          <Pie data={data} options={options} />
+        </div>
       </div>
     </div>
   )
 }
 
-export default BarChart
+export default PieChart
