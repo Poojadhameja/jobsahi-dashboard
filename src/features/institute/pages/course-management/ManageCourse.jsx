@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
-import { LuSearch, LuChevronDown, LuCalendar, LuLink, LuFolder, LuPencil, LuTrash2, LuBuilding } from 'react-icons/lu'
+import { LuSearch, LuChevronDown, LuCalendar, LuLink, LuEye, LuPencil, LuTrash2, LuBuilding } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { useCourseContext } from '../../context/CourseContext'
+import ViewCoursePopup from './ViewCoursePopup'
+import EditCoursePopup from './EditCoursePopup'
 
 export default function ManageCourse() {
-  const { courses, deleteCourse } = useCourseContext()
+  const { courses, deleteCourse, updateCourse } = useCourseContext()
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState({
@@ -13,6 +15,11 @@ export default function ManageCourse() {
     skills: '',
     launchingDate: ''
   })
+  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [showViewPopup, setShowViewPopup] = useState(false)
+  const [showEditPopup, setShowEditPopup] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [courseToDelete, setCourseToDelete] = useState(null)
 
   // Filter courses based on search and filters
   const filteredCourses = courses.filter(course => {
@@ -52,19 +59,57 @@ export default function ManageCourse() {
   }
 
   const handleAction = (action, courseId) => {
-    if (action === 'delete') {
-      if (window.confirm('Are you sure you want to delete this course?')) {
-        deleteCourse(courseId)
-      }
+    const course = courses.find(c => c.id === courseId)
+    
+    if (action === 'view') {
+      setSelectedCourse(course)
+      setShowViewPopup(true)
+    } else if (action === 'edit') {
+      setSelectedCourse(course)
+      setShowEditPopup(true)
+    } else if (action === 'delete') {
+      setCourseToDelete(course)
+      setShowDeleteConfirm(true)
     } else {
       console.log(`${action} clicked for course:`, courseId)
     }
   }
 
+  const handleViewClose = () => {
+    setShowViewPopup(false)
+    setSelectedCourse(null)
+  }
+
+  const handleEditClose = () => {
+    setShowEditPopup(false)
+    setSelectedCourse(null)
+  }
+
+  const handleEditSave = (updatedCourse) => {
+    if (updateCourse) {
+      updateCourse(selectedCourse.id, updatedCourse)
+    }
+    setShowEditPopup(false)
+    setSelectedCourse(null)
+  }
+
+  const handleDeleteConfirm = () => {
+    if (courseToDelete) {
+      deleteCourse(courseToDelete.id)
+    }
+    setShowDeleteConfirm(false)
+    setCourseToDelete(null)
+  }
+
+  const handleDeleteCancel = () => {
+    setShowDeleteConfirm(false)
+    setCourseToDelete(null)
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="  ">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold text-[#1A569A]">All Course</h1>
         
         <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
@@ -149,7 +194,7 @@ export default function ManageCourse() {
       {/* Course Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {currentCourses.map((course) => (
-          <div key={course.id} className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+          <div key={course.id} className="bg-white rounded-lg p-6 border border-gray-200">
             {/* Team and Status */}
             <div className="flex justify-between items-center mb-3">
               <span className="text-sm text-gray-600">{course.team}</span>
@@ -198,19 +243,19 @@ export default function ManageCourse() {
                   Buy Now
                 </button>
                 <div className="flex gap-1">
-                  <button
+                  {/* <button
                     onClick={() => handleAction('link', course.id)}
                     className="p-2 text-gray-500 hover:text-[#5C9A24] transition-colors"
                     title="Link"
                   >
                     <LuLink className="w-4 h-4" />
-                  </button>
+                  </button> */}
                   <button
-                    onClick={() => handleAction('folder', course.id)}
+                    onClick={() => handleAction('view', course.id)}
                     className="p-2 text-gray-500 hover:text-[#5C9A24] transition-colors"
-                    title="Folder"
+                    title="View"
                   >
-                    <LuFolder className="w-4 h-4" />
+                    <LuEye className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleAction('edit', course.id)}
@@ -239,7 +284,7 @@ export default function ManageCourse() {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
@@ -251,7 +296,7 @@ export default function ManageCourse() {
               className={`px-3 py-2 text-sm font-medium rounded-lg ${
                 currentPage === page
                   ? 'bg-[#5C9A24] text-white'
-                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-white'
               }`}
             >
               {page}
@@ -261,10 +306,64 @@ export default function ManageCourse() {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
           </button>
+        </div>
+      )}
+
+      {/* View Course Popup */}
+      {showViewPopup && (
+        <ViewCoursePopup
+          course={selectedCourse}
+          onClose={handleViewClose}
+        />
+      )}
+
+      {/* Edit Course Popup */}
+      {showEditPopup && (
+        <EditCoursePopup
+          course={selectedCourse}
+          onSave={handleEditSave}
+          onClose={handleEditClose}
+        />
+      )}
+
+      {/* Delete Confirmation Popup */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <LuTrash2 className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Delete Course</h3>
+                  <p className="text-sm text-gray-600">This action cannot be undone.</p>
+                </div>
+              </div>
+              <p className="text-gray-700 mb-6">
+                Are you sure you want to delete <strong>"{courseToDelete?.title}"</strong>? 
+                This will permanently remove the course and all its data.
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={handleDeleteCancel}
+                  className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Delete Course
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
