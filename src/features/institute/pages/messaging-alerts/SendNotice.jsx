@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { LuChevronDown, LuUsers, LuArrowUp } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import { Button } from '../../../../shared/components/Button'
+import Button from '../../../../shared/components/Button'
 
 export default function SendNotice() {
   const [formData, setFormData] = useState({
