@@ -1,0 +1,119 @@
+import React, { useState } from 'react'
+import { colors } from '../../../shared/colors'
+import { FaSearch, FaBriefcase, FaChevronDown, FaAngleDoubleRight } from 'react-icons/fa'
+
+const Navbar = () => {
+  const [activePage, setActivePage] = useState('Home')
+  const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false)
+
+  const navigationItems = [
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
+    { name: 'Jobs', path: '/find-job' },
+    { name: 'Courses', path: '/courses' },
+    { name: 'Media', path: '/media', hasDropdown: true },
+    { name: 'Contact', path: '/contact' },
+  ]
+
+  return (
+    <nav 
+      className="w-full px-6 py-4"
+      style={{ backgroundColor: colors.primary.darkBlue }}
+    >
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center">
+          <div className="flex items-center text-white text-2xl font-bold">
+            <span className="relative">
+              JOBS
+              <span className="relative inline-block ml-1">
+                <FaSearch className="absolute -top-1 -right-1 text-sm" />
+                <FaBriefcase className="text-xs" />
+              </span>
+              AHI
+            </span>
+          </div>
+        </div>
+
+        {/* Navigation Links */}
+        <div className="hidden md:flex items-center space-x-8">
+          {navigationItems.map((item) => (
+            <div key={item.name} className="relative">
+              <button
+                onClick={() => {
+                  if (item.hasDropdown) {
+                    setIsMediaDropdownOpen(!isMediaDropdownOpen)
+                  } else {
+                    setActivePage(item.name)
+                  }
+                }}
+                className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200 ${
+                  activePage === item.name
+                    ? 'text-white'
+                    : 'text-white hover:text-gray-200'
+                }`}
+                style={{
+                  color: activePage === item.name ? colors.accent.green : colors.text.white,
+                  backgroundColor: activePage === item.name ? 'rgba(16, 185, 129, 0.1)' : 'transparent'
+                }}
+              >
+                <span>{item.name}</span>
+                {item.hasDropdown && (
+                  <FaChevronDown className="text-xs" />
+                )}
+              </button>
+              
+              {/* Media Dropdown */}
+              {item.hasDropdown && isMediaDropdownOpen && (
+                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+                  <div className="py-2">
+                    <a href="/news" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      News
+                    </a>
+                    <a href="/blog" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      Blog
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* User Actions */}
+        <div className="flex items-center space-x-4">
+          {/* Register Link */}
+          <a
+            href="/register"
+            className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors duration-200"
+          >
+            <span>Register</span>
+            <FaAngleDoubleRight className="text-sm" />
+          </a>
+
+          {/* Sign Up Button */}
+          <button
+            className="px-6 py-2 text-white border border-white rounded-md hover:bg-white hover:text-blue-900 transition-colors duration-200"
+            style={{
+              borderColor: colors.border.white,
+              color: colors.text.white
+            }}
+          >
+            Sign Up
+          </button>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <div className="md:hidden">
+          <button className="text-white">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </nav>
+  )
+}
+
+export default Navbar
