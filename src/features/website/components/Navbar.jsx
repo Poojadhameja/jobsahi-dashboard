@@ -5,6 +5,7 @@ import { FaSearch, FaBriefcase, FaChevronDown, FaAngleDoubleRight } from 'react-
 const Navbar = () => {
   const [activePage, setActivePage] = useState('Home')
   const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const navigationItems = [
     { name: 'Home', path: '/' },
@@ -17,8 +18,7 @@ const Navbar = () => {
 
   return (
     <nav 
-      className="w-full px-6 py-4"
-      style={{ backgroundColor: colors.primary.darkBlue }}
+      className="w-full px-6 py-4 relative"
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
@@ -49,12 +49,12 @@ const Navbar = () => {
                 }}
                 className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200 ${
                   activePage === item.name
-                    ? 'text-white'
+                    ? 'text-white font-semibold'
                     : 'text-white hover:text-gray-200'
                 }`}
                 style={{
                   color: activePage === item.name ? colors.accent.green : colors.text.white,
-                  backgroundColor: activePage === item.name ? 'rgba(16, 185, 129, 0.1)' : 'transparent'
+                //   backgroundColor: activePage === item.name ? 'transparent' : 'transparent'
                 }}
               >
                 <span>{item.name}</span>
@@ -80,8 +80,8 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* User Actions */}
-        <div className="flex items-center space-x-4">
+        {/* User Actions - Hidden on Mobile */}
+        <div className="hidden md:flex items-center space-x-4">
           {/* Register Link */}
           <a
             href="/register"
@@ -93,7 +93,7 @@ const Navbar = () => {
 
           {/* Sign Up Button */}
           <button
-            className="px-6 py-2 text-white border border-white rounded-md hover:bg-white hover:text-blue-900 transition-colors duration-200"
+            className="px-6 py-2 text-white border border-white rounded-full hover:bg-white hover:text-[#00395B] transition-colors duration-200"
             style={{
               borderColor: colors.border.white,
               color: colors.text.white
@@ -105,13 +105,94 @@ const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
-          <button className="text-white">
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-white p-2"
+          >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+          <div className="px-6 py-4 space-y-4">
+            {/* Navigation Links */}
+            {navigationItems.map((item) => (
+              <div key={item.name}>
+                <button
+                  onClick={() => {
+                    if (item.hasDropdown) {
+                      setIsMediaDropdownOpen(!isMediaDropdownOpen)
+                    } else {
+                      setActivePage(item.name)
+                      setIsMobileMenuOpen(false)
+                    }
+                  }}
+                  className={`flex items-center justify-between w-full px-3 py-2 rounded-md transition-colors duration-200 ${
+                    activePage === item.name
+                      ? 'text-[#A1E366] font-bold '
+                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                  }`}
+                >
+                  <span>{item.name}</span>
+                  {item.hasDropdown && (
+                    <FaChevronDown className={`text-xs transition-transform duration-200 ${
+                      isMediaDropdownOpen ? 'rotate-180' : ''
+                    }`} />
+                  )}
+                </button>
+                
+                {/* Mobile Media Dropdown */}
+                {item.hasDropdown && isMediaDropdownOpen && (
+                  <div className="ml-4 mt-2 space-y-2">
+                    <a 
+                      href="/news" 
+                      className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      News
+                    </a>
+                    <a 
+                      href="/blog" 
+                      className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Blog
+                    </a>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Mobile User Actions */}
+            <div className="pt-4 border-t border-gray-200 space-y-3">
+              <a
+                href="/register"
+                className="flex items-center justify-center space-x-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <span>Register</span>
+                <FaAngleDoubleRight className="text-sm" />
+              </a>
+              
+              <button
+                className="w-full px-4 py-2 text-white border border-gray-300 rounded-full hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200"
+                style={{
+                  backgroundColor: colors.primary.darkBlue,
+                  borderColor: colors.primary.darkBlue
+                }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign Up
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   )
 }

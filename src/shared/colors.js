@@ -17,7 +17,7 @@ export const colors = {
   
   // Accent Colors
   accent: {
-    green: '#10b981', // Active/highlight color
+    green: '#A1E366', // Active/highlight color
     lightGreen: '#34d399',
   },
   

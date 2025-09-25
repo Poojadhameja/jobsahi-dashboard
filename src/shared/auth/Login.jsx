@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Swal from 'sweetalert2'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuPhone, LuMail } from 'react-icons/lu'
 import { postMethod } from '../../service/api'
@@ -86,25 +87,45 @@ export default function Login() {
           localStorage.setItem("authToken", response.token)
           localStorage.setItem("authExpiry", response.expires_in)
           localStorage.setItem("authUser", JSON.stringify(response.user))
-          
-          alert(response.message || "Login successful!")
 
-          if (response.user.role === "recruiter") {
-            window.location.href = "/recruiter/dashboard"
-          } else if (response.user.role === "institute") {
-            window.location.href = "/institute/dashboard"
-          } else if (response.user.role === "student") {
-            window.location.href = "/student/dashboard"
-          }else {
-            window.location.href = "/admin/dashboard"
-          }
+          // alert(response.message || "Login successful!")
+          Swal.fire({
+            title: "Success",
+            text: "Login successful!",
+            confirmButtonText: "Ok",
+            icon: "success"
+          }).then((result) => {
+            /* Read more about isConfirmed */
+            if (result.isConfirmed) {
+              if (response.user.role === "recruiter") {
+                window.location.href = "/recruiter/dashboard"
+              } else if (response.user.role === "institute") {
+                window.location.href = "/institute/dashboard"
+              } else if (response.user.role === "student") {
+                window.location.href = "/student/dashboard"
+              } else {
+                window.location.href = "/admin/dashboard"
+              }
+            }
+
+          });
         } else {
-          console.error("Login Failed:", response)
-          alert(response.message || "Invalid email or password")
+          // console.error("Login Failed:", response)
+          // alert(response.message || "Invalid email or password")
+          Swal.fire({
+            title: "Login Failed",
+            text: "Invalid email or password",
+            icon: "error"
+          });
         }
       } catch (error) {
-        console.error("API Error:", error)
-        alert("Something went wrong. Please try again.")
+        // console.error("API Error:", error)
+        // alert("Something went wrong. Please try again.")
+        Swal.fire({
+          title: "API Error",
+          text: "Something went wrong. Please try again.",
+          icon: "error"
+        });
       }
     } else {
       // For OTP flow, open verification modal
