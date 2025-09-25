@@ -2,11 +2,15 @@ import React, { useState } from 'react'
 import { LuDownload, LuFileText, LuFileSpreadsheet, LuUsers, LuUserCheck, LuPercent, LuDollarSign } from 'react-icons/lu'
 import BarChart from '../../../shared/components/charts/BarChart'
 import TradePieChart from '../../../shared/components/charts/TradePieChart'
+import { getChartColors } from '../../../shared/utils/chartColors'
 import { Horizontal4Cards, MatrixCard } from '../../../shared/components/metricCard'
 
 const AnalyticsReports = () => {
   const [timeFilter, setTimeFilter] = useState('Last 30 days')
   const [departmentFilter, setDepartmentFilter] = useState('All Department')
+
+  // Resolve palette for charts (Chart.js needs concrete color strings)
+  const chartColors = getChartColors()
 
   // Sample data for Applications by Department
   const applicationsData = {
@@ -15,19 +19,19 @@ const AnalyticsReports = () => {
       {
         label: 'Total Applications',
         data: [250, 190, 140, 80, 120, 70],
-        backgroundColor: 'var(--color-primary)',
+        backgroundColor: chartColors.info,
         borderRadius: 4,
       },
       {
         label: 'Interviews',
         data: [70, 40, 35, 25, 30, 20],
-        backgroundColor: 'var(--color-success)',
+        backgroundColor: chartColors.success,
         borderRadius: 4,
       },
       {
         label: 'Hires',
         data: [20, 15, 20, 10, 15, 10],
-        backgroundColor: 'var(--color-warning)',
+        backgroundColor: chartColors.warning,
         borderRadius: 4,
       },
     ],
@@ -40,11 +44,11 @@ const AnalyticsReports = () => {
       {
         data: [35, 28, 20, 12, 5],
         backgroundColor: [
-          'var(--color-primary)', // Dark Blue
-          'var(--color-success)', // Green
-          'var(--color-warning)', // Orange
-          'var(--color-error)', // Red
-          'var(--color-primary-light)', // Light Blue
+          chartColors.info,
+          chartColors.success,
+          chartColors.warning,
+          chartColors.error,
+          chartColors.primary,
         ],
         borderWidth: 0,
       },

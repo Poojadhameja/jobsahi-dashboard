@@ -7,8 +7,11 @@ import {
   LuEye,
   LuPlus,
   LuDownload,
-  LuImage
+  LuImage,
+  LuCalendar,
+  LuFileImage
 } from 'react-icons/lu'
+import RichTextEditor from '../../../../shared/components/RichTextEditor'
 
 function ManageTemplate() {
   const [templates, setTemplates] = useState([
@@ -40,6 +43,14 @@ function ManageTemplate() {
 
   const [showUploadModal, setShowUploadModal] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
+  
+  // Form state for certificate information
+  const [certificateInfo, setCertificateInfo] = useState({
+    completionDate: '',
+    description: '',
+    instituteLogo: null,
+    officialSeal: null
+  })
 
   const handleDeleteTemplate = (id) => {
     setTemplates(templates.filter(template => template.id !== id))
@@ -52,191 +63,187 @@ function ManageTemplate() {
     })))
   }
 
+  const handleInputChange = (field, value) => {
+    setCertificateInfo(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleFileUpload = (field, file) => {
+    setCertificateInfo(prev => ({
+      ...prev,
+      [field]: file
+    }))
+  }
+
+  const handleUpdateTemplate = () => {
+    // Handle template update logic here
+    console.log('Updating template with:', certificateInfo)
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
+    <div className="space-y-6 p-6">
+      {/* Certificate Information Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">Manage Templates</h3>
-            <p className="text-sm text-gray-600">Upload and manage certificate templates</p>
-          </div>
-          <button
-            onClick={() => setShowUploadModal(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
-          >
-            <LuPlus className="h-4 w-4" />
-            <span>Upload Template</span>
-          </button>
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-1">Certificate Information</h2>
+          <p className="text-sm text-gray-600">Create new certificate templates with custom logos and seals.</p>
         </div>
 
-        {/* Upload Area */}
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-green-400 transition-colors duration-200">
-          <LuUpload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h4 className="text-lg font-medium text-gray-900 mb-2">Upload New Template</h4>
-          <p className="text-sm text-gray-600 mb-4">
-            Drag and drop your template file here, or click to browse
-          </p>
-          <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition-colors duration-200">
-            Choose File
-          </button>
-          <p className="text-xs text-gray-500 mt-2">
-            Supported formats: PDF, PNG, JPG (Max size: 10MB)
-          </p>
-        </div>
-      </div>
-
-      {/* Templates Grid */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h4 className="text-md font-medium text-gray-900 mb-4">Existing Templates</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {templates.map(template => (
-            <div key={template.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
-              {/* Template Preview */}
-              <div className="h-48 bg-gray-100 flex items-center justify-center">
-                <LuImage className="h-12 w-12 text-gray-400" />
-              </div>
-              
-              {/* Template Info */}
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h5 className="font-medium text-gray-900 text-sm">{template.name}</h5>
-                  {template.isDefault && (
-                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                      Default
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-600 mb-3">{template.description}</p>
-                <p className="text-xs text-gray-500 mb-4">Created: {template.createdAt}</p>
-                
-                {/* Action Buttons */}
-                <div className="flex justify-between items-center">
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => setSelectedTemplate(template)}
-                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                      title="Preview"
-                    >
-                      <LuEye className="h-4 w-4" />
-                    </button>
-                    <button
-                      className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200"
-                      title="Edit"
-                    >
-                      <LuPencil className="h-4 w-4" />
-                    </button>
-                    <button
-                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
-                      title="Download"
-                    >
-                      <LuDownload className="h-4 w-4" />
-                    </button>
-                    {!template.isDefault && (
-                      <button
-                        onClick={() => handleDeleteTemplate(template.id)}
-                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                        title="Delete"
-                      >
-                        <LuTrash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                  {!template.isDefault && (
-                    <button
-                      onClick={() => handleSetDefault(template.id)}
-                      className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-1 rounded transition-colors duration-200"
-                    >
-                      Set Default
-                    </button>
-                  )}
-                </div>
-              </div>
+        <div className="space-y-6">
+          {/* Date of Completion */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div className="lg:col-span-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
+                DATE OF COMPLETION <span className="text-red-500">*</span>
+              </label>
+              <p className="text-xs text-gray-500 mb-3">Choose the course to enroll the student.</p>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Template Guidelines */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h4 className="text-md font-medium text-blue-900 mb-3">Template Guidelines</h4>
-        <ul className="text-sm text-blue-800 space-y-2">
-          <li className="flex items-start">
-            <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-            Templates should be in high resolution (300 DPI minimum)
-          </li>
-          <li className="flex items-start">
-            <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-            Include placeholder fields for student name, course name, and completion date
-          </li>
-          <li className="flex items-start">
-            <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-            Recommended dimensions: 8.5" x 11" (Letter size) or A4
-          </li>
-          <li className="flex items-start">
-            <span className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-            Use placeholder text like "{{STUDENT_NAME}}", "{{COURSE_NAME}}", "{{DATE}}"
-          </li>
-        </ul>
-      </div>
-
-      {/* Upload Modal */}
-      {showUploadModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Upload New Template</h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Template Name
-                </label>
+            <div className="lg:col-span-3">
+              <div className="relative">
                 <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="Enter template name"
+                  type="date"
+                  value={certificateInfo.completionDate}
+                  onChange={(e) => handleInputChange('completionDate', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent pr-10"
                 />
+                <LuCalendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
-              
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div className="lg:col-span-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
+                DESCRIPTION <span className="text-red-500">*</span>
+              </label>
+              <p className="text-xs text-gray-500 mb-3">Pick the batch for the selected course.</p>
+            </div>
+            <div className="lg:col-span-3">
+              <RichTextEditor
+                value={certificateInfo.description}
+                onChange={(value) => handleInputChange('description', value)}
+                placeholder="Enter course description"
+                height="150px"
+                className="border border-gray-300 rounded-md"
+              />
+            </div>
+          </div>
+
+          {/* Logo and Seal Section */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Logo and Seal</h3>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Institute Logo */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
+                <label className="block text-sm font-medium text-gray-900 mb-1">
+                  INSTITUTE LOGO <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  rows="3"
-                  placeholder="Enter template description"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Template File
-                </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                <p className="text-xs text-gray-500 mb-3">Choose the course to enroll the student.</p>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors duration-200">
                   <LuUpload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">Click to upload or drag and drop</p>
+                  <p className="text-sm text-gray-600 mb-3">Upload logo image</p>
+                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors duration-200">
+                    Choose file
+                  </button>
+                </div>
+              </div>
+
+              {/* Official Seal */}
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-1">
+                  OFFICIAL SEAL <span className="text-red-500">*</span>
+                </label>
+                <p className="text-xs text-gray-500 mb-3">Choose the course to enroll the student.</p>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors duration-200">
+                  <LuUpload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600 mb-3">Upload seal image</p>
+                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors duration-200">
+                    Choose file
+                  </button>
                 </div>
               </div>
             </div>
-            
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={() => setShowUploadModal(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => setShowUploadModal(false)}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200"
-              >
-                Upload Template
-              </button>
+          </div>
+
+          {/* Update Template Button */}
+          <div className="flex justify-end">
+            <button
+              onClick={handleUpdateTemplate}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
+            >
+              <LuFileText className="h-4 w-4" />
+              <span>Update Template</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Existing Template Section */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-1">Existing Template</h2>
+          <p className="text-sm text-gray-600">Manage your certificate template.</p>
+        </div>
+
+        {/* Certificate Preview */}
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50">
+          <div className="max-w-3xl mx-auto">
+            {/* Certificate Design */}
+            <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
+              {/* Header with icons */}
+              <div className="flex justify-between items-start mb-8">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <LuFileText className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="w-16 h-12 bg-gray-200 rounded"></div>
+              </div>
+
+              {/* Main Title */}
+              <div className="text-center mb-8">
+                <h1 className="text-2xl font-bold text-gray-800 mb-4" style={{ fontFamily: 'serif' }}>
+                  Certificate of Completion
+                </h1>
+              </div>
+
+              {/* Description */}
+              <div className="text-center mb-8">
+                <p className="text-gray-700 leading-relaxed text-sm">
+                  Upon successful completion of the course, participants will receive a Certificate of Completion, 
+                  recognizing their achievement and confirming that they have acquired the essential skills and 
+                  knowledge outlined in the curriculum.
+                </p>
+              </div>
+
+              {/* Separator */}
+              <div className="border-b-2 border-dotted border-gray-300 mb-6"></div>
+
+              {/* Footer */}
+              <div className="flex justify-between items-end">
+                <div className="text-xs text-gray-600">
+                  Date: 8/3/2025
+                </div>
+                <div className="text-center">
+                  <div className="text-sm font-bold text-gray-800 mb-2">POWER TECHNICIAN</div>
+                </div>
+                <div className="w-16 h-12 bg-gray-200 rounded"></div>
+              </div>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Download Button */}
+        <div className="flex justify-center mt-6">
+          <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200">
+            <LuDownload className="h-4 w-4" />
+            <span>Direct Download</span>
+          </button>
+        </div>
+      </div>
+
     </div>
   )
 }

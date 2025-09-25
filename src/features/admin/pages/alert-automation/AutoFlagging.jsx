@@ -86,7 +86,7 @@ const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) =>
           <textarea
             value={settings.emailTemplate}
             onChange={(e) => onSettingsChange({ ...settings, emailTemplate: e.target.value })}
-            placeholder="your plan expired in days. Renew now to continue..."
+            placeholder="Your plan expires in X days. Renew now to continue..."
             className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"
           />
         </div>
@@ -171,7 +171,7 @@ const AutoFlagging = () => {
   // State management for plan expiry settings
   const [settings, setSettings] = useState({
     reminderDays: '',
-    emailTemplate: 'your plan expired in days. Renew now to continue...',
+    emailTemplate: 'Your plan expires in X days. Renew now to continue...',
     enableReminders: true
   })
 

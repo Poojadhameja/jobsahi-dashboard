@@ -8,7 +8,7 @@ export const getMethod = async (data) => {
 
         var headers = {
             "content-type": "application/json",
-            authorization: localStorage.getItem("authToken")
+            'Authorization': `Bearer ${localStorage.getItem("authToken")}`
         }
 
         let respData = await axios({
@@ -33,7 +33,7 @@ export const postMethod = async (data) => {
     try {
         var headers = {
             "content-type": "application/json",
-            authorization: localStorage.getItem("authToken")
+            'Authorization': `Bearer ${localStorage.getItem("authToken")}`
         }
 
         let respData = await axios({
@@ -59,7 +59,7 @@ export const putMethod = async (data) => {
     try {
         var headers = {
             "content-type": "application/json",
-            authorization: localStorage.getItem("authToken")
+            'Authorization': `Bearer ${localStorage.getItem("authToken")}`
         }
 
         let respData = await axios({
@@ -85,7 +85,7 @@ export const deleteMethod = async (data) => {
     try {
         var headers = {
             "content-type": "application/json",
-            authorization: localStorage.getItem("authToken")
+            'Authorization': `Bearer ${localStorage.getItem("authToken")}`
         }
 
         let respData = await axios({

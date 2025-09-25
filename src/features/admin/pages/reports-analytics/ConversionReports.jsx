@@ -108,7 +108,7 @@ export default function ConversionReports() {
   ]
 
   return (
-    <div className="p-5 space-y-8">
+    <div className=" space-y-8">
       {/* Visits → Resume → Application Flow */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Flow Section */}

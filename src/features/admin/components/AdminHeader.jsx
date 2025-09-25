@@ -7,18 +7,21 @@ import DarkModeToggle from '../../../shared/components/DarkModeToggle.jsx'
 
 export default function Header({ toggleSidebar }) {
   const navigate = useNavigate()
+  var authUser = localStorage.getItem("authUser")
+  var user = JSON.parse(authUser);
+
   return (
     <header className={`sticky top-0 z-30 flex items-center justify-between ${TAILWIND_COLORS.HEADER_BG} px-2 sm:px-4 md:px-6 py-2 sm:py-3 border-b ${TAILWIND_COLORS.BORDER}`}>
       <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-        <Button className="p-1.5 sm:p-2 rounded" onClick={toggleSidebar} aria-label="Toggle Sidebar" variant="unstyled">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 sm:w-6 sm:h-6">
+        <Button className="p-1.5 sm:p-2 rounded bg-white " onClick={toggleSidebar} aria-label="Toggle Sidebar" variant="unstyled">
+          <svg viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" className="w-5 h-5 sm:w-6 sm:h-6">
             <path d="M3 6h18M3 12h18M3 18h18"/>
           </svg>
         </Button>
       </div>
 
       <div className="flex-1 max-w-xs sm:max-w-md md:max-w-3xl mx-2 sm:mx-3 md:mx-6">
-        <div className={`flex items-center bg-white border ${TAILWIND_COLORS.BORDER} rounded-full px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 shadow-sm`}> 
+        <div className={`flex items-center bg-white border ${TAILWIND_COLORS.BORDER} rounded-full px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 shadow-sm`}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0">
             <circle cx="11" cy="11" r="8"/>
             <path d="M21 21l-4.3-4.3"/>
@@ -41,7 +44,7 @@ export default function Header({ toggleSidebar }) {
         
         {/* Dark Mode Toggle */}
         <DarkModeToggle />
-        
+
         {/* User Dropdown - Always visible but responsive */}
         <div className="block">
           <UserDropdown user={{ name: 'Admin User', role: 'Administrator' }} />

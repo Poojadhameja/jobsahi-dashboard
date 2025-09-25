@@ -15,6 +15,8 @@ function CertificateGeneration() {
   const [selectedCourse, setSelectedCourse] = useState('')
   const [selectedBatch, setSelectedBatch] = useState('')
   const [completionDate, setCompletionDate] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generatedCertificates, setGeneratedCertificates] = useState([])
 
   const courses = [
     { id: '1', name: 'Power Technician' },
@@ -59,22 +61,72 @@ function CertificateGeneration() {
     }
   ]
 
+  const handleGenerateCertificate = async () => {
+    // Validate required fields
+    if (!selectedCourse || !selectedBatch || !completionDate) {
+      alert('Please fill in all required fields (Course, Batch, and Completion Date)')
+      return
+    }
+
+    setIsGenerating(true)
+    
+    try {
+      // Simulate API call for certificate generation
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      // Generate certificates for all students in the batch
+      const newCertificates = students.map(student => ({
+        id: Date.now() + Math.random(),
+        studentId: student.id,
+        studentName: student.name,
+        enrollmentId: student.enrollmentId,
+        course: courses.find(c => c.id === selectedCourse)?.name || '',
+        batch: batches.find(b => b.id === selectedBatch)?.name || '',
+        completionDate: completionDate,
+        generatedAt: new Date().toISOString(),
+        status: 'generated'
+      }))
+      
+      setGeneratedCertificates(prev => [...prev, ...newCertificates])
+      
+      // Show success message
+      alert(`Successfully generated ${newCertificates.length} certificates!`)
+      
+      // Reset form
+      setSelectedCourse('')
+      setSelectedBatch('')
+      setCompletionDate('')
+      
+    } catch (error) {
+      console.error('Error generating certificates:', error)
+      alert('Failed to generate certificates. Please try again.')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleDownloadCertificate = (certificateId) => {
+    // Simulate certificate download
+    alert(`Downloading certificate ${certificateId}...`)
+    // In a real application, this would trigger a PDF download
+  }
+
   return (
     <div className="space-y-6">
       {/* Certificate Generation Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">Certificate Generation</h3>
-          <p className="text-sm text-gray-600">Preview of the generated certificate</p>
+          <h3 className="text-lg font-semibold text-text-primary mb-1">Certificate Generation</h3>
+          <p className="text-sm text-text-muted">Preview of the generated certificate</p>
         </div>
 
         {/* Basic Information */}
         <div className="mb-8">
-          <h4 className="text-md font-medium text-gray-900 mb-4">Basic Information</h4>
+          <h4 className="text-md font-medium text-text-primary mb-4">Basic Information</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Course Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 SELECT COURSE
               </label>
               <select
@@ -93,7 +145,7 @@ function CertificateGeneration() {
 
             {/* Batch Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 SELECT BATCH
               </label>
               <select
@@ -112,7 +164,7 @@ function CertificateGeneration() {
 
             {/* Completion Date */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 COMPLETION DATE
               </label>
               <div className="relative">
@@ -130,18 +182,18 @@ function CertificateGeneration() {
 
         {/* Students in Batch */}
         <div className="mb-6">
-          <h4 className="text-md font-medium text-gray-900 mb-4">Student in Batch</h4>
+          <h4 className="text-md font-medium text-text-primary mb-4">Student in Batch</h4>
           <div className="space-y-3">
             {students.map(student => (
               <div key={student.id} className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mr-4">
-                  <LuUser className="h-6 w-6 text-gray-600" />
+                  <LuUser className="h-6 w-6 text-text-muted" />
                 </div>
                 <div className="flex-1">
-                  <h5 className="font-medium text-gray-900">{student.name}</h5>
-                  <p className="text-sm text-gray-600">Enrollment ID: {student.enrollmentId}</p>
+                  <h5 className="font-medium text-text-primary">{student.name}</h5>
+                  <p className="text-sm text-text-muted">Enrollment ID: {student.enrollmentId}</p>
                 </div>
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center space-x-4 text-sm text-text-muted">
                   <div className="flex items-center">
                     <LuPhone className="h-4 w-4 mr-1" />
                     {student.phone}
@@ -158,9 +210,17 @@ function CertificateGeneration() {
 
         {/* Generate Certificate Button */}
         <div className="flex justify-center">
-          <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200">
+          <button 
+            onClick={handleGenerateCertificate}
+            disabled={isGenerating}
+            className={`px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200 ${
+              isGenerating 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-green-600 hover:bg-green-700'
+            } text-white`}
+          >
             <LuFileText className="h-5 w-5" />
-            <span>Generate Certificate</span>
+            <span>{isGenerating ? 'Generating...' : 'Generate Certificate'}</span>
           </button>
         </div>
       </div>
@@ -168,8 +228,8 @@ function CertificateGeneration() {
       {/* Certificate Preview Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">Certificate Preview</h3>
-          <p className="text-sm text-gray-600">Preview of the generated certificate</p>
+          <h3 className="text-lg font-semibold text-text-primary mb-1">Certificate Preview</h3>
+          <p className="text-sm text-text-muted">Preview of the generated certificate</p>
         </div>
 
         {/* Certificate Design */}
@@ -184,10 +244,10 @@ function CertificateGeneration() {
           </div>
 
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold italic text-gray-800 mb-4">
+            <h1 className="text-3xl font-bold italic text-text-primary mb-4">
               Certificate of Completion
             </h1>
-            <p className="text-sm text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-sm text-text-muted max-w-2xl mx-auto leading-relaxed">
               Upon successful completion of the course, participants will receive a Certificate of Completion, 
               recognizing their achievement and confirming that they have acquired the essential skills and 
               knowledge outlined in the curriculum.
@@ -195,16 +255,16 @@ function CertificateGeneration() {
           </div>
 
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-bold text-text-primary mb-2">
               Himanshu Shrirang
             </h2>
-            <p className="text-lg text-gray-700 uppercase tracking-wide">
+            <p className="text-lg text-text-primary uppercase tracking-wide">
               POWER TECHNICIAN
             </p>
           </div>
 
           <div className="flex justify-between items-end">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-text-muted">
               Date: 8/3/2025
             </div>
             <div className="w-12 h-12 bg-gray-400 rounded-lg flex items-center justify-center">
@@ -213,9 +273,12 @@ function CertificateGeneration() {
           </div>
         </div>
 
-        {/* Direct Download Button */}
+        {/* Download Button */}
         <div className="flex justify-center mt-6">
-          <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200">
+          <button 
+            onClick={() => handleDownloadCertificate('preview-certificate')}
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200"
+          >
             <LuDownload className="h-5 w-5" />
             <span>Direct Download</span>
           </button>

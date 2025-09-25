@@ -46,6 +46,22 @@
   --color-text-muted: #4B5563;
 }
 
+/* Light Mode Card Border Defaults */
+/* Ensure generic `border` on white cards is a soft gray, not black */
+.bg-white {
+  border-color: var(--color-gray-200);
+}
+
+/* Make Tailwind's generic `border` utility use soft gray in light mode */
+.border {
+  border-color: var(--color-gray-200) !important;
+}
+
+/* Many cards use `border-primary-30`; soften it in light mode */
+.border-primary-30 {
+  border-color: var(--color-gray-200) !important;
+}
+
 /* Dark Theme Variables */
 [data-theme="dark"] {
   /* Primary Blues - SAME */

@@ -3,6 +3,7 @@ import { PillNavigation } from '../../../../shared/components/navigation'
 
 export default function FeaturedContent() {
   const [activeTab, setActiveTab] = useState(0)
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
   
   // Form state for Priority Banners
   const [bannerForm, setBannerForm] = useState({
@@ -90,7 +91,7 @@ export default function FeaturedContent() {
        case 2:
          return {
            title: 'Priority Banners',
-           subtitle: 'Manage prommotional banners and their priority',
+           subtitle: 'Manage promotional banners and their priority',
            data: priorityBanners,
            columns: ['Banner title', 'Location', 'Priority', 'Status', 'Start date', 'End date', 'Actions']
          }
@@ -130,6 +131,22 @@ export default function FeaturedContent() {
 
   const currentData = getCurrentData()
 
+  // Auto scroll effect
+  React.useEffect(() => {
+    if (autoScrollEnabled && currentData.data.length > 0) {
+      const interval = setInterval(() => {
+        const tableContainer = document.querySelector('.featured-content-table-container');
+        if (tableContainer) {
+          tableContainer.scrollTop += 1;
+          if (tableContainer.scrollTop >= tableContainer.scrollHeight - tableContainer.clientHeight) {
+            tableContainer.scrollTop = 0;
+          }
+        }
+      }, 50);
+      return () => clearInterval(interval);
+    }
+  }, [autoScrollEnabled, currentData.data.length]);
+
   return (
     <div className="max-w-7xl mx-auto bg-white border border-primary-30 space-y-6 rounded-lg">
       {/* Header */}
@@ -139,10 +156,33 @@ export default function FeaturedContent() {
             <h1 className="text-xl font-bold text-gray-900">Featured Content Manager</h1>
             <p className="text-gray-600 mt-1">Manage featured jobs, courses, and priority banners</p>
           </div>
+          
+          {/* Auto Scroll Toggle */}
+          <div className="flex items-center gap-2 mr-4">
+            <span className="text-sm text-gray-700">Auto Scroll</span>
+            <button
+              type="button"
+              onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+              }`}
+              style={{
+                backgroundColor: autoScrollEnabled ? '#5C9A24' : undefined,
+                focusRingColor: autoScrollEnabled ? '#5C9A24' : undefined
+              }}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
+                  autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          
           <button 
             onClick={handleAddFeatured}
             className="bg-white hover:bg-secondary hover:text-white border-2 border-secondary text-secondary px-4 py-2 rounded-lg font-medium transition-colors">
-            + Add featured Content
+            + Add Featured Content
           </button>
         </div>
       </div>
@@ -248,7 +288,7 @@ export default function FeaturedContent() {
          ) : (
            /* Table for Featured Jobs and Featured Courses */
            <>
-             <div className="overflow-x-auto">
+             <div className="featured-content-table-container overflow-x-auto max-h-96 overflow-y-auto">
                <table className="w-full">
                  <thead className="bg-gray-50">
                    <tr>
@@ -328,7 +368,7 @@ export default function FeaturedContent() {
                     onClick={handleAddFeatured}
                     className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                   >
-                    + Add featured Content
+                    + Add Featured Content
                   </button>
                 </div>
               </div>

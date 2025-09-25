@@ -89,7 +89,7 @@ export default function HiringFunnel() {
   ]
 
   return (
-    <div className="p-5 space-y-8">
+    <div className="space-y-8">
       {/* Monthly Conversion Trends Chart */}
       <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
         <h3 className="text-xl font-semibold text-primary mb-2">
