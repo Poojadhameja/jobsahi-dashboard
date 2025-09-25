@@ -29,10 +29,17 @@ const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
     setIsOpen(false)
   }
 
-  const handleLogout = async () => {
-    // Add logout logic here
-    console.log('Logging out...')
+  const handleLogout = () => {
+    setShowLogoutModal(true)
+    setIsOpen(false)
+  }
+
+  const confirmLogout = async () => {
+    setIsLoggingOut(true)
     try {
+      // Add logout logic here (clear tokens, call logout API, etc.)
+      console.log('Logging out...')
+
       var data = {
         apiUrl: apiService.logout,
         payload: {
@@ -42,25 +49,30 @@ const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
       };
 
       var response = await postMethod(data);
-      //console.log(response);
+
+      // Simulate logout process
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
       if (response.status === true) {
-        localStorage.clear();
-        alert(response.message || "Logout successful!")
-
-        navigate('/login')
+        setShowLogoutModal(true)
         setIsOpen(false)
+        navigate('/login')
+        localStorage.clear();
 
       } else {
         console.error("Logout Failed:", response)
         alert(response.message || "Logout Failed")
       }
-
     } catch (error) {
-      console.error("API Error:", error)
-      alert("Something went wrong. Please try again.")
+      console.error('Logout error:', error)
+      // Handle logout error if needed
+    } finally {
+      setIsLoggingOut(false)
     }
+  }
 
+  const closeLogoutModal = () => {
+    setShowLogoutModal(false)
   }
 
   const handleLogin = () => {
@@ -120,8 +132,8 @@ const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
       >
         {/* Mobile: Only show avatar, Desktop: Show name + avatar */}
         <div className="hidden sm:block text-right">
-          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{ user.name }</div>
-          <div className="text-[10px] sm:text-xs text-gray-500 truncate">{ user.role}</div>
+          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{user.name}</div>
+          <div className="text-[10px] sm:text-xs text-gray-500 truncate">{user.role}</div>
         </div>
         <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 grid place-items-center flex-shrink-0">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3 sm:w-4 sm:h-4 sm:w-5 sm:h-5 text-white">
@@ -151,8 +163,8 @@ const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
                 </svg>
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{ user.name }</div>
-                <div className="text-[10px] sm:text-xs text-gray-500 truncate">{user.role }</div>
+                <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{user.name}</div>
+                <div className="text-[10px] sm:text-xs text-gray-500 truncate">{user.role}</div>
               </div>
             </div>
           </div>

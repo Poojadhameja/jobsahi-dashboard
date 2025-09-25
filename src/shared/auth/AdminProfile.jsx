@@ -1,12 +1,16 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { TAILWIND_COLORS, COLORS } from '../WebConstant'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import { putMethod } from '../../service/api'
 import apiService from '../../service/serviceUrl'
+import LogoutConfirmationModal from '../components/LogoutConfirmationModal'
 
 export default function AdminProfile() {
-
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const navigate = useNavigate()
   var authUser = localStorage.getItem("authUser")
   var user = JSON.parse(authUser);
 
@@ -24,6 +28,50 @@ export default function AdminProfile() {
   })
   const [phoneError, setPhoneError] = useState('')
 
+  const handleLogout = () => {
+    setShowLogoutModal(true)
+  }
+
+  const confirmLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      // Add logout logic here (clear tokens, call logout API, etc.)
+      console.log('Logging out...')
+
+      var data = {
+        apiUrl: apiService.logout,
+        payload: {
+          uid: user.id
+        },
+
+      };
+
+      var response = await postMethod(data);
+
+      // Simulate logout process
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      if (response.status === true) {
+        setShowLogoutModal(true)
+        navigate('/login')
+        localStorage.clear();
+
+      } else {
+        console.error("Logout Failed:", response)
+        alert(response.message || "Logout Failed")
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Handle logout error if needed
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
+  const closeLogoutModal = () => {
+    setShowLogoutModal(false)
+  }
+
   const onChangeField = (key) => (e) => {
     let value = e.target.value
     if (key === 'phone') {
@@ -37,7 +85,7 @@ export default function AdminProfile() {
     setProfile((p) => ({ ...p, [key]: value }))
   }
 
-  const onSave = async(e) => {
+  const onSave = async (e) => {
     e.preventDefault()
     if (!/^\d{10}$/.test(profile.phone)) {
       setPhoneError('Enter a valid 10-digit phone number')
@@ -66,7 +114,7 @@ export default function AdminProfile() {
         // Save token + expiry
         alert(response.message || "User updated successfully!")
 
-        
+
       } else {
         console.error("Failed to update user:", response)
         alert(response.message || "Failed to update user")
@@ -81,7 +129,7 @@ export default function AdminProfile() {
       <div className="flex items-center gap-4">
         <div className="w-20 h-20 rounded-full bg-gray-200 grid place-items-center">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-8 h-8 text-gray-600">
-            <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 1116 0"/>
+            <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 1116 0" />
           </svg>
         </div>
         <div>
