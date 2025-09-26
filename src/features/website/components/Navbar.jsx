@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { colors } from '../../../shared/colors'
 import { FaSearch, FaBriefcase, FaChevronDown, FaAngleDoubleRight } from 'react-icons/fa'
 
-const Navbar = () => {
+const Navbar = ({ onPageChange }) => {
   const [activePage, setActivePage] = useState('Home')
   const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -17,9 +17,10 @@ const Navbar = () => {
   ]
 
   return (
-    <nav 
-      className="w-full px-6 py-4 relative"
-    >
+    <>
+      <nav 
+        className="w-full px-6 py-4 relative"
+      >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
@@ -45,6 +46,9 @@ const Navbar = () => {
                     setIsMediaDropdownOpen(!isMediaDropdownOpen)
                   } else {
                     setActivePage(item.name)
+                    if (onPageChange) {
+                      onPageChange(item.name)
+                    }
                   }
                 }}
                 className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200 ${
@@ -129,6 +133,9 @@ const Navbar = () => {
                       setIsMediaDropdownOpen(!isMediaDropdownOpen)
                     } else {
                       setActivePage(item.name)
+                      if (onPageChange) {
+                        onPageChange(item.name)
+                      }
                       setIsMobileMenuOpen(false)
                     }
                   }}
@@ -193,7 +200,8 @@ const Navbar = () => {
           </div>
         </div>
       )}
-    </nav>
+      </nav>
+    </>
   )
 }
 
