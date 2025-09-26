@@ -41,31 +41,31 @@ export default function SendNotice() {
   }
 
   return (
-    <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+    <div className="bg-white rounded-lg shadow-sm p-6">
       {/* Send Notice Header */}
       <div className="mb-8">
-        <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Send Notice</h2>
-        <p className={TAILWIND_COLORS.TEXT_MUTED}>Configure automated notifications for students.</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Compose Notice</h2>
+        <p className="text-gray-600">Create and send notices to students and batches</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Compose Notice Section */}
         <div>
-          <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Compose Notice</h3>
-          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Create and send notices to students and batches.</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Compose Notice</h3>
+          <p className="text-gray-600 mb-6">Create and send notices to students and batches.</p>
 
           <div className="space-y-6">
             {/* Notice Type */}
             <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 NOTICE TYPE *
               </label>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Choose the course to enroll the student.</p>
+              <p className="text-sm text-gray-500 mb-2">Choose the type of notice to send.</p>
               <div className="relative">
                 <select
                   value={formData.noticeType}
                   onChange={(e) => handleInputChange('noticeType', e.target.value)}
-                  className={`w-full px-4 py-3 ${TAILWIND_COLORS.BORDER} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none bg-white`}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none bg-white"
                 >
                   <option value="Custom Message">Custom Message</option>
                   <option value="Announcement">Announcement</option>
@@ -78,17 +78,17 @@ export default function SendNotice() {
 
             {/* Subject */}
             <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 SUBJECT *
               </label>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Pick the batch for the selected course.</p>
+              <p className="text-sm text-gray-500 mb-2">Enter a clear and concise subject for your notice.</p>
               <div className="relative">
                 <input
                   type="text"
                   value={formData.subject}
                   onChange={(e) => handleInputChange('subject', e.target.value)}
                   placeholder="Enter notice subject"
-                  className={`w-full px-4 py-3 ${TAILWIND_COLORS.BORDER} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500`}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
                 <LuChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
               </div>
@@ -96,25 +96,25 @@ export default function SendNotice() {
 
             {/* Message */}
             <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 MESSAGE
               </label>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Pick the batch for the selected course.</p>
+              <p className="text-sm text-gray-500 mb-2">Write your message content here.</p>
               <textarea
                 value={formData.message}
                 onChange={(e) => handleInputChange('message', e.target.value)}
                 placeholder="Enter your message here...."
                 rows={6}
-                className={`w-full px-4 py-3 ${TAILWIND_COLORS.BORDER} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none`}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
               />
             </div>
 
             {/* Delivery Channels */}
             <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 DELIVERY CHANNELS
               </label>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Pick the batch for the selected course.</p>
+              <p className="text-sm text-gray-500 mb-2">Select how you want to deliver this notice.</p>
               <div className="space-y-3">
                 {[
                   { key: 'email', label: 'Email' },
@@ -141,7 +141,7 @@ export default function SendNotice() {
                         )}
                       </div>
                     </div>
-                    <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{channel.label}</span>
+                    <span className="text-gray-900">{channel.label}</span>
                   </label>
                 ))}
               </div>
@@ -151,21 +151,21 @@ export default function SendNotice() {
 
         {/* Select Recipients Section */}
         <div>
-          <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Select Recipients</h3>
-          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Choose batches and courses to send the notice to.</p>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">Select Recipients</h3>
+          <p className="text-gray-600 mb-6">Choose batches and courses to send the notice to.</p>
 
           <div className="space-y-6">
             {/* Select Course */}
             <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 SELECT COURSE *
               </label>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Choose the course to enroll the student.</p>
+              <p className="text-sm text-gray-500 mb-2">Choose the course to send the notice to.</p>
               <div className="relative">
                 <select
                   value={formData.course}
                   onChange={(e) => handleInputChange('course', e.target.value)}
-                  className={`w-full px-4 py-3 ${TAILWIND_COLORS.BORDER} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none bg-white`}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none bg-white"
                 >
                   <option value="">Choose a course</option>
                   <option value="web-development">Web Development</option>
@@ -179,15 +179,15 @@ export default function SendNotice() {
 
             {/* Select Batch */}
             <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 SELECT BATCH *
               </label>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Choose the batch to enroll the student.</p>
+              <p className="text-sm text-gray-500 mb-2">Choose the batch to send the notice to.</p>
               <div className="relative">
                 <select
                   value={formData.batch}
                   onChange={(e) => handleInputChange('batch', e.target.value)}
-                  className={`w-full px-4 py-3 ${TAILWIND_COLORS.BORDER} rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none bg-white`}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none bg-white"
                 >
                   <option value="">Choose a batch</option>
                   <option value="batch-1">Batch 1</option>
@@ -206,8 +206,9 @@ export default function SendNotice() {
                   <LuUsers className="w-6 h-6 text-blue-600" />
                   <LuUsers className="w-6 h-6 text-blue-600" />
                 </div>
-                <div>
+                <div className="flex items-center space-x-2">
                   <p className="text-sm font-medium text-blue-800">Recipients Summary</p>
+                  <div className="w-1 h-1 bg-blue-600 rounded-full"></div>
                   <p className="text-sm text-blue-600">38 total students</p>
                 </div>
               </div>
