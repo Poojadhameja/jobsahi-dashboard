@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { colors } from '../../../../shared/colors'
-import { FaSearch, FaMapMarkerAlt, FaBriefcase, FaBookmark, FaFilter } from 'react-icons/fa'
+import { FaSearch, FaMapMarkerAlt, FaBriefcase, FaFilter } from 'react-icons/fa'
 import Subscribe from '../Home/Subscribe'
 import Footer from '../../components/Footer'
 import JobDetails from './JobDetails'
@@ -341,6 +341,11 @@ const FindJob = ({ onClose }) => {
     setSelectedJob(null)
   }
 
+  const handleApplyJob = (e) => {
+    e.stopPropagation() // Prevent job card click
+    window.location.href = '/login'
+  }
+
   // Prevent body scroll when popup is open
   useEffect(() => {
     if (showJobPopup) {
@@ -650,17 +655,9 @@ const FindJob = ({ onClose }) => {
                       }}
                       onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--color-secondary-dark)'}
                       onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--color-secondary)'}
+                      onClick={handleApplyJob}
                     >
                       Apply Job
-                    </button>
-                    <button 
-                      className="flex flex-col items-center space-y-1 transition-colors"
-                      style={{ color: 'var(--color-text-muted)' }}
-                      onMouseEnter={(e) => e.target.style.color = 'var(--color-text-primary)'}
-                      onMouseLeave={(e) => e.target.style.color = 'var(--color-text-muted)'}
-                    >
-                      <FaBookmark className="w-5 h-5" />
-                      <span className="text-xs">save</span>
                     </button>
                   </div>
                 </div>
