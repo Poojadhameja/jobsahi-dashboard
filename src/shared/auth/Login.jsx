@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Swal from 'sweetalert2'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuPhone, LuMail } from 'react-icons/lu'
+import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import apiService from '../../service/serviceUrl'
@@ -58,6 +59,7 @@ export default function Login() {
   const [phone, setPhone] = useState('')
   const [showOtpModal, setShowOtpModal] = useState(false)
   const [otpValues, setOtpValues] = useState(['', '', '', ''])
+  const [showPassword, setShowPassword] = useState(false)
 
   const isEmail = mode === 'EMAIL'
 
@@ -181,14 +183,27 @@ export default function Login() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Password*</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    placeholder="Enter your password"
-                    className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      placeholder="Enter your password"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 pr-10 bg-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#5B9821] focus:outline-none"
+                    >
+                      {showPassword ? (
+                        <FaEyeSlash className="w-5 h-5" />
+                      ) : (
+                        <FaEye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </>
             ) : (
