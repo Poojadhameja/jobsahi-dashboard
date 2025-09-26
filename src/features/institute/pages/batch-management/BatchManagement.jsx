@@ -1,66 +1,321 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LuPlus, LuUsers, LuCalendar, LuSettings, LuEye } from 'react-icons/lu'
+import { LuPlus, LuEye } from 'react-icons/lu'
+import Button from '../../../../shared/components/Button'
+import DynamicButton from '../../../../shared/components/DynamicButton'
+import { MatrixCard } from '../../../../shared/components/metricCard'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import BatchDetail from './BatchDetail'
+import CourseDetail from './CourseDetail'
+import CreateBatchModal from './CreateBatchModal'
 
 export default function BatchManagement() {
   const navigate = useNavigate()
+  const [selectedBatch, setSelectedBatch] = useState(null)
+  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [selectedCourseForBatch, setSelectedCourseForBatch] = useState(null)
 
-  const handleCreateBatch = () => {
-    // Navigate to create batch page
-    console.log('Create Batch clicked')
+  // Sample course data - in real app, this would come from API
+  const courses = [
+    {
+      id: 1,
+      title: "Fundamentals of Electricity",
+      description: "Learn the basics of electric current, resistance, and power with real-world applications.",
+      instructor: "Rajendra Prashad",
+      totalBatches: 4,
+      activeBatches: 1,
+      batches: [
+        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
+        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" },
+        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" }
+      ]
+    },
+    {
+      id: 2,
+      title: "Wiring & Circuit Installation",
+      description: "Hands-on training in residential and commercial wiring setups, switches, and load circuits.",
+      instructor: "Priya Sharma",
+      totalBatches: 3,
+      activeBatches: 3,
+      batches: [
+        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
+        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
+        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "24/30", status: "Active" }
+      ]
+    },
+    {
+      id: 3,
+      title: "Transformer Installation",
+      description: "Installation, earthing, oil testing, and safety protocols for transformer setup.",
+      instructor: "Rajendra Prashad",
+      totalBatches: 5,
+      activeBatches: 1,
+      batches: [
+        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
+        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" },
+        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" }
+      ]
+    },
+    {
+      id: 4,
+      title: "Power Distribution Systems",
+      description: "Grid-level energy distribution, substation concepts, and load management.",
+      instructor: "Nitin Soni",
+      totalBatches: 4,
+      activeBatches: 1,
+      batches: [
+        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
+        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" },
+        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" }
+      ]
+    },
+    {
+      id: 5,
+      title: "Motor Winding Techniques",
+      description: "Complete web development course covering frontend and backend technologies",
+      instructor: "Rajendra Prashad",
+      totalBatches: 4,
+      activeBatches: 2,
+      batches: [
+        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
+        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
+        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" }
+      ]
+    },
+    {
+      id: 6,
+      title: "House & Industrial Wiring",
+      description: "Dual-focus course on domestic wiring layouts and large-scale industrial installations.",
+      instructor: "Neha Rajput",
+      totalBatches: 3,
+      activeBatches: 1,
+      batches: [
+        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
+        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" },
+        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" }
+      ]
+    }
+  ]
+
+  const handleViewCourse = (courseId) => {
+    console.log('View Course clicked for course:', courseId)
+    // Find the course and set it as selected
+    const course = courses.find(c => c.id === courseId)
+    if (course) {
+      setSelectedCourse(course)
+    }
   }
 
-  const handleViewBatches = () => {
-    // Navigate to view batches page
-    console.log('View Batches clicked')
+  const handleViewBatch = (courseId, batchIndex) => {
+    console.log('View Batch clicked for course:', courseId, 'batch:', batchIndex)
+    const course = courses.find(c => c.id === courseId)
+    if (course && course.batches[batchIndex]) {
+      setSelectedBatch({
+        courseId: courseId,
+        courseTitle: course.title,
+        batch: course.batches[batchIndex]
+      })
+    }
   }
 
-  const handleManageBatches = () => {
-    // Navigate to manage batches page
-    console.log('Manage Batches clicked')
+  const handleAddBatch = (courseId) => {
+    console.log('Add Batch clicked for course:', courseId)
+    const course = courses.find(c => c.id === courseId)
+    setSelectedCourseForBatch({
+      id: courseId,
+      title: course?.title || 'Unknown Course'
+    })
+    setIsCreateModalOpen(true)
+  }
+
+  const handleBackToBatches = () => {
+    setSelectedBatch(null)
+  }
+
+  const handleBackToCourses = () => {
+    setSelectedCourse(null)
+  }
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false)
+    setSelectedCourseForBatch(null)
+  }
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Active':
+        return `${TAILWIND_COLORS.BADGE_SUCCESS}`
+      case 'Upcoming':
+        return `${TAILWIND_COLORS.BADGE_INFO}`
+      default:
+        return `${TAILWIND_COLORS.BADGE_WARN}`
+    }
+  }
+
+  // If a course is selected, show the course detail view
+  if (selectedCourse) {
+    return <CourseDetail courseData={selectedCourse} onBack={handleBackToCourses} />
+  }
+
+  // If a batch is selected, show the batch detail view
+  if (selectedBatch) {
+    return <BatchDetail batchData={selectedBatch} onBack={handleBackToBatches} />
   }
 
   return (
-    <div className="p-6">
+    <div className={`p-2 ${TAILWIND_COLORS.BG_PRIMARY} min-h-screen`}>
+      {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Batch Management</h1>
-        <p className="text-gray-600 mt-2">Manage student batches, create new batches, and track batch performance.</p>
+        <MatrixCard 
+          title="Batch Management" 
+          subtitle="Manage your course batches, view student enrollments, and track batch performance"
+          className="mb-4"
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Create New Batch</h3>
-            <LuPlus className="w-6 h-6 text-blue-600" />
+      {/* Course Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {courses.map((course) => (
+          <div key={course.id} className={`${TAILWIND_COLORS.CARD} p-5 hover:shadow-md transition-shadow`}>
+            {/* Course Title */}
+            <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3 leading-tight`}>{course.title}</h3>
+            
+            {/* Course Description */}
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm mb-4 leading-relaxed`}>{course.description}</p>
+            
+            {/* Instructor */}
+            <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm mb-4`}>
+              <span className="font-semibold">Instructor:</span> {course.instructor}
+            </p>
+            
+            {/* Batch Summary */}
+            <div className="flex gap-3 mb-4">
+              <div className={`${TAILWIND_COLORS.BADGE_INFO} px-3 py-2 rounded-md flex-1`}>
+                <div className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-bold text-xl`}>{course.totalBatches}</div>
+                <div className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-xs font-medium`}>Total Batches</div>
+              </div>
+              <div className={`${TAILWIND_COLORS.BADGE_SUCCESS} px-3 py-2 rounded-md flex-1`}>
+                <div className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-bold text-xl`}>{course.activeBatches}</div>
+                <div className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-xs font-medium`}>Active Batches</div>
+              </div>
+            </div>
+            
+            {/* Batches Section */}
+            <div className="mb-5">
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Batches ({course.batches.length})</h4>
+              <div className="max-h-36 overflow-y-auto space-y-3 pr-2">
+                {course.batches.map((batch, index) => (
+                  <div key={index} className={`flex items-start justify-between p-2 ${TAILWIND_COLORS.BG_MUTED} rounded-lg`}>
+                    <div className="flex-1">
+                      <div className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm mb-1`}>{batch.name}</div>
+                      <div className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs mb-1`}>{batch.time}</div>
+                      <div className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs`}>{batch.students} students</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(batch.status)}`}>
+                        {batch.status}
+                      </span>
+                      <Button 
+                        onClick={() => handleViewBatch(course.id, index)}
+                        variant="outline"
+                        size="sm"
+                        icon={<LuEye className="w-3 h-3" />}
+                        className={`px-2 py-1 text-xs ${TAILWIND_COLORS.BTN_LIGHT}`}
+                      >
+                        View
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => handleViewCourse(course.id)}
+                variant="outline"
+                size="sm"
+                fullWidth
+                icon={<LuEye className="w-4 h-4" />}
+                className={`${TAILWIND_COLORS.BTN_LIGHT}`}
+              >
+                View Course
+              </Button>
+              <Button 
+                onClick={() => handleAddBatch(course.id)}
+                variant="primary"
+                size="sm"
+                fullWidth
+                icon={<LuPlus className="w-4 h-4" />}
+                className={`${TAILWIND_COLORS.BTN_SECONDARY}`}
+              >
+                Add Batch
+              </Button>
+            </div>
           </div>
-          <p className="text-gray-600 mb-4">Create a new batch with students and course assignments.</p>
-          <button onClick={handleCreateBatch} className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-            Create Batch
-          </button>
-        </div>
+        ))}
+      </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">View All Batches</h3>
-            <LuEye className="w-6 h-6 text-green-600" />
-          </div>
-          <p className="text-gray-600 mb-4">View and monitor all batches and their status.</p>
-          <button onClick={handleViewBatches} className="w-full border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
-            View Batches
-          </button>
+      {/* Pagination */}
+      <div className={`flex items-center justify-between ${TAILWIND_COLORS.CARD} p-4`}>
+        <div className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm font-medium`}>
+          Showing 6 from 160 data
         </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Manage Batches</h3>
-            <LuSettings className="w-6 h-6 text-purple-600" />
-          </div>
-          <p className="text-gray-600 mb-4">Edit, update, and manage existing batches.</p>
-          <button onClick={handleManageBatches} className="w-full border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
-            Manage Batches
-          </button>
+        <div className="flex items-center space-x-1">
+          <Button 
+            variant="neutral"
+            size="sm"
+            className={`px-3 py-1 ${TAILWIND_COLORS.BTN_LIGHT}`}
+          >
+            &lt;&lt; Previous
+          </Button>
+          <Button 
+            variant="primary"
+            size="sm"
+            className={`px-3 py-1 ${TAILWIND_COLORS.BTN_PRIMARY}`}
+          >
+            1
+          </Button>
+          <Button 
+            variant="neutral"
+            size="sm"
+            className={`px-3 py-1 ${TAILWIND_COLORS.BTN_LIGHT}`}
+          >
+            2
+          </Button>
+          <Button 
+            variant="neutral"
+            size="sm"
+            className={`px-3 py-1 ${TAILWIND_COLORS.BTN_LIGHT}`}
+          >
+            3
+          </Button>
+          <Button 
+            variant="neutral"
+            size="sm"
+            className={`px-3 py-1 ${TAILWIND_COLORS.BTN_LIGHT}`}
+          >
+            4
+          </Button>
+          <Button 
+            variant="neutral"
+            size="sm"
+            className={`px-3 py-1 ${TAILWIND_COLORS.BTN_LIGHT}`}
+          >
+            Next &gt;&gt;
+          </Button>
         </div>
       </div>
+
+      {/* Create Batch Modal */}
+      <CreateBatchModal
+        isOpen={isCreateModalOpen}
+        onClose={handleCloseCreateModal}
+        courseId={selectedCourseForBatch?.id}
+        courseTitle={selectedCourseForBatch?.title}
+      />
     </div>
   )
 }
