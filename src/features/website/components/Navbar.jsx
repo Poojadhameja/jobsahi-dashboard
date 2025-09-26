@@ -20,7 +20,7 @@ const Navbar = () => {
     <nav 
       className="w-full px-6 py-4 relative"
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <div className="max-w-full mx-auto md:mx-10 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
           <div className="flex items-center text-white text-2xl font-bold">
@@ -36,7 +36,7 @@ const Navbar = () => {
         </div>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-5">
           {navigationItems.map((item) => (
             <div key={item.name} className="relative">
               <button

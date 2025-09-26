@@ -34,31 +34,31 @@ const Footer = () => {
             <div className="flex space-x-3">
               {/* Facebook */}
               <div 
-                className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-green-50 transition-colors"
-                style={{ borderColor: colors.accent.lightGreen }}
+                className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-[#5C9A24] border-[#5C9A24] text-[#5C9A24] hover:text-white "
+                // style={{ borderColor: colors.accent.lightGreen }}
               >
                 <FaFacebookF 
-                  className="text-sm" 
-                  style={{ color: colors.accent.green }}
+                  className="text-sm " 
+                  // style={{ color: colors.accent.green }}
                 />
               </div>
               
               {/* Twitter */}
               <div 
-                className="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer hover:bg-green-50 transition-colors"
-                style={{ backgroundColor: colors.accent.green }}
+                className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-[#5C9A24] border-[#5C9A24] text-[#5C9A24] hover:text-white"
+                // style={{ backgroundColor: colors.accent.green }}
               >
-                <FaTwitter className="text-sm text-white" />
+                <FaTwitter className="text-sm" />
               </div>
               
               {/* LinkedIn */}
               <div 
-                className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-green-50 transition-colors"
-                style={{ borderColor: colors.accent.lightGreen }}
+                className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-[#5C9A24] border-[#5C9A24] text-[#5C9A24] hover:text-white"
+                // style={{ borderColor: colors.accent.lightGreen }}
               >
                 <FaLinkedinIn 
                   className="text-sm" 
-                  style={{ color: colors.accent.green }}
+                  // style={{ color: colors.accent.green }}
                 />
               </div>
             </div>
