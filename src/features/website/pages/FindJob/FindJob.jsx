@@ -1,14 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { colors } from '../../../../shared/colors'
-import { FaSearch, FaMapMarkerAlt, FaBriefcase, FaBookmark, FaFilter, FaTimes } from 'react-icons/fa'
+import { FaSearch, FaMapMarkerAlt, FaBriefcase, FaBookmark, FaFilter } from 'react-icons/fa'
 import Subscribe from '../Home/Subscribe'
 import Footer from '../../components/Footer'
+import JobDetails from './JobDetails'
 
 const FindJob = ({ onClose }) => {
   const [selectedEmployment, setSelectedEmployment] = useState(['Part Time'])
   const [selectedCategories, setSelectedCategories] = useState([])
   const [selectedLevels, setSelectedLevels] = useState([])
   const [salaryRange, setSalaryRange] = useState([1000, 6000])
+  const [showJobPopup, setShowJobPopup] = useState(false)
+  const [selectedJob, setSelectedJob] = useState(null)
 
   const employmentTypes = [
     { name: 'Part Time', count: 120, selected: selectedEmployment.includes('Part Time') },
@@ -39,93 +42,268 @@ const FindJob = ({ onClose }) => {
     {
       id: 1,
       title: 'Product Designer',
-      company: 'Inova Agency',
-      location: 'Madrid, Spain',
-      type: 'Full Time',
-      salary: '1500/weekly',
+      company: 'Lounge Tech',
+      location: 'Mig, Indonesia',
+      type: 'Fulltime',
+      salary: '1500/Monthly',
       applied: 4,
       capacity: 70,
-      skills: ['HTML', 'CSS', 'PHP'],
-      logo: 'G',
-      logoColor: 'var(--color-primary)'
+      skills: ['App', 'Figma', 'PSD'],
+      logo: 'L',
+      logoColor: 'var(--color-primary)',
+      experience: 'Entry Level',
+      postedOn: 'May, 10 2024',
+      applyBefore: 'June, 10 2024',
+      description: 'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.',
+      responsibilities: [
+        'Collaborate daily with a multidisciplinary team of Software Engineers, Researchers, Strategists, and Project Managers.',
+        'Maintain quality of the design process and ensure that when designs are translated into code they accurately reflect the design specifications.',
+        'Co-lead ideation sessions, workshops, demos, and presentations with clients on-site',
+        'Push for and create inclusive, accessible design for all',
+        'Ensure content strategy and design are perfectly in-sync'
+      ],
+      requirements: [
+        'Advanced troubleshooting skills',
+        'bachelor\'s degree in computer science or a related field',
+        'Knowledge of HTML/CSS',
+        'Experience with Git and GitHub',
+        'The ability to use JavaScript'
+      ],
+      benefits: [
+        { title: 'Full Healthcare', icon: 'FaShieldAlt', description: 'We believe in thriving communities and that starts with our team being happy and healthy.' },
+        { title: 'Skill Development', icon: 'FaRocket', description: 'We believe in thriving communities and that starts with our team being happy and healthy.' },
+        { title: 'Team Summits', icon: 'FaUsers', description: 'We believe in thriving communities and that starts with our team being happy and healthy.' },
+        { title: 'Team Gathering', icon: 'FaBullhorn', description: 'We believe in thriving communities and that starts with our team being happy and healthy.' },
+        { title: 'Commuter Benefits', icon: 'FaBus', description: 'We believe in thriving communities and that starts with our team being happy and healthy.' }
+      ]
     },
     {
       id: 2,
       title: 'Full Stack Engineer',
       company: 'Orange Tech',
       location: 'Hbg, Indonesia',
-      type: 'Full Time',
-      salary: '1500/weekly',
+      type: 'Fulltime',
+      salary: '1800/Monthly',
       applied: 3,
       capacity: 50,
-      skills: ['HTML', 'CSS', 'PHP'],
-      logo: 'G',
-      logoColor: 'var(--color-secondary)'
+      skills: ['React', 'Node.js', 'MongoDB'],
+      logo: 'O',
+      logoColor: 'var(--color-secondary)',
+      experience: 'Mid Level',
+      postedOn: 'May, 12 2024',
+      applyBefore: 'June, 12 2024',
+      description: 'We are looking for a passionate Full Stack Engineer to join our dynamic team. You will be responsible for developing and maintaining web applications using modern technologies.',
+      responsibilities: [
+        'Develop and maintain web applications using React and Node.js',
+        'Design and implement RESTful APIs and microservices',
+        'Collaborate with cross-functional teams to deliver high-quality software',
+        'Write clean, maintainable, and efficient code',
+        'Participate in code reviews and technical discussions'
+      ],
+      requirements: [
+        '3+ years of experience in full-stack development',
+        'Strong knowledge of JavaScript, React, and Node.js',
+        'Experience with databases (MongoDB, PostgreSQL)',
+        'Familiarity with cloud platforms (AWS, Azure)',
+        'Excellent problem-solving and communication skills'
+      ],
+      benefits: [
+        { title: 'Health Insurance', icon: 'FaShieldAlt', description: 'Comprehensive health coverage for you and your family.' },
+        { title: 'Learning Budget', icon: 'FaRocket', description: 'Annual budget for courses, conferences, and certifications.' },
+        { title: 'Team Events', icon: 'FaUsers', description: 'Regular team building activities and company retreats.' },
+        { title: 'Flexible Hours', icon: 'FaBullhorn', description: 'Work-life balance with flexible working hours.' },
+        { title: 'Transportation', icon: 'FaBus', description: 'Commuter benefits and transportation allowances.' }
+      ]
     },
     {
       id: 3,
-      title: 'Ads Management',
+      title: 'Ads Management Specialist',
       company: 'Google',
       location: 'California, US',
-      type: 'Full Time',
-      salary: '1500/weekly',
+      type: 'Fulltime',
+      salary: '2500/Monthly',
       applied: 5,
       capacity: 30,
-      skills: ['HTML', 'CSS', 'PHP'],
+      skills: ['Google Ads', 'Analytics', 'Marketing'],
       logo: 'G',
-      logoColor: 'var(--color-secondary)'
+      logoColor: 'var(--color-secondary)',
+      experience: 'Senior Level',
+      postedOn: 'May, 15 2024',
+      applyBefore: 'June, 15 2024',
+      description: 'Join Google\'s advertising team to help businesses grow through effective digital marketing strategies. You will manage and optimize ad campaigns across various platforms.',
+      responsibilities: [
+        'Manage and optimize Google Ads campaigns for clients',
+        'Analyze campaign performance and provide strategic recommendations',
+        'Collaborate with marketing teams to develop advertising strategies',
+        'Monitor budget allocation and ROI across multiple channels',
+        'Stay updated with latest advertising trends and platform changes'
+      ],
+      requirements: [
+        '5+ years of experience in digital advertising',
+        'Google Ads and Google Analytics certifications preferred',
+        'Strong analytical and data interpretation skills',
+        'Experience with A/B testing and conversion optimization',
+        'Excellent communication and client management skills'
+      ],
+      benefits: [
+        { title: 'Premium Health', icon: 'FaShieldAlt', description: 'Top-tier health insurance with dental and vision coverage.' },
+        { title: 'Career Growth', icon: 'FaRocket', description: 'Clear career progression paths and mentorship programs.' },
+        { title: 'Google Perks', icon: 'FaUsers', description: 'Access to Google\'s world-class facilities and amenities.' },
+        { title: 'Work Flexibility', icon: 'FaBullhorn', description: 'Hybrid work model with flexible scheduling options.' },
+        { title: 'Commute Support', icon: 'FaBus', description: 'Shuttle service and parking benefits for office days.' }
+      ]
     },
     {
       id: 4,
       title: 'UI/UX Designer',
       company: 'Behance',
       location: 'New York, US',
-      type: 'Full Time',
-      salary: '1500/weekly',
+      type: 'Fulltime',
+      salary: '2000/Monthly',
       applied: 2,
       capacity: 25,
-      skills: ['HTML', 'CSS', 'PHP'],
-      logo: 'Be',
-      logoColor: 'var(--color-primary)'
+      skills: ['Figma', 'Sketch', 'Prototyping'],
+      logo: 'B',
+      logoColor: 'var(--color-primary)',
+      experience: 'Mid Level',
+      postedOn: 'May, 18 2024',
+      applyBefore: 'June, 18 2024',
+      description: 'Create beautiful and intuitive user experiences for our creative platform. You will work closely with product managers and developers to bring designs to life.',
+      responsibilities: [
+        'Design user interfaces and user experiences for web and mobile applications',
+        'Create wireframes, prototypes, and high-fidelity mockups',
+        'Conduct user research and usability testing',
+        'Collaborate with developers to ensure design implementation',
+        'Maintain design systems and style guides'
+      ],
+      requirements: [
+        '3+ years of UI/UX design experience',
+        'Proficiency in Figma, Sketch, and Adobe Creative Suite',
+        'Strong portfolio showcasing design skills',
+        'Experience with user research and testing methodologies',
+        'Knowledge of HTML/CSS and front-end development principles'
+      ],
+      benefits: [
+        { title: 'Health Coverage', icon: 'FaShieldAlt', description: 'Comprehensive health and wellness benefits package.' },
+        { title: 'Design Tools', icon: 'FaRocket', description: 'Latest design software and hardware provided.' },
+        { title: 'Creative Community', icon: 'FaUsers', description: 'Join a vibrant community of creative professionals.' },
+        { title: 'Flexible Schedule', icon: 'FaBullhorn', description: 'Flexible working hours and remote work options.' },
+        { title: 'Transportation', icon: 'FaBus', description: 'Metro card and transportation reimbursement.' }
+      ]
     },
     {
       id: 5,
       title: 'Brand Designer',
       company: 'Adobe Creative',
       location: 'San Francisco, CA',
-      type: 'Full Time',
-      salary: '1500/weekly',
+      type: 'Fulltime',
+      salary: '2200/Monthly',
       applied: 6,
       capacity: 40,
-      skills: ['HTML', 'CSS', 'PHP'],
+      skills: ['Illustrator', 'Photoshop', 'Branding'],
       logo: 'A',
-      logoColor: 'var(--color-secondary)'
+      logoColor: 'var(--color-secondary)',
+      experience: 'Senior Level',
+      postedOn: 'May, 20 2024',
+      applyBefore: 'June, 20 2024',
+      description: 'Lead brand design initiatives for Adobe\'s creative suite. You will be responsible for creating compelling visual identities and brand experiences.',
+      responsibilities: [
+        'Develop and maintain brand guidelines and visual identity systems',
+        'Create marketing materials, presentations, and digital assets',
+        'Collaborate with marketing teams on brand campaigns',
+        'Design logos, icons, and visual elements for products',
+        'Ensure brand consistency across all touchpoints'
+      ],
+      requirements: [
+        '5+ years of brand design experience',
+        'Expert proficiency in Adobe Creative Suite',
+        'Strong understanding of brand strategy and positioning',
+        'Experience with print and digital design',
+        'Excellent typography and color theory knowledge'
+      ],
+      benefits: [
+        { title: 'Health Benefits', icon: 'FaShieldAlt', description: 'Premium health, dental, and vision insurance coverage.' },
+        { title: 'Creative Tools', icon: 'FaRocket', description: 'Access to Adobe\'s complete creative suite and latest tools.' },
+        { title: 'Design Team', icon: 'FaUsers', description: 'Work with world-class designers and creative professionals.' },
+        { title: 'Work Balance', icon: 'FaBullhorn', description: 'Flexible work arrangements and unlimited PTO.' },
+        { title: 'Bay Area Perks', icon: 'FaBus', description: 'Commuter benefits and Bay Area transportation options.' }
+      ]
     },
     {
       id: 6,
       title: 'Social Media Officer',
       company: 'Parsons Intl',
       location: 'London, UK',
-      type: 'Full Time',
-      salary: '1500/weekly',
+      type: 'Fulltime',
+      salary: '1900/Monthly',
       applied: 3,
       capacity: 35,
-      skills: ['HTML', 'CSS', 'PHP'],
-      logo: 'S',
-      logoColor: 'var(--color-secondary)'
+      skills: ['Social Media', 'Content Creation', 'Analytics'],
+      logo: 'P',
+      logoColor: 'var(--color-secondary)',
+      experience: 'Mid Level',
+      postedOn: 'May, 22 2024',
+      applyBefore: 'June, 22 2024',
+      description: 'Manage and grow our social media presence across multiple platforms. Create engaging content and build strong online communities.',
+      responsibilities: [
+        'Develop and execute social media strategies across all platforms',
+        'Create engaging content including posts, videos, and graphics',
+        'Monitor social media analytics and optimize performance',
+        'Engage with followers and manage community interactions',
+        'Collaborate with marketing team on campaign development'
+      ],
+      requirements: [
+        '3+ years of social media management experience',
+        'Proficiency in social media platforms and management tools',
+        'Strong content creation and copywriting skills',
+        'Experience with social media analytics and reporting',
+        'Creative thinking and trend awareness'
+      ],
+      benefits: [
+        { title: 'Health Plan', icon: 'FaShieldAlt', description: 'Comprehensive health insurance with mental health support.' },
+        { title: 'Skill Development', icon: 'FaRocket', description: 'Training budget for courses and professional development.' },
+        { title: 'Team Culture', icon: 'FaUsers', description: 'Collaborative and creative work environment.' },
+        { title: 'Flexible Work', icon: 'FaBullhorn', description: 'Hybrid work model with flexible hours.' },
+        { title: 'London Transport', icon: 'FaBus', description: 'Oyster card and transportation benefits.' }
+      ]
     },
     {
       id: 7,
       title: 'Product Designer',
       company: 'Inova Agency',
       location: 'Madrid, Spain',
-      type: 'Full Time',
-      salary: '1500/weekly',
+      type: 'Fulltime',
+      salary: '2100/Monthly',
       applied: 4,
       capacity: 70,
-      skills: ['HTML', 'CSS', 'PHP'],
-      logo: 'G',
-      logoColor: 'var(--color-primary)'
+      skills: ['Product Design', 'User Research', 'Prototyping'],
+      logo: 'I',
+      logoColor: 'var(--color-primary)',
+      experience: 'Senior Level',
+      postedOn: 'May, 25 2024',
+      applyBefore: 'June, 25 2024',
+      description: 'Lead product design initiatives for innovative digital products. Work with cross-functional teams to create user-centered solutions.',
+      responsibilities: [
+        'Lead end-to-end product design process from research to implementation',
+        'Conduct user research and usability testing sessions',
+        'Create user personas, journey maps, and design specifications',
+        'Collaborate with product managers and engineers on feature development',
+        'Mentor junior designers and contribute to design system development'
+      ],
+      requirements: [
+        '5+ years of product design experience',
+        'Strong portfolio demonstrating user-centered design process',
+        'Proficiency in Figma, Sketch, and prototyping tools',
+        'Experience with user research methodologies',
+        'Excellent communication and presentation skills'
+      ],
+      benefits: [
+        { title: 'Health Insurance', icon: 'FaShieldAlt', description: 'Comprehensive health coverage including dental and vision.' },
+        { title: 'Design Resources', icon: 'FaRocket', description: 'Access to latest design tools and professional development.' },
+        { title: 'Design Team', icon: 'FaUsers', description: 'Work with talented designers in a collaborative environment.' },
+        { title: 'Work Flexibility', icon: 'FaBullhorn', description: 'Flexible hours and remote work opportunities.' },
+        { title: 'Madrid Benefits', icon: 'FaBus', description: 'Transportation benefits and Madrid city perks.' }
+      ]
     }
   ]
 
@@ -152,6 +330,31 @@ const FindJob = ({ onClose }) => {
       setSelectedLevels([...selectedLevels, level])
     }
   }
+
+  const handleJobClick = (job) => {
+    setSelectedJob(job)
+    setShowJobPopup(true)
+  }
+
+  const handleClosePopup = () => {
+    setShowJobPopup(false)
+    setSelectedJob(null)
+  }
+
+  // Prevent body scroll when popup is open
+  useEffect(() => {
+    if (showJobPopup) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    // Cleanup function to restore scroll when component unmounts
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showJobPopup])
+
  
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-primary)' }}>
@@ -371,7 +574,12 @@ const FindJob = ({ onClose }) => {
           {/* Job Cards */}
           <div className="space-y-6">
             {jobListings.map((job) => (
-              <div key={job.id} className="rounded-lg p-6 hover:shadow-md transition-shadow mx-2" style={{ backgroundColor: 'var(--color-bg-white)', border: '1px solid var(--color-gray-200)' }}>
+              <div 
+                key={job.id} 
+                className="rounded-lg p-6 hover:shadow-md transition-shadow mx-2 cursor-pointer" 
+                style={{ backgroundColor: 'var(--color-bg-white)', border: '1px solid var(--color-gray-200)' }}
+                onClick={() => handleJobClick(job)}
+              >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4">
                     {/* Company Logo */}
@@ -433,7 +641,7 @@ const FindJob = ({ onClose }) => {
                   </div>
                   
                   {/* Action Buttons */}
-                  <div className="flex flex-col space-y-3">
+                  <div className="flex flex-col space-y-3" onClick={(e) => e.stopPropagation()}>
                     <button
                       className="px-6 py-2 font-semibold rounded-lg transition-colors"
                       style={{ 
@@ -511,6 +719,9 @@ const FindJob = ({ onClose }) => {
        {/* Footer */}
        <Footer />
       </div>
+      
+      {/* Job Detail Popup */}
+      {showJobPopup && <JobDetails job={selectedJob} onClose={handleClosePopup} />}
     </div>
    )
 }
