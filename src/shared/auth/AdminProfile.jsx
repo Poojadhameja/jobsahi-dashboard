@@ -1,9 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-<<<<<<< HEAD
 import Swal from 'sweetalert2'
-=======
->>>>>>> 43ffd60 (Logout Popup fixed)
 import { TAILWIND_COLORS, COLORS } from '../WebConstant'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
@@ -14,10 +11,6 @@ import LogoutConfirmationModal from '../components/LogoutConfirmationModal'
 export default function AdminProfile() {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-<<<<<<< HEAD
-=======
-  const navigate = useNavigate()
->>>>>>> 43ffd60 (Logout Popup fixed)
   var authUser = localStorage.getItem("authUser")
   var user = JSON.parse(authUser);
   const navigate = useNavigate()
@@ -123,15 +116,11 @@ export default function AdminProfile() {
         //alert(response.message || "User updated successfully!")
         Swal.fire({
           title: "Success",
-          text: "User updated successfully!",
+          text: response.message || "User updated successfully!",
           icon: "success"
         });
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 43ffd60 (Logout Popup fixed)
       } else {
         // console.error("Failed to update user:", response)
         // alert(response.message || "Failed to update user")
