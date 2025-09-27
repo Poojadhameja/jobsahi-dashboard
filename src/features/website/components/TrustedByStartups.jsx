@@ -5,7 +5,7 @@ const TrustedByStartups = ({ testimonials = [], headerContent }) => {
 
   return (
     <section className="bg-white p-5">
-      <div className="max-w-7xl mx-auto px-6 py-16 bg-[#00395B] rounded-3xl">
+      <div className="max-w-[90%] mx-auto px-6 md:px-10 py-16 bg-[#00395B] rounded-3xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Section - Text Content */}
           <div className="space-y-8">

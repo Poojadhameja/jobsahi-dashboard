@@ -15,7 +15,7 @@ export default function App() {
     <Router>
       <Suspense fallback={<div className="p-8">Loading...</div>}>
         <Routes>
-          <Route path="/" element={<WebsiteRoutes />} />
+          <Route path="/*" element={<WebsiteRoutes />} />
           <Route path="/login" element={<Login />} />
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { colors } from '../../../shared/colors'
 import { FaSearch, FaBriefcase, FaChevronDown, FaAngleDoubleRight } from 'react-icons/fa'
 
 const Navbar = () => {
+  const location = useLocation()
   const [activePage, setActivePage] = useState('Home')
   const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -15,6 +17,15 @@ const Navbar = () => {
     { name: 'Media', path: '/media', hasDropdown: true },
     { name: 'Contact', path: '/contact' },
   ]
+
+  // Update active page based on current location
+  useEffect(() => {
+    const currentPath = location.pathname
+    const currentItem = navigationItems.find(item => item.path === currentPath)
+    if (currentItem) {
+      setActivePage(currentItem.name)
+    }
+  }, [location.pathname])
 
   return (
     <nav 
@@ -39,29 +50,32 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-5">
           {navigationItems.map((item) => (
             <div key={item.name} className="relative">
-              <button
-                onClick={() => {
-                  if (item.hasDropdown) {
+              {item.hasDropdown ? (
+                <button
+                  onClick={() => {
                     setIsMediaDropdownOpen(!isMediaDropdownOpen)
-                  } else {
-                    setActivePage(item.name)
-                  }
-                }}
-                className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200 ${
-                  activePage === item.name
-                    ? 'text-white font-semibold'
-                    : 'text-white hover:text-gray-200'
-                }`}
-                style={{
-                  color: activePage === item.name ? colors.accent.green : colors.text.white,
-                //   backgroundColor: activePage === item.name ? 'transparent' : 'transparent'
-                }}
-              >
-                <span>{item.name}</span>
-                {item.hasDropdown && (
+                  }}
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200 ${
+                    activePage === item.name
+                      ? 'text-[#A1E366] font-bold'
+                      : 'text-white hover:text-gray-200'
+                  }`}
+                >
+                  <span>{item.name}</span>
                   <FaChevronDown className="text-xs" />
-                )}
-              </button>
+                </button>
+              ) : (
+                <Link
+                  to={item.path}
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200 ${
+                    activePage === item.name
+                      ? 'text-[#A1E366] font-bold'
+                      : 'text-white hover:text-gray-200'
+                  }`}
+                >
+                  <span>{item.name}</span>
+                </Link>
+              )}
               
               {/* Media Dropdown */}
               {item.hasDropdown && isMediaDropdownOpen && (
@@ -123,28 +137,35 @@ const Navbar = () => {
             {/* Navigation Links */}
             {navigationItems.map((item) => (
               <div key={item.name}>
-                <button
-                  onClick={() => {
-                    if (item.hasDropdown) {
+                {item.hasDropdown ? (
+                  <button
+                    onClick={() => {
                       setIsMediaDropdownOpen(!isMediaDropdownOpen)
-                    } else {
-                      setActivePage(item.name)
-                      setIsMobileMenuOpen(false)
-                    }
-                  }}
-                  className={`flex items-center justify-between w-full px-3 py-2 rounded-md transition-colors duration-200 ${
-                    activePage === item.name
-                      ? 'text-[#A1E366] font-bold '
-                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  <span>{item.name}</span>
-                  {item.hasDropdown && (
+                    }}
+                    className={`flex items-center justify-between w-full px-3 py-2 rounded-md transition-colors duration-200 ${
+                      activePage === item.name
+                        ? 'text-[#A1E366] font-bold '
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>{item.name}</span>
                     <FaChevronDown className={`text-xs transition-transform duration-200 ${
                       isMediaDropdownOpen ? 'rotate-180' : ''
                     }`} />
-                  )}
-                </button>
+                  </button>
+                ) : (
+                  <Link
+                    to={item.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center justify-between w-full px-3 py-2 rounded-md transition-colors duration-200 ${
+                      activePage === item.name
+                        ? 'text-[#A1E366] font-bold '
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>{item.name}</span>
+                  </Link>
+                )}
                 
                 {/* Mobile Media Dropdown */}
                 {item.hasDropdown && isMediaDropdownOpen && (
