@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
+import Swal from 'sweetalert2'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuPhone, LuMail } from 'react-icons/lu'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import apiService from '../../service/serviceUrl'
+
 
 function AuthTabs({ mode, setMode }) {
   const items = [
@@ -85,25 +87,45 @@ export default function Login() {
           localStorage.setItem("authToken", response.token)
           localStorage.setItem("authExpiry", response.expires_in)
           localStorage.setItem("authUser", JSON.stringify(response.user))
-          
-          alert(response.message || "Login successful!")
 
-          if (response.user.role === "recruiter") {
-            window.location.href = "/recruiter/dashboard"
-          } else if (response.user.role === "institute") {
-            window.location.href = "/institute/dashboard"
-          } else if (response.user.role === "student") {
-            window.location.href = "/student/dashboard"
-          }else {
-            window.location.href = "/admin/dashboard"
-          }
+          // alert(response.message || "Login successful!")
+          Swal.fire({
+            title: "Success",
+            text: "Login successful!",
+            confirmButtonText: "Ok",
+            icon: "success"
+          }).then((result) => {
+            /* Read more about isConfirmed */
+            if (result.isConfirmed) {
+              if (response.user.role === "recruiter") {
+                window.location.href = "/recruiter/dashboard"
+              } else if (response.user.role === "institute") {
+                window.location.href = "/institute/dashboard"
+              } else if (response.user.role === "student") {
+                window.location.href = "/student/dashboard"
+              } else {
+                window.location.href = "/admin/dashboard"
+              }
+            }
+
+          });
         } else {
-          console.error("Login Failed:", response)
-          alert(response.message || "Invalid email or password")
+          // console.error("Login Failed:", response)
+          // alert(response.message || "Invalid email or password")
+          Swal.fire({
+            title: "Login Failed",
+            text: response.message || "Invalid email or password",
+            icon: "error"
+          });
         }
       } catch (error) {
-        console.error("API Error:", error)
-        alert("Something went wrong. Please try again.")
+        // console.error("API Error:", error)
+        // alert("Something went wrong. Please try again.")
+        Swal.fire({
+          title: "API Error",
+          text: "Something went wrong. Please try again.",
+          icon: "error"
+        });
       }
     } else {
       // For OTP flow, open verification modal
@@ -186,7 +208,7 @@ export default function Login() {
             )}
 
             <div className="flex items-center justify-center gap-2 text-sm">
-              <a href="#" className="text-[#5B9821] hover:underline">Forgot Password?</a>
+              <a href="/forgot-password" className="text-[#5B9821] hover:underline">Forgot Password?</a>
               <span className="text-gray-400">or</span>
               <a href="/create-account" className="text-[#5B9821] hover:underline">Create new Account</a>
             </div>
@@ -273,5 +295,4 @@ export default function Login() {
     </div>
   )
 }
-
 

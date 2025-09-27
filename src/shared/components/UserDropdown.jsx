@@ -1,12 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TAILWIND_COLORS, COLORS } from '../WebConstant'
+import LogoutConfirmationModal from './LogoutConfirmationModal'
+
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import apiService from '../../service/serviceUrl'
 
 const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
   const [isOpen, setIsOpen] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const dropdownRef = useRef(null)
   const navigate = useNavigate()
   var authUser = localStorage.getItem("authUser")
@@ -202,6 +206,15 @@ const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
           </div>
         </div>
       )}
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+        userName={user.name}
+        isLoading={isLoggingOut}
+      />
     </div>
   )
 }

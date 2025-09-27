@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../WebConstant'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
@@ -10,9 +11,9 @@ import LogoutConfirmationModal from '../components/LogoutConfirmationModal'
 export default function AdminProfile() {
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const navigate = useNavigate()
   var authUser = localStorage.getItem("authUser")
   var user = JSON.parse(authUser);
+  const navigate = useNavigate()
 
   const onLogout = async () => {
     localStorage.clear();
@@ -112,16 +113,31 @@ export default function AdminProfile() {
 
       if (response.status === true) {
         // Save token + expiry
-        alert(response.message || "User updated successfully!")
+        //alert(response.message || "User updated successfully!")
+        Swal.fire({
+          title: "Success",
+          text: response.message || "User updated successfully!",
+          icon: "success"
+        });
 
 
       } else {
-        console.error("Failed to update user:", response)
-        alert(response.message || "Failed to update user")
+        // console.error("Failed to update user:", response)
+        // alert(response.message || "Failed to update user")
+        Swal.fire({
+          title: "Failed",
+          text: "Failed to update user",
+          icon: "error"
+        });
       }
     } catch (error) {
-      console.error("API Error:", error)
-      alert("Something went wrong. Please try again.")
+      // console.error("API Error:", error)
+      // alert("Something went wrong. Please try again.")
+      Swal.fire({
+        title: "API Error",
+        text: "Something went wrong. Please try again.",
+        icon: "error"
+      });
     }
   }
   return (
@@ -177,12 +193,20 @@ export default function AdminProfile() {
           <button className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`}>Two-Factor Authentication</button>
           <button className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ color: COLORS.ERROR, borderColor: '#FEE2E2' }}>Delete Account</button>
           <div className="pt-1">
-            <button onClick={onLogout} className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}>Logout</button>
+            <button onClick={handleLogout} className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}>Logout</button>
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+        userName={profile.name}
+        isLoading={isLoggingOut}
+      />
     </div>
   )
 }
-
 

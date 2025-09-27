@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import Swal from 'sweetalert2'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuUsers } from 'react-icons/lu'
 import { LuGraduationCap } from 'react-icons/lu'
@@ -83,17 +84,36 @@ export default function CreateAccount() {
       var response = await postMethod(data);
       //console.log(response);
       if (response.status === true) {
-        alert(response.message || "User registered successfully!")
-        window.location.href = "/login"
+        // alert(response.message || "User registered successfully!")
+        // window.location.href = "/login"
+        Swal.fire({
+          title: "Success",
+          text: "User registered successfully!",
+          confirmButtonText: "Ok",
+          icon: "success"
+        }).then((result) => {
+          /* Read more about isConfirmed */
+          if (result.isConfirmed) {
+            window.location.href = "/login"
+          }
+        });
       } else {
-        console.error("Registration Failed:", response)
-        alert(response.message || "Registration Failed")
+        // console.error("Registration Failed:", response)
+        // alert(response.message || "Registration Failed")
+        Swal.fire({
+          title: "Failed",
+          text: "Registration Failed",
+          icon: "error"
+        });
       }
-
-
     } catch (error) {
-      console.error("API Error:", error)
-      alert("Something went wrong. Please try again.")
+      // console.error("API Error:", error)
+      // alert("Something went wrong. Please try again.")
+      Swal.fire({
+        title: "API Error",
+        text: "Something went wrong. Please try again.",
+        icon: "error"
+      });
     }
   }
 
@@ -257,5 +277,4 @@ export default function CreateAccount() {
     </div>
   )
 }
-
 
