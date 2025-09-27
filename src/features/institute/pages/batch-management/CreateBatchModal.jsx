@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { LuX, LuPlus, LuUpload, LuCalendar, LuUser, LuSearch } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
-import RichTextEditor from '../../../../shared/components/RichTextEditor'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
   const [formData, setFormData] = useState({
@@ -9,7 +9,6 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
     course: courseTitle || 'Full Stack Web Development (6 months)',
     startDate: '',
     endDate: '',
-    description: '',
     instructor: '',
     students: []
   })
@@ -83,7 +82,6 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
       course: courseTitle || 'Full Stack Web Development (6 months)',
       startDate: '',
       endDate: '',
-      description: '',
       instructor: '',
       students: []
     })
@@ -99,7 +97,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Create New Batch</h2>
+          <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Create New Batch</h2>
           <button
             onClick={handleCancel}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -111,11 +109,11 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
           {/* Basic Information Section */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Basic Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Batch Name */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   BATCH NAME
                 </label>
                 <input
@@ -130,7 +128,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
 
               {/* Select Course */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   SELECT COURSE
                 </label>
                 <select
@@ -151,7 +149,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
 
               {/* Starting Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   STARTING DATE
                 </label>
                 <div className="relative">
@@ -168,7 +166,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
 
               {/* End Date */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   END DATE
                 </label>
                 <div className="relative">
@@ -183,26 +181,14 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
                 </div>
               </div>
 
-              {/* Description */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  DESCRIPTION
-                </label>
-                <RichTextEditor
-                  value={formData.description}
-                  onChange={(value) => handleInputChange('description', value)}
-                  placeholder="e.g., This course covers essential topics in frontend and backend development using modern tools and frameworks."
-                  height="120px"
-                />
-              </div>
             </div>
           </div>
 
           {/* Instructor Assignment Section */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Instructor Assignment</h3>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Instructor Assignment</h3>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 ASSIGN INSTRUCTOR
               </label>
               <div className="relative">
@@ -224,7 +210,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
 
           {/* Manage Students Section */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Manage Students</h3>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Manage Students</h3>
             
             {/* Search/Add Student */}
             <div className="flex gap-2 mb-4">
@@ -244,7 +230,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
                 variant="primary"
                 size="sm"
                 icon={<LuPlus className="w-4 h-4" />}
-                className="bg-green-600 hover:bg-green-700 px-4"
+                className={`${TAILWIND_COLORS.BTN_PRIMARY} px-4`}
               >
                 Add
               </Button>
@@ -253,14 +239,14 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
             {/* Enrolled Students */}
             {formData.students.length > 0 && (
               <div className="mb-4">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">
+                <h4 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   ENROLLED STUDENTS ({formData.students.length})
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {formData.students.map((student, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-2 bg-green-50 text-green-800 px-3 py-1 rounded-full text-sm"
+                      className={`flex items-center gap-2 ${TAILWIND_COLORS.BADGE_SUCCESS} px-3 py-1 rounded-full text-sm`}
                     >
                       <span>{student}</span>
                       <button
@@ -279,7 +265,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
             {/* CSV Upload */}
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <LuUpload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-gray-600 mb-2">Or upload a CSV file with student details</p>
+              <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Or upload a CSV file with student details</p>
               <input
                 type="file"
                 accept=".csv"
@@ -289,7 +275,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
               />
               <label
                 htmlFor="csv-upload"
-                className="inline-block bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 cursor-pointer transition-colors"
+                className={`inline-block ${TAILWIND_COLORS.BTN_PRIMARY} px-4 py-2 rounded-md cursor-pointer transition-colors`}
               >
                 Choose File
               </label>
@@ -306,7 +292,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
               onClick={handleCancel}
               variant="outline"
               size="md"
-              className="border-green-600 text-green-600 hover:bg-green-50"
+              className={`${TAILWIND_COLORS.BTN_LIGHT} border-green-600 text-green-600 hover:bg-green-50`}
             >
               Cancel
             </Button>
@@ -314,7 +300,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
               type="submit"
               variant="primary"
               size="md"
-              className="bg-green-600 hover:bg-green-700"
+              className={TAILWIND_COLORS.BTN_PRIMARY}
             >
               Create
             </Button>

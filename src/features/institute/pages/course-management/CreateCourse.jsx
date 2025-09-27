@@ -18,7 +18,6 @@ export default function CreateCourse() {
     courseStatus: 'Active',
     instructorName: '',
     mode: '',
-    difficultyLevel: '',
     price: '',
     certificationAllowed: true
   })
@@ -65,7 +64,6 @@ export default function CreateCourse() {
       { field: 'batchLimits', label: 'Batch Limits' },
       { field: 'instructorName', label: 'Instructor Name' },
       { field: 'mode', label: 'Mode' },
-      { field: 'difficultyLevel', label: 'Difficulty Level' },
       { field: 'price', label: 'Price' }
     ]
 
@@ -140,7 +138,6 @@ export default function CreateCourse() {
       courseStatus: 'Active',
       instructorName: '',
       mode: '',
-      difficultyLevel: '',
       price: '',
       certificationAllowed: true
     })
@@ -448,30 +445,6 @@ export default function CreateCourse() {
               </div>
             </div>
 
-            {/* Difficulty Level */}
-            <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-              <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  DIFFICULTY LEVEL <span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-600">Select the difficulty level of the course.</p>
-              </div>
-              <div className="flex-1">
-                <select 
-                  value={formData.difficultyLevel}
-                  onChange={(e) => handleInputChange('difficultyLevel', e.target.value)}
-                  className={getInputClassName('difficultyLevel')}
-                >
-                  <option value="">Select difficulty level</option>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
-                {validationErrors.difficultyLevel && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.difficultyLevel}</p>
-                )}
-              </div>
-            </div>
 
             {/* Price */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">

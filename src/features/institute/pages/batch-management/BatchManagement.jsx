@@ -21,7 +21,6 @@ export default function BatchManagement() {
     {
       id: 1,
       title: "Fundamentals of Electricity",
-      description: "Learn the basics of electric current, resistance, and power with real-world applications.",
       instructor: "Rajendra Prashad",
       totalBatches: 4,
       activeBatches: 1,
@@ -34,7 +33,6 @@ export default function BatchManagement() {
     {
       id: 2,
       title: "Wiring & Circuit Installation",
-      description: "Hands-on training in residential and commercial wiring setups, switches, and load circuits.",
       instructor: "Priya Sharma",
       totalBatches: 3,
       activeBatches: 3,
@@ -47,7 +45,6 @@ export default function BatchManagement() {
     {
       id: 3,
       title: "Transformer Installation",
-      description: "Installation, earthing, oil testing, and safety protocols for transformer setup.",
       instructor: "Rajendra Prashad",
       totalBatches: 5,
       activeBatches: 1,
@@ -60,7 +57,6 @@ export default function BatchManagement() {
     {
       id: 4,
       title: "Power Distribution Systems",
-      description: "Grid-level energy distribution, substation concepts, and load management.",
       instructor: "Nitin Soni",
       totalBatches: 4,
       activeBatches: 1,
@@ -73,7 +69,6 @@ export default function BatchManagement() {
     {
       id: 5,
       title: "Motor Winding Techniques",
-      description: "Complete web development course covering frontend and backend technologies",
       instructor: "Rajendra Prashad",
       totalBatches: 4,
       activeBatches: 2,
@@ -86,14 +81,13 @@ export default function BatchManagement() {
     {
       id: 6,
       title: "House & Industrial Wiring",
-      description: "Dual-focus course on domestic wiring layouts and large-scale industrial installations.",
       instructor: "Neha Rajput",
       totalBatches: 3,
       activeBatches: 1,
       batches: [
         { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
-        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" },
-        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" }
+        { name: "Batch B", time: "2:00 PM - 5:00 PM", students: "20/30", status: "Upcoming" },
+        { name: "Batch C", time: "6:00 PM - 9:00 PM", students: "18/30", status: "Upcoming" }
       ]
     }
   ]
@@ -155,7 +149,7 @@ export default function BatchManagement() {
 
   // If a course is selected, show the course detail view
   if (selectedCourse) {
-    return <CourseDetail courseData={selectedCourse} onBack={handleBackToCourses} />
+    return <CourseDetail courseData={selectedCourse} onBack={handleBackToCourses} onViewBatch={handleViewBatch} />
   }
 
   // If a batch is selected, show the batch detail view
@@ -180,10 +174,7 @@ export default function BatchManagement() {
           <div key={course.id} className={`${TAILWIND_COLORS.CARD} p-5 hover:shadow-md transition-shadow`}>
             {/* Course Title */}
             <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3 leading-tight`}>{course.title}</h3>
-            
-            {/* Course Description */}
-            <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm mb-4 leading-relaxed`}>{course.description}</p>
-            
+     
             {/* Instructor */}
             <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm mb-4`}>
               <span className="font-semibold">Instructor:</span> {course.instructor}
