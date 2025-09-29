@@ -51,9 +51,6 @@ export default function SendNotice() {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Compose Notice Section */}
         <div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">Compose Notice</h3>
-          <p className="text-gray-600 mb-6">Create and send notices to students and batches.</p>
-
           <div className="space-y-6">
             {/* Notice Type */}
             <div>

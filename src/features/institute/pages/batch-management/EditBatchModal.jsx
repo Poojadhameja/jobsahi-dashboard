@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { LuX, LuPlus, LuCalendar, LuFileText, LuUpload } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
-import RichTextEditor from '../../../../shared/components/RichTextEditor'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
@@ -10,14 +9,12 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
     course: batchData?.course || 'Full Stack Web Development',
     startDate: batchData?.startDate || '25/12/2024',
     endDate: batchData?.endDate || '1/10/2025',
-    description: batchData?.description || 'Comprehensive web development course covering frontend and backend technologies.',
     instructor: batchData?.instructor || 'Mr. Rajeev Kumar - Web developer',
     students: batchData?.students || ['himanshushrirang@gmail.com'],
     newStudentEmail: 'himanshushrirang4@gmail.com',
     uploadedFile: 'himanshushrirang_cv.csv'
   })
 
-  const [isVisualMode, setIsVisualMode] = useState(true)
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -153,46 +150,6 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                 </div>
               </div>
 
-              {/* Description */}
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
-                  DESCRIPTION
-                </label>
-                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Update the course or job role description.</p>
-                
-                {/* Rich Text Editor Toggle */}
-                <div className="flex gap-2 mb-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsVisualMode(true)}
-                    className={`px-3 py-1 text-xs font-medium rounded ${
-                      isVisualMode 
-                        ? 'bg-primary-10 text-primary border border-primary-30' 
-                        : 'bg-gray-100 text-gray-600 border border-gray-300'
-                    }`}
-                  >
-                    Visual
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsVisualMode(false)}
-                    className={`px-3 py-1 text-xs font-medium rounded ${
-                      !isVisualMode 
-                        ? 'bg-primary-10 text-primary border border-primary-30' 
-                        : 'bg-gray-100 text-gray-600 border border-gray-300'
-                    }`}
-                  >
-                    Text
-                  </button>
-                </div>
-
-                <RichTextEditor
-                  value={formData.description}
-                  onChange={(value) => handleInputChange('description', value)}
-                  height="120px"
-                  className="border border-gray-300 rounded-md"
-                />
-              </div>
             </div>
           </div>
 

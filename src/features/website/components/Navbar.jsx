@@ -3,12 +3,8 @@ import { Link, useLocation } from 'react-router-dom'
 import { colors } from '../../../shared/colors'
 import { FaSearch, FaBriefcase, FaChevronDown, FaAngleDoubleRight } from 'react-icons/fa'
 
-<<<<<<< HEAD
-const Navbar = ({ onPageChange }) => {
-=======
 const Navbar = () => {
   const location = useLocation()
->>>>>>> 99fa32dbe62c27c72c4d4d523075aef48e893909
   const [activePage, setActivePage] = useState('Home')
   const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -32,18 +28,10 @@ const Navbar = () => {
   }, [location.pathname])
 
   return (
-<<<<<<< HEAD
-    <>
-      <nav 
-        className="w-full px-6 py-4 relative"
-      >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-=======
     <nav 
       className="w-full px-6 py-4 relative"
     >
       <div className="max-w-full mx-auto md:mx-10 flex items-center justify-between">
->>>>>>> 99fa32dbe62c27c72c4d4d523075aef48e893909
         {/* Logo */}
         <div className="flex items-center">
           <div className="flex items-center text-white text-2xl font-bold">
@@ -66,27 +54,6 @@ const Navbar = () => {
                 <button
                   onClick={() => {
                     setIsMediaDropdownOpen(!isMediaDropdownOpen)
-<<<<<<< HEAD
-                  } else {
-                    setActivePage(item.name)
-                    if (onPageChange) {
-                      onPageChange(item.name)
-                    }
-                  }
-                }}
-                className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200 ${
-                  activePage === item.name
-                    ? 'text-white font-semibold'
-                    : 'text-white hover:text-gray-200'
-                }`}
-                style={{
-                  color: activePage === item.name ? colors.accent.green : colors.text.white,
-                //   backgroundColor: activePage === item.name ? 'transparent' : 'transparent'
-                }}
-              >
-                <span>{item.name}</span>
-                {item.hasDropdown && (
-=======
                   }}
                   className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200 ${
                     activePage === item.name
@@ -95,7 +62,6 @@ const Navbar = () => {
                   }`}
                 >
                   <span>{item.name}</span>
->>>>>>> 99fa32dbe62c27c72c4d4d523075aef48e893909
                   <FaChevronDown className="text-xs" />
                 </button>
               ) : (
@@ -175,24 +141,6 @@ const Navbar = () => {
                   <button
                     onClick={() => {
                       setIsMediaDropdownOpen(!isMediaDropdownOpen)
-<<<<<<< HEAD
-                    } else {
-                      setActivePage(item.name)
-                      if (onPageChange) {
-                        onPageChange(item.name)
-                      }
-                      setIsMobileMenuOpen(false)
-                    }
-                  }}
-                  className={`flex items-center justify-between w-full px-3 py-2 rounded-md transition-colors duration-200 ${
-                    activePage === item.name
-                      ? 'text-[#A1E366] font-bold '
-                      : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
-                >
-                  <span>{item.name}</span>
-                  {item.hasDropdown && (
-=======
                     }}
                     className={`flex items-center justify-between w-full px-3 py-2 rounded-md transition-colors duration-200 ${
                       activePage === item.name
@@ -201,7 +149,6 @@ const Navbar = () => {
                     }`}
                   >
                     <span>{item.name}</span>
->>>>>>> 99fa32dbe62c27c72c4d4d523075aef48e893909
                     <FaChevronDown className={`text-xs transition-transform duration-200 ${
                       isMediaDropdownOpen ? 'rotate-180' : ''
                     }`} />
@@ -268,7 +215,7 @@ const Navbar = () => {
         </div>
       )}
       </nav>
-    </>
+    
   )
 }
 
