@@ -1,14 +1,14 @@
 ﻿  import React, { useState, useEffect } from "react";
-  import Navbar from "../components/Navbar";
-  import Footer from "../components/Footer";
-  import BrowseJobByCategory from "../components/BrowseJobByCategory";
-  import TrustedByStartups from "../components/TrustedByStartups";
-  import FAQ from "../components/FAQ";
-  import NewsletterSubscription from "../components/NewsletterSubscription";
-  import { colors } from "../../../shared/colors";
-  import uploadresumebg from "../assets/uploadresumebg.png";
+  import Navbar from "../../components/Navbar";
+  import Footer from "../../components/Footer";
+  import BrowseJobByCategory from "../../components/UI8Cards.jsx";
+  import TrustedByStartups from "../../components/TrustedByStartups";
+  import FAQ from "../../components/FAQ";
+  import NewsletterSubscription from "../../components/NewsletterSubscription";
+  import { colors } from "../../../../shared/colors.js";
+  import uploadresumebg from "../../assets/uploadresumebg.png";
 
-  import textunderline from "../assets/website_text_underline.png";
+  import textunderline from "../../assets/website_text_underline.png";
 
   import {
     FaMapMarkerAlt,
@@ -175,41 +175,49 @@
       {
         title: 'Electrician Jobs',
         count: 68,
+        subject: "Jobs Available",
         icon: FaWrench
       },
       {
         title: 'Welder Jobs',
         count: 45,
+        subject: "Jobs Available",
         icon: FaWrench
       },
       {
         title: 'Fitter Jobs',
         count: 52,
+        subject: "Jobs Available",
         icon: FaWrench
       },
       {
         title: 'CNC Operator',
         count: 38,
+        subject: "Jobs Available",
         icon: FaWrench
       },
       {
         title: 'Plumber Jobs',
         count: 29,
+        subject: "Jobs Available",
         icon: FaWrench
       },
       {
         title: 'AC Technician',
         count: 41,
+        subject: "Jobs Available",
         icon: FaWrench
       },
       {
         title: 'Helper / Assistant',
         count: 67,
+        subject: "Jobs Available",
         icon: FaWrench
       },
       {
         title: 'Machine Maintenance',
         count: 34,
+        subject: "Jobs Available",
         icon: FaWrench
       }
     ];
