@@ -1,8 +1,14 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { colors } from '../../../shared/colors'
 import { FaSearch, FaBriefcase, FaChevronDown, FaAngleDoubleRight } from 'react-icons/fa'
 
+<<<<<<< HEAD
 const Navbar = ({ onPageChange }) => {
+=======
+const Navbar = () => {
+  const location = useLocation()
+>>>>>>> 99fa32dbe62c27c72c4d4d523075aef48e893909
   const [activePage, setActivePage] = useState('Home')
   const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -16,12 +22,28 @@ const Navbar = ({ onPageChange }) => {
     { name: 'Contact', path: '/contact' },
   ]
 
+  // Update active page based on current location
+  useEffect(() => {
+    const currentPath = location.pathname
+    const currentItem = navigationItems.find(item => item.path === currentPath)
+    if (currentItem) {
+      setActivePage(currentItem.name)
+    }
+  }, [location.pathname])
+
   return (
+<<<<<<< HEAD
     <>
       <nav 
         className="w-full px-6 py-4 relative"
       >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
+=======
+    <nav 
+      className="w-full px-6 py-4 relative"
+    >
+      <div className="max-w-full mx-auto md:mx-10 flex items-center justify-between">
+>>>>>>> 99fa32dbe62c27c72c4d4d523075aef48e893909
         {/* Logo */}
         <div className="flex items-center">
           <div className="flex items-center text-white text-2xl font-bold">
@@ -37,13 +59,14 @@ const Navbar = ({ onPageChange }) => {
         </div>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-5">
           {navigationItems.map((item) => (
             <div key={item.name} className="relative">
-              <button
-                onClick={() => {
-                  if (item.hasDropdown) {
+              {item.hasDropdown ? (
+                <button
+                  onClick={() => {
                     setIsMediaDropdownOpen(!isMediaDropdownOpen)
+<<<<<<< HEAD
                   } else {
                     setActivePage(item.name)
                     if (onPageChange) {
@@ -63,9 +86,30 @@ const Navbar = ({ onPageChange }) => {
               >
                 <span>{item.name}</span>
                 {item.hasDropdown && (
+=======
+                  }}
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200 ${
+                    activePage === item.name
+                      ? 'text-[#A1E366] font-bold'
+                      : 'text-white hover:text-gray-200'
+                  }`}
+                >
+                  <span>{item.name}</span>
+>>>>>>> 99fa32dbe62c27c72c4d4d523075aef48e893909
                   <FaChevronDown className="text-xs" />
-                )}
-              </button>
+                </button>
+              ) : (
+                <Link
+                  to={item.path}
+                  className={`flex items-center space-x-1 px-3 py-2 rounded-md transition-colors duration-200 ${
+                    activePage === item.name
+                      ? 'text-[#A1E366] font-bold'
+                      : 'text-white hover:text-gray-200'
+                  }`}
+                >
+                  <span>{item.name}</span>
+                </Link>
+              )}
               
               {/* Media Dropdown */}
               {item.hasDropdown && isMediaDropdownOpen && (
@@ -127,10 +171,11 @@ const Navbar = ({ onPageChange }) => {
             {/* Navigation Links */}
             {navigationItems.map((item) => (
               <div key={item.name}>
-                <button
-                  onClick={() => {
-                    if (item.hasDropdown) {
+                {item.hasDropdown ? (
+                  <button
+                    onClick={() => {
                       setIsMediaDropdownOpen(!isMediaDropdownOpen)
+<<<<<<< HEAD
                     } else {
                       setActivePage(item.name)
                       if (onPageChange) {
@@ -147,11 +192,33 @@ const Navbar = ({ onPageChange }) => {
                 >
                   <span>{item.name}</span>
                   {item.hasDropdown && (
+=======
+                    }}
+                    className={`flex items-center justify-between w-full px-3 py-2 rounded-md transition-colors duration-200 ${
+                      activePage === item.name
+                        ? 'text-[#A1E366] font-bold '
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>{item.name}</span>
+>>>>>>> 99fa32dbe62c27c72c4d4d523075aef48e893909
                     <FaChevronDown className={`text-xs transition-transform duration-200 ${
                       isMediaDropdownOpen ? 'rotate-180' : ''
                     }`} />
-                  )}
-                </button>
+                  </button>
+                ) : (
+                  <Link
+                    to={item.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center justify-between w-full px-3 py-2 rounded-md transition-colors duration-200 ${
+                      activePage === item.name
+                        ? 'text-[#A1E366] font-bold '
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span>{item.name}</span>
+                  </Link>
+                )}
                 
                 {/* Mobile Media Dropdown */}
                 {item.hasDropdown && isMediaDropdownOpen && (
