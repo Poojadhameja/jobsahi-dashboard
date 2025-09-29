@@ -4,6 +4,10 @@ import { FaTimes, FaCheck, FaShieldAlt, FaRocket, FaUsers, FaBullhorn, FaBus } f
 const JobDetails = ({ job, onClose }) => {
   if (!job) return null
 
+  const handleApplyJob = () => {
+    window.location.href = '/login'
+  }
+
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center p-4" 
@@ -200,6 +204,7 @@ const JobDetails = ({ job, onClose }) => {
                 }}
                 onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--color-secondary-dark)'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--color-secondary)'}
+                onClick={handleApplyJob}
               >
                 Apply Job
               </button>
