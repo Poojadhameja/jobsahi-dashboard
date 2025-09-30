@@ -4,10 +4,10 @@ import Footer from "../../components/Footer";
 
 const TermsConditions = () => {
   return (
-    <div className="bg-[#00395B] min-h-screen">
+    <div className="bg-[#00395B]  ">
       <Navbar />
       
-      <div className="bg-white mx-4 rounded-[50px] min-h-screen">
+      <div className="bg-white m-4 rounded-[50px] min-h-screen">
         <div className="max-w-4xl mx-auto px-6 py-12">
           {/* Header */}
           <div className="text-center mb-12">

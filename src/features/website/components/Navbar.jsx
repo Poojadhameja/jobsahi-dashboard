@@ -47,7 +47,7 @@ const Navbar = () => {
         </div>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-5">
+        <div className="hidden lg:flex items-center space-x-5">
           {navigationItems.map((item) => (
             <div key={item.name} className="relative">
               {item.hasDropdown ? (
@@ -95,7 +95,7 @@ const Navbar = () => {
         </div>
 
         {/* User Actions - Hidden on Mobile */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden lg:flex items-center space-x-4">
           {/* Register Link */}
           <a
             href="/register"
@@ -118,7 +118,7 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="text-white p-2"

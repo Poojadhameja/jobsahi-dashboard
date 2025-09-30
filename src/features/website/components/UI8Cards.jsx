@@ -48,7 +48,7 @@ const BrowseJobByCategory = ({ jobCategories = [], headerContent }) => {
               {/* Job Count and Arrow */}
               <div className="flex items-center justify-between">
                 <span className="text-gray-600 text-sm">
-                  {category.count} Jobs Available
+                  {category.count} {category.subject}
                 </span>
                 <FaArrowRight className="text-[#0B537D] text-sm group-hover:translate-x-1 transition-transform" />
               </div>
