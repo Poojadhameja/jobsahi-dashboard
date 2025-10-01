@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import Rounded4Cards from "../../components/Rounded4Cards";
@@ -8,6 +9,7 @@ import textunderline from "../../assets/website_text_underline.png";
 import howitworksbg from "../../assets/Worksbg_courses.png"
 
 const Courses = () => {
+  const navigate = useNavigate();
   // Course cards data
   const courseCards = [
     { title: "Electrician Apprentice" },
@@ -250,7 +252,10 @@ const Courses = () => {
                     className="flex-shrink-0 px-4 md:px-10"
                     style={{ width: `${100 / courseCards.length}%` }}
                   >
-                    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg hover:shadow-2xl">
+                    <div 
+                      onClick={() => navigate('/skill-assessment', { state: { course } })}
+                      className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg hover:shadow-2xl cursor-pointer transition-transform hover:scale-105"
+                    >
                       {/* Course Image Placeholder */}
                       <div className="w-full h-48 bg-gray-100 rounded-xl mb-4"></div>
                       
@@ -331,7 +336,10 @@ const Courses = () => {
           {/* Course Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             {/* Course Card 1 */}
-            <div className="bg-gray-100 rounded-2xl p-6 shadow-lg">
+            <div 
+              onClick={() => navigate('/skill-assessment', { state: { course: { title: 'Electrician Apprentice' } } })}
+              className="bg-gray-100 rounded-2xl p-6 shadow-lg cursor-pointer transition-transform hover:scale-105 hover:shadow-2xl"
+            >
               {/* Course Image Placeholder */}
               <div className="w-full h-48 bg-gray-200 rounded-xl mb-4"></div>
               
@@ -356,7 +364,10 @@ const Courses = () => {
             </div>
 
             {/* Course Card 2 */}
-            <div className="bg-gray-100 rounded-2xl p-6 shadow-lg">
+            <div 
+              onClick={() => navigate('/skill-assessment', { state: { course: { title: 'Welding Technician' } } })}
+              className="bg-gray-100 rounded-2xl p-6 shadow-lg cursor-pointer transition-transform hover:scale-105 hover:shadow-2xl"
+            >
               {/* Course Image Placeholder */}
               <div className="w-full h-48 bg-gray-200 rounded-xl mb-4"></div>
               
@@ -381,7 +392,10 @@ const Courses = () => {
             </div>
 
             {/* Course Card 3 */}
-            <div className="bg-gray-100 rounded-2xl p-6 shadow-lg">
+            <div 
+              onClick={() => navigate('/skill-assessment', { state: { course: { title: 'Automotive Mechanic' } } })}
+              className="bg-gray-100 rounded-2xl p-6 shadow-lg cursor-pointer transition-transform hover:scale-105 hover:shadow-2xl"
+            >
               {/* Course Image Placeholder */}
               <div className="w-full h-48 bg-gray-200 rounded-xl mb-4"></div>
               

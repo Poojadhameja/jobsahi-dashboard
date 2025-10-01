@@ -6,7 +6,7 @@ import colorlogo from "../assets/coloredlogo.png"
 
 const Footer = () => {
   return (
-    <footer className="bg-white">
+    <footer className="bg-white border-t">
       {/* Main Footer Content */}
       <div className="max-w-[90%] mx-auto px-6 py-12">
         <div className="flex flex-col flex-wrap sm:flex-row gap-8 md:gap-16">
