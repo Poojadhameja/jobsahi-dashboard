@@ -1,6 +1,11 @@
 import React, { useState } from 'react'
+import Swal from 'sweetalert2'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuPhone, LuMail, LuLock, LuEye, LuEyeOff } from 'react-icons/lu'
+import { postMethod } from '../../service/api'
+import { getMethod } from '../../service/api'
+import { putMethod } from '../../service/api'
+import apiService from '../../service/serviceUrl'
 
 function AuthTabs({ mode, setMode }) {
   const items = [
@@ -52,11 +57,13 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [otpValues, setOtpValues] = useState(['', '', '', ''])
+  //const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [userId, setUserId] = useState('')
 
   const isEmail = mode === 'EMAIL'
 
@@ -65,7 +72,7 @@ export default function ForgotPassword() {
     const next = [...otpValues]
     next[index] = value
     setOtpValues(next)
-    
+
     // Auto-focus next input
     if (value && index < 3) {
       const nextInput = document.getElementById(`otp-input-${index + 1}`)
@@ -83,53 +90,182 @@ export default function ForgotPassword() {
   const onSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
-    
+
     try {
       if (step === 'input') {
         // Send OTP/Reset link
+
         if (isEmail) {
           console.log('send-reset-email', { email })
+          var data = {
+            apiUrl: apiService.forgotPassword,
+            payload: {
+              email: email,
+              purpose: 'password_reset'
+            },
+          };
+
+          var response = await postMethod(data);
+          console.log(response);
+
+          if (response.status === true) {
+            Swal.fire({
+              title: "Success",
+              text: response.message || "OTP sent successfully for password reset",
+              icon: "success"
+            });
+            setStep('otp')
+            setUserId(response.user_id)
+          } else {
+            Swal.fire({
+              title: "Failed",
+              text: response.message || "Failed to send OTP email",
+              icon: "error"
+            });
+          }
+
         } else {
           console.log('send-reset-otp', { phone })
         }
-        setStep('otp')
+
       } else if (step === 'otp') {
         // Verify OTP
         const code = otpValues.join('')
         if (code.length === 4) {
-          console.log('verify-otp', { 
-            [isEmail ? 'email' : 'phone']: isEmail ? email : phone, 
-            code 
+          console.log('verify-otp', {
+            [isEmail ? 'email' : 'phone']: isEmail ? email : phone,
+            code
           })
-          setStep('new-password')
+
+          var data = {
+            apiUrl: apiService.verifyOtp,
+            payload: {
+              user_id: userId,
+              otp: code
+            },
+          };
+
+          var response = await postMethod(data);
+          console.log(response);
+
+          if (response.status === true) {
+            Swal.fire({
+              title: "Success",
+              text: response.message || "OTP verified successfully",
+              icon: "success"
+            });
+            setStep('new-password')
+          } else {
+            Swal.fire({
+              title: "Failed",
+              text: response.message || "Invalid OTP or Purpose. Please check and try again",
+              icon: "error"
+            });
+          }
         }
       } else if (step === 'new-password') {
         // Reset password
         if (newPassword === confirmPassword) {
-          console.log('reset-password', { 
-            [isEmail ? 'email' : 'phone']: isEmail ? email : phone, 
-            newPassword 
+          console.log('reset-password', {
+            [isEmail ? 'email' : 'phone']: isEmail ? email : phone,
+            newPassword
           })
-          // Show success message or redirect to login
-          alert('Password reset successfully! Please login with your new password.')
-          window.location.href = '/login'
+
+          var data = {
+            apiUrl: apiService.changePassword,
+            payload: {
+              user_id: userId,
+              new_password: newPassword
+            },
+          };
+
+          var response = await postMethod(data);
+          console.log(response);
+
+          if (response.status === true) {
+            Swal.fire({
+              title: "Success",
+              text: response.message || "Password reset successfully! Please login with your new password.",
+              confirmButtonText: "Ok",
+              icon: "success"
+            }).then((result) => {
+              /* Read more about isConfirmed */
+              if (result.isConfirmed) {
+                window.location.href = '/login'
+              }
+
+            });
+
+          } else {
+            Swal.fire({
+              title: "Failed",
+              text: response.message || 'Failed to update password',
+              icon: "error"
+            });
+          }
         } else {
-          alert('Passwords do not match!')
+          //alert('Passwords do not match!')
+          Swal.fire({
+            title: "Failed",
+            text: "Passwords do not match!",
+            icon: "error"
+          });
         }
       }
     } catch (error) {
-      console.error('Reset password error:', error)
-      alert('Something went wrong. Please try again.')
+      // console.error('Reset password error:', error)
+      // alert('Something went wrong. Please try again.')
+      Swal.fire({
+        title: "Failed",
+        text: "Something went wrong. Please try again.",
+        icon: "error"
+      });
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleResendOtp = () => {
+  const handleResendOtp = async (e) => {
+    e.preventDefault()
     console.log('resend-otp', { [isEmail ? 'email' : 'phone']: isEmail ? email : phone })
     setOtpValues(['', '', '', ''])
-    // Reset timer or show success message
-    alert('OTP sent successfully!')
+
+    try {
+      var data = {
+        apiUrl: apiService.resendOtp,
+        payload: {
+          email: email,
+          purpose: 'password_reset'
+        },
+      };
+
+      var response = await postMethod(data);
+      console.log(response);
+
+      if (response.status === true) {
+        Swal.fire({
+          title: "Success",
+          text: response.message || "New OTP sent successfully",
+          icon: "success"
+        });
+        setStep('otp')
+        setUserId(response.user_id)
+      } else {
+        Swal.fire({
+          title: "Failed",
+          text: response.message || "Failed to send OTP email",
+          icon: "error"
+        });
+      }
+    } catch (error) {
+      // console.error('Reset password error:', error)
+      // alert('Something went wrong. Please try again.')
+      Swal.fire({
+        title: "Failed",
+        text: "Something went wrong. Please try again.",
+        icon: "error"
+      });
+    }
   }
 
   const goBack = () => {
@@ -165,7 +301,7 @@ export default function ForgotPassword() {
               />
             </div>
             <div className="text-center text-sm text-gray-600">
-              {isEmail 
+              {isEmail
                 ? 'We\'ll send you a password reset link via email'
                 : 'We\'ll send you a verification code via SMS'
               }
@@ -185,7 +321,7 @@ export default function ForgotPassword() {
                 </span>
               </p>
             </div>
-            
+
             <div className="flex items-center justify-center gap-4 mb-6">
               {otpValues.map((val, idx) => (
                 <input
@@ -203,9 +339,9 @@ export default function ForgotPassword() {
 
             <div className="text-center text-sm text-gray-600">
               Didn't receive code?{' '}
-              <button 
+              <button
                 type="button"
-                className="text-[#5B9821] hover:underline font-medium" 
+                className="text-[#5B9821] hover:underline font-medium"
                 onClick={handleResendOtp}
               >
                 Resend
@@ -225,6 +361,7 @@ export default function ForgotPassword() {
             </div>
 
             <div className="space-y-4">
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   New Password
@@ -281,7 +418,7 @@ export default function ForgotPassword() {
 
   const getButtonText = () => {
     if (isLoading) return 'Processing...'
-    
+
     switch (step) {
       case 'input':
         return isEmail ? 'SEND RESET LINK' : 'SEND OTP'
@@ -307,7 +444,7 @@ export default function ForgotPassword() {
                 className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 text-gray-600"
               >
                 <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M15 18l-6-6 6-6"/>
+                  <path d="M15 18l-6-6 6-6" />
                 </svg>
               </button>
             )}
@@ -316,7 +453,7 @@ export default function ForgotPassword() {
             </h1>
             {step !== 'input' && <div className="w-8"></div>}
           </div>
-          
+
           {step === 'input' && (
             <div className="flex items-center justify-center">
               <AuthTabs mode={mode} setMode={setMode} />
@@ -333,9 +470,8 @@ export default function ForgotPassword() {
               <button
                 type="submit"
                 disabled={isLoading || (step === 'otp' && otpValues.join('').length !== 4)}
-                className={`w-full h-11 rounded-lg font-medium ${TAILWIND_COLORS.BTN_PRIMARY} ${
-                  isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+                className={`w-full h-11 rounded-lg font-medium ${TAILWIND_COLORS.BTN_PRIMARY} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
               >
                 {getButtonText()}
               </button>

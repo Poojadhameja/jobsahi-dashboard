@@ -60,6 +60,7 @@ export default function Login() {
   const [showOtpModal, setShowOtpModal] = useState(false)
   const [otpValues, setOtpValues] = useState(['', '', '', ''])
   const [showPassword, setShowPassword] = useState(false)
+  const [userId, setUserId] = useState('')
 
   const isEmail = mode === 'EMAIL'
 
@@ -116,7 +117,7 @@ export default function Login() {
           // alert(response.message || "Invalid email or password")
           Swal.fire({
             title: "Login Failed",
-            text: "Invalid email or password",
+            text: response.message || "Invalid email or password",
             icon: "error"
           });
         }
@@ -131,7 +132,35 @@ export default function Login() {
       }
     } else {
       // For OTP flow, open verification modal
-      setShowOtpModal(true)
+      try {
+        var data = {
+          apiUrl: apiService.phoneLogin,
+          payload: {
+            phone_number: phone,
+          },
+        };
+
+        var response = await postMethod(data);
+        console.log(response);
+        if (response.status === true) {
+          setUserId(response.user_id);
+          setShowOtpModal(true)
+        } else {
+          Swal.fire({
+            title: "Failed",
+            text: response.message || "Failed to generate OTP",
+            icon: "error"
+          });
+        }
+      } catch (error) {
+        // console.error("API Error:", error)
+        // alert("Something went wrong. Please try again.")
+        Swal.fire({
+          title: "API Error",
+          text: "Something went wrong. Please try again.",
+          icon: "error"
+        });
+      }
     }
   }
 
@@ -144,12 +173,41 @@ export default function Login() {
     if (value && nextInput) nextInput.focus()
   }
 
-  const handleOtpConfirm = () => {
+  const handleOtpConfirm = async (e) => {
+    e.preventDefault()
     const code = otpValues.join('')
     // eslint-disable-next-line no-console
     console.log('confirm-otp', { phone, code })
-    // Close modal for now
-    setShowOtpModal(false)
+    try {
+      var data = {
+        apiUrl: apiService.verifyOtp,
+        payload: {
+          user_id: userId,
+          otp: code
+        },
+      };
+
+      var response = await postMethod(data);
+      console.log(response);
+      if (response.status === true) {
+        // Close modal for now
+        setShowOtpModal(false)
+      } else {
+        Swal.fire({
+          title: "Failed",
+          text: response.message || "Invalid OTP or Purpose. Please check and try again",
+          icon: "error"
+        });
+      }
+    } catch (error) {
+      // console.error("API Error:", error)
+      // alert("Something went wrong. Please try again.")
+      Swal.fire({
+        title: "API Error",
+        text: "Something went wrong. Please try again.",
+        icon: "error"
+      });
+    }
   }
 
   return (

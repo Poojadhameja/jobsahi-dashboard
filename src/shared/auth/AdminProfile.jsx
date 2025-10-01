@@ -22,7 +22,7 @@ export default function AdminProfile() {
 
   }
   const [profile, setProfile] = useState({
-    name: user.name,
+    name: user.user_name,
     email: user.email,
     phone: user.phone_number,
     role: user.role,
@@ -126,7 +126,7 @@ export default function AdminProfile() {
         // alert(response.message || "Failed to update user")
         Swal.fire({
           title: "Failed",
-          text: "Failed to update user",
+          text: response.message || "Failed to update user",
           icon: "error"
         });
       }

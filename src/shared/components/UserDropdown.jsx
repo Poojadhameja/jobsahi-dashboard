@@ -7,7 +7,7 @@ import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import apiService from '../../service/serviceUrl'
 
-const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
+const UserDropdown = ({ user = { user_name: 'Admin', role: 'Administrator' } }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -136,8 +136,8 @@ const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
       >
         {/* Mobile: Only show avatar, Desktop: Show name + avatar */}
         <div className="hidden sm:block text-right">
-          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{user.name}</div>
-          <div className="text-[10px] sm:text-xs text-gray-500 truncate">{user.role}</div>
+          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{user.user_name}</div>
+          <div className="text-[10px] sm:text-xs text-gray-500 truncate">{user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}</div>
         </div>
         <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 grid place-items-center flex-shrink-0">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3 sm:w-4 sm:h-4 sm:w-5 sm:h-5 text-white">
@@ -167,8 +167,8 @@ const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
                 </svg>
               </div>
               <div className="min-w-0 flex-1">
-                <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{user.name}</div>
-                <div className="text-[10px] sm:text-xs text-gray-500 truncate">{user.role}</div>
+                <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{user.user_name}</div>
+                <div className="text-[10px] sm:text-xs text-gray-500 truncate">{user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}</div>
               </div>
             </div>
           </div>
@@ -212,7 +212,7 @@ const UserDropdown = ({ user = { name: 'Admin', role: 'Administrator' } }) => {
         isOpen={showLogoutModal}
         onClose={closeLogoutModal}
         onConfirm={confirmLogout}
-        userName={user.name}
+        userName={user.user_name}
         isLoading={isLoggingOut}
       />
     </div>
