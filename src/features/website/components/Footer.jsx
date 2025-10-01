@@ -40,7 +40,7 @@ const Footer = () => {
             </div>
           </div>
           
-          <div className="flex flex-wrap gap-8 md:gap-16 sm:flex-row">
+          <div className="flex flex-wrap gap-8 md:gap-16 lg:gap-24 sm:flex-row">
            
             {/* About Column */}
           <div>

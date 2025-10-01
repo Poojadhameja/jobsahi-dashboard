@@ -331,8 +331,8 @@
 
             {/* Search Bar */}
             <div className="max-w-4xl mx-auto mb-20">
-              <div className="bg-white rounded-full p-3 md:px-10 shadow-lg">
-                <div className="flex flex-col lg:flex-row items-center gap-4">
+              <div className="sm:bg-white sm:rounded-full p-3 md:px-10 sm:shadow-lg">
+                <div className="flex flex-col sm:flex-row items-center gap-4">
                   {/* Location Filter */}
                   <div className="flex items-center gap-3 cursor-pointer flex-1 min-w-0">
                     <FaMapMarkerAlt className="text-[#5C9A24] text-xl flex-shrink-0" />

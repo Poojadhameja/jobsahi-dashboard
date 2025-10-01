@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { colors } from '../../../shared/colors'
 import { FaSearch, FaBriefcase, FaChevronDown, FaAngleDoubleRight } from 'react-icons/fa'
-
+import logo from "../assets/whitelogo.png"
 const Navbar = () => {
   const location = useLocation()
   const [activePage, setActivePage] = useState('Home')
@@ -41,14 +41,15 @@ const Navbar = () => {
         {/* Logo */}
         <div className="flex items-center">
           <div className="flex items-center text-white text-2xl font-bold">
-            <span className="relative">
+            <img src={logo} alt="logo" className=" h-12" />
+            {/* <span className="relative">
               JOBS
               <span className="relative inline-block ml-1">
                 <FaSearch className="absolute -top-1 -right-1 text-sm" />
                 <FaBriefcase className="text-xs" />
               </span>
               AHI
-            </span>
+            </span> */}
           </div>
         </div>
 
