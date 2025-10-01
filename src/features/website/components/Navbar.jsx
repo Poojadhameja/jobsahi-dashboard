@@ -115,11 +115,7 @@ const Navbar = () => {
           {/* Sign Up Button */}
           <Link
             to="/login"
-            className="px-6 py-2 text-white border border-white rounded-full hover:bg-white hover:text-[#00395B] transition-colors duration-200"
-            style={{
-              borderColor: colors.border.white,
-              color: colors.text.white
-            }}
+            className="px-6 py-2 text-white hover:text-[#00395B] font-semibold border border-white rounded-full hover:bg-white "
           >
             Login
           </Link>
