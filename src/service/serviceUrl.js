@@ -1,4 +1,5 @@
 const service = {
+    //auth url
     signin: '/auth/login.php',
     phoneLogin: '/auth/phone_login.php',
     forgotPassword: '/auth/forgot-password.php',
@@ -7,7 +8,12 @@ const service = {
     changePassword: '/auth/change_password.php',
     signup: '/user/create_user.php',
     logout: '/auth/logout.php',
-    updateUser: '/user/update_user.php'
+    updateUser: '/user/update_user.php',
+
+    //admin url
+    studentsList: '/admin/list_students.php',
+    employersList: '/admin/list_employers.php',
+
 }
 
 export default service;
