@@ -397,38 +397,6 @@ const About = () => {
           headerContent={trustedByStartupsHeaderContent}
         />
 
-         {/* Companies Section */}
-         <section className=" bg-white py-10">
-           <div className="max-w-[80%] mx-auto p-6">
-             {/* Companies Grid */}
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 items-center">
-               {/* Ashok Leyland */}
-               <div className="flex gap-5">
-                <img src="" alt="ashok leyland" className="" />
-                 <h3 className="text-[#0B537D] font-bold text-lg mb-2">ASHOK LEYLAND</h3>
-               </div>
-
-               {/* Yamaha */}
-               <div className="flex gap-5">
-                <img src="" alt="ashok leyland" className="" />
-                 <h3 className="text-[#0B537D] font-bold text-lg mb-2">ASHOK LEYLAND</h3>
-               </div>
-
-               {/* Hero Honda */}
-               <div className="flex gap-5">
-                <img src="" alt="ashok leyland" className="" />
-                 <h3 className="text-[#0B537D] font-bold text-lg mb-2">ASHOK LEYLAND</h3>
-               </div>
-
-               {/* Maruti Suzuki */}
-               <div className="flex gap-5">
-                <img src="" alt="ashok leyland" className="" />
-                 <h3 className="text-[#0B537D] font-bold text-lg mb-2">ASHOK LEYLAND</h3>
-               </div>
-             </div>
-           </div>
-         </section>
-
           {/* FAQ Section */}
           <FAQ 
             faqs={faqs} 
