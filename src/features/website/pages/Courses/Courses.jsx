@@ -238,7 +238,7 @@ const Courses = () => {
             </button>
 
             {/* Course Cards Container */}
-            <div className="overflow-hidden">
+            <div className="">
               <div 
                 className="flex transition-transform duration-300 ease-in-out "
                 style={{ 
@@ -254,7 +254,7 @@ const Courses = () => {
                   >
                     <div 
                       onClick={() => navigate('/skill-assessment', { state: { course } })}
-                      className="bg-white border border-gray-200 rounded-2xl p-6 shadow-lg hover:shadow-2xl cursor-pointer transition-transform hover:scale-105"
+                      className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md hover:shadow-lg cursor-pointer transition-transform hover:scale-105"
                     >
                       {/* Course Image Placeholder */}
                       <div className="w-full h-48 bg-gray-100 rounded-xl mb-4"></div>

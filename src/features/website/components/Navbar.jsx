@@ -41,7 +41,7 @@ const Navbar = () => {
         {/* Logo */}
         <div className="flex items-center">
           <div className="flex items-center text-white text-2xl font-bold">
-            <img src={logo} alt="logo" className=" h-12" />
+            <img src={logo} alt="logo" className=" h-10" />
             {/* <span className="relative">
               JOBS
               <span className="relative inline-block ml-1">
@@ -114,14 +114,10 @@ const Navbar = () => {
 
           {/* Sign Up Button */}
           <Link
-            to="/register"
-            className="px-6 py-2 text-white border border-white rounded-full hover:bg-white hover:text-[#00395B] transition-colors duration-200"
-            style={{
-              borderColor: colors.border.white,
-              color: colors.text.white
-            }}
+            to="/login"
+            className="px-6 py-2 text-white hover:text-[#00395B] font-semibold border border-white rounded-full hover:bg-white "
           >
-            Sign Up
+            Login
           </Link>
         </div>
 
