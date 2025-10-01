@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { colors } from '../../../../shared/colors'
 import { FaSearch, FaMapMarkerAlt, FaBriefcase, FaFilter } from 'react-icons/fa'
-import Subscribe from '../Home/Subscribe'
+import NewsletterSubscription from '../../components/NewsletterSubscription'
 import Footer from '../../components/Footer'
 import JobDetails from './JobDetails'
 
@@ -711,7 +711,7 @@ const FindJob = ({ onClose }) => {
       </div>
       
               {/* Subscribe Section */}
-              <Subscribe />
+              <NewsletterSubscription />
        
        {/* Footer */}
        <Footer />

@@ -19,7 +19,7 @@ export default function WebsiteRoutes() {
     <Routes>
       <Route index element={<Home />} />
       <Route path="/about" element={<About />} />
-      <Route path="/jobs" element={<FindJob />} />
+      <Route path="/find-jobs" element={<FindJob />} />
       <Route path="/courses" element={<Courses />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/skill-assessment" element={<SkillAssesment />} />
