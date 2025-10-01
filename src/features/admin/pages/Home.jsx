@@ -19,6 +19,7 @@ import {
   LuTrendingUp,
 } from 'react-icons/lu'
 import { DoubleCircleChart } from '../../../shared/components/charts'
+import { getChartTooltipStyle, getChartTextColor, getChartGridColor, getChartColors } from '../../../shared/utils/chartColors'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler)
 
@@ -53,27 +54,55 @@ export default function Dashboard() {
     { title:'Active Jobs', value:'23,891', icon:<LuTrendingUp className="w-5 h-5" /> },
   ]
 
+  const palette = getChartColors()
+
   const lineData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
         label: 'Applications',
         data: [1200, 1800, 1400, 2200, 2900, 3200],
-        borderColor: '#0B537D',
-        backgroundColor: 'rgba(11,83,125,0.12)',
+        borderColor: palette.info,
+        backgroundColor: 'rgba(12, 90, 141, 0.15)',
         fill: true,
         tension: 0.35,
         pointRadius: 3,
+        pointBackgroundColor: palette.info,
+        pointBorderColor: palette.info,
       },
     ],
   }
   const lineOptions = {
     responsive: true,
     maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+    plugins: { 
+      legend: { display: false }, 
+      tooltip: { 
+        mode: 'index', 
+        intersect: false,
+        ...getChartTooltipStyle()
+      } 
+    },
     scales: {
-      x: { grid: { display: false } },
-      y: { grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { stepSize: 500 } },
+      x: { 
+        grid: { display: false },
+        ticks: {
+          color: getChartTextColor(),
+          font: {
+            size: 12
+          }
+        }
+      },
+      y: { 
+        grid: { color: getChartGridColor() }, 
+        ticks: { 
+          stepSize: 500,
+          color: getChartTextColor(),
+          font: {
+            size: 12
+          }
+        } 
+      },
     },
   }
 

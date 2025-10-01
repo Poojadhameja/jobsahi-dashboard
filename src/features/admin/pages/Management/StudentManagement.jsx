@@ -31,15 +31,15 @@ function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
 // Advanced Filters Component
 function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter }) {
   return (
-    <div className="bg-white border border-[#0b537d28] rounded-lg p-6">
+    <div className="bg-white border border-[var(--color-primary)28] rounded-lg p-6">
       <div className="flex items-center gap-2 mb-6">
         <LuFilter className="text-gray-600" size={20} />
-        <h3 className="font-medium text-[#0b537d]">Advanced Filters</h3>
+        <h3 className="font-medium text-[var(--color-primary)]">Advanced Filters</h3>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[#0b537d]">Courses</label>
+          <label className="block text-sm font-medium text-[var(--color-primary)]">Courses</label>
           <select 
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.course || 'all'}
@@ -54,7 +54,7 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
         </div>
         
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[#0b537d]">Placement Status</label>
+          <label className="block text-sm font-medium text-[var(--color-primary)]">Placement Status</label>
           <select 
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.placementStatus || 'all'}
@@ -69,7 +69,7 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
         </div>
         
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[#0b537d]">Skills</label>
+          <label className="block text-sm font-medium text-[var(--color-primary)]">Skills</label>
           <select 
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.skills || 'all'}
@@ -84,7 +84,7 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
         </div>
         
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[#0b537d]">Experience</label>
+          <label className="block text-sm font-medium text-[var(--color-primary)]">Experience</label>
           <select 
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.experience || 'all'}
@@ -102,13 +102,13 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
       <div className="flex justify-end gap-3">
         <button 
           onClick={onClearAll}
-          className="px-4 py-2 text-sm text-[#5B9821] hover:underline font-medium"
+          className="px-4 py-2 text-sm text-[var(--color-secondary)] hover:underline font-medium"
         >
           Clear All
         </button>
         <button 
           onClick={onApplyFilter}
-          className="px-4 py-2 text-sm rounded-lg bg-[#5B9821] text-white hover:bg-[#4a7c1a] transition-colors duration-200 font-medium"
+          className="px-4 py-2 text-sm rounded-lg bg-[var(--color-secondary)] text-white hover:bg-secondary-dark transition-colors duration-200 font-medium"
         >
           Apply Filter
         </button>
@@ -154,8 +154,24 @@ function ProgressBar({ progress }) {
 }
 
 // Student Table Component
-function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent }) {
+function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent, autoScrollEnabled, setAutoScrollEnabled }) {
   const allSelected = selectedStudents.length === students.length && students.length > 0
+  
+  // Auto scroll effect
+  React.useEffect(() => {
+    if (autoScrollEnabled && students.length > 0) {
+      const interval = setInterval(() => {
+        const tableContainer = document.querySelector('.student-table-container');
+        if (tableContainer) {
+          tableContainer.scrollTop += 1;
+          if (tableContainer.scrollTop >= tableContainer.scrollHeight - tableContainer.clientHeight) {
+            tableContainer.scrollTop = 0;
+          }
+        }
+      }, 50);
+      return () => clearInterval(interval);
+    }
+  }, [autoScrollEnabled, students.length]);
   
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
@@ -164,6 +180,29 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
            <LuUsers className="text-gray-600" size={20} />
            <h3 className="font-medium text-gray-800">All Student Profiles</h3>
          </div>
+         
+         {/* Auto Scroll Toggle */}
+         <div className="flex items-center gap-2">
+           <span className="text-sm text-gray-700">Auto Scroll</span>
+           <button
+             type="button"
+             onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
+             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+               autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+             }`}
+             style={{
+               backgroundColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined,
+               focusRingColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined
+             }}
+           >
+             <span
+               className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
+                 autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
+               }`}
+             />
+           </button>
+         </div>
+         
          <div className="relative w-full sm:w-auto">
            <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
            <input 
@@ -174,7 +213,7 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
          </div>
        </div>
       
-      <div className="overflow-x-auto">
+      <div className="student-table-container overflow-x-auto max-h-96 overflow-y-auto">
         <table className="min-w-full text-sm">
           <thead>
             <tr className="text-left text-gray-500 border-b">
@@ -243,6 +282,7 @@ export default function StudentManagement() {
   const [students, setStudents] = useState([])
   const [selectedStudents, setSelectedStudents] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
 
   useEffect(() => {
     // TODO: replace with ApiService
@@ -409,6 +449,8 @@ export default function StudentManagement() {
         onSelectAll={handleSelectAll}
         selectedStudents={selectedStudents}
         onSelectStudent={handleSelectStudent}
+        autoScrollEnabled={autoScrollEnabled}
+        setAutoScrollEnabled={setAutoScrollEnabled}
       />
     </div>
   )

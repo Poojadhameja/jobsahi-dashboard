@@ -1,17 +1,77 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../WebConstant'
+import { postMethod } from '../../service/api'
+import { getMethod } from '../../service/api'
+import { putMethod } from '../../service/api'
+import apiService from '../../service/serviceUrl'
+import LogoutConfirmationModal from '../components/LogoutConfirmationModal'
 
 export default function AdminProfile() {
-  const onLogout = () => {
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  var authUser = localStorage.getItem("authUser")
+  var user = JSON.parse(authUser);
+  const navigate = useNavigate()
+
+  const onLogout = async () => {
+    localStorage.clear();
     if (typeof window !== 'undefined') window.location.href = '/login'
+    console.log('Logging out...')
+
   }
   const [profile, setProfile] = useState({
-    name: 'Admin',
-    email: 'admin@jobsahi.com',
-    phone: '9876543210',
-    role: 'Admin',
+    name: user.name,
+    email: user.email,
+    phone: user.phone_number,
+    role: user.role,
   })
   const [phoneError, setPhoneError] = useState('')
+
+  const handleLogout = () => {
+    setShowLogoutModal(true)
+  }
+
+  const confirmLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      // Add logout logic here (clear tokens, call logout API, etc.)
+      console.log('Logging out...')
+
+      var data = {
+        apiUrl: apiService.logout,
+        payload: {
+          uid: user.id
+        },
+
+      };
+
+      var response = await postMethod(data);
+
+      // Simulate logout process
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      if (response.status === true) {
+        setShowLogoutModal(true)
+        navigate('/login')
+        localStorage.clear();
+
+      } else {
+        console.error("Logout Failed:", response)
+        alert(response.message || "Logout Failed")
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Handle logout error if needed
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
+
+  const closeLogoutModal = () => {
+    setShowLogoutModal(false)
+  }
 
   const onChangeField = (key) => (e) => {
     let value = e.target.value
@@ -26,24 +86,70 @@ export default function AdminProfile() {
     setProfile((p) => ({ ...p, [key]: value }))
   }
 
-  const onSave = () => {
+  const onSave = async (e) => {
+    e.preventDefault()
     if (!/^\d{10}$/.test(profile.phone)) {
       setPhoneError('Enter a valid 10-digit phone number')
       return
     }
     // eslint-disable-next-line no-console
     console.log('save-profile', profile)
+    try {
+      var data = {
+        apiUrl: apiService.updateUser,
+        payload: {
+          uid: user.id,
+          uname: profile.name,
+          uemail: profile.email,
+          //upassword: "password123",
+          urole: profile.role,
+          uphone: profile.phone,
+          uverified: user.is_verified
+        },
+      };
+
+      var response = await postMethod(data);
+      console.log(response);
+
+      if (response.status === true) {
+        // Save token + expiry
+        //alert(response.message || "User updated successfully!")
+        Swal.fire({
+          title: "Success",
+          text: "User updated successfully!",
+          icon: "success"
+        });
+
+
+      } else {
+        // console.error("Failed to update user:", response)
+        // alert(response.message || "Failed to update user")
+        Swal.fire({
+          title: "Failed",
+          text: "Failed to update user",
+          icon: "error"
+        });
+      }
+    } catch (error) {
+      // console.error("API Error:", error)
+      // alert("Something went wrong. Please try again.")
+      Swal.fire({
+        title: "API Error",
+        text: "Something went wrong. Please try again.",
+        icon: "error"
+      });
+    }
   }
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <div className="w-20 h-20 rounded-full bg-gray-200 grid place-items-center">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-8 h-8 text-gray-600">
-            <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 1116 0"/>
+            <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 1116 0" />
           </svg>
         </div>
         <div>
-          <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Admin Profile</h1>
+          <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{user.role?.charAt(0).toUpperCase() + user.role?.slice(1)} Profile</h1>
           <div className="text-sm text-gray-500">Manage your profile and account settings</div>
         </div>
       </div>
@@ -87,10 +193,19 @@ export default function AdminProfile() {
           <button className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`}>Two-Factor Authentication</button>
           <button className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ color: COLORS.ERROR, borderColor: '#FEE2E2' }}>Delete Account</button>
           <div className="pt-1">
-            <button onClick={onLogout} className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}>Logout</button>
+            <button onClick={handleLogout} className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}>Logout</button>
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={closeLogoutModal}
+        onConfirm={confirmLogout}
+        userName={profile.name}
+        isLoading={isLoggingOut}
+      />
     </div>
   )
 }

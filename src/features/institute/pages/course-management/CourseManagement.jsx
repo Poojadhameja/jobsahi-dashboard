@@ -1,0 +1,66 @@
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { LuPlus, LuSettings } from 'react-icons/lu'
+import { MatrixCard } from '../../../../shared/components/metricCard'
+import { PillNavigation } from '../../../../shared/components/navigation'
+import { CourseProvider } from '../../context/CourseContext'
+import CreateCourse from './CreateCourse'
+import ManageCourse from './ManageCourse'
+
+export default function CourseManagement() {
+  const navigate = useNavigate()
+  const [activeTabIndex, setActiveTabIndex] = useState(1)
+
+  const handleCreateCourse = () => {
+    navigate('/institute/course-management/create')
+  }
+
+  const handleManageCourse = () => {
+    navigate('/institute/course-management/manage')
+  }
+
+  // Navigation tabs for PillNavigation
+  const navigationTabs = [
+    {
+      id: 'create-course',
+      label: 'Create Course',
+      icon: LuPlus
+    },
+    {
+      id: 'manage-course',
+      label: 'Manage Course',
+      icon: LuSettings
+    }
+  ]
+
+  return (
+    <CourseProvider>
+      <div className="p-2 bg-[#F6FAFF] min-h-screen">
+        {/* Header Section */}
+        <div className="mb-6">
+          <MatrixCard 
+            title="Course Management" 
+            subtitle="Manage your courses, create new ones, and track course performance"
+            className="mb-4"
+          />
+        </div>
+
+        {/* Green Navigation Buttons using PillNavigation */}
+        <div className="mb-8">
+          <PillNavigation 
+            tabs={navigationTabs}
+            activeTab={activeTabIndex}
+            onTabChange={setActiveTabIndex}
+          />
+        </div>
+
+        {/* Content Area */}
+        {activeTabIndex === 0 ? (
+          <CreateCourse />
+        ) : (
+          <ManageCourse />
+        )}
+      </div>
+    </CourseProvider>
+  )
+}

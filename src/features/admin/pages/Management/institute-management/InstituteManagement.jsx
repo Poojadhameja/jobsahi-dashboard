@@ -4,7 +4,7 @@ import { PillNavigation } from '../../../../../shared/components/navigation'
 import PendingInstituteApprovals from './PendingInstitute'
 import CourseMonitoring from './CourseMonitoring'
 import PlacementStudent from './PlacementStudent'
-import CertificateInsurance from './CertificateInsurance'
+import CertificateIssuance from './CertificateIssuance'
 import MessageInstitute from './MessageInstitute'
 
 
@@ -50,7 +50,7 @@ export default function InstituteManagement() {
       )}
 
       {activeTab === 3 && (
-        <CertificateInsurance />
+        <CertificateIssuance />
       )}
 
       {activeTab === 4 && (

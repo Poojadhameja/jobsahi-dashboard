@@ -8,7 +8,8 @@ const JobPosting = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [promotionJobId, setPromotionJobId] = useState('');
-  const [highlightType, setHighlightType] = useState('top-ribbon');
+  const [topRibbonEnabled, setTopRibbonEnabled] = useState(false);
+  const [priorityListingEnabled, setPriorityListingEnabled] = useState(false);
 
   // ====== DATA CONFIGURATION ======
   const jobPostings = [
@@ -49,7 +50,11 @@ const JobPosting = () => {
   const handleBulkApprove = () => console.log('Bulk approving jobs:', selectedJobs);
   const handleBulkPromote = () => console.log('Bulk promoting jobs:', selectedJobs);
   const handleManualPromotion = () => {
-    console.log('Manual promotion:', { jobId: promotionJobId, highlightType });
+    console.log('Manual promotion:', { 
+      jobId: promotionJobId, 
+      topRibbonEnabled,
+      priorityListingEnabled
+    });
     setPromotionJobId('');
   };
 
@@ -82,7 +87,7 @@ const JobPosting = () => {
                 placeholder="Search Jobs & Companies"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
               />
             </div>
           </div>
@@ -91,7 +96,7 @@ const JobPosting = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
             >
               <option value="All Status">All Status</option>
               <option value="Pending">Pending</option>
@@ -103,7 +108,7 @@ const JobPosting = () => {
 
           <div className="flex gap-3">
             <Button onClick={handleBulkApprove} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve selected</Button>
-            <Button onClick={handleBulkPromote} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY }} variant="unstyled">Promote selected</Button>
+            <Button onClick={handleBulkPromote} className={`px-4 py-2 rounded-lg transition-colors duration-200 border-secondary text-secondary bg-bg-white hover:bg-gray-100`} variant="unstyled">Promote selected</Button>
           </div>
         </div>
 
@@ -163,7 +168,7 @@ const JobPosting = () => {
                     <td className="px-6 py-4">
                       <div className="flex space-x-2">
                         <Button onClick={() => handleApproveJob(job.id)} className={`px-3 py-1 text-xs rounded transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve</Button>
-                        <Button onClick={() => handlePromoteJob(job.id)} className={`px-3 py-1 text-xs rounded ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ borderColor: COLORS.GREEN_PRIMARY, color: COLORS.GREEN_PRIMARY }} variant="unstyled">Promote</Button>
+                        <Button onClick={() => handlePromoteJob(job.id)} className={`px-3 py-1 text-xs rounded border-secondary text-secondary bg-bg-white hover:bg-gray-100`} variant="unstyled">Promote</Button>
                       </div>
                     </td>
                   </tr>
@@ -189,7 +194,7 @@ const JobPosting = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <Button onClick={() => handleApproveJob(post.id)} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve</Button>
-                  <Button onClick={() => console.log('Viewing flagged job', post.id)} className={`px-4 py-2 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`} variant="unstyled">View</Button>
+                  <Button onClick={() => console.log('Viewing flagged job', post.id)} className={`px-4 py-2 rounded-lg border-secondary text-secondary bg-bg-white hover:bg-gray-100`} variant="unstyled">View</Button>
             </div>
               </div>
             ))}
@@ -208,42 +213,56 @@ const JobPosting = () => {
               placeholder="e.g. J-103"
               value={promotionJobId}
               onChange={(e) => setPromotionJobId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
               />
             </div>
 
           <div className="mt-5">
-            <div className="text-sm font-medium text-gray-700 mb-3">Highlight</div>
+            <div className="text-sm font-medium text-gray-700 mb-3">Promotion Options</div>
 
-            <label className="flex items-center gap-3 cursor-pointer select-none">
-              <Button
+            {/* Top Ribbon Toggle */}
+            <div className="flex items-center justify-between py-2">
+              <span className="text-sm text-gray-800">Top Ribbon</span>
+              <button
                 type="button"
-                role="radio"
-                aria-checked={highlightType === 'top-ribbon'}
-                onClick={() => setHighlightType('top-ribbon')}
-                className={`flex items-center justify-center h-6 w-6 rounded-full border-2 transition-colors duration-200 ${highlightType === 'top-ribbon' ? '' : 'border-gray-300'}`}
-                style={{ borderColor: highlightType === 'top-ribbon' ? COLORS.GREEN_PRIMARY : undefined, backgroundColor: highlightType === 'top-ribbon' ? 'rgba(92,154,36,0.1)' : undefined }}
-                variant="unstyled"
+                onClick={() => setTopRibbonEnabled(!topRibbonEnabled)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                  topRibbonEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+                }`}
+                style={{
+                  backgroundColor: topRibbonEnabled ? COLORS.GREEN_PRIMARY : undefined,
+                  focusRingColor: topRibbonEnabled ? COLORS.GREEN_PRIMARY : undefined
+                }}
               >
-                <span className={`h-2.5 w-2.5 rounded-full transition-colors duration-200 ${highlightType === 'top-ribbon' ? '' : 'bg-transparent'}`} style={{ backgroundColor: highlightType === 'top-ribbon' ? COLORS.GREEN_PRIMARY : undefined }} />
-              </Button>
-              <span className="text-sm text-gray-800">Top ribbon</span>
-            </label>
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
+                    topRibbonEnabled ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
 
-            <label className="flex items-center gap-3 cursor-pointer select-none mt-3">
-              <Button
+            {/* Priority Listing Toggle */}
+            <div className="flex items-center justify-between py-2">
+              <span className="text-sm text-gray-800">Priority Listing</span>
+              <button
                 type="button"
-                role="radio"
-                aria-checked={highlightType === 'priority'}
-                onClick={() => setHighlightType('priority')}
-                className={`flex items-center justify-center h-6 w-6 rounded-full border-2 transition-colors duration-200 ${highlightType === 'priority' ? '' : 'border-gray-300'}`}
-                style={{ borderColor: highlightType === 'priority' ? COLORS.GREEN_PRIMARY : undefined, backgroundColor: highlightType === 'priority' ? 'rgba(92,154,36,0.1)' : undefined }}
-                variant="unstyled"
+                onClick={() => setPriorityListingEnabled(!priorityListingEnabled)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                  priorityListingEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+                }`}
+                style={{
+                  backgroundColor: priorityListingEnabled ? COLORS.GREEN_PRIMARY : undefined,
+                  focusRingColor: priorityListingEnabled ? COLORS.GREEN_PRIMARY : undefined
+                }}
               >
-                <span className={`h-2.5 w-2.5 rounded-full transition-colors duration-200 ${highlightType === 'priority' ? '' : 'bg-transparent'}`} style={{ backgroundColor: highlightType === 'priority' ? COLORS.GREEN_PRIMARY : undefined }} />
-              </Button>
-              <span className="text-sm text-gray-800">Priority listing</span>
-            </label>
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
+                    priorityListingEnabled ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           <div className="mt-6">

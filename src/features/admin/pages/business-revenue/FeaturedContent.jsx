@@ -3,6 +3,7 @@ import { PillNavigation } from '../../../../shared/components/navigation'
 
 export default function FeaturedContent() {
   const [activeTab, setActiveTab] = useState(0)
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
   
   // Form state for Priority Banners
   const [bannerForm, setBannerForm] = useState({
@@ -90,7 +91,7 @@ export default function FeaturedContent() {
        case 2:
          return {
            title: 'Priority Banners',
-           subtitle: 'Manage prommotional banners and their priority',
+           subtitle: 'Manage promotional banners and their priority',
            data: priorityBanners,
            columns: ['Banner title', 'Location', 'Priority', 'Status', 'Start date', 'End date', 'Actions']
          }
@@ -130,8 +131,24 @@ export default function FeaturedContent() {
 
   const currentData = getCurrentData()
 
+  // Auto scroll effect
+  React.useEffect(() => {
+    if (autoScrollEnabled && currentData.data.length > 0) {
+      const interval = setInterval(() => {
+        const tableContainer = document.querySelector('.featured-content-table-container');
+        if (tableContainer) {
+          tableContainer.scrollTop += 1;
+          if (tableContainer.scrollTop >= tableContainer.scrollHeight - tableContainer.clientHeight) {
+            tableContainer.scrollTop = 0;
+          }
+        }
+      }, 50);
+      return () => clearInterval(interval);
+    }
+  }, [autoScrollEnabled, currentData.data.length]);
+
   return (
-    <div className="max-w-7xl mx-auto bg-white border border-[#0b537d3c] space-y-6 rounded-lg">
+    <div className="max-w-7xl mx-auto bg-white border border-primary-30 space-y-6 rounded-lg">
       {/* Header */}
       <div className="p-5">
         <div className="flex items-center justify-between">
@@ -139,10 +156,33 @@ export default function FeaturedContent() {
             <h1 className="text-xl font-bold text-gray-900">Featured Content Manager</h1>
             <p className="text-gray-600 mt-1">Manage featured jobs, courses, and priority banners</p>
           </div>
+          
+          {/* Auto Scroll Toggle */}
+          <div className="flex items-center gap-2 mr-4">
+            <span className="text-sm text-gray-700">Auto Scroll</span>
+            <button
+              type="button"
+              onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+              }`}
+              style={{
+                backgroundColor: autoScrollEnabled ? '#5C9A24' : undefined,
+                focusRingColor: autoScrollEnabled ? '#5C9A24' : undefined
+              }}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
+                  autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          
           <button 
             onClick={handleAddFeatured}
-            className="bg-white hover:bg-[#5B9821] hover:text-white border-2 border-[#5B9821] text-[#5B9821] px-4 py-2 rounded-lg font-medium transition-colors">
-            + Add featured Content
+            className="bg-white hover:bg-secondary hover:text-white border-2 border-secondary text-secondary px-4 py-2 rounded-lg font-medium transition-colors">
+            + Add Featured Content
           </button>
         </div>
       </div>
@@ -182,7 +222,7 @@ export default function FeaturedContent() {
                       value={bannerForm.title}
                       onChange={(e) => handleBannerFormChange('title', e.target.value)}
                       placeholder="New year special offer"
-                      className="w-full p-2 bg-[#F6FAFF] border border-[#0b537d3c] rounded-lg focus:outline-none text-gray-700 placeholder-gray-500"
+                      className="w-full p-2 bg-bg-primary border border-primary-30 rounded-lg focus:outline-none text-gray-700 placeholder-gray-500"
                     />
                   </div>
 
@@ -194,7 +234,7 @@ export default function FeaturedContent() {
                       <select
                         value={bannerForm.priority}
                         onChange={(e) => handleBannerFormChange('priority', e.target.value)}
-                        className="w-full p-2 bg-[#F6FAFF] border border-[#0b537d3c] rounded-lg focus:outline-none text-gray-700">
+                        className="w-full p-2 bg-bg-primary border border-primary-30 rounded-lg focus:outline-none text-gray-700">
                         <option value="" className="text-gray-500">Select priority</option>
                         <option value="High">High</option>
                         <option value="Medium">Medium</option>
@@ -213,7 +253,7 @@ export default function FeaturedContent() {
                       onChange={(e) => handleBannerFormChange('description', e.target.value)}
                       placeholder="Banner description..."
                       rows={4}
-                      className="w-full p-2 bg-[#F6FAFF] border border-[#0b537d3c] rounded-lg focus:outline-none text-gray-700 placeholder-gray-500 resize-none"
+                      className="w-full p-2 bg-bg-primary border border-primary-30 rounded-lg focus:outline-none text-gray-700 placeholder-gray-500 resize-none"
                     />
                   </div>
 
@@ -222,7 +262,7 @@ export default function FeaturedContent() {
                     <button
                       onClick={() => handleBannerFormChange('isActive', !bannerForm.isActive)}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none  ${
-                        bannerForm.isActive ? 'bg-[#5B9821]' : 'bg-gray-200'
+                        bannerForm.isActive ? 'bg-secondary' : 'bg-gray-200'
                       }`}
                     >
                       <span
@@ -237,7 +277,7 @@ export default function FeaturedContent() {
                   <div className="pt-2">
                     <button
                       onClick={handleSaveBanner}
-                      className="px-5 bg-[#5B9821] hover:bg-[#4A7D1A] text-white font-bold py-3 rounded-lg transition-colors"
+                      className="px-5 bg-secondary hover:bg-secondary-dark text-white font-bold py-3 rounded-lg transition-colors"
                     >
                       Save Banner
                     </button>
@@ -248,7 +288,7 @@ export default function FeaturedContent() {
          ) : (
            /* Table for Featured Jobs and Featured Courses */
            <>
-             <div className="overflow-x-auto">
+             <div className="featured-content-table-container overflow-x-auto max-h-96 overflow-y-auto">
                <table className="w-full">
                  <thead className="bg-gray-50">
                    <tr>
@@ -271,7 +311,7 @@ export default function FeaturedContent() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex border items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           item.priority === 'High' 
-                            ? 'bg-green-100 text-[#5B9821]' 
+                            ? 'bg-green-100 text-secondary' 
                             : item.priority === 'Medium'
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-gray-100 text-gray-800'
@@ -282,7 +322,7 @@ export default function FeaturedContent() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           item.status === 'Active' 
-                            ? 'bg-green-100 text-[#5B9821]' 
+                            ? 'bg-green-100 text-secondary' 
                             : 'bg-gray-100 text-gray-800'
                         }`}>
                           {item.status}
@@ -328,7 +368,7 @@ export default function FeaturedContent() {
                     onClick={handleAddFeatured}
                     className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                   >
-                    + Add featured Content
+                    + Add Featured Content
                   </button>
                 </div>
               </div>

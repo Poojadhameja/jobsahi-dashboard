@@ -36,8 +36,8 @@ export default function CoursePerformance() {
       {
         label: 'Completion Rate',
         data: [85, 65, 50, 70, 80],
-        backgroundColor: '#8FBF64',
-        borderColor: '#5B9821',
+        backgroundColor: 'var(--color-secondary-light)',
+        borderColor: 'var(--color-secondary)',
         borderWidth: 1,
       }
     ]
@@ -80,11 +80,11 @@ export default function CoursePerformance() {
       {
         data: [100, 100, 100, 100, 100],
         backgroundColor: [
-          '#EF4444', // Red
-          '#5B9821', // Green
-          '#3B82F6', // Blue
-          '#F97316', // Orange
-          '#EAB308', // Yellow
+          'var(--color-error)', // Red
+          'var(--color-secondary)', // Green
+          'var(--color-primary)', // Blue
+          'var(--color-warning)', // Orange
+          '#FDE047', // Yellow
         ],
         borderWidth: 0,
       }
@@ -146,12 +146,12 @@ export default function CoursePerformance() {
   ]
 
   return (
-    <div className="p-5 space-y-8">
+    <div className="space-y-8">
       {/* Top Section with Two Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Visits → Resume → Application Flow Bar Chart */}
-        <div className="bg-white rounded-lg border border-[#0b537d28] shadow-sm p-6">
-          <h3 className="text-xl font-semibold text-[#1A569A] mb-2">
+        <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
+          <h3 className="text-xl font-semibold text-primary mb-2">
             Visits → Resume → Application Flow
           </h3>
           <p className="text-gray-600 mb-6">
@@ -164,8 +164,8 @@ export default function CoursePerformance() {
         </div>
 
         {/* Course Completion Distribution Pie Chart */}
-        <div className="bg-white rounded-lg border border-[#0b537d28] shadow-sm p-6">
-          <h3 className="text-xl font-semibold text-[#1A569A] mb-2">
+        <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
+          <h3 className="text-xl font-semibold text-primary mb-2">
             Course Completion Distribution
           </h3>
           <p className="text-gray-600 mb-6">
@@ -179,8 +179,8 @@ export default function CoursePerformance() {
       </div>
 
       {/* Export Options */}
-      <div className="bg-white rounded-lg border border-[#0b537d28] shadow-sm p-6">
-        <h3 className="text-xl font-semibold text-[#1A569A] mb-2">
+      <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
+        <h3 className="text-xl font-semibold text-primary mb-2">
           Export Options
         </h3>
         <p className="text-gray-600 mb-6">
@@ -192,7 +192,7 @@ export default function CoursePerformance() {
             <button
               key={index}
               onClick={option.onClick}
-              className="flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-[#5B9821] text-[#5B9821] rounded-lg hover:bg-[#5B9821] hover:text-white transition-colors duration-200 font-medium"
+              className="flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors duration-200 font-medium"
             >
               <span className="text-lg">{option.icon}</span>
               <span className="text-sm">{option.label}</span>

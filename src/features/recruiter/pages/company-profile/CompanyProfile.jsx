@@ -1,57 +1,60 @@
 import React, { useState } from "react";
-import {
-  LuBuilding2,
-  LuUsers,
-  LuSettings,
-} from "react-icons/lu";
-
-// Import components
-import CompanyInfo from './CompanyInfo'
-import TeamManagement from './TeamManagement'
-import Preferences from './Preferences'
+import { LuBuilding2, LuUsers, LuSettings } from "react-icons/lu";
+import { MatrixCard } from "@shared/components/metricCard";
 import { PillNavigation } from "@shared/components/navigation";
-import { MatrixCard } from "../../../../shared/components/metricCard";
-import { COLORS } from "@shared/WebConstant";
+import CompanyInfo from "./CompanyInformation";
+import TeamManagement from "./TeamManagement";
+import Preferences from "./Preferences";
 
 const CompanyProfile = () => {
-  // Tab configuration
+  const [activeTab, setActiveTab] = useState(0);
+
   const tabs = [
-    { id: "company-info", label: "Company Info", icon: LuBuilding2 },
-    { id: "team-management", label: "Team Management", icon: LuUsers },
-    { id: "preferences", label: "Preferences", icon: LuSettings },
+    {
+      id: "company-info",
+      label: "Company Info",
+      icon: LuBuilding2,
+      component: <CompanyInfo />
+    },
+    {
+      id: "team-management",
+      label: "Team Management",
+      icon: LuUsers,
+      component: <TeamManagement />
+    },
+    {
+      id: "preferences",
+      label: "Preferences",
+      icon: LuSettings,
+      component: <Preferences />
+    }
   ];
-  
-  const [activeIndex, setActiveIndex] = useState(0);
-  const activeTab = tabs[activeIndex]?.id || "company-info";
 
   return (
     <div className="space-y-5">
-      {/* Header Section */}
-      <div className="max-w-6xl mx-auto mb-6">
-        <MatrixCard 
-          title="Company Profile & Settings"
-          subtitle="Manage your company information and team settings"
-          className="mb-6"
+      {/* Header Section using MatrixCard */}
+      <MatrixCard
+        title="Company Profile & Settings"
+        subtitle="Manage your company information and team settings"
+        className=""
+      />
+
+      {/* Navigation Pills using PillNavigation */}
+      <div className="flex justify-center">
+        <PillNavigation
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          className=""
         />
-        
-        {/* Navigation Tabs */}
-        <div className="flex justify-center mb-6">
-          <PillNavigation 
-            tabs={tabs}
-            activeTab={activeIndex}
-            onTabChange={setActiveIndex}
-          />
-        </div>
       </div>
 
-      {/* Main content will be rendered based on activeTab */}
-      <div className="max-w-6xl mx-auto">
-        {activeTab === "company-info" && <CompanyInfo />}
-        {activeTab === "team-management" && <TeamManagement />}
-        {activeTab === "preferences" && <Preferences />}
+      {/* Tab Content */}
+      <div className="mt-5">
+        {tabs[activeTab]?.component}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CompanyProfile
+export default CompanyProfile;

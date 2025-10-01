@@ -90,7 +90,7 @@ const CourseOversight = () => {
                 placeholder="Search courses, categories, or instructors"
                 value={courseSearchTerm}
                 onChange={(e) => setCourseSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
               />
             </div>
           </div>
@@ -99,7 +99,7 @@ const CourseOversight = () => {
             <select
               value={courseStatusFilter}
               onChange={(e) => setCourseStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
             >
               <option value="All Status">All Status</option>
               <option value="Pending">Pending</option>
@@ -234,7 +234,7 @@ const CourseOversight = () => {
             placeholder="Add new category"
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
           />
           <Button onClick={handleAddCategory} variant="primary" size="md">
             Add Category
@@ -255,7 +255,7 @@ const CourseOversight = () => {
             step="0.1"
             value={minTopRated}
             onChange={(e) => setMinTopRated(Number(e.target.value))}
-            className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0B537D] focus:border-transparent"
+            className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
           />
           <Button onClick={handleTagTopRated} variant="primary" size="md">
             Tag as Featured

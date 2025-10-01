@@ -106,7 +106,7 @@ function EnrollmentIssueTable() {
     {
       course: "Computer Basics",
       certificate: "95",
-      status: "Viewdetails"
+      status: "View details"
     },
     {
       course: "Computer Basics",
@@ -134,7 +134,7 @@ function EnrollmentIssueTable() {
                 <td className="py-3 px-4 text-gray-700">{issue.certificate}</td>
                 <td className="py-3 px-4">
                   <span className={`px-3 py-1 text-xs rounded-full ${
-                    issue.status === 'Viewdetails' 
+                    issue.status === 'View details' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-red-100 text-red-800'
                   }`}>

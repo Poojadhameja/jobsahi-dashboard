@@ -25,24 +25,17 @@ const RichTextEditor = ({
       className={`w-full ${className}`}
       modules={{
         toolbar: [
-          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-          [{ 'font': [] }],
-          ['bold', 'italic', 'underline'],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          ['bold', 'underline'],
+          [{ 'list': 'bullet' }],
           [{ 'align': [] }],
-          ['link', 'image'],
-          ['code-block', 'formula'],
+          ['link'],
           ['undo', 'redo']
         ]
       }}
       formats={[
-        'header', 'font',
-        'bold', 'italic', 'underline',
-        'color', 'background',
+        'bold', 'underline',
         'list', 'bullet', 'align',
-        'link', 'image',
-        'code-block', 'formula',
+        'link',
         'undo', 'redo'
       ]}
       {...props}

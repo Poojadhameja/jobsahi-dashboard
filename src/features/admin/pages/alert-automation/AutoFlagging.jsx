@@ -7,7 +7,7 @@ const Toggle = ({ checked, onChange, label }) => (
   <label className="flex items-center gap-3 cursor-pointer select-none">
     <span
       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-        checked ? 'bg-[#5C9A24]' : 'bg-gray-300'
+        checked ? 'bg-[var(--color-secondary)]' : 'bg-gray-300'
       }`}
       role="switch"
       aria-checked={checked}
@@ -86,7 +86,7 @@ const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) =>
           <textarea
             value={settings.emailTemplate}
             onChange={(e) => onSettingsChange({ ...settings, emailTemplate: e.target.value })}
-            placeholder="your plan expired in days. Renew now to continue..."
+            placeholder="Your plan expires in X days. Renew now to continue..."
             className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"
           />
         </div>
@@ -104,7 +104,7 @@ const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) =>
         <div className="pt-4">
           <PrimaryButton 
             onClick={handleSubmit}
-            className="w-full h-12 bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg text-sm font-medium"
+            className="w-full h-12 bg-[var(--color-secondary)] hover:bg-secondary-dark text-white rounded-lg text-sm font-medium"
           >
             Save Settings
           </PrimaryButton>
@@ -152,8 +152,8 @@ const RecentExpiryAlerts = ({ alerts, onReviewAlert }) => {
               <span
                 className={`px-3 py-1 text-sm font-medium rounded-md whitespace-nowrap ${
                   alert.status === 'Reviewed' 
-                    ? 'bg-[#5B9821] text-white' 
-                    : 'bg-[#5B9821] text-white'
+                    ? 'bg-[var(--color-secondary)] text-white' 
+                    : 'bg-[var(--color-secondary)] text-white'
                 }`}
               >
                 {alert.status}
@@ -171,7 +171,7 @@ const AutoFlagging = () => {
   // State management for plan expiry settings
   const [settings, setSettings] = useState({
     reminderDays: '',
-    emailTemplate: 'your plan expired in days. Renew now to continue...',
+    emailTemplate: 'Your plan expires in X days. Renew now to continue...',
     enableReminders: true
   })
 

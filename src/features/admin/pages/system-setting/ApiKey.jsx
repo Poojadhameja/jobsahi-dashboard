@@ -11,7 +11,7 @@ const ToggleSwitch = ({ checked, onChange }) => (
       checked ? "" : "bg-slate-300"
     }`}
     style={{
-      backgroundColor: checked ? COLORS?.GREEN_PRIMARY || '#059669' : undefined
+      backgroundColor: checked ? COLORS?.GREEN_PRIMARY || 'var(--color-secondary)' : undefined
     }}
     aria-pressed={checked}
     type="button"
@@ -30,11 +30,11 @@ const StatusPill = ({ active, onClick }) => (
     onClick={onClick}
     className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors duration-200 ${
       active
-        ? "text-white border-[#5B9821]"
+        ? "text-white border-[var(--color-secondary)]"
         : "bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200"
     }`}
     style={{
-      backgroundColor: active ? '#5B9821' : undefined
+      backgroundColor: active ? 'var(--color-secondary)' : undefined
     }}
     type="button"
   >
@@ -82,7 +82,7 @@ export default function ApiKeyWebhookControl() {
   return (
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
       {/* Header Section */}
-      <div className="flex items-start bg-white p-4 border border-[#0b537d2c] rounded-lg justify-between gap-4">
+      <div className="flex items-start bg-white p-4 border border-[var(--color-primary)2c] rounded-lg justify-between gap-4">
         <div className="flex items-start gap-3">
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
             <LuKey className="h-4 w-4 text-green-600" />
@@ -96,7 +96,7 @@ export default function ApiKeyWebhookControl() {
         {/* Back to overview button */}
         <PrimaryButton
           onClick={() => window.history.back()}
-          className="h-10 px-4 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-sm font-medium"
+          className="h-10 px-4 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-sm font-medium"
           icon={<LuArrowLeft className="w-4 h-4" />}
         >
           Back to overview
@@ -129,7 +129,7 @@ export default function ApiKeyWebhookControl() {
                   />
                   <PrimaryButton
                     onClick={handleRegenerateApi}
-                    className="h-8 px-3 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-xs font-medium"
+                    className="h-8 px-3 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-xs font-medium"
                     icon={<LuRefreshCw className="h-3 w-3" />}
                   >
                     Regenerate
@@ -155,7 +155,7 @@ export default function ApiKeyWebhookControl() {
                   />
                   <PrimaryButton
                     onClick={handleRegenerateSecret}
-                    className="h-8 px-3 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-xs font-medium"
+                    className="h-8 px-3 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-xs font-medium"
                     icon={<LuRefreshCw className="h-3 w-3" />}
                   >
                     Regenerate
@@ -222,7 +222,7 @@ export default function ApiKeyWebhookControl() {
           {/* Back to overview button */}
           <PrimaryButton
             onClick={() => window.history.back()}
-            className="h-10 px-4 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-sm font-medium"
+            className="h-10 px-4 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-sm font-medium"
             icon={<LuArrowLeft className="w-4 h-4" />}
           >
             Back to overview

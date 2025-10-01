@@ -11,14 +11,14 @@ const sizeClasses = {
 
 const variants = {
   primary: `${TAILWIND_COLORS.BTN_PRIMARY}`,
-  outline: 'bg-white border border-[#5B9821] text-[#5B9821] hover:bg-green-50',
+  outline: 'bg-white border border-secondary text-secondary hover:bg-green-50',
   light: `${TAILWIND_COLORS.BTN_LIGHT}`,
   neutral: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
   secondary: `${TAILWIND_COLORS.BTN_SECONDARY}`,
-  success: 'bg-[#16A34A] text-white hover:opacity-90',
-  warning: 'bg-[#F59E0B] text-white hover:opacity-90',
-  danger: 'bg-[#DC2626] text-white hover:opacity-90',
-  info: 'bg-[#0B537D] text-white hover:opacity-90',
+  success: 'bg-success text-white hover:opacity-90',
+  warning: 'bg-warning text-white hover:opacity-90',
+  danger: 'bg-error text-white hover:opacity-90',
+  info: 'bg-info text-white hover:opacity-90',
   unstyled: ''
 };
 
@@ -300,8 +300,8 @@ export const RadioButton = ({
         checked ? '' : 'border-gray-300'
       }`}
       style={{ 
-        borderColor: checked ? COLORS.GREEN_PRIMARY : undefined, 
-        backgroundColor: checked ? 'rgba(92,154,36,0.1)' : undefined 
+        borderColor: checked ? 'var(--color-secondary)' : undefined, 
+        backgroundColor: checked ? 'var(--color-primary-10)' : undefined 
       }}
       variant="unstyled"
       {...props}
@@ -322,7 +322,7 @@ export const LaunchCampaignButton = ({ onClick, loading = false, disabled = fals
   <Button 
     variant="primary" 
     size="md"
-    className={`font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY_30}] disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+    className={`font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30 disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
     onClick={onClick}
     loading={loading}
     disabled={disabled || loading}
@@ -341,7 +341,7 @@ export const SaveDraftButton = ({ onClick, className = '', ...props }) => (
   <Button 
     variant="outline" 
     size="md"
-    className={`font-semibold focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY_30}] ${className}`}
+    className={`font-semibold focus:outline-none focus:ring-2 focus:ring-primary-30 ${className}`}
     onClick={onClick}
     icon={
       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -350,7 +350,7 @@ export const SaveDraftButton = ({ onClick, className = '', ...props }) => (
     }
     {...props}
   >
-    Save draft
+    Save Draft
   </Button>
 );
 
@@ -442,7 +442,7 @@ export const SaveButton = ({
       fullWidth
       className={`${className}`}
       style={{ 
-        backgroundColor: COLORS?.GREEN_PRIMARY || '#059669',
+        backgroundColor: 'var(--color-secondary)',
         opacity: loading ? 0.7 : 1
       }}
       {...props}
@@ -470,7 +470,7 @@ export const BackToOverviewButton = ({
     variant="light"
     size="sm"
     className={`rounded-full bg-white hover:bg-emerald-50 text-emerald-700 border px-4 py-2 font-medium flex items-center gap-2 ${className}`}
-    style={{ borderColor: COLORS?.GREEN_PRIMARY || '#059669' }}
+    style={{ borderColor: 'var(--color-secondary)' }}
     icon={
       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />

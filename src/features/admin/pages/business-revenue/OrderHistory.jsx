@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 export default function OrderHistory() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
 
   // Demo data - replace with API data later
   const paymentLogs = [
@@ -37,23 +38,62 @@ export default function OrderHistory() {
     log.amount.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
+  // Auto scroll effect
+  React.useEffect(() => {
+    if (autoScrollEnabled && filteredLogs.length > 0) {
+      const interval = setInterval(() => {
+        const tableContainer = document.querySelector('.order-history-table-container');
+        if (tableContainer) {
+          tableContainer.scrollTop += 1;
+          if (tableContainer.scrollTop >= tableContainer.scrollHeight - tableContainer.clientHeight) {
+            tableContainer.scrollTop = 0;
+          }
+        }
+      }, 50);
+      return () => clearInterval(interval);
+    }
+  }, [autoScrollEnabled, filteredLogs.length]);
+
   return (
     <div className="max-w-7xl mx-auto  space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg border border-[#0b537d3c] shadow-sm p-6">
+      <div className="bg-white rounded-lg border border-[var(--color-primary)3c] shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900">Order History & Payment Logs</h1>
             <p className="text-gray-600 mt-1">Track Payment, invoices, and refunds</p>
           </div>
-          <button className="bg-white hover:bg-[#5B9821] hover:text-white border-2 border-[#5B9821] text-[#5B9821] px-4 py-2 rounded-lg font-medium transition-colors">
+          
+          {/* Auto Scroll Toggle */}
+          <div className="flex items-center gap-2 mr-4">
+            <span className="text-sm text-gray-700">Auto Scroll</span>
+            <button
+              type="button"
+              onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+              }`}
+              style={{
+                backgroundColor: autoScrollEnabled ? '#5C9A24' : undefined,
+                focusRingColor: autoScrollEnabled ? '#5C9A24' : undefined
+              }}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
+                  autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          
+          <button className="bg-white hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] px-4 py-2 rounded-lg font-medium transition-colors">
             Export Data
           </button>
         </div>
 
         {/* Payment Logs Section */}
-        <div className="  rounded-lg border border-[#0b537d3c] shadow-sm">
-          <div className="p-3 border-b border-[#0b537d3c]">
+        <div className="  rounded-lg border border-[var(--color-primary)3c] shadow-sm">
+          <div className="p-3 border-b border-[var(--color-primary)3c]">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-900">Payment Logs</h2>
               <div className="relative">
@@ -62,14 +102,14 @@ export default function OrderHistory() {
                   placeholder="Search orders..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-64 px-4 py-2 border border-[#0b537d3c] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-64 px-4 py-2 border border-[var(--color-primary)3c] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
           </div>
 
           {/* Table */}
-          <div className="overflow-x-auto">
+          <div className="order-history-table-container overflow-x-auto max-h-96 overflow-y-auto">
             <table className="w-full">
               <thead className=" ">
                 <tr>

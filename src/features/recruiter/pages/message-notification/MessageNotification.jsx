@@ -1,62 +1,59 @@
-import React, { useState } from 'react'
-import {
-  LuBell,
-  LuMessageSquare,
-} from "react-icons/lu";
-import { MatrixCard } from "../../../../shared/components/metricCard";
-import { PillNavigation } from "../../../../shared/components/navigation";
-import MessagesCenter from "./Message";
+import React, { useState } from "react";
+import { LuMessageSquare, LuBell, LuFileText } from "react-icons/lu";
+import { MatrixCard } from "@shared/components/metricCard";
+import { PillNavigation } from "@shared/components/navigation";
+import Message from "./Message";
 import Notifications from "./Notifications";
-
+import Templates from "./Templates";
 const MessageNotification = () => {
   const [activeTab, setActiveTab] = useState(0);
 
-  // Navigation tabs configuration
-  const navigationTabs = [
-    { id: 'messages', label: 'Messages', icon: LuMessageSquare },
-    { id: 'notifications', label: 'Notifications', icon: LuBell }
+  const tabs = [
+    {
+      id: "messages",
+      label: "Messages",
+      icon: LuMessageSquare,
+      component: <Message />
+    },
+    {
+      id: "notifications",
+      label: "Notifications",
+      icon: LuBell,
+      component: <Notifications />
+    },
+    {
+      id: "templates",
+      label: "Templates",
+      icon: LuFileText,
+      component: <Templates />
+    }
   ];
 
   return (
     <div className="space-y-5">
-      {/* Header Section */}
-      <div className="max-w-6xl mx-auto mb-6">
-        <MatrixCard 
-          title="Message & Notification Center"
-          subtitle="Communicate with candidates and manage notifications efficiently"
-          className="mb-6"
-        />
-        
-        {/* Navigation Tabs */}
-        <div className="flex justify-center mb-6">
-          <PillNavigation 
-            tabs={navigationTabs}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-        </div>
+      {/* Header Section using MatrixCard */}
+      <MatrixCard
+        title="Messages & Notifications"
+        subtitle="Manage your communication and notification settings"
+        className=""
+      />
 
-        {/* Action Link */}
-        <div className="flex justify-end mb-4">
-          <a
-            href="#templates"
-            className="text-sm text-[#0B537D] underline underline-offset-2 hover:text-[#5B9821] transition-colors"
-          >
-            View All Templates
-          </a>
-        </div>
+      {/* Navigation Pills using PillNavigation */}
+      <div className="flex justify-center">
+        <PillNavigation
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          className=""
+        />
       </div>
 
-      {/* Main content will be rendered based on activeTab */}
-      <div className="max-w-6xl mx-auto">
-        {activeTab === 0 ? (
-          <MessagesCenter />
-        ) : (
-          <Notifications />
-        )}
+      {/* Tab Content */}
+      <div className="mt-5">
+        {tabs[activeTab]?.component}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MessageNotification
+export default MessageNotification;

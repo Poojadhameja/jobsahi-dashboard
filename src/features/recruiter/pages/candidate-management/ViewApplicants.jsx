@@ -13,6 +13,7 @@ const ViewApplicants = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [editingCandidate, setEditingCandidate] = useState(null)
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
   const [applicants, setApplicants] = useState([
     {
       id: 1,
@@ -231,17 +232,42 @@ Status: ${row.status}
   const selectedCount = selectedCandidates.length
 
   return (
-    <div className="min-h-screen bg-[#F6FAFF] p-6">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-semibold text-[#0B537D]">View Applicants</h1>
-        <button
-          onClick={handleExportAll}
-          className="px-6 py-3 bg-[#5C9A24] text-white rounded-lg hover:bg-[#4a7c1f] transition-colors font-medium flex items-center gap-2"
-        >
-          <LuDownload size={20} />
-          EXPORT ALL
-        </button>
+        <h1 className="text-3xl font-semibold text-[var(--color-primary)]">View Applicants</h1>
+        
+        <div className="flex items-center gap-4">
+          {/* Auto Scroll Toggle */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-700">Auto Scroll</span>
+            <button
+              type="button"
+              onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+              }`}
+              style={{
+                backgroundColor: autoScrollEnabled ? '#5C9A24' : undefined,
+                focusRingColor: autoScrollEnabled ? '#5C9A24' : undefined
+              }}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
+                  autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          
+          <button
+            onClick={handleExportAll}
+            className="px-6 py-3 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors font-medium flex items-center gap-2"
+          >
+            <LuDownload size={20} />
+            EXPORT ALL
+          </button>
+        </div>
       </div>
 
       {/* Search and Filters */}
@@ -254,7 +280,7 @@ Status: ${row.status}
             placeholder="Search candidates"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5C9A24] focus:border-transparent outline-none"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
           />
         </div>
 
@@ -335,7 +361,7 @@ Status: ${row.status}
               onClick={() => handlePageChange(page)}
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 currentPage === page
-                  ? 'bg-[#5C9A24] text-white'
+                  ? 'bg-[var(--color-secondary)] text-white'
                   : 'border border-gray-300 hover:bg-gray-50'
               }`}
             >
