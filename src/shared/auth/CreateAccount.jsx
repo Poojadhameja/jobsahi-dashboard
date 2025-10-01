@@ -50,7 +50,7 @@ function Pills({ items = [], activeKey, onChange }) {
 }
 
 export default function CreateAccount() {
-  const [role, setRole] = useState('Admin') // Admin | Recruiter | Institute
+  const [role, setRole] = useState('admin') // Admin | Recruiter | Institute
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [form, setForm] = useState({
@@ -98,20 +98,20 @@ export default function CreateAccount() {
       verified: ''
     }
 
-    if (role === 'Admin') {
+    if (role === 'admin') {
       payload = {
         ...payload,
-        name: form.fullName,
+        user_name: form.fullName,
         email: form.officialEmail,
         phone_number: form.mobileNumber,
         admin_role: form.adminRole,
         employee_id: form.employeeId,
         profile_photo: form.profilePhoto
       }
-    } else if (role === 'Recruiter') {
+    } else if (role === 'recruiter') {
       payload = {
         ...payload,
-        name: form.companyName,
+        user_name: form.companyName,
         email: form.companyWebsite,
         phone_number: form.designation,
         industry_type: form.industryType,
@@ -119,10 +119,10 @@ export default function CreateAccount() {
         company_logo: form.companyLogo,
         gst_pan: form.gstPan
       }
-    } else if (role === 'Institute') {
+    } else if (role === 'institute') {
       payload = {
         ...payload,
-        name: form.instituteName,
+        user_name: form.instituteName,
         email: form.instituteEmail,
         phone_number: form.instituteContact,
         institute_type: form.instituteType,
@@ -143,6 +143,8 @@ export default function CreateAccount() {
       };
 
       var response = await postMethod(data);
+      console.log(response)
+      console.log(role)
       
       if (response.status === true) {
         Swal.fire({
@@ -181,9 +183,9 @@ export default function CreateAccount() {
             <div className=" ">
               <Pills
                 items={[
-                  { key: 'Admin', label: 'Admin', icon: <FaUserShield size={18} /> },
-                  { key: 'Recruiter', label: 'Recruiter', icon: <FaBuilding size={18} /> },
-                  { key: 'Institute', label: 'Institute', icon: <FaSchool size={18} /> },
+                  { key: 'admin', label: 'Admin', icon: <FaUserShield size={18} /> },
+                  { key: 'recruiter', label: 'Recruiter', icon: <FaBuilding size={18} /> },
+                  { key: 'institute', label: 'Institute', icon: <FaSchool size={18} /> },
                 ]}
                 activeKey={role}
                 onChange={setRole}
@@ -195,7 +197,7 @@ export default function CreateAccount() {
         <div className={`rounded-2xl p-6 md:p-8 ${TAILWIND_COLORS.CARD}`}> */}
           <form onSubmit={onSubmit} className="space-y-4 mt-6">
             {/* Admin Form */}
-            {role === 'Admin' && (
+            {role === 'admin' && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -272,7 +274,7 @@ export default function CreateAccount() {
             )}
 
             {/* Recruiter Form */}
-            {role === 'Recruiter' && (
+            {role === 'recruiter' && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -368,7 +370,7 @@ export default function CreateAccount() {
             )}
 
             {/* Institute Form */}
-            {role === 'Institute' && (
+            {role === 'institute' && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

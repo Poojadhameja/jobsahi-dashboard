@@ -47,7 +47,7 @@ export default function Header({ toggleSidebar }) {
 
         {/* User Dropdown - Always visible but responsive */}
         <div className="block">
-          <UserDropdown user={{ name: 'Admin User', role: 'Administrator' }} />
+          <UserDropdown user={{ user_name: 'Admin User', role: 'Administrator' }} />
         </div>
       </div>
     </header>
