@@ -104,12 +104,17 @@ export default function BatchManagement() {
   const handleViewBatch = (courseId, batchIndex) => {
     console.log('View Batch clicked for course:', courseId, 'batch:', batchIndex)
     const course = courses.find(c => c.id === courseId)
+    console.log('Found course:', course)
     if (course && course.batches[batchIndex]) {
-      setSelectedBatch({
+      const batchData = {
         courseId: courseId,
         courseTitle: course.title,
         batch: course.batches[batchIndex]
-      })
+      }
+      console.log('Setting selected batch:', batchData)
+      setSelectedBatch(batchData)
+    } else {
+      console.log('Course or batch not found')
     }
   }
 
@@ -207,15 +212,6 @@ export default function BatchManagement() {
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(batch.status)}`}>
                         {batch.status}
                       </span>
-                      <Button 
-                        onClick={() => handleViewBatch(course.id, index)}
-                        variant="outline"
-                        size="sm"
-                        icon={<LuEye className="w-3 h-3" />}
-                        className={`px-2 py-1 text-xs ${TAILWIND_COLORS.BTN_LIGHT}`}
-                      >
-                        View
-                      </Button>
                     </div>
                   </div>
                 ))}

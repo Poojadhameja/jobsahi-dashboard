@@ -1,6 +1,6 @@
 import React from 'react'
 import { LuArrowLeft, LuEye } from 'react-icons/lu'
-import DynamicButton from '../../../../shared/components/DynamicButton'
+import Button from '../../../../shared/components/Button'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import CentralizedDataTable from '../../../../shared/components/CentralizedDataTable'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
@@ -56,7 +56,13 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
     {
       label: 'View',
       icon: <LuEye className="w-4 h-4" />,
-      onClick: (batch) => onViewBatch(batch),
+      onClick: (batch) => {
+        console.log('View batch clicked:', batch)
+        console.log('Course ID:', courseData.id)
+        console.log('Batch ID:', batch.id)
+        // Pass the courseId and batch index to match the expected parameters
+        onViewBatch(courseData.id, batch.id)
+      },
       variant: 'outline',
       size: 'sm'
     }
@@ -73,15 +79,15 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
       {/* Header Section */}
       <div className="mb-6">
         <div className="flex items-center gap-4 mb-4">
-          <DynamicButton
+          <Button
             onClick={onBack}
             variant="outline"
             size="sm"
             icon={<LuArrowLeft className="w-4 h-4" />}
             className="border-gray-300 text-gray-600 hover:bg-gray-50"
           >
-            Back to Batches
-          </DynamicButton>
+            Back
+          </Button>
         </div>
         <MatrixCard 
           title={courseData.title} 
@@ -92,11 +98,16 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
 
       {/* Course Information & Details Card */}
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-6">
-        <h2 className="text-xl font-bold mb-6 text-gray-900">Course Information & Details</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-gray-900">Course Information & Details</h2>
+          {/* Course Status - Right Corner */}
+          <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+            Active
+          </span>
+        </div>
         
         {/* Basic Information Section */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Basic Information</h3>
+       
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Course Title */}
             <div className="space-y-2">
@@ -108,14 +119,6 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
             <div className="space-y-2">
               <h4 className="text-sm font-semibold text-gray-500">Instructor</h4>
               <p className="text-gray-900">{courseData.instructor}</p>
-            </div>
-
-            {/* Course Status */}
-            <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Course Status</h4>
-              <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
-                Active
-              </span>
             </div>
 
             {/* Total Batches */}
@@ -133,14 +136,12 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
             {/* Course Fee */}
             <div className="space-y-2">
               <h4 className="text-sm font-semibold text-gray-500">Course Fee</h4>
-              <p className="text-2xl font-bold text-green-600">₹15,000</p>
+              <p className="text-1xl font-medium text-green-600">₹15,000</p>
             </div>
           </div>
-        </div>
 
         {/* Course Details Section */}
-        <div className="pt-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Course Details</h3>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Course Duration */}
             <div className="space-y-2">
@@ -178,7 +179,7 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
               <p className="text-gray-900">April 15, 2024</p>
             </div>
           </div>
-        </div>
+        
 
         {/* Course Description Section */}
         <div className="pt-6">

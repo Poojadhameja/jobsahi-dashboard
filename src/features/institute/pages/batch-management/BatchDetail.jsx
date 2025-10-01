@@ -12,8 +12,18 @@ export default function BatchDetail({ batchData, onBack }) {
   const [openDropdown, setOpenDropdown] = useState(null)
   const dropdownRef = useRef(null)
 
-  // Sample data for the batch detail view
-  const batchInfo = {
+  // Use actual batch data if available, otherwise fallback to sample data
+  const batchInfo = batchData?.batch ? {
+    name: batchData.batch.name || "Batch Name",
+    status: batchData.batch.status || "Active",
+    duration: "2/7/2025 - 8/10/2025", // This would come from actual batch data
+    timeSlot: batchData.batch.time || "9:00 PM - 12:00 PM",
+    description: `Batch for ${batchData.courseTitle || 'Course'} - Comprehensive training program.`,
+    totalStudents: batchData.batch.students ? parseInt(batchData.batch.students.split('/')[0]) : 5,
+    maxStudents: batchData.batch.students ? parseInt(batchData.batch.students.split('/')[1]) : 30,
+    activeStudents: batchData.batch.students ? parseInt(batchData.batch.students.split('/')[0]) : 4,
+    completionPercentage: 60
+  } : {
     name: "Web Dev Batch A",
     status: "Active",
     duration: "2/7/2025 - 8/10/2025",
@@ -160,7 +170,12 @@ export default function BatchDetail({ batchData, onBack }) {
             >
               ← Back
             </Button>
-            <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{batchInfo.name}</h1>
+            <div>
+              <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{batchInfo.name}</h1>
+              {batchData?.courseTitle && (
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Course: {batchData.courseTitle}</p>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             <Button 
