@@ -26,8 +26,8 @@ const NewsletterSubscription = ({ headerContent, onSubscribe, email, setEmail, i
 
           {/* Right Side - Subscription Form */}
           <div className="flex-1 max-w-lg ">
-            <div className="bg-white rounded-full p-2 shadow-lg ">
-              <form onSubmit={handleSubscribe} className="flex items-center">
+            <div className="sm:bg-white rounded-full p-2 shadow-lg  ">
+              <form onSubmit={handleSubscribe} className="flex items-center flex-col sm:flex-row gap-4">
                 <input
                   type="email"
                   value={email}

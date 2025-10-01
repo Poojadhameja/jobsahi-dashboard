@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import MeetOurTeam from "../components/MeetOurTeam";
-import TrustedByStartups from "../components/TrustedByStartups";
-import FAQ from "../components/FAQ";
-import NewsletterSubscription from "../components/NewsletterSubscription";
+import Navbar from "../../components/Navbar.jsx";
+import Footer from "../../components/Footer";
+import MeetOurTeam from "../../components/Rounded4Cards.jsx";
+import TrustedByStartups from "../../components/TrustedByStartups";
+import FAQ from "../../components/FAQ";
+import NewsletterSubscription from "../../components/NewsletterSubscription";
 import {
   FaPlay,
   FaCheckCircle,
@@ -21,7 +21,7 @@ import {
   FaChevronLeft,
   FaChevronRight
 } from "react-icons/fa";
-import textunderline from "../assets/website_text_underline.png";
+import textunderline from "../../assets/website_text_underline.png";
 
 const About = () => {
   // Newsletter subscription state

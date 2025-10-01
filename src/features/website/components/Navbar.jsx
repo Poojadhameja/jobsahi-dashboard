@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { colors } from '../../../shared/colors'
 import { FaSearch, FaBriefcase, FaChevronDown, FaAngleDoubleRight } from 'react-icons/fa'
-
+import logo from "../assets/whitelogo.png"
 const Navbar = () => {
   const location = useLocation()
   const [activePage, setActivePage] = useState('Home')
@@ -21,9 +21,15 @@ const Navbar = () => {
   // Update active page based on current location
   useEffect(() => {
     const currentPath = location.pathname
-    const currentItem = navigationItems.find(item => item.path === currentPath)
-    if (currentItem) {
-      setActivePage(currentItem.name)
+    
+    // Check if we're on news or blog pages to highlight Media
+    if (currentPath === '/news' || currentPath === '/blog') {
+      setActivePage('Media')
+    } else {
+      const currentItem = navigationItems.find(item => item.path === currentPath)
+      if (currentItem) {
+        setActivePage(currentItem.name)
+      }
     }
   }, [location.pathname])
 
@@ -35,19 +41,20 @@ const Navbar = () => {
         {/* Logo */}
         <div className="flex items-center">
           <div className="flex items-center text-white text-2xl font-bold">
-            <span className="relative">
+            <img src={logo} alt="logo" className=" h-12" />
+            {/* <span className="relative">
               JOBS
               <span className="relative inline-block ml-1">
                 <FaSearch className="absolute -top-1 -right-1 text-sm" />
                 <FaBriefcase className="text-xs" />
               </span>
               AHI
-            </span>
+            </span> */}
           </div>
         </div>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center space-x-5">
+        <div className="hidden lg:flex items-center space-x-5">
           {navigationItems.map((item) => (
             <div key={item.name} className="relative">
               {item.hasDropdown ? (
@@ -81,12 +88,12 @@ const Navbar = () => {
               {item.hasDropdown && isMediaDropdownOpen && (
                 <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
                   <div className="py-2">
-                    <a href="/news" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <Link to="/news" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                       News
-                    </a>
-                    <a href="/blog" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    </Link>
+                    <Link to="/blog" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                       Blog
-                    </a>
+                    </Link>
                   </div>
                 </div>
               )}
@@ -95,18 +102,19 @@ const Navbar = () => {
         </div>
 
         {/* User Actions - Hidden on Mobile */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden lg:flex items-center space-x-4">
           {/* Register Link */}
-          <a
-            href="/register"
+          <Link
+            to="/register"
             className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors duration-200"
           >
             <span>Register</span>
             <FaAngleDoubleRight className="text-sm" />
-          </a>
+          </Link>
 
           {/* Sign Up Button */}
-          <button
+          <Link
+            to="/register"
             className="px-6 py-2 text-white border border-white rounded-full hover:bg-white hover:text-[#00395B] transition-colors duration-200"
             style={{
               borderColor: colors.border.white,
@@ -114,11 +122,11 @@ const Navbar = () => {
             }}
           >
             Sign Up
-          </button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="text-white p-2"
@@ -170,20 +178,20 @@ const Navbar = () => {
                 {/* Mobile Media Dropdown */}
                 {item.hasDropdown && isMediaDropdownOpen && (
                   <div className="ml-4 mt-2 space-y-2">
-                    <a 
-                      href="/news" 
+                    <Link 
+                      to="/news" 
                       className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       News
-                    </a>
-                    <a 
-                      href="/blog" 
+                    </Link>
+                    <Link 
+                      to="/blog" 
                       className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Blog
-                    </a>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -191,17 +199,18 @@ const Navbar = () => {
 
             {/* Mobile User Actions */}
             <div className="pt-4 border-t border-gray-200 space-y-3">
-              <a
-                href="/register"
+              <Link
+                to="/register"
                 className="flex items-center justify-center space-x-2 px-4 py-2 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <span>Register</span>
                 <FaAngleDoubleRight className="text-sm" />
-              </a>
+              </Link>
               
-              <button
-                className="w-full px-4 py-2 text-white border border-gray-300 rounded-full hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200"
+              <Link
+                to="/register"
+                className="w-full px-4 py-2 text-white border border-gray-300 rounded-full hover:bg-gray-50 hover:text-[#00395B] transition-colors duration-200 block text-center"
                 style={{
                   backgroundColor: colors.primary.darkBlue,
                   borderColor: colors.primary.darkBlue
@@ -209,7 +218,7 @@ const Navbar = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Sign Up
-              </button>
+              </Link>
             </div>
           </div>
         </div>

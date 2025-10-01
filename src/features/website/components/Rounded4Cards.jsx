@@ -27,13 +27,13 @@ const MeetOurTeam = ({ teamMembers, title, description }) => {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12">
           {/* Left Side - Title */}
           <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-12 ">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0B537D] leading-tight">
-            Let's Meet Our <br /> Awesome Team 
+            <h2 className="max-w-3xl text-start text-4xl md:text-5xl font-bold text-[#0B537D] leading-tight">
+            {title} 
             </h2>
             <img
               src={textunderline}
               alt=""
-              className="w-[45%] h-[15px] md:h-[20px]"
+              className=" w-[45%] h-[15px] md:h-[20px]"
             />
           </div>
 

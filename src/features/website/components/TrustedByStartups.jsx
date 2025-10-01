@@ -16,6 +16,7 @@ const TrustedByStartups = ({ testimonials = [], headerContent }) => {
 
             {/* Description */}
             <div>
+              {headerContent?.status}
               {headerContent?.description}
             </div>
 
