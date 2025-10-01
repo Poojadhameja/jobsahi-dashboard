@@ -24,19 +24,34 @@ const Footer = () => {
             {/* Social Media Icons */}
             <div className="flex space-x-3">
               {/* Facebook */}
-              <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-[#5C9A24] border-[#5C9A24] text-[#5C9A24] hover:text-white ">
+              <a 
+                href="https://facebook.com/jobsahi" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-[#5C9A24] border-[#5C9A24] text-[#5C9A24] hover:text-white transition-colors"
+              >
                 <FaFacebookF className="text-sm " />
-              </div>
+              </a>
 
               {/* Twitter */}
-              <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-[#5C9A24] border-[#5C9A24] text-[#5C9A24] hover:text-white">
+              <a 
+                href="https://twitter.com/jobsahi" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-[#5C9A24] border-[#5C9A24] text-[#5C9A24] hover:text-white transition-colors"
+              >
                 <FaTwitter className="text-sm" />
-              </div>
+              </a>
 
               {/* LinkedIn */}
-              <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-[#5C9A24] border-[#5C9A24] text-[#5C9A24] hover:text-white">
+              <a 
+                href="https://linkedin.com/company/jobsahi" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full border-2 flex items-center justify-center cursor-pointer hover:bg-[#5C9A24] border-[#5C9A24] text-[#5C9A24] hover:text-white transition-colors"
+              >
                 <FaLinkedinIn className="text-sm"/>
-              </div>
+              </a>
             </div>
           </div>
           
@@ -46,16 +61,46 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-4">About</h3>
             <ul className="space-y-2">
-              {['Home', 'About Us', 'Job', 'Media', 'Contact'].map((item) => (
-                <li key={item}>
-                  <a 
-                    href="#" 
-                    className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
-                  >
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link 
+                  to="/" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/about" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/courses" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  Courses
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/news" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  News
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/blog" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  Blog
+                </Link>
+              </li>
             </ul>
           </div>
           
@@ -63,16 +108,38 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Dashboard</h3>
             <ul className="space-y-2">
-              {['Student', 'Recruiter', 'Institutes', 'Super Admin'].map((item) => (
-                <li key={item}>
-                  <a 
-                    href="#" 
-                    className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
-                  >
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link 
+                  to="/login" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  Student
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/login" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  Recruiter
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/login" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  Institutes
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/login" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  Super Admin
+                </Link>
+              </li>
             </ul>
           </div>
           
@@ -80,16 +147,30 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Resources</h3>
             <ul className="space-y-2">
-              {['Find Job', 'Recruiters', 'Contact Us'].map((item) => (
-                <li key={item}>
-                  <a 
-                    href="#" 
-                    className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
-                  >
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link 
+                  to="/courses" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  Find Courses
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/news" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  Job Updates
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/blog" 
+                  className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  Career Tips
+                </Link>
+              </li>
             </ul>
           </div>
           
@@ -99,25 +180,31 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <a 
-                  href="#" 
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors text-sm">
+                  href="https://wa.me/1234567890" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  <FaWhatsapp className="text-lg" />
                   <span>WhatsApp</span>
                 </a>
               </li>
               <li>
                 <a 
-                  href="#" 
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors text-sm">
+                  href="mailto:info@jobsahi.com" 
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                >
+                  <FaEnvelope className="text-lg" />
                   <span>Email</span>
                 </a>
               </li>
               <li>
-                <a 
-                  href="#" 
+                <Link 
+                  to="/about" 
                   className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
                 >
                   Social Media
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
