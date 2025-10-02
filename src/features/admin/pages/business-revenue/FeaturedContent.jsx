@@ -1,9 +1,20 @@
 import React, { useState } from 'react'
 import { PillNavigation } from '../../../../shared/components/navigation'
+import { 
+  LuBriefcase,
+  LuBookOpen,
+  LuMegaphone,
+  LuPencil,
+  LuSquare,
+  LuX,
+  LuSave
+} from 'react-icons/lu'
+import Swal from 'sweetalert2'
 
 export default function FeaturedContent() {
   const [activeTab, setActiveTab] = useState(0)
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
+  const [editModal, setEditModal] = useState({ isOpen: false, item: null })
   
   // Form state for Priority Banners
   const [bannerForm, setBannerForm] = useState({
@@ -67,9 +78,9 @@ export default function FeaturedContent() {
   ]
 
   const tabs = [
-    { id: 'featured-jobs', label: 'Featured Jobs' },
-    { id: 'featured-courses', label: 'Featured Courses' },
-    { id: 'priority-banners', label: 'Priority Banners' }
+    { id: 'featured-jobs', label: 'Featured Jobs', icon: LuBriefcase },
+    { id: 'featured-courses', label: 'Featured Courses', icon: LuBookOpen },
+    { id: 'priority-banners', label: 'Priority Banners', icon: LuMegaphone }
   ]
 
   const getCurrentData = () => {
@@ -101,15 +112,62 @@ export default function FeaturedContent() {
   }
 
   const handleEdit = (item) => {
-    console.log('Edit item:', item)
-    // Add edit functionality here
+    setEditModal({ isOpen: true, item })
+  }
+
+  const handleCloseEdit = () => {
+    setEditModal({ isOpen: false, item: null })
+  }
+
+  const handleSaveEdit = (itemId, updatedItem) => {
+    // Update the appropriate data array based on active tab
+    if (activeTab === 0) {
+      // Update featured jobs
+      const updatedJobs = featuredJobs.map(job => 
+        job.id === itemId ? { ...job, ...updatedItem } : job
+      )
+      // In a real app, you would update the state here
+      console.log('Updated featured jobs:', updatedJobs)
+    } else if (activeTab === 1) {
+      // Update featured courses
+      const updatedCourses = featuredCourses.map(course => 
+        course.id === itemId ? { ...course, ...updatedItem } : course
+      )
+      console.log('Updated featured courses:', updatedCourses)
+    } else if (activeTab === 2) {
+      // Update priority banners
+      const updatedBanners = priorityBanners.map(banner => 
+        banner.id === itemId ? { ...banner, ...updatedItem } : banner
+      )
+      console.log('Updated priority banners:', updatedBanners)
+    }
+    
+    setEditModal({ isOpen: false, item: null })
   }
 
   const handleStop = (item) => {
-    if (window.confirm('Are you sure you want to stop this featured content?')) {
-      console.log('Stop item:', item)
-      // Add stop functionality here
-    }
+    Swal.fire({
+      title: "Stop Featured Content",
+      text: `Are you sure you want to stop this featured content? This will change its status to inactive.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, stop it!",
+      cancelButtonText: "Cancel"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Update status to inactive
+        console.log('Stopped item:', item)
+        Swal.fire({
+          title: "Stopped!",
+          text: "Featured content has been stopped successfully.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false
+        })
+      }
+    })
   }
 
   const handleAddFeatured = () => {
@@ -127,6 +185,337 @@ export default function FeaturedContent() {
   const handleSaveBanner = () => {
     console.log('Save banner:', bannerForm)
     // Add save banner functionality here
+  }
+
+  // Edit Modal Component
+  const EditModal = ({ item, isOpen, onClose, onSave, activeTab }) => {
+    const [editForm, setEditForm] = useState({
+      jobTitle: '',
+      company: '',
+      priority: '',
+      status: '',
+      startDate: '',
+      endDate: '',
+      courseTitle: '',
+      institute: '',
+      duration: '',
+      bannerTitle: '',
+      location: ''
+    })
+
+    // Initialize form when item changes
+    React.useEffect(() => {
+      if (item) {
+        setEditForm({
+          jobTitle: item.jobTitle || '',
+          company: item.company || '',
+          priority: item.priority || '',
+          status: item.status || '',
+          startDate: item.startDate || '',
+          endDate: item.endDate || '',
+          courseTitle: item.courseTitle || '',
+          institute: item.institute || '',
+          duration: item.duration || '',
+          bannerTitle: item.bannerTitle || '',
+          location: item.location || ''
+        })
+      }
+    }, [item])
+
+    const handleInputChange = (field, value) => {
+      setEditForm(prev => ({ ...prev, [field]: value }))
+    }
+
+    const handleSave = () => {
+      // Validate form based on active tab
+      if (activeTab === 0) { // Featured Jobs
+        if (!editForm.jobTitle.trim() || !editForm.company.trim() || !editForm.priority.trim()) {
+          Swal.fire({
+            title: "Validation Error",
+            text: "Please fill in all required fields!",
+            icon: "error"
+          })
+          return
+        }
+      } else if (activeTab === 1) { // Featured Courses
+        if (!editForm.courseTitle.trim() || !editForm.institute.trim() || !editForm.priority.trim()) {
+          Swal.fire({
+            title: "Validation Error",
+            text: "Please fill in all required fields!",
+            icon: "error"
+          })
+          return
+        }
+      } else if (activeTab === 2) { // Priority Banners
+        if (!editForm.bannerTitle.trim() || !editForm.location.trim() || !editForm.priority.trim()) {
+          Swal.fire({
+            title: "Validation Error",
+            text: "Please fill in all required fields!",
+            icon: "error"
+          })
+          return
+        }
+      }
+
+      // Save the item
+      onSave(item.id, editForm)
+
+      Swal.fire({
+        title: "Updated!",
+        text: "Featured content has been updated successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false
+      })
+    }
+
+    if (!isOpen || !item) return null
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800">Edit Featured Content</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            >
+              <LuX size={24} />
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-6">
+            {/* Featured Jobs Form */}
+            {activeTab === 0 && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Job Title*</label>
+                    <input
+                      type="text"
+                      value={editForm.jobTitle}
+                      onChange={(e) => handleInputChange('jobTitle', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="Enter job title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Company*</label>
+                    <input
+                      type="text"
+                      value={editForm.company}
+                      onChange={(e) => handleInputChange('company', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="Enter company name"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Priority*</label>
+                    <select
+                      value={editForm.priority}
+                      onChange={(e) => handleInputChange('priority', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="">Select Priority</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                    <select
+                      value={editForm.status}
+                      onChange={(e) => handleInputChange('status', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
+                    <input
+                      type="date"
+                      value={editForm.startDate}
+                      onChange={(e) => handleInputChange('startDate', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">End Date</label>
+                    <input
+                      type="date"
+                      value={editForm.endDate}
+                      onChange={(e) => handleInputChange('endDate', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Featured Courses Form */}
+            {activeTab === 1 && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Course Title*</label>
+                    <input
+                      type="text"
+                      value={editForm.courseTitle}
+                      onChange={(e) => handleInputChange('courseTitle', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="Enter course title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Institute*</label>
+                    <input
+                      type="text"
+                      value={editForm.institute}
+                      onChange={(e) => handleInputChange('institute', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="Enter institute name"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Priority*</label>
+                    <select
+                      value={editForm.priority}
+                      onChange={(e) => handleInputChange('priority', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="">Select Priority</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Duration</label>
+                    <input
+                      type="text"
+                      value={editForm.duration}
+                      onChange={(e) => handleInputChange('duration', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="e.g., 6 months"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => handleInputChange('status', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Priority Banners Form */}
+            {activeTab === 2 && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Banner Title*</label>
+                    <input
+                      type="text"
+                      value={editForm.bannerTitle}
+                      onChange={(e) => handleInputChange('bannerTitle', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="Enter banner title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Location*</label>
+                    <input
+                      type="text"
+                      value={editForm.location}
+                      onChange={(e) => handleInputChange('location', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="e.g., Homepage Top"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Priority*</label>
+                    <select
+                      value={editForm.priority}
+                      onChange={(e) => handleInputChange('priority', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="">Select Priority</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                    <select
+                      value={editForm.status}
+                      onChange={(e) => handleInputChange('status', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
+                    <input
+                      type="date"
+                      value={editForm.startDate}
+                      onChange={(e) => handleInputChange('startDate', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">End Date</label>
+                    <input
+                      type="date"
+                      value={editForm.endDate}
+                      onChange={(e) => handleInputChange('endDate', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+            >
+              <LuSave size={16} />
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const currentData = getCurrentData()
@@ -157,27 +546,7 @@ export default function FeaturedContent() {
             <p className="text-gray-600 mt-1">Manage featured jobs, courses, and priority banners</p>
           </div>
           
-          {/* Auto Scroll Toggle */}
-          <div className="flex items-center gap-2 mr-4">
-            <span className="text-sm text-gray-700">Auto Scroll</span>
-            <button
-              type="button"
-              onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
-              }`}
-              style={{
-                backgroundColor: autoScrollEnabled ? '#5C9A24' : undefined,
-                focusRingColor: autoScrollEnabled ? '#5C9A24' : undefined
-              }}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
-                  autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
+          
           
           <button 
             onClick={handleAddFeatured}
@@ -340,14 +709,16 @@ export default function FeaturedContent() {
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleEdit(item)}
-                            className="border-2 border-black text-black hover:bg-black hover:text-white px-3 py-1 rounded text-xs font-medium transition-colors"
+                            className="border-2 border-black text-black hover:bg-black hover:text-white px-3 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1"
                           >
+                            <LuPencil size={12} />
                             Edit
                           </button>
                           <button
                             onClick={() => handleStop(item)}
-                            className="border-2 border-black text-black hover:bg-black hover:text-white px-3 py-1 rounded text-xs font-medium transition-colors"
+                            className="border-2 border-black text-black hover:bg-black hover:text-white px-3 py-1 rounded text-xs font-medium transition-colors flex items-center gap-1"
                           >
+                            <LuSquare size={12} />
                             Stop
                           </button>
                         </div>
@@ -376,6 +747,15 @@ export default function FeaturedContent() {
            </>
          )}
       </div>
+
+      {/* Edit Modal */}
+      <EditModal
+        item={editModal.item}
+        isOpen={editModal.isOpen}
+        onClose={handleCloseEdit}
+        onSave={handleSaveEdit}
+        activeTab={activeTab}
+      />
     </div>
   )
 }

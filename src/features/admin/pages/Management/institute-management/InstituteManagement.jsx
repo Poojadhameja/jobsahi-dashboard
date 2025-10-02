@@ -1,6 +1,13 @@
 import React, { useState } from 'react'
 import { MatrixCard } from '../../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../../shared/components/navigation'
+import { 
+  LuCheck, 
+  LuBookOpen, 
+  LuUsers, 
+  LuAward, 
+  LuMessageSquare 
+} from 'react-icons/lu'
 import PendingInstituteApprovals from './PendingInstitute'
 import CourseMonitoring from './CourseMonitoring'
 import PlacementStudent from './PlacementStudent'
@@ -13,11 +20,11 @@ export default function InstituteManagement() {
 
   // Navigation tabs configuration
   const navigationTabs = [
-    { id: 'verify-approve', label: 'Verify / Approve Institute' },
-    { id: 'course-monitoring', label: 'Course & Enrollment Monitoring' },
-    { id: 'placement-students', label: 'Placement-Ready Students' },
-    { id: 'certificate-issuance', label: 'Certificate Issuance' },
-    { id: 'message-institute', label: 'Message Specific Institute' }
+    { id: 'verify-approve', label: 'Verify / Approve Institute', icon: LuCheck },
+    { id: 'course-monitoring', label: 'Course & Enrollment Monitoring', icon: LuBookOpen },
+    { id: 'placement-students', label: 'Placement-Ready Students', icon: LuUsers },
+    { id: 'certificate-issuance', label: 'Certificate Issuance', icon: LuAward },
+    { id: 'message-institute', label: 'Message Specific Institute', icon: LuMessageSquare }
   ]
 
   return (

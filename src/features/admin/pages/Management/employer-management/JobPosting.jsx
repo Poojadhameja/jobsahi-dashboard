@@ -1,8 +1,31 @@
 import React, { useState } from 'react'
+import { 
+  LuEye, 
+  LuBuilding,
+  LuMail,
+  LuPhone,
+  LuGlobe,
+  LuMapPin,
+  LuUsers,
+  LuBriefcase,
+  LuCalendar,
+  LuFileText
+} from 'react-icons/lu'
+import { HiDotsVertical } from 'react-icons/hi'
 
 // Job Posting Analytics Component
 function JobPostingAnalytics() {
   const [timeFilter, setTimeFilter] = useState('All Time')
+  const [viewDetailsModal, setViewDetailsModal] = useState({ isOpen: false, company: null })
+
+  // Handle View Details
+  const handleViewDetails = (company) => {
+    setViewDetailsModal({ isOpen: true, company })
+  }
+
+  const handleCloseViewDetails = () => {
+    setViewDetailsModal({ isOpen: false, company: null })
+  }
 
   const timeFilterOptions = [
     'All Time',
@@ -94,6 +117,227 @@ function JobPostingAnalytics() {
             className="bg-gray-600 h-2 rounded-full" 
             style={{ width: `${rate}%` }}
           ></div>
+        </div>
+      </div>
+    )
+  }
+
+  // Action Dropdown Component
+  const ActionDropdown = ({ company, onViewDetails }) => {
+    const [isOpen, setIsOpen] = useState(false)
+    const dropdownRef = React.useRef(null)
+
+    // Close dropdown when clicking outside
+    React.useEffect(() => {
+      function handleClickOutside(event) {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+          setIsOpen(false)
+        }
+      }
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    const handleViewDetails = () => {
+      setIsOpen(false)
+      onViewDetails(company)
+    }
+
+    return (
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
+        >
+          <HiDotsVertical className="text-gray-600" size={18} />
+        </button>
+        
+        {isOpen && (
+          <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px]">
+            <button
+              onClick={handleViewDetails}
+              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors duration-200"
+            >
+              <LuEye size={16} />
+              View Details
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // View Details Modal Component
+  const ViewDetailsModal = ({ company, isOpen, onClose }) => {
+    if (!isOpen || !company) return null
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800">Company Details</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            >
+              <span className="text-2xl">&times;</span>
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-6">
+            {/* Company Information */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+                <LuBuilding className="text-blue-600" size={20} />
+                Company Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Company Name</label>
+                  <p className="text-gray-800 font-medium">{company.company}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Industry</label>
+                  <p className="text-gray-800">Technology</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Company Size</label>
+                  <p className="text-gray-800">100-500 employees</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Website</label>
+                  <p className="text-gray-800">
+                    <a href={`https://${company.company.toLowerCase()}.com`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      {company.company.toLowerCase()}.com
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Person Details */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+                <LuUsers className="text-green-600" size={20} />
+                Contact Person Details
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Contact Person</label>
+                  <p className="text-gray-800 font-medium">{company.contactPerson}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Email Address</label>
+                  <p className="text-gray-800 flex items-center gap-2">
+                    <LuMail size={16} className="text-gray-400" />
+                    <a href={`mailto:${company.contactPerson.toLowerCase().replace(' ', '.')}@${company.company.toLowerCase()}.com`} className="text-blue-600 hover:underline">
+                      {company.contactPerson.toLowerCase().replace(' ', '.')}@{company.company.toLowerCase()}.com
+                    </a>
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Phone Number</label>
+                  <p className="text-gray-800 flex items-center gap-2">
+                    <LuPhone size={16} className="text-gray-400" />
+                    <a href="tel:+919876543210" className="text-blue-600 hover:underline">
+                      +91 9876543210
+                    </a>
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Last Activity</label>
+                  <p className="text-gray-800 flex items-center gap-2">
+                    <LuCalendar size={16} className="text-gray-400" />
+                    {company.lastActivity}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Job Posting Statistics */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+                <LuBriefcase className="text-purple-600" size={20} />
+                Job Posting Statistics
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-blue-600 text-lg">💼</span>
+                    <span className="text-sm font-medium text-gray-600">Jobs Posted</span>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-800">{company.jobsPosted}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-blue-600 text-lg">👥</span>
+                    <span className="text-sm font-medium text-gray-600">Total Applicants</span>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-800">{company.totalApplicants.toLocaleString()}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-yellow-600 text-lg">⭐</span>
+                    <span className="text-sm font-medium text-gray-600">Shortlisted</span>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-800">{company.shortlisted}</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-green-600 text-lg">📈</span>
+                    <span className="text-sm font-medium text-gray-600">Success Rate</span>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-800">{company.successRate}%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Information */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+                <LuFileText className="text-orange-600" size={20} />
+                Additional Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Company Address</label>
+                  <p className="text-gray-800">123 Business Street, Tech City, TC 12345</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">Registration Number</label>
+                  <p className="text-gray-800">REG-2024-TC-001</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">GST Number</label>
+                  <p className="text-gray-800">GST-2024-TC-001</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">PAN Number</label>
+                  <p className="text-gray-800">PAN-2024-TC-001</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Company Description */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-4">Company Description</h3>
+              <p className="text-gray-700 leading-relaxed">
+                {company.company} is a leading technology company specializing in innovative solutions for modern businesses. 
+                We are committed to providing exceptional services and building long-term partnerships with our clients. 
+                Our team consists of experienced professionals dedicated to delivering high-quality results and maintaining 
+                the highest standards of excellence in everything we do.
+              </p>
+            </div>
+          </div>
+          
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -206,9 +450,10 @@ function JobPostingAnalytics() {
                     {item.lastActivity}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <button className="text-gray-400 hover:text-gray-600">
-                      <span className="text-lg">⋯</span>
-                    </button>
+                    <ActionDropdown 
+                      company={item} 
+                      onViewDetails={handleViewDetails} 
+                    />
                   </td>
                 </tr>
               ))}
@@ -216,6 +461,13 @@ function JobPostingAnalytics() {
           </table>
         </div>
       </div>
+
+      {/* View Details Modal */}
+      <ViewDetailsModal 
+        company={viewDetailsModal.company}
+        isOpen={viewDetailsModal.isOpen}
+        onClose={handleCloseViewDetails}
+      />
     </div>
   )
 }

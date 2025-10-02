@@ -50,7 +50,7 @@ function Pills({ items = [], activeKey, onChange }) {
 }
 
 export default function CreateAccount() {
-  const [role, setRole] = useState('Admin') // Admin | Recruiter | Institute
+  const [role, setRole] = useState('Student') // Admin | Recruiter | Institute | Student
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [form, setForm] = useState({
@@ -84,12 +84,41 @@ export default function CreateAccount() {
     coursesOffered: [],
     instituteAddress: '',
     instituteWebsite: '',
+    // Student fields
+    studentFullName: '',
+    dateOfBirth: '',
+    gender: '',
+    studentEmail: '',
+    studentMobileNumber: '',
+    studentProfilePhoto: null,
+    city: '',
+    state: '',
+    country: '',
+    pinCode: '',
+    highestQualification: '',
+    collegeName: '',
+    passingYear: '',
+    marksCgpa: '',
+    skills: [],
+    resumeCv: null,
+    preferredJobLocation: '',
+    linkedinPortfolioLink: '',
   })
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
   const onSubmit = async (e) => {
     e.preventDefault()
+    
+    // Validate password confirmation
+    if (form.password !== form.confirmPassword) {
+      Swal.fire({
+        title: "Validation Error",
+        text: "Password and confirm password do not match!",
+        icon: "error"
+      });
+      return;
+    }
     
     // Prepare payload based on role
     let payload = {
@@ -133,6 +162,28 @@ export default function CreateAccount() {
         courses_offered: form.coursesOffered,
         institute_address: form.instituteAddress,
         institute_website: form.instituteWebsite
+      }
+    } else if (role === 'Student') {
+      payload = {
+        ...payload,
+        name: form.studentFullName,
+        email: form.studentEmail,
+        phone_number: form.studentMobileNumber,
+        date_of_birth: form.dateOfBirth,
+        gender: form.gender,
+        profile_photo: form.studentProfilePhoto,
+        city: form.city,
+        state: form.state,
+        country: form.country,
+        pin_code: form.pinCode,
+        highest_qualification: form.highestQualification,
+        college_name: form.collegeName,
+        passing_year: form.passingYear,
+        marks_cgpa: form.marksCgpa,
+        skills: form.skills,
+        resume_cv: form.resumeCv,
+        preferred_job_location: form.preferredJobLocation,
+        linkedin_portfolio_link: form.linkedinPortfolioLink
       }
     }
 
@@ -184,6 +235,7 @@ export default function CreateAccount() {
                   { key: 'Admin', label: 'Admin', icon: <FaUserShield size={18} /> },
                   { key: 'Recruiter', label: 'Recruiter', icon: <FaBuilding size={18} /> },
                   { key: 'Institute', label: 'Institute', icon: <FaSchool size={18} /> },
+                  { key: 'Student', label: 'Student', icon: <FaSchool size={18} /> },
                 ]}
                 activeKey={role}
                 onChange={setRole}
@@ -524,6 +576,257 @@ export default function CreateAccount() {
                     rows={3}
                     className="w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 py-2 bg-white"
                   />
+                </div>
+              </>
+            )}
+
+            {/* Student Form */}
+            {role === 'Student' && (
+              <>
+                {/* Personal Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                    <input
+                      type="text"
+                      value={form.studentFullName}
+                      onChange={update('studentFullName')}
+                      required
+                      placeholder="Enter your full name"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth*</label>
+                    <input
+                      type="date"
+                      value={form.dateOfBirth}
+                      onChange={update('dateOfBirth')}
+                      required
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender*</label>
+                    <select
+                      value={form.gender}
+                      onChange={update('gender')}
+                      required
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                      <option value="Prefer not to say">Prefer not to say</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
+                    <input
+                      type="email"
+                      value={form.studentEmail}
+                      onChange={update('studentEmail')}
+                      required
+                      placeholder="Enter your email address"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number*</label>
+                    <input
+                      type="tel"
+                      value={form.studentMobileNumber}
+                      onChange={(e) => setForm((f) => ({ ...f, studentMobileNumber: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                      required
+                      placeholder="Enter your mobile number"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Profile Photo (Optional)</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setForm((f) => ({ ...f, studentProfilePhoto: e.target.files[0] }))}
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Address Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">City*</label>
+                    <input
+                      type="text"
+                      value={form.city}
+                      onChange={update('city')}
+                      required
+                      placeholder="Enter your city"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">State*</label>
+                    <input
+                      type="text"
+                      value={form.state}
+                      onChange={update('state')}
+                      required
+                      placeholder="Enter your state"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Country*</label>
+                    <input
+                      type="text"
+                      value={form.country}
+                      onChange={update('country')}
+                      required
+                      placeholder="Enter your country"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Pin Code*</label>
+                    <input
+                      type="text"
+                      value={form.pinCode}
+                      onChange={(e) => setForm((f) => ({ ...f, pinCode: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
+                      required
+                      placeholder="Enter your pin code"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Educational Details */}
+                <div className="border-t pt-4 mt-6">
+                  <h3 className="text-lg font-medium text-gray-800 mb-4">Educational Details</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Highest Qualification*</label>
+                      <select
+                        value={form.highestQualification}
+                        onChange={update('highestQualification')}
+                        required
+                        className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      >
+                        <option value="">Select Highest Qualification</option>
+                        <option value="10th">10th</option>
+                        <option value="12th">12th</option>
+                        <option value="Graduation">Graduation</option>
+                        <option value="Post Graduation">Post Graduation</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">College / Institute Name*</label>
+                      <input
+                        type="text"
+                        value={form.collegeName}
+                        onChange={update('collegeName')}
+                        required
+                        placeholder="Enter college/institute name"
+                        className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Passing Year*</label>
+                      <input
+                        type="number"
+                        value={form.passingYear}
+                        onChange={update('passingYear')}
+                        required
+                        placeholder="Enter passing year"
+                        min="1990"
+                        max="2030"
+                        className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Marks / CGPA*</label>
+                      <input
+                        type="text"
+                        value={form.marksCgpa}
+                        onChange={update('marksCgpa')}
+                        required
+                        placeholder="Enter marks or CGPA (e.g., 85% or 8.5)"
+                        className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Skills and Additional Information */}
+                <div className="border-t pt-4 mt-6">
+                  <h3 className="text-lg font-medium text-gray-800 mb-4">Skills & Additional Information</h3>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Skills*</label>
+                    <input
+                      type="text"
+                      value={form.skills.join(', ')}
+                      onChange={(e) => {
+                        const skillsArray = e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill);
+                        setForm((f) => ({ ...f, skills: skillsArray }));
+                      }}
+                      required
+                      placeholder="Enter your skills separated by commas (e.g., JavaScript, React, Python)"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Separate multiple skills with commas</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Resume / CV Upload*</label>
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => setForm((f) => ({ ...f, resumeCv: e.target.files[0] }))}
+                        required
+                        className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Accepted formats: PDF, DOC, DOCX</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Job Location*</label>
+                      <input
+                        type="text"
+                        value={form.preferredJobLocation}
+                        onChange={update('preferredJobLocation')}
+                        required
+                        placeholder="Enter preferred job location"
+                        className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn / Portfolio Link (Optional)</label>
+                    <input
+                      type="url"
+                      value={form.linkedinPortfolioLink}
+                      onChange={update('linkedinPortfolioLink')}
+                      placeholder="Enter your LinkedIn or portfolio URL"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
                 </div>
               </>
             )}

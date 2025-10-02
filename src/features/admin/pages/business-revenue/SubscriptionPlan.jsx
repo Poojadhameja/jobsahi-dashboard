@@ -1,6 +1,15 @@
 import React, { useState } from 'react'
+import { 
+  LuPencil,
+  LuTrash2,
+  LuX,
+  LuSave,
+  LuPlus
+} from 'react-icons/lu'
+import Swal from 'sweetalert2'
 
 export default function SubscriptionPlan() {
+  const [editModal, setEditModal] = useState({ isOpen: false, plan: null })
   const [plans, setPlans] = useState([
     {
       id: 1,
@@ -60,19 +69,299 @@ export default function SubscriptionPlan() {
   }
 
   const handleEdit = (planId) => {
-    console.log('Edit plan:', planId)
-    // Add edit functionality here
+    const plan = plans.find(p => p.id === planId)
+    setEditModal({ isOpen: true, plan })
+  }
+
+  const handleCloseEdit = () => {
+    setEditModal({ isOpen: false, plan: null })
+  }
+
+  const handleSaveEdit = (planId, updatedPlan) => {
+    setPlans(plans.map(plan => 
+      plan.id === planId ? { ...plan, ...updatedPlan } : plan
+    ))
+    setEditModal({ isOpen: false, plan: null })
   }
 
   const handleDelete = (planId) => {
-    if (window.confirm('Are you sure you want to delete this plan?')) {
-      setPlans(plans.filter(plan => plan.id !== planId))
-    }
+    const plan = plans.find(p => p.id === planId)
+    
+    Swal.fire({
+      title: "Delete Subscription Plan",
+      text: `Are you sure you want to delete "${plan.name}"? This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setPlans(plans.filter(plan => plan.id !== planId))
+        Swal.fire({
+          title: "Deleted!",
+          text: "Subscription plan has been deleted successfully.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false
+        })
+      }
+    })
   }
 
   const handleCreateNew = () => {
     console.log('Create new plan')
     // Add create new plan functionality here
+  }
+
+  // Edit Plan Modal Component
+  const EditPlanModal = ({ plan, isOpen, onClose, onSave }) => {
+    const [editForm, setEditForm] = useState({
+      name: '',
+      targetAudience: '',
+      price: '',
+      period: '',
+      features: [],
+      freeCredits: 0,
+      isActive: true
+    })
+
+    // Initialize form when plan changes
+    React.useEffect(() => {
+      if (plan) {
+        setEditForm({
+          name: plan.name,
+          targetAudience: plan.targetAudience,
+          price: plan.price.replace('₹', ''),
+          period: plan.period,
+          features: [...plan.features],
+          freeCredits: plan.freeCredits,
+          isActive: plan.isActive
+        })
+      }
+    }, [plan])
+
+    const handleInputChange = (field, value) => {
+      setEditForm(prev => ({ ...prev, [field]: value }))
+    }
+
+    const handleFeatureChange = (index, value) => {
+      const newFeatures = [...editForm.features]
+      newFeatures[index] = value
+      setEditForm(prev => ({ ...prev, features: newFeatures }))
+    }
+
+    const addFeature = () => {
+      setEditForm(prev => ({ ...prev, features: [...prev.features, ''] }))
+    }
+
+    const removeFeature = (index) => {
+      const newFeatures = editForm.features.filter((_, i) => i !== index)
+      setEditForm(prev => ({ ...prev, features: newFeatures }))
+    }
+
+    const handleSave = () => {
+      // Validate form
+      if (!editForm.name.trim() || !editForm.targetAudience.trim() || !editForm.price.trim()) {
+        Swal.fire({
+          title: "Validation Error",
+          text: "Please fill in all required fields!",
+          icon: "error"
+        })
+        return
+      }
+
+      if (editForm.features.length === 0) {
+        Swal.fire({
+          title: "Validation Error",
+          text: "Please add at least one feature!",
+          icon: "error"
+        })
+        return
+      }
+
+      // Save the plan
+      onSave(plan.id, {
+        ...editForm,
+        price: `₹${editForm.price}`,
+        status: editForm.isActive ? 'Active' : 'Inactive'
+      })
+
+      Swal.fire({
+        title: "Updated!",
+        text: "Subscription plan has been updated successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false
+      })
+    }
+
+    if (!isOpen || !plan) return null
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800">Edit Subscription Plan</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            >
+              <LuX size={24} />
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-6">
+            {/* Basic Information */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-4">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Plan Name*</label>
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter plan name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Target Audience*</label>
+                  <input
+                    type="text"
+                    value={editForm.targetAudience}
+                    onChange={(e) => handleInputChange('targetAudience', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter target audience"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-4">Pricing</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Price*</label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-lg">
+                      ₹
+                    </span>
+                    <input
+                      type="number"
+                      value={editForm.price}
+                      onChange={(e) => handleInputChange('price', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="999"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Period</label>
+                  <select
+                    value={editForm.period}
+                    onChange={(e) => handleInputChange('period', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="/month">Per Month</option>
+                    <option value="/year">Per Year</option>
+                    <option value="/quarter">Per Quarter</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Features */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-800">Features</h3>
+                <button
+                  onClick={addFeature}
+                  className="flex items-center gap-2 px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+                >
+                  <LuPlus size={16} />
+                  Add Feature
+                </button>
+              </div>
+              <div className="space-y-3">
+                {editForm.features.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={feature}
+                      onChange={(e) => handleFeatureChange(index, e.target.value)}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                      placeholder="Enter feature"
+                    />
+                    <button
+                      onClick={() => removeFeature(index)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                    >
+                      <LuX size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Free Credits */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-4">Free Credits</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Number of Free Credits</label>
+                <input
+                  type="number"
+                  value={editForm.freeCredits}
+                  onChange={(e) => handleInputChange('freeCredits', parseInt(e.target.value) || 0)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="5"
+                  min="0"
+                />
+              </div>
+            </div>
+
+            {/* Status */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-lg font-medium text-gray-800 mb-4">Status</h3>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-700">Plan Status</span>
+                <button
+                  onClick={() => handleInputChange('isActive', !editForm.isActive)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                    editForm.isActive ? 'bg-green-600' : 'bg-gray-200'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      editForm.isActive ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+            >
+              <LuSave size={16} />
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -163,14 +452,16 @@ export default function SubscriptionPlan() {
             <div className="flex space-x-3">
               <button
                 onClick={() => handleEdit(plan.id)}
-                className="flex-1 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className="flex-1 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
+                <LuPencil size={16} />
                 Edit
               </button>
               <button
                 onClick={() => handleDelete(plan.id)}
-                className="flex-1 border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                className="flex-1 border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
               >
+                <LuTrash2 size={16} />
                 Delete
               </button>
             </div>
@@ -193,6 +484,14 @@ export default function SubscriptionPlan() {
           </div>
         </div>
       )}
+
+      {/* Edit Plan Modal */}
+      <EditPlanModal 
+        plan={editModal.plan}
+        isOpen={editModal.isOpen}
+        onClose={handleCloseEdit}
+        onSave={handleSaveEdit}
+      />
     </div>
   )
 }

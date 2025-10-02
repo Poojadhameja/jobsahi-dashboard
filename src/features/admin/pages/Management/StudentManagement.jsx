@@ -6,8 +6,12 @@ import {
   LuSearch,
   LuFilter,
   LuMessageSquare,
-  LuPlus
+  LuPlus,
+  LuEye,
+  LuTrash2
 } from 'react-icons/lu'
+import { HiDotsVertical } from 'react-icons/hi'
+import Swal from 'sweetalert2'
 // KPI Card Component
 function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
   return (
@@ -153,8 +157,332 @@ function ProgressBar({ progress }) {
   )
 }
 
+// Action Dropdown Component
+function ActionDropdown({ student, onViewCV, onDelete }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = React.useRef(null)
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleViewCV = () => {
+    setIsOpen(false)
+    onViewCV(student)
+  }
+
+  const handleDelete = () => {
+    setIsOpen(false)
+    onDelete(student)
+  }
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
+      >
+        <HiDotsVertical className="text-gray-600" size={18} />
+      </button>
+      
+      {isOpen && (
+        <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px]">
+          <button
+            onClick={handleViewCV}
+            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors duration-200"
+          >
+            <LuEye size={16} />
+            View CV
+          </button>
+          <button
+            onClick={handleDelete}
+            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors duration-200"
+          >
+            <LuTrash2 size={16} />
+            Delete
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// View CV Modal Component
+function ViewCVModal({ student, isOpen, onClose }) {
+  if (!isOpen || !student) return null
+
+  const handleDownloadCV = () => {
+    // Create a sample CV content (in real app, this would come from API)
+    const cvContent = `
+STUDENT CV
+
+Personal Information:
+Name: ${student.name}
+Email: ${student.email}
+Course: ${student.course}
+CGPA: ${student.cgpa}
+Region: ${student.region}
+Progress: ${student.progress}%
+
+Educational Details:
+Highest Qualification: Graduation
+College/Institute: ABC Technical Institute
+Passing Year: 2023
+Marks/CGPA: ${student.cgpa}
+
+Skills:
+${student.skills.map(skill => `- ${skill}`).join('\n')}
+
+Address Information:
+City: Mumbai
+State: Maharashtra
+Country: India
+Pin Code: 400001
+
+Additional Information:
+Preferred Job Location: Mumbai, Pune
+LinkedIn/Portfolio: linkedin.com/in/${student.name.toLowerCase().replace(' ', '')}
+
+---
+Generated on: ${new Date().toLocaleDateString()}
+    `.trim()
+
+    // Create and download the file
+    const blob = new Blob([cvContent], { type: 'text/plain' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${student.name}_Resume.txt`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+
+    // Show success message
+    Swal.fire({
+      title: "Download Started!",
+      text: `${student.name}'s CV has been downloaded successfully.`,
+      icon: "success",
+      timer: 2000,
+      showConfirmButton: false
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-800">Student CV Details</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          >
+            <span className="text-2xl">&times;</span>
+          </button>
+        </div>
+        
+        <div className="p-6 space-y-6">
+          {/* Personal Information */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Personal Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Full Name</label>
+                <p className="text-gray-800">{student.name}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Email</label>
+                <p className="text-gray-800">{student.email}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Course</label>
+                <p className="text-gray-800">{student.course}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">CGPA</label>
+                <p className="text-gray-800">{student.cgpa}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Region</label>
+                <p className="text-gray-800">{student.region}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Progress</label>
+                <p className="text-gray-800">{student.progress}%</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Skills */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Skills</h3>
+            <div className="flex flex-wrap gap-2">
+              {student.skills.map((skill, index) => (
+                <span 
+                  key={index}
+                  className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Educational Details */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Educational Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Highest Qualification</label>
+                <p className="text-gray-800">Graduation</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">College/Institute</label>
+                <p className="text-gray-800">ABC Technical Institute</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Passing Year</label>
+                <p className="text-gray-800">2023</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Marks/CGPA</label>
+                <p className="text-gray-800">{student.cgpa}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Address Information */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Address Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600">City</label>
+                <p className="text-gray-800">Mumbai</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">State</label>
+                <p className="text-gray-800">Maharashtra</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Country</label>
+                <p className="text-gray-800">India</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Pin Code</label>
+                <p className="text-gray-800">400001</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Information */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Additional Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600">Preferred Job Location</label>
+                <p className="text-gray-800">Mumbai, Pune</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600">LinkedIn/Portfolio</label>
+                <p className="text-gray-800">
+                  <a href="#" className="text-blue-600 hover:underline">linkedin.com/in/{student.name.toLowerCase().replace(' ', '')}</a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Resume/CV Section */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Resume/CV</h3>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">📄</span>
+                <span className="text-gray-800">{student.name}_Resume.pdf</span>
+              </div>
+              <button 
+                onClick={handleDownloadCV}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              >
+                Download CV
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Delete Confirmation Modal Component
+function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
+  if (!isOpen || !student) return null
+
+  const handleConfirm = () => {
+    onConfirm(student)
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-md w-full">
+        <div className="p-6">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+              <LuTrash2 className="text-red-600" size={24} />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800">Delete Student</h2>
+              <p className="text-gray-600">This action cannot be undone</p>
+            </div>
+          </div>
+          
+          <div className="mb-6">
+            <p className="text-gray-700">
+              Are you sure you want to delete <span className="font-semibold">{student.name}</span> from the student list?
+            </p>
+            <p className="text-sm text-gray-500 mt-2">
+              This will permanently remove all data associated with this student including their profile, progress, and records.
+            </p>
+          </div>
+          
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirm}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+            >
+              Delete Student
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // Student Table Component
-function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent, autoScrollEnabled, setAutoScrollEnabled }) {
+function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent, autoScrollEnabled, setAutoScrollEnabled, onViewCV, onDelete }) {
   const allSelected = selectedStudents.length === students.length && students.length > 0
   
   // Auto scroll effect
@@ -179,28 +507,6 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
          <div className="flex items-center gap-2">
            <LuUsers className="text-gray-600" size={20} />
            <h3 className="font-medium text-gray-800">All Student Profiles</h3>
-         </div>
-         
-         {/* Auto Scroll Toggle */}
-         <div className="flex items-center gap-2">
-           <span className="text-sm text-gray-700">Auto Scroll</span>
-           <button
-             type="button"
-             onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
-             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-               autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
-             }`}
-             style={{
-               backgroundColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined,
-               focusRingColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined
-             }}
-           >
-             <span
-               className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
-                 autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
-               }`}
-             />
-           </button>
          </div>
          
          <div className="relative w-full sm:w-auto">
@@ -264,9 +570,11 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
                   </div>
                 </td>
                 <td className="py-4 px-4">
-                  <button className="p-1 hover:bg-gray-100 rounded">
-                    <span className="text-black text-lg">⋯</span>
-                  </button>
+                  <ActionDropdown 
+                    student={student} 
+                    onViewCV={onViewCV} 
+                    onDelete={onDelete} 
+                  />
                 </td>
               </tr>
             ))}
@@ -283,6 +591,10 @@ export default function StudentManagement() {
   const [selectedStudents, setSelectedStudents] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
+  
+  // Modal states
+  const [viewCVModal, setViewCVModal] = useState({ isOpen: false, student: null })
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, student: null })
 
   useEffect(() => {
     // TODO: replace with ApiService
@@ -388,6 +700,89 @@ export default function StudentManagement() {
     console.log('Applied filters:', filters)
   }
 
+  // Handle View CV
+  const handleViewCV = (student) => {
+    setViewCVModal({ isOpen: true, student })
+  }
+
+  const handleCloseViewCV = () => {
+    setViewCVModal({ isOpen: false, student: null })
+  }
+
+  // Handle Delete
+  const handleDelete = (student) => {
+    setDeleteModal({ isOpen: true, student })
+  }
+
+  const handleCloseDelete = () => {
+    setDeleteModal({ isOpen: false, student: null })
+  }
+
+  const handleConfirmDelete = (student) => {
+    // Remove student from the list
+    setStudents(prevStudents => prevStudents.filter(s => s.id !== student.id))
+    
+    // Show success message
+    Swal.fire({
+      title: "Deleted!",
+      text: `${student.name} has been successfully deleted.`,
+      icon: "success",
+      timer: 2000,
+      showConfirmButton: false
+    })
+  }
+
+  // Handle Export Data
+  const handleExportData = () => {
+    // Prepare data for export
+    const exportData = filteredStudents.map(student => ({
+      'Student ID': student.id,
+      'Name': student.name,
+      'Email': student.email,
+      'Course': student.course,
+      'CGPA': student.cgpa,
+      'Region': student.region,
+      'Skills': student.skills.join(', '),
+      'Progress (%)': student.progress,
+      'Status': student.progress >= 80 ? 'Placement Ready' : student.progress >= 60 ? 'In Progress' : 'Not Ready'
+    }))
+
+    // Convert to CSV format
+    const headers = Object.keys(exportData[0])
+    const csvContent = [
+      headers.join(','),
+      ...exportData.map(row => 
+        headers.map(header => {
+          const value = row[header]
+          // Escape commas and quotes in CSV
+          return typeof value === 'string' && (value.includes(',') || value.includes('"')) 
+            ? `"${value.replace(/"/g, '""')}"` 
+            : value
+        }).join(',')
+      )
+    ].join('\n')
+
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `Student_Management_Export_${new Date().toISOString().split('T')[0]}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+
+    // Show success message
+    Swal.fire({
+      title: "Export Successful!",
+      text: `Student data has been exported successfully. ${exportData.length} records downloaded.`,
+      icon: "success",
+      timer: 3000,
+      showConfirmButton: false
+    })
+  }
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
@@ -400,7 +795,7 @@ export default function StudentManagement() {
         
         <div className="flex items-center justify-end gap-3">
           <MetricPillRow items={[
-            { key: 'export', label: 'Export Data', icon: <span className="text-sm">📊</span>, onClick: () => console.log('Export Data') },
+            { key: 'export', label: 'Export Data', icon: <span className="text-sm">📊</span>, onClick: handleExportData },
             { key: 'notification', label: 'Send Bulk Notification', icon: <LuMessageSquare size={16} />, onClick: () => console.log('Send Notification') },
             { key: 'add', label: 'Add Student', icon: <LuPlus size={16} />, onClick: () => console.log('Add Student') }
           ]} />
@@ -451,6 +846,23 @@ export default function StudentManagement() {
         onSelectStudent={handleSelectStudent}
         autoScrollEnabled={autoScrollEnabled}
         setAutoScrollEnabled={setAutoScrollEnabled}
+        onViewCV={handleViewCV}
+        onDelete={handleDelete}
+      />
+
+      {/* View CV Modal */}
+      <ViewCVModal 
+        student={viewCVModal.student}
+        isOpen={viewCVModal.isOpen}
+        onClose={handleCloseViewCV}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal 
+        student={deleteModal.student}
+        isOpen={deleteModal.isOpen}
+        onClose={handleCloseDelete}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   )

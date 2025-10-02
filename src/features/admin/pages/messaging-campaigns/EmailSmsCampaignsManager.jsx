@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { LuBell, LuChevronDown, LuSearch } from "react-icons/lu";
+import { LuBell, LuChevronDown, LuSearch, LuSave, LuEye, LuPlus } from "react-icons/lu";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant.js";
 import Button from "../../../../shared/components/Button.jsx";
 import { PillNavigation } from "../../../../shared/components/navigation.jsx";
@@ -68,8 +68,8 @@ export default function EmailSmsCampaignsManager() {
 
   // Navigation tabs for the component
   const navigationTabs = [
-    { id: 'create', label: 'Create Campaign' },
-    { id: 'manage', label: 'Manage Campaign' }
+    { id: 'create', label: 'Create Campaign', icon: LuPlus },
+    { id: 'manage', label: 'Manage Campaign', icon: LuBell }
   ];
 
   const onChange = (e) => {
@@ -197,7 +197,7 @@ ${form.content}
           Filter
         </Button>
       </div>
-      <Button variant="primary" size="sm" onClick={() => setActiveTab(0)}>
+      <Button variant="primary" size="sm" onClick={() => setActiveTab(0)} icon={<LuPlus size={16} />}>
         New Campaign
       </Button>
     </div>
@@ -353,6 +353,7 @@ ${form.content}
           size="md"
           className="h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
           onClick={onSaveDraft}
+          icon={<LuSave size={16} />}
         >
           Save Draft
         </Button>
@@ -363,6 +364,7 @@ ${form.content}
           size="md"
           className="h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
           onClick={onPreview}
+          icon={<LuEye size={16} />}
         >
           Preview
         </Button>

@@ -5,47 +5,65 @@ import ConversionReports from './ConversionReports.jsx'
 import HiringFunnel from './HiringFunnel.jsx'
 import CompletionRates from './CompletionRates.jsx'
 import CoursePerformance from './CoursePerformance.jsx'
+import { 
+  LuEye,
+  LuFileText,
+  LuUsers,
+  LuCheck,
+  LuActivity,
+  LuTrendingUp,
+  LuBookOpen,
+  LuTarget
+} from 'react-icons/lu'
 
 export default function ReportAnalytics() {
   const [activeTab, setActiveTab] = useState(0)
 
-  // Metrics data for the 4 horizontal cards (without icons)
+  // Metrics data for the 4 horizontal cards (with icons)
   const metricsData = [
     {
       title: 'Total Visits',
-      value: '15,000'
+      value: '15,000',
+      icon: <LuEye size={20} />
     },
     {
       title: 'Applications',
-      value: '3,250'
+      value: '3,250',
+      icon: <LuFileText size={20} />
     },
     {
       title: 'Active Employers',
-      value: '245'
+      value: '245',
+      icon: <LuUsers size={20} />
     },
     {
       title: 'Successful Hires',
-      value: '55'
+      value: '55',
+      icon: <LuCheck size={20} />
     }
   ]
 
-  // Navigation tabs for different report types (without icons)
+  // Navigation tabs for different report types (with icons)
   const navigationTabs = [
     {
       id: 'conversion',
-      label: 'Conversion Reports'
+      label: 'Conversion Reports',
+      icon: LuActivity
     },
     {
       id: 'hiring',
-      label: 'Hiring Funnel'
+      label: 'Hiring Funnel',
+      icon: LuTrendingUp
     },
     {
       id: 'completion',
-      label: 'Completion Rates'
+      label: 'Completion Rates',
+      icon: LuTarget
     },
     {
       id: 'performance',
-      label: 'Course Performance'
+      label: 'Course Performance',
+      icon: LuBookOpen
     }
   ]
 

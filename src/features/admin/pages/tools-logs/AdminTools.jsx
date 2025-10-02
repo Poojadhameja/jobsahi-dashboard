@@ -5,27 +5,37 @@ import ActivityLogs from './ActivityLogs.jsx'
 import ErrorLogs from './ErrorLogs.jsx'
 import MessageLogs from './MessageLogs.jsx'
 import RoleManagement from './RoleManagement.jsx'
+import { 
+  LuActivity,
+  LuX,
+  LuMessageSquare,
+  LuUsers
+} from 'react-icons/lu'
 
 export default function AdminTools() {
   const [activeTab, setActiveTab] = useState(0)
 
-  // Navigation tabs for different admin tools (without icons)
+  // Navigation tabs for different admin tools (with icons)
   const adminToolsTabs = [
     {
       id: 'activity',
-      label: 'Activity Logs'
+      label: 'Activity Logs',
+      icon: LuActivity
     },
     {
       id: 'error',
-      label: 'Error Logs'
+      label: 'Error Logs',
+      icon: LuX
     },
     {
       id: 'message',
-      label: 'Message Logs'
+      label: 'Message Logs',
+      icon: LuMessageSquare
     },
     {
       id: 'role',
-      label: 'Role Management'
+      label: 'Role Management',
+      icon: LuUsers
     }
   ]
 

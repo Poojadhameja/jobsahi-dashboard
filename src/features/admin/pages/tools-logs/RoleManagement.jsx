@@ -1,15 +1,18 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
+import Swal from 'sweetalert2'
 
 export default function RoleManagement() {
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [editingRole, setEditingRole] = useState(null)
   const [newRole, setNewRole] = useState({
     name: '',
     description: '',
     permissions: []
   })
+  const createFormRef = useRef(null)
 
   // Sample existing roles data
-  const existingRoles = [
+  const [existingRoles, setExistingRoles] = useState([
     {
       id: 1,
       name: 'Super Admin',
@@ -38,7 +41,7 @@ export default function RoleManagement() {
       createdDate: '2025-02-10',
       permissions: ['CMS', 'SEO']
     }
-  ]
+  ])
 
   const availablePermissions = [
     'Jobs Management',
@@ -61,10 +64,99 @@ export default function RoleManagement() {
   }
 
   const handleCreateRole = () => {
-    console.log('Creating role:', newRole)
+    if (editingRole) {
+      // Update existing role
+      setExistingRoles(prev => prev.map(role => 
+        role.id === editingRole.id 
+          ? { ...role, name: newRole.name, permissions: newRole.permissions }
+          : role
+      ))
+      Swal.fire({
+        title: "Updated!",
+        text: `The "${newRole.name}" role has been updated successfully.`,
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false
+      })
+    } else {
+      // Create new role
+      const newRoleData = {
+        id: Date.now(), // Simple ID generation
+        name: newRole.name,
+        userCount: 0,
+        createdDate: new Date().toISOString().split('T')[0],
+        permissions: newRole.permissions
+      }
+      setExistingRoles(prev => [...prev, newRoleData])
+      Swal.fire({
+        title: "Created!",
+        text: `The "${newRole.name}" role has been created successfully.`,
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false
+      })
+    }
+    
     // Reset form
     setNewRole({ name: '', description: '', permissions: [] })
+    setEditingRole(null)
     setShowCreateForm(false)
+  }
+
+  const handleCreateNewRoleClick = () => {
+    setShowCreateForm(true)
+    // Scroll to the create form after a short delay to ensure it's rendered
+    setTimeout(() => {
+      if (createFormRef.current) {
+        createFormRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        })
+      }
+    }, 100)
+  }
+
+  const handleEditRole = (role) => {
+    setEditingRole(role)
+    setNewRole({
+      name: role.name,
+      description: `Edit ${role.name} role`, // You can add description field to roles if needed
+      permissions: [...role.permissions]
+    })
+    setShowCreateForm(true)
+    // Scroll to the form
+    setTimeout(() => {
+      if (createFormRef.current) {
+        createFormRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        })
+      }
+    }, 100)
+  }
+
+  const handleDeleteRole = (role) => {
+    Swal.fire({
+      title: "Delete Role",
+      text: `Are you sure you want to delete the "${role.name}" role? This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setExistingRoles(prev => prev.filter(r => r.id !== role.id))
+        Swal.fire({
+          title: "Deleted!",
+          text: `The "${role.name}" role has been deleted successfully.`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false
+        })
+      }
+    })
   }
 
   return (
@@ -81,7 +173,7 @@ export default function RoleManagement() {
             </p>
           </div>
           <button 
-            onClick={() => setShowCreateForm(true)}
+            onClick={handleCreateNewRoleClick}
             className="flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors duration-200 font-medium"
           >
             <span className="text-sm">+ Create New Role</span>
@@ -115,13 +207,13 @@ export default function RoleManagement() {
               </div>
               <div className="flex items-center gap-3">
                 <button 
-                  onClick={() => console.log('Edit role:', role.id)}
+                  onClick={() => handleEditRole(role)}
                   className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded hover:bg-green-200 transition-colors font-medium"
                 >
                   Edit
                 </button>
                 <button 
-                  onClick={() => console.log('Delete role:', role.id)}
+                  onClick={() => handleDeleteRole(role)}
                   className="px-3 py-1 bg-red-100 text-red-700 text-sm rounded hover:bg-red-200 transition-colors font-medium"
                 >
                   Delete
@@ -134,8 +226,10 @@ export default function RoleManagement() {
 
       {/* Create New Role Form */}
       {showCreateForm && (
-        <div className="bg-[var(--color-bg-primary)] rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
-          <h3 className="text-lg font-medium text-primary mb-4">Create New Role</h3>
+        <div ref={createFormRef} className="bg-[var(--color-bg-primary)] rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
+          <h3 className="text-lg font-medium text-primary mb-4">
+            {editingRole ? 'Edit Role' : 'Create New Role'}
+          </h3>
           
           <div className="space-y-6">
             {/* Role Name */}
@@ -186,10 +280,14 @@ export default function RoleManagement() {
                 onClick={handleCreateRole}
                 className="px-6 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors duration-200 font-medium"
               >
-                Create Role
+                {editingRole ? 'Update Role' : 'Create Role'}
               </button>
               <button
-                onClick={() => setShowCreateForm(false)}
+                onClick={() => {
+                  setShowCreateForm(false)
+                  setEditingRole(null)
+                  setNewRole({ name: '', description: '', permissions: [] })
+                }}
                 className="px-6 py-2 bg-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors duration-200 font-medium"
               >
                 Cancel

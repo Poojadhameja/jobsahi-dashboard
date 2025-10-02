@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';
+import { 
+  LuEye, 
+  LuPencil, 
+  LuTrash2, 
+  LuX, 
+  LuSave,
+  LuCopy,
+  LuMail,
+  LuMessageSquare,
+  LuBell
+} from 'react-icons/lu';
+import Swal from 'sweetalert2';
 
 const NotificationTemplatesManager = () => {
   const [templates, setTemplates] = useState([
@@ -62,6 +74,8 @@ const NotificationTemplatesManager = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedChannel, setSelectedChannel] = useState('all');
+  const [viewModal, setViewModal] = useState({ isOpen: false, template: null });
+  const [editModal, setEditModal] = useState({ isOpen: false, template: null });
 
   const filteredTemplates = templates.filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -72,19 +86,333 @@ const NotificationTemplatesManager = () => {
     return matchesSearch && template.type.toLowerCase() === selectedChannel.toLowerCase();
   });
 
+  const handleViewTemplate = (templateId) => {
+    const template = templates.find(t => t.id === templateId);
+    setViewModal({ isOpen: true, template });
+  };
+
+  const handleCloseView = () => {
+    setViewModal({ isOpen: false, template: null });
+  };
+
   const handleEditTemplate = (templateId) => {
-    console.log('Edit template:', templateId);
-    // Add edit functionality here
+    const template = templates.find(t => t.id === templateId);
+    setEditModal({ isOpen: true, template });
+  };
+
+  const handleCloseEdit = () => {
+    setEditModal({ isOpen: false, template: null });
+  };
+
+  const handleSaveEdit = (templateId, updatedData) => {
+    setTemplates(prev => prev.map(template => 
+      template.id === templateId 
+        ? { ...template, ...updatedData, lastModified: 'Just now' }
+        : template
+    ));
+    setEditModal({ isOpen: false, template: null });
   };
 
   const handleDeleteTemplate = (templateId) => {
-    console.log('Delete template:', templateId);
-    // Add delete functionality here
+    const template = templates.find(t => t.id === templateId);
+    
+    Swal.fire({
+      title: "Delete Template",
+      text: `Are you sure you want to delete "${template.name}"? This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setTemplates(prev => prev.filter(template => template.id !== templateId));
+        Swal.fire({
+          title: "Deleted!",
+          text: "Template has been deleted successfully.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+    });
   };
 
   const handleDuplicateTemplate = (templateId) => {
     console.log('Duplicate template:', templateId);
     // Add duplicate functionality here
+  };
+
+  // Modal Components
+  const ViewTemplateModal = ({ template, isOpen, onClose }) => {
+    if (!isOpen || !template) return null;
+
+    const getTypeIcon = (type) => {
+      switch (type.toLowerCase()) {
+        case 'email':
+          return <LuMail className="w-5 h-5" />;
+        case 'sms':
+          return <LuMessageSquare className="w-5 h-5" />;
+        case 'push':
+          return <LuBell className="w-5 h-5" />;
+        default:
+          return <LuBell className="w-5 h-5" />;
+      }
+    };
+
+    const getTypeColor = (type) => {
+      switch (type.toLowerCase()) {
+        case 'email':
+          return 'text-blue-600 bg-blue-100';
+        case 'sms':
+          return 'text-green-600 bg-green-100';
+        case 'push':
+          return 'text-purple-600 bg-purple-100';
+        default:
+          return 'text-gray-600 bg-gray-100';
+      }
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800">Template Details</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            >
+              <LuX size={24} />
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-6">
+            {/* Template Header */}
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">{template.name}</h3>
+                <p className="text-gray-600 mb-4">{template.category}</p>
+                <div className="flex items-center gap-3">
+                  <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getTypeColor(template.type)}`}>
+                    {getTypeIcon(template.type)}
+                    {template.type}
+                  </span>
+                  <span className="inline-flex px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    {template.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Template Statistics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 mb-2">Usage Statistics</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Total Usage:</span>
+                    <span className="font-semibold">{template.usage.toLocaleString()} times</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Last Modified:</span>
+                    <span className="font-semibold">{template.lastModified}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 mb-2">Template Information</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Template ID:</span>
+                    <span className="font-semibold">#{template.id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Category:</span>
+                    <span className="font-semibold">{template.category}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sample Content */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-semibold text-gray-900 mb-3">Sample Content</h4>
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="text-sm text-gray-600 mb-2">
+                  <strong>Subject:</strong> {template.name} - Your {template.category.toLowerCase()} notification
+                </div>
+                <div className="text-sm text-gray-800">
+                  <strong>Message:</strong> This is a sample {template.type.toLowerCase()} message for the "{template.name}" template. 
+                  This template is used for {template.category.toLowerCase()} and has been used {template.usage.toLocaleString()} times.
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const EditTemplateModal = ({ template, isOpen, onClose, onSave }) => {
+    const [editForm, setEditForm] = useState({
+      name: '',
+      category: '',
+      type: '',
+      status: '',
+      content: ''
+    });
+
+    React.useEffect(() => {
+      if (template) {
+        setEditForm({
+          name: template.name || '',
+          category: template.category || '',
+          type: template.type || '',
+          status: template.status || '',
+          content: `Sample content for ${template.name} template. This is a ${template.type.toLowerCase()} message for ${template.category.toLowerCase()}.`
+        });
+      }
+    }, [template]);
+
+    const handleInputChange = (field, value) => {
+      setEditForm(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSave = () => {
+      if (!editForm.name.trim() || !editForm.category.trim() || !editForm.type.trim()) {
+        Swal.fire({
+          title: "Validation Error",
+          text: "Please fill in all required fields!",
+          icon: "error"
+        });
+        return;
+      }
+
+      onSave(template.id, editForm);
+      Swal.fire({
+        title: "Updated!",
+        text: "Template has been updated successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false
+      });
+    };
+
+    if (!isOpen || !template) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800">Edit Template</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            >
+              <LuX size={24} />
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-6">
+            {/* Template Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Template Name*</label>
+              <input
+                type="text"
+                value={editForm.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter template name"
+              />
+            </div>
+
+            {/* Category and Type */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Category*</label>
+                <select
+                  value={editForm.category}
+                  onChange={(e) => handleInputChange('category', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">Select Category</option>
+                  <option value="Job Alerts">Job Alerts</option>
+                  <option value="Reminders">Reminders</option>
+                  <option value="Onboarding">Onboarding</option>
+                  <option value="System">System</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Type*</label>
+                <select
+                  value={editForm.type}
+                  onChange={(e) => handleInputChange('type', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">Select Type</option>
+                  <option value="Email">Email</option>
+                  <option value="SMS">SMS</option>
+                  <option value="Push">Push</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Status */}
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
+              <select
+                value={editForm.status}
+                onChange={(e) => handleInputChange('status', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Draft">Draft</option>
+              </select>
+            </div>
+
+            {/* Template Content */}
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Template Content</label>
+              <textarea
+                value={editForm.content}
+                onChange={(e) => handleInputChange('content', e.target.value)}
+                rows={6}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                placeholder="Enter template content"
+              />
+            </div>
+          </div>
+          
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+            >
+              <LuSave size={16} />
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -177,32 +505,25 @@ const NotificationTemplatesManager = () => {
               {/* Action Icons */}
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => handleEditTemplate(template.id)}
+                  onClick={() => handleViewTemplate(template.id)}
                   className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors duration-200"
                   title="View template"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
+                  <LuEye size={20} />
+                </button>
+                <button
+                  onClick={() => handleEditTemplate(template.id)}
+                  className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors duration-200"
+                  title="Edit template"
+                >
+                  <LuPencil size={20} />
                 </button>
                 <button
                   onClick={() => handleDeleteTemplate(template.id)}
                   className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors duration-200"
                   title="Delete template"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => handleDuplicateTemplate(template.id)}
-                  className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors duration-200"
-                  title="Edit template"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
+                  <LuTrash2 size={20} />
                 </button>
               </div>
             </div>
@@ -223,6 +544,21 @@ const NotificationTemplatesManager = () => {
           </div>
         )}
       </div>
+
+      {/* View Template Modal */}
+      <ViewTemplateModal
+        template={viewModal.template}
+        isOpen={viewModal.isOpen}
+        onClose={handleCloseView}
+      />
+
+      {/* Edit Template Modal */}
+      <EditTemplateModal
+        template={editModal.template}
+        isOpen={editModal.isOpen}
+        onClose={handleCloseEdit}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 };
