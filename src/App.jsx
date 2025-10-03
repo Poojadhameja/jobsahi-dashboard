@@ -29,7 +29,11 @@ export default function App() {
               <RecruiterRoutes />
             </RoleRoute>
           } />
-          <Route path="/institute/*" element={<InstituteRoutes />} />
+          <Route path="/institute/*" element={
+            <RoleRoute allowedRoles={['institute']}>
+              <InstituteRoutes />
+            </RoleRoute>
+          } />
           <Route path="*" element={<div className="p-8">404 — Not Found</div>} />
         </Routes>
       </Suspense>

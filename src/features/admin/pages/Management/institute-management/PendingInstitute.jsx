@@ -58,7 +58,9 @@ function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }
         </div>
         <div>
           <span className="text-sm text-gray-600">Courses:</span>
-          <p className="font-medium text-gray-900">{institute.courses}</p>
+          <p className="font-medium text-gray-900">
+            {Array.isArray(institute.courses) ? institute.courses.length : institute.courses}
+          </p>
         </div>
       </div>
 
@@ -67,7 +69,7 @@ function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }
         <div className="flex items-center gap-2">
           {getStatusBadge(institute.status)}
         </div>
-        
+
         <div className="flex gap-3">
           <button 
             onClick={() => onViewDetails(institute)}
@@ -179,7 +181,9 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">Courses Offered</label>
-                <p className="text-gray-800">{institute.courses}</p>
+                <p className="text-gray-800">
+                  {Array.isArray(institute.courses) ? institute.courses.join(', ') : institute.courses}
+                </p>
               </div>
             </div>
           </div>
@@ -263,46 +267,9 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
   )
 }
 
-export default function PendingInstituteApprovals() {
-  const [institutes, setInstitutes] = useState([
-    {
-      id: 1,
-      initials: "ST",
-      name: "Shri Technology Institute",
-      email: "technical.institute@email.com",
-      location: "Mumbai, Maharashtra",
-      established: "2015",
-      students: "2,500+",
-      courses: "Electrician",
-      status: "PENDING REVIEW"
-    },
-    {
-      id: 2,
-      initials: "IT",
-      name: "Innovation Tech Institute",
-      email: "innovation.tech@email.com",
-      location: "Delhi, India",
-      established: "2018",
-      students: "1,800+",
-      courses: "Plumber",
-      status: "PENDING REVIEW"
-    },
-    {
-      id: 3,
-      initials: "CT",
-      name: "Creative Technology Center",
-      email: "creative.tech@email.com",
-      location: "Bangalore, Karnataka",
-      established: "2020",
-      students: "3,200+",
-      courses: "Carpenter",
-      status: "PENDING REVIEW"
-    }
-  ])
-
+export default function PendingInstituteApprovals({ institutes }) {
   const [viewDetailsModal, setViewDetailsModal] = useState({ isOpen: false, institute: null })
 
-  // Handle View Details
   const handleViewDetails = (institute) => {
     setViewDetailsModal({ isOpen: true, institute })
   }
@@ -311,43 +278,65 @@ export default function PendingInstituteApprovals() {
     setViewDetailsModal({ isOpen: false, institute: null })
   }
 
-  // Handle Approve
   const handleApprove = (instituteId) => {
-    setInstitutes(prevInstitutes => 
-      prevInstitutes.map(institute => 
-        institute.id === instituteId 
-          ? { ...institute, status: 'APPROVED' }
-          : institute
-      )
-    )
-    
     Swal.fire({
-      title: "Approved!",
-      text: "Institute has been successfully approved.",
-      icon: "success",
-      timer: 2000,
-      showConfirmButton: false
+      title: 'Approve Institute',
+      text: 'Are you sure you want to approve this institute?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10B981',
+      cancelButtonColor: '#EF4444',
+      confirmButtonText: 'Yes, Approve!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // TODO: Add API call to approve institute
+        Swal.fire({
+          title: 'Approved!',
+          text: 'Institute has been approved successfully.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        })
+      }
     })
   }
 
-  // Handle Reject
   const handleReject = (instituteId) => {
-    setInstitutes(prevInstitutes => 
-      prevInstitutes.map(institute => 
-        institute.id === instituteId 
-          ? { ...institute, status: 'REJECTED' }
-          : institute
-      )
-    )
-    
     Swal.fire({
-      title: "Rejected!",
-      text: "Institute has been rejected.",
-      icon: "error",
-      timer: 2000,
-      showConfirmButton: false
+      title: 'Reject Institute',
+      text: 'Are you sure you want to reject this institute?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#6B7280',
+      confirmButtonText: 'Yes, Reject!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // TODO: Add API call to reject institute
+        Swal.fire({
+          title: 'Rejected!',
+          text: 'Institute has been rejected.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        })
+      }
     })
   }
+
+  const pendingInstitutes = institutes.map((item, index) => ({
+    id: item.id,
+    initials: item.name ? item.name.substring(0, 2).toUpperCase() : "ST",
+    name: item.name,
+    email: item.email,
+    location: item.location,
+    established: item.established_year,
+    students: "2,500+",
+    courses: item.courses_offered ? item.courses_offered : [],
+    status: item.status || 'PENDING REVIEW'
+  }));
 
   return (
     <div className="space-y-6">
@@ -358,10 +347,10 @@ export default function PendingInstituteApprovals() {
         </div>
         <h2 className="text-2xl font-bold text-gray-900">Pending Institute Approvals</h2>
       </div>
-      
+
       {/* Institute Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {institutes.map((institute) => (
+        {pendingInstitutes.map((institute) => (
           <InstituteApprovalCard 
             key={institute.id} 
             institute={institute}

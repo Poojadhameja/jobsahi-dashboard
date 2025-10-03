@@ -1,10 +1,15 @@
 import { Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+
 
 const RoleRoute = ({ children, allowedRoles }) => {
     const token = localStorage.getItem("authToken");
     const user = JSON.parse(localStorage.getItem("authUser"));
 
-    if (!token || !user) {
+    const payload = jwtDecode(token);
+    const now = Math.floor(Date.now() / 1000)
+
+    if (!token || !user || payload.exp <= now) {
         return <Navigate to="/login" replace />;
     }
 
