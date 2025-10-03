@@ -135,38 +135,20 @@ export default function EmployerManagement() {
           // Map API response to required format
           const formatted = response.data.map((item, index) => ({
             id: item.user_id, // or just use index+1 if you want serial id
-            recruiter: item.user_name,
-            company: item.profile.company_name || "N/A",
             email: item.email,
-            phone: item.phone_number,
-            isActive: item.is_active,
-            industry: item.profile.industry,
-            website: item.profile.website,  
-            location: item.profile.location,
-            employees: "100-500 employees",
-            appliedDate: item.profile.created_at,
-            documents: ["Business License", "Tax Certificate", "Company Profile"], 
-            activeJobs: 0, // you can replace with actual API field if available
-            status: item.profile.status,
+            role: item.role,
+            profile_id: item.profile.profile_id,
+            company_name: item.profile.company_name,
           }));
 
           const pendingFormatted = response.data
           .filter((item) => item.profile.status !== "approved")
           .map((item, index) => ({
             id: item.user_id, // or just use index+1 if you want serial id
-            recruiter: item.user_name,
-            company: item.profile.company_name || "N/A",
             email: item.email,
-            phone: item.phone_number,
-            isActive: item.is_active,
-            industry: item.profile.industry,
-            website: item.profile.website,  
-            location: item.profile.location,
-            employees: "100-500 employees",
-            appliedDate: item.profile.created_at,
-            documents: ["Business License", "Tax Certificate", "Company Profile"], 
-            activeJobs: 0, // you can replace with actual API field if available
-            status: item.profile.status,
+            role: item.role,
+            profile_id: item.profile.profile_id,
+            company_name: item.profile.company_name,
           }));
 
           setEmployers(formatted);

@@ -1,9 +1,9 @@
 import React from 'react'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
-import { 
-  LuPaperclip, 
-  LuEye, 
-  LuCheck, 
+import {
+  LuPaperclip,
+  LuEye,
+  LuCheck,
   LuX,
   LuFileText,
   LuBuilding,
@@ -21,12 +21,12 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
           <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
             <LuBuilding className="text-gray-500" size={24} />
           </div>
-          
+
           {/* Company Details */}
           <div className="flex-1">
             <h3 className="text-lg font-bold text-gray-900">{company}</h3>
             <p className="text-sm text-gray-600 mb-2">{recruiter}</p>
-            
+
             {/* Contact Info */}
             <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-3">
               <span>{email}</span>
@@ -36,19 +36,19 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
                 <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">P A</span>
               </div>
             </div>
-            
+
             {/* Company Attributes */}
             <div className="flex flex-wrap gap-2 mb-3">
               <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">{industry}</span>
               <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">{employees}</span>
             </div>
-            
+
             {/* Applied Date */}
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
               <LuCalendar size={16} />
               <span>Applied: {appliedDate}</span>
             </div>
-            
+
             {/* Documents */}
             <div>
               <p className="text-sm font-medium text-gray-700 mb-2">Documents submitted:</p>
@@ -63,7 +63,7 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
             </div>
           </div>
         </div>
-        
+
         {/* Right Side - Action Buttons */}
         <div className="flex flex-col space-y-2 ml-4">
           <button className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
@@ -84,32 +84,46 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
   )
 }
 
-export default function PendingRecruiterApprovals({employers}) {
+export default function PendingRecruiterApprovals({ employers }) {
   // Sample data
-  const pendingApprovals = [
-    {
-      company: "TechCorp Solutions",
-      recruiter: "Rahul Kumar",
-      email: "rahul@techcorp.com",
-      phone: "+91 9874563210",
-      website: "techcorp.com",
-      industry: "Technology",
-      employees: "100-500 employees",
-      appliedDate: "01-01-2025",
-      documents: ["Business License", "Tax Certificate", "Company Profile"]
-    },
-    {
-      company: "TechCorp Solutions",
-      recruiter: "Rahul Kumar",
-      email: "rahul@techcorp.com",
-      phone: "+91 9874563210",
-      website: "techcorp.com",
-      industry: "Technology",
-      employees: "100-500 employees",
-      appliedDate: "01-01-2025",
-      documents: ["Business License", "Tax Certificate", "Company Profile"]
-    }
-  ]
+  // const pendingApprovals = [
+  //   {
+  //     company: "TechCorp Solutions",
+  //     recruiter: "Rahul Kumar",
+  //     email: "rahul@techcorp.com",
+  //     phone: "+91 9874563210",
+  //     website: "techcorp.com",
+  //     industry: "Technology",
+  //     employees: "100-500 employees",
+  //     appliedDate: "01-01-2025",
+  //     documents: ["Business License", "Tax Certificate", "Company Profile"]
+  //   },
+  //   {
+  //     company: "TechCorp Solutions",
+  //     recruiter: "Rahul Kumar",
+  //     email: "rahul@techcorp.com",
+  //     phone: "+91 9874563210",
+  //     website: "techcorp.com",
+  //     industry: "Technology",
+  //     employees: "100-500 employees",
+  //     appliedDate: "01-01-2025",
+  //     documents: ["Business License", "Tax Certificate", "Company Profile"]
+  //   }
+  // ]
+
+  const pendingApprovals = employers.map((item, index) => ({
+    id: item.id,
+    company: item.company_name,
+    recruiter: "Rahul Kumar",
+    email: item.email,
+    role: item.role,
+    phone: "+91 9874563210",
+    website: "techcorp.com",
+    industry: "Technology",
+    employees: "100-500 employees",
+    appliedDate: "01-01-2025",
+    documents: ["Business License", "Tax Certificate", "Company Profile"]
+  }));
 
   return (
     <div className="space-y-6">
@@ -126,7 +140,7 @@ export default function PendingRecruiterApprovals({employers}) {
             </p>
           </div>
         </div>
-        
+
         {/* Status Badge */}
         <span className="px-4 py-2 border border-red-500 text-red-500 rounded-full text-sm font-medium">
           Pending
@@ -135,7 +149,7 @@ export default function PendingRecruiterApprovals({employers}) {
 
       {/* Approval Cards */}
       <div className="space-y-4">
-        {employers.map((approval, index) => (
+        {pendingApprovals.map((approval, index) => (
           <ApprovalCard
             key={index}
             company={approval.company}

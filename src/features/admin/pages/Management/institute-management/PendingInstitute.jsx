@@ -42,7 +42,7 @@ function InstituteApprovalCard({ institute }) {
             PENDING REVIEW
           </span>
         </div>
-        
+
         <div className="flex gap-3">
           <button className="px-4 py-2 border-2 border-blue-600 text-blue-600 hover:text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200">
             View Details
@@ -59,39 +59,17 @@ function InstituteApprovalCard({ institute }) {
   )
 }
 
-export default function PendingInstituteApprovals() {
-  const pendingInstitutes = [
-    {
-      id: 1,
-      initials: "ST",
-      name: "Shri Technology Institute",
-      email: "technical.institute@email.com",
-      location: "Mumbai, Maharashtra",
-      established: "2015",
-      students: "2,500+",
-      courses: "Electrician"
-    },
-    {
-      id: 2,
-      initials: "ST",
-      name: "Shri Technology Institute",
-      email: "technical.institute@email.com",
-      location: "Mumbai, Maharashtra",
-      established: "2015",
-      students: "2,500+",
-      courses: "Electrician"
-    },
-    {
-      id: 3,
-      initials: "ST",
-      name: "Shri Technology Institute",
-      email: "technical.institute@email.com",
-      location: "Mumbai, Maharashtra",
-      established: "2015",
-      students: "2,500+",
-      courses: "Electrician"
-    }
-  ]
+export default function PendingInstituteApprovals({ institutes }) {
+  const pendingInstitutes = institutes.map((item, index) => ({
+    id: item.id,
+    initials: "ST",
+    name: item.name,
+    email: item.email,
+    location: item.location,
+    established: item.established_year,
+    students: "2,500+",
+    courses: item.courses_offered ? item.courses_offered : []
+  }));
 
   return (
     <div className="space-y-6">
@@ -102,7 +80,7 @@ export default function PendingInstituteApprovals() {
         </div>
         <h2 className="text-2xl font-bold text-gray-900">Pending Institute Approvals</h2>
       </div>
-      
+
       {/* Institute Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {pendingInstitutes.map((institute) => (
