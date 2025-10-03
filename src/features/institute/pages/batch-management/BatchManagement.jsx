@@ -104,15 +104,15 @@ export default function BatchManagement() {
     }
   }
 
-  const handleViewBatch = (courseId, batchIndex) => {
-    console.log('View Batch clicked for course:', courseId, 'batch:', batchIndex)
+  const handleViewBatch = (courseId, batchId) => {
+    console.log('View Batch clicked for course:', courseId, 'batch:', batchId)
     const course = courses.find(c => c.id === courseId)
     console.log('Found course:', course)
-    if (course && course.batches[batchIndex]) {
+    if (course && course.batches[batchId]) {
       const batchData = {
         courseId: courseId,
         courseTitle: course.title,
-        batch: course.batches[batchIndex]
+        batch: course.batches[batchId]
       }
       console.log('Setting selected batch:', batchData)
       setSelectedBatch(batchData)

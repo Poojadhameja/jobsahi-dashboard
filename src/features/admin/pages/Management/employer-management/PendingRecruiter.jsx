@@ -84,7 +84,7 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
   )
 }
 
-export default function PendingRecruiterApprovals() {
+export default function PendingRecruiterApprovals({employers}) {
   // Sample data
   const pendingApprovals = [
     {
@@ -135,7 +135,7 @@ export default function PendingRecruiterApprovals() {
 
       {/* Approval Cards */}
       <div className="space-y-4">
-        {pendingApprovals.map((approval, index) => (
+        {employers.map((approval, index) => (
           <ApprovalCard
             key={index}
             company={approval.company}

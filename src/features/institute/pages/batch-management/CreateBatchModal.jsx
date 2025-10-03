@@ -9,6 +9,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
     course: courseTitle || 'Full Stack Web Development (6 months)',
     startDate: '',
     endDate: '',
+    timeSlot: '10:00 AM - 12:00 PM',
     instructor: '',
     students: []
   })
@@ -18,7 +19,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
 
   // Sample instructors data
   const instructors = [
-    'Rajendra Prashad',
+    'Rajendra Prashad', 
     'Priya Sharma',
     'Nitin Soni',
     'Neha Rajput',
@@ -82,6 +83,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
       course: courseTitle || 'Full Stack Web Development (6 months)',
       startDate: '',
       endDate: '',
+      timeSlot: '10:00 AM - 12:00 PM',
       instructor: '',
       students: []
     })
@@ -144,6 +146,28 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
                   <option value="Power Distribution Systems">Power Distribution Systems</option>
                   <option value="Motor Winding Techniques">Motor Winding Techniques</option>
                   <option value="House & Industrial Wiring">House & Industrial Wiring</option>
+                </select>
+              </div>
+
+              {/* Time Slot */}
+              <div>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                  BATCH TIME SLOT
+                </label>
+                <select
+                  value={formData.timeSlot}
+                  onChange={(e) => handleInputChange('timeSlot', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  required
+                >
+                  <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
+                  <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
+                  <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
+                  <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
+                  <option value="03:00 PM - 05:00 PM">03:00 PM - 05:00 PM</option>
+                  <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                  <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
+                  <option value="07:00 PM - 09:00 PM">07:00 PM - 09:00 PM</option>
                 </select>
               </div>
 

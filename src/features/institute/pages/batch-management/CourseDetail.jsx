@@ -1,17 +1,41 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { LuArrowLeft, LuEye } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import CentralizedDataTable from '../../../../shared/components/CentralizedDataTable'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import BatchDetail from './BatchDetail'
 
 export default function CourseDetail({ courseData, onBack, onViewBatch }) {
+  const [currentView, setCurrentView] = useState('course') // 'course' or 'batch'
+  const [selectedBatch, setSelectedBatch] = useState(null)
+
   if (!courseData) {
     return (
       <div className="p-2 bg-[#F6FAFF] min-h-screen">
         <div className="text-center text-gray-500">No course data available</div>
       </div>
     )
+  }
+
+  // Handle viewing a specific batch
+  const handleViewBatch = (courseId, batchId) => {
+    const batch = courseData.batches?.[batchId]
+    if (batch) {
+      setSelectedBatch({
+        batch: batch,
+        courseTitle: courseData.title,
+        courseId: courseId,
+        batchId: batchId
+      })
+      setCurrentView('batch')
+    }
+  }
+
+  // Handle going back from batch detail to course detail
+  const handleBackFromBatch = () => {
+    setCurrentView('course')
+    setSelectedBatch(null)
   }
 
   // Get status color for batch status
@@ -64,8 +88,8 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
         console.log('View batch clicked:', batch)
         console.log('Course ID:', courseData.id)
         console.log('Batch ID:', batch.id)
-        // Pass the courseId and batch index to match the expected parameters
-        onViewBatch(courseData.id, batch.id)
+        // Use the new handleViewBatch function
+        handleViewBatch(courseData.id, batch.id)
       },
       variant: 'outline',
       size: 'sm'
@@ -88,6 +112,17 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
     }
   }) || []
 
+  // If viewing batch detail, render BatchDetail component
+  if (currentView === 'batch' && selectedBatch) {
+    return (
+      <BatchDetail 
+        batchData={selectedBatch} 
+        onBack={handleBackFromBatch}
+      />
+    )
+  }
+
+  // Default course detail view
   return (
     <div className="p-2 bg-[#F6FAFF] min-h-screen">
       {/* Header Section */}
