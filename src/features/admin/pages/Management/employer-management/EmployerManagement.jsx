@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant'
 import { MatrixCard, MetricPillRow } from '../../../../../shared/components/metricCard'
 import PendingRecruiterApprovals from './PendingRecruiter'
@@ -7,10 +8,10 @@ import PaymentHistory from './Payment'
 import EmployerRatings from './EmployerRating'
 import ResumeUsageTracker from './ResumeUsage'
 import FraudControlSystem from './FraudControl'
-import { 
-  LuBriefcase, 
-  LuBuilding, 
-  LuUsers, 
+import {
+  LuBriefcase,
+  LuBuilding,
+  LuUsers,
   LuTrendingUp,
   LuSearch,
   LuFilter,
@@ -18,7 +19,8 @@ import {
   LuDownload,
   LuMessageSquare
 } from 'react-icons/lu'
-
+import { getMethod } from '../../../../../service/api'
+import apiService from '../../../../../service/serviceUrl'
 // KPI Card Component
 function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
   return (
@@ -28,7 +30,7 @@ function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
           <p className="text-sm text-gray-600 mb-1">{title}</p>
           <p className="text-2xl font-bold" style={{ color }}>{value}</p>
         </div>
-        <div 
+        <div
           className="w-12 h-12 rounded-full flex items-center justify-center"
           style={{ backgroundColor: `${color}15` }}
         >
@@ -50,14 +52,14 @@ function EmployerTable({ employers }) {
         </div>
         <div className="relative">
           <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-          <input 
+          <input
             type="text"
             placeholder="Search by company name or email..."
             className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-80"
           />
         </div>
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
@@ -84,10 +86,10 @@ function EmployerTable({ employers }) {
                 <td className="py-4 px-4 text-gray-700">{employer.activeJobs}</td>
                 <td className="py-4 px-4">
                   <span className={`px-2 py-1 text-xs rounded-full ${
-                    employer.status === 'Active' 
-                      ? 'bg-green-100 text-green-800' 
+                    employer.status === 'Active'
+                      ? 'bg-green-100 text-green-800'
                       : 'bg-gray-100 text-gray-800'
-                  }`}>
+                    }`}>
                     {employer.status}
                   </span>
                 </td>
@@ -108,40 +110,87 @@ function EmployerTable({ employers }) {
 
 export default function EmployerManagement() {
   const [employers, setEmployers] = useState([])
+  const [pendingApprovalEmployers, setPendingApprovalEmployers] = useState([])
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [activeView, setActiveView] = useState('approve-reject') // 'overview', 'approve-reject', etc.
   const dropdownRef = useRef(null)
+  const [totalEmployerCount, setTotalEmployerCount] = useState('0')
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState('0')
+  const [activeJobsCount, setActiveJobsCount] = useState('0')
+  const [monthlyRevenue, setMonthlyRevenue] = useState('0')
 
   useEffect(() => {
-    setEmployers([
-      { 
-        id: 1, 
-        company: 'TechCorp Solutions', 
-        email: 'hr@techcorp.com', 
-        industry: 'Technology',
-        location: 'Mumbai',
-        activeJobs: 15,
-        status: 'Active'
-      },
-      { 
-        id: 2, 
-        company: 'Global Industries', 
-        email: 'careers@global.com', 
-        industry: 'Manufacturing',
-        location: 'Delhi',
-        activeJobs: 8,
-        status: 'Active'
-      },
-      { 
-        id: 3, 
-        company: 'StartupXYZ', 
-        email: 'jobs@startupxyz.com', 
-        industry: 'Fintech',
-        location: 'Bangalore',
-        activeJobs: 3,
-        status: 'Pending'
+
+    async function fetchData() {
+      try {
+        var data = {
+          apiUrl: apiService.employersList,
+          payload: {
+          },
+        };
+
+        var response = await getMethod(data);
+        console.log(response)
+        if (response.status === true) {
+          // Map API response to required format
+          const formatted = response.data.map((item, index) => ({
+            id: item.user_id, // or just use index+1 if you want serial id
+            recruiter: item.user_name,
+            company: item.profile.company_name || "N/A",
+            email: item.email,
+            phone: item.phone_number,
+            isActive: item.is_active,
+            industry: item.profile.industry,
+            website: item.profile.website,  
+            location: item.profile.location,
+            employees: "100-500 employees",
+            appliedDate: item.profile.created_at,
+            documents: ["Business License", "Tax Certificate", "Company Profile"], 
+            activeJobs: 0, // you can replace with actual API field if available
+            status: item.profile.status,
+          }));
+
+          const pendingFormatted = response.data
+          .filter((item) => item.profile.status !== "approved")
+          .map((item, index) => ({
+            id: item.user_id, // or just use index+1 if you want serial id
+            recruiter: item.user_name,
+            company: item.profile.company_name || "N/A",
+            email: item.email,
+            phone: item.phone_number,
+            isActive: item.is_active,
+            industry: item.profile.industry,
+            website: item.profile.website,  
+            location: item.profile.location,
+            employees: "100-500 employees",
+            appliedDate: item.profile.created_at,
+            documents: ["Business License", "Tax Certificate", "Company Profile"], 
+            activeJobs: 0, // you can replace with actual API field if available
+            status: item.profile.status,
+          }));
+
+          setEmployers(formatted);
+          setPendingApprovalEmployers(pendingFormatted);
+          setTotalEmployerCount(response.total_count);
+          setPendingApprovalsCount(pendingFormatted.length);
+        } else {
+          Swal.fire({
+            title: "Failed",
+            text: response.message || "Failed to retrieve employers",
+            icon: "error"
+          });
+        }
+      } catch (error) {
+        // console.error("API Error:", error)
+        // alert("Something went wrong. Please try again.")
+        Swal.fire({
+          title: "API Error",
+          text: "Something went wrong. Please try again.",
+          icon: "error"
+        });
       }
-    ])
+    }
+    fetchData();
   }, [])
 
   // Close dropdown when clicking outside
@@ -162,12 +211,12 @@ export default function EmployerManagement() {
     <div className="space-y-6">
       {/* Header Section */}
       <div className="space-y-4">
-        <MatrixCard 
+        <MatrixCard
           title="Employer Management"
           subtitle="Comprehensive employer management system with approval work flows and analytics"
           className=""
         />
-        
+
         <div className="flex items-center justify-end gap-3">
           <MetricPillRow items={[
             { key: 'export', label: 'Export Data', icon: <LuDownload size={16} />, onClick: () => console.log('Export Data') },
@@ -179,27 +228,27 @@ export default function EmployerManagement() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard 
-          title="Total Employerss" 
-          value="1234" 
+        <KPICard
+          title="Total Employers"
+          value={totalEmployerCount}
           icon={<LuUsers size={24} color={COLORS.PRIMARY} />}
           color={COLORS.PRIMARY}
         />
-        <KPICard 
-          title="Pending Approvals" 
-          value="56" 
+        <KPICard
+          title="Pending Approvals"
+          value={pendingApprovalsCount}
           icon={<span className="text-2xl">✅</span>}
           color={COLORS.PRIMARY}
         />
-        <KPICard 
-          title="Active Jobs" 
-          value="1,234" 
+        <KPICard
+          title="Active Jobs"
+          value={activeJobsCount}
           icon={<span className="text-2xl">📁</span>}
           color={COLORS.PRIMARY}
         />
-        <KPICard 
-          title="Monthly Revenue" 
-          value="₹4,50,000" 
+        <KPICard
+          title="Monthly Revenue"
+          value={`₹${monthlyRevenue}`}
           icon={<span className="text-2xl">🎯</span>}
           color={COLORS.PRIMARY}
         />
@@ -207,7 +256,7 @@ export default function EmployerManagement() {
 
       {/* Toggle Button with Dropdown */}
       <div className="flex justify-end relative" ref={dropdownRef}>
-        <button 
+        <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="bg-primary text-white p-3 rounded-lg shadow-lg transition-colors duration-200 hover:bg-primary-dark"
         >
@@ -217,69 +266,69 @@ export default function EmployerManagement() {
             <div className="w-6 h-0.5 bg-white"></div>
           </div>
         </button>
-        
+
         {/* Dropdown Menu */}
         {isDropdownOpen && (
           <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
             {/* Menu Items */}
             <div className="py-2">
-              <button 
+              <button
                 onClick={() => { setActiveView('approve-reject'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
-                  activeView === 'approve-reject' 
-                    ? 'bg-primary text-white' 
+                  activeView === 'approve-reject'
+                    ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Approve/Reject
               </button>
-              <button 
+              <button
                 onClick={() => { setActiveView('job-tracking'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
-                  activeView === 'job-tracking' 
-                    ? 'bg-primary text-white' 
+                  activeView === 'job-tracking'
+                    ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Job Tracking
               </button>
-              <button 
+              <button
                 onClick={() => { setActiveView('payments'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
-                  activeView === 'payments' 
-                    ? 'bg-primary text-white' 
+                  activeView === 'payments'
+                    ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Payments
               </button>
-              <button 
+              <button
                 onClick={() => { setActiveView('ratings'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
-                  activeView === 'ratings' 
-                    ? 'bg-primary text-white' 
+                  activeView === 'ratings'
+                    ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Ratings
               </button>
-              <button 
+              <button
                 onClick={() => { setActiveView('resume-usage'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
-                  activeView === 'resume-usage' 
-                    ? 'bg-primary text-white' 
+                  activeView === 'resume-usage'
+                    ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Resume Usage
               </button>
-              <button 
+              <button
                 onClick={() => { setActiveView('fraud-control'); setIsDropdownOpen(false); }}
                 className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
-                  activeView === 'fraud-control' 
-                    ? 'bg-primary text-white' 
+                  activeView === 'fraud-control'
+                    ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Fraud Control
               </button>
@@ -290,7 +339,7 @@ export default function EmployerManagement() {
 
       {/* Conditional Content Rendering */}
       {activeView === 'approve-reject' && (
-        <PendingRecruiterApprovals />
+        <PendingRecruiterApprovals employers={pendingApprovalEmployers} />
       )}
 
       {activeView === 'job-tracking' && (

@@ -321,7 +321,7 @@ export default function PendingRecruiterApprovals() {
 
       {/* Approval Cards */}
       <div className="space-y-4">
-        {pendingApprovals.map((approval, index) => (
+        {employers.map((approval, index) => (
           <ApprovalCard
             key={index}
             company={approval.company}

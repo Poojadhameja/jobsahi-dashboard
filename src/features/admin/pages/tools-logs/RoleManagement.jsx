@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import Swal from 'sweetalert2'
 
 export default function RoleManagement() {
@@ -9,7 +9,6 @@ export default function RoleManagement() {
     description: '',
     permissions: []
   })
-  const createFormRef = useRef(null)
 
   // Sample existing roles data
   const [existingRoles, setExistingRoles] = useState([
@@ -105,15 +104,6 @@ export default function RoleManagement() {
 
   const handleCreateNewRoleClick = () => {
     setShowCreateForm(true)
-    // Scroll to the create form after a short delay to ensure it's rendered
-    setTimeout(() => {
-      if (createFormRef.current) {
-        createFormRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        })
-      }
-    }, 100)
   }
 
   const handleEditRole = (role) => {
@@ -124,15 +114,6 @@ export default function RoleManagement() {
       permissions: [...role.permissions]
     })
     setShowCreateForm(true)
-    // Scroll to the form
-    setTimeout(() => {
-      if (createFormRef.current) {
-        createFormRef.current.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        })
-      }
-    }, 100)
   }
 
   const handleDeleteRole = (role) => {
@@ -224,74 +205,90 @@ export default function RoleManagement() {
         </div>
       </div>
 
-      {/* Create New Role Form */}
+      {/* Create New Role Modal */}
       {showCreateForm && (
-        <div ref={createFormRef} className="bg-[var(--color-bg-primary)] rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
-          <h3 className="text-lg font-medium text-primary mb-4">
-            {editingRole ? 'Edit Role' : 'Create New Role'}
-          </h3>
-          
-          <div className="space-y-6">
-            {/* Role Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Role Name</label>
-              <input
-                type="text"
-                placeholder="Enter role name.."
-                value={newRole.name}
-                onChange={(e) => setNewRole(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-4 py-3 border border-[var(--color-primary)28] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent"
-              />
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-              <textarea
-                placeholder="Describe the role and its responsibilities.."
-                value={newRole.description}
-                onChange={(e) => setNewRole(prev => ({ ...prev, description: e.target.value }))}
-                rows={3}
-                className="w-full px-4 py-3 border border-[var(--color-primary)28] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent"
-              />
-            </div>
-
-            {/* Permissions */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {availablePermissions.map((permission) => (
-                  <label key={permission} className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={newRole.permissions.includes(permission)}
-                      onChange={() => handlePermissionToggle(permission)}
-                      className="w-4 h-4 text-[var(--color-secondary)] border-gray-300 rounded focus:ring-[var(--color-secondary)]"
-                    />
-                    <span className="text-gray-700">{permission}</span>
-                  </label>
-                ))}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {editingRole ? 'Edit Role' : 'Create New Role'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCreateForm(false)
+                    setEditingRole(null)
+                    setNewRole({ name: '', description: '', permissions: [] })
+                  }}
+                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+                >
+                  ×
+                </button>
               </div>
-            </div>
+              
+              <div className="space-y-6">
+                {/* Role Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Role Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter role name.."
+                    value={newRole.name}
+                    onChange={(e) => setNewRole(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-4">
-              <button
-                onClick={handleCreateRole}
-                className="px-6 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors duration-200 font-medium"
-              >
-                {editingRole ? 'Update Role' : 'Create Role'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowCreateForm(false)
-                  setEditingRole(null)
-                  setNewRole({ name: '', description: '', permissions: [] })
-                }}
-                className="px-6 py-2 bg-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors duration-200 font-medium"
-              >
-                Cancel
-              </button>
+                {/* Description */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <textarea
+                    placeholder="Describe the role and its responsibilities.."
+                    value={newRole.description}
+                    onChange={(e) => setNewRole(prev => ({ ...prev, description: e.target.value }))}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Permissions */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Permissions</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {availablePermissions.map((permission) => (
+                      <label key={permission} className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50">
+                        <input
+                          type="checkbox"
+                          checked={newRole.permissions.includes(permission)}
+                          onChange={() => handlePermissionToggle(permission)}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-gray-700 text-sm">{permission}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 pt-4 border-t border-gray-200">
+                  <button
+                    onClick={handleCreateRole}
+                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+                  >
+                    {editingRole ? 'Update Role' : 'Create Role'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowCreateForm(false)
+                      setEditingRole(null)
+                      setNewRole({ name: '', description: '', permissions: [] })
+                    }}
+                    className="px-6 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

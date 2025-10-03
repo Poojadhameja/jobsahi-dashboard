@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react'
+import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant'
 import { MatrixCard, MetricPillRow } from '../../../../shared/components/metricCard'
-import { 
-  LuUsers, 
+import {
+  LuUsers,
   LuSearch,
   LuFilter,
   LuMessageSquare,
@@ -10,8 +11,6 @@ import {
   LuEye,
   LuTrash2
 } from 'react-icons/lu'
-import { HiDotsVertical } from 'react-icons/hi'
-import Swal from 'sweetalert2'
 // KPI Card Component
 function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
   return (
@@ -21,7 +20,7 @@ function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
           <p className="text-sm text-gray-600 mb-1">{title}</p>
           <p className="text-2xl font-bold" style={{ color }}>{value}</p>
         </div>
-        <div 
+        <div
           className="w-12 h-12 rounded-full flex items-center justify-center"
           style={{ backgroundColor: `${color}15` }}
         >
@@ -40,11 +39,11 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
         <LuFilter className="text-gray-600" size={20} />
         <h3 className="font-medium text-[var(--color-primary)]">Advanced Filters</h3>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-[var(--color-primary)]">Courses</label>
-          <select 
+          <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.course || 'all'}
             onChange={(e) => onFilterChange({ ...filters, course: e.target.value })}
@@ -56,10 +55,10 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
             <option value="welder">Welder</option>
           </select>
         </div>
-        
+
         <div className="space-y-2">
           <label className="block text-sm font-medium text-[var(--color-primary)]">Placement Status</label>
-          <select 
+          <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.placementStatus || 'all'}
             onChange={(e) => onFilterChange({ ...filters, placementStatus: e.target.value })}
@@ -71,10 +70,10 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
             <option value="not-ready">Not Ready</option>
           </select>
         </div>
-        
+
         <div className="space-y-2">
           <label className="block text-sm font-medium text-[var(--color-primary)]">Skills</label>
-          <select 
+          <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.skills || 'all'}
             onChange={(e) => onFilterChange({ ...filters, skills: e.target.value })}
@@ -86,10 +85,10 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
             <option value="javascript">JavaScript</option>
           </select>
         </div>
-        
+
         <div className="space-y-2">
           <label className="block text-sm font-medium text-[var(--color-primary)]">Experience</label>
-          <select 
+          <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.experience || 'all'}
             onChange={(e) => onFilterChange({ ...filters, experience: e.target.value })}
@@ -102,15 +101,15 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
           </select>
         </div>
       </div>
-      
+
       <div className="flex justify-end gap-3">
-        <button 
+        <button
           onClick={onClearAll}
           className="px-4 py-2 text-sm text-[var(--color-secondary)] hover:underline font-medium"
         >
           Clear All
         </button>
-        <button 
+        <button
           onClick={onApplyFilter}
           className="px-4 py-2 text-sm rounded-lg bg-[var(--color-secondary)] text-white hover:bg-secondary-dark transition-colors duration-200 font-medium"
         >
@@ -125,11 +124,11 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
 function SkillsTags({ skills }) {
   const displaySkills = skills.slice(0, 3)
   const remainingCount = skills.length - 3
-  
+
   return (
     <div className="flex flex-wrap gap-1">
       {displaySkills.map((skill, index) => (
-        <span 
+        <span
           key={index}
           className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
         >
@@ -149,7 +148,7 @@ function SkillsTags({ skills }) {
 function ProgressBar({ progress }) {
   return (
     <div className="w-full bg-gray-200 rounded-full h-2">
-      <div 
+      <div
         className="bg-green-500 h-2 rounded-full transition-all duration-300"
         style={{ width: `${progress}%` }}
       ></div>
@@ -484,7 +483,7 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
 // Student Table Component
 function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent, autoScrollEnabled, setAutoScrollEnabled, onViewCV, onDelete }) {
   const allSelected = selectedStudents.length === students.length && students.length > 0
-  
+
   // Auto scroll effect
   React.useEffect(() => {
     if (autoScrollEnabled && students.length > 0) {
@@ -500,13 +499,35 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
       return () => clearInterval(interval);
     }
   }, [autoScrollEnabled, students.length]);
-  
+
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
          <div className="flex items-center gap-2">
            <LuUsers className="text-gray-600" size={20} />
            <h3 className="font-medium text-gray-800">All Student Profiles</h3>
+         </div>
+         
+         {/* Auto Scroll Toggle */}
+         <div className="flex items-center gap-2">
+           <span className="text-sm text-gray-700">Auto Scroll</span>
+           <button
+             type="button"
+             onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
+             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+               autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+             }`}
+             style={{
+               backgroundColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined,
+               focusRingColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined
+             }}
+           >
+             <span
+               className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
+                 autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
+               }`}
+             />
+           </button>
          </div>
          
          <div className="relative w-full sm:w-auto">
@@ -524,8 +545,8 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
           <thead>
             <tr className="text-left text-gray-500 border-b">
               <th className="py-3 px-4">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={allSelected}
                   onChange={onSelectAll}
                   className="rounded border-gray-300"
@@ -544,8 +565,8 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
             {students.map((student) => (
               <tr key={student.id} className="border-b hover:bg-gray-50">
                 <td className="py-4 px-4">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={selectedStudents.includes(student.id)}
                     onChange={() => onSelectStudent(student.id)}
                     className="rounded border-gray-300"
@@ -591,77 +612,78 @@ export default function StudentManagement() {
   const [selectedStudents, setSelectedStudents] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
-  
-  // Modal states
-  const [viewCVModal, setViewCVModal] = useState({ isOpen: false, student: null })
-  const [deleteModal, setDeleteModal] = useState({ isOpen: false, student: null })
 
   useEffect(() => {
     // TODO: replace with ApiService
-    setStudents([
-      { 
-        id: 1, 
-        name: 'Arjun Sharma', 
-        email: 'arjun.sharma@gmail.com', 
-        course: 'Electrician',
-        cgpa: '8.7/10',
-        region: 'India',
-        skills: ['React', 'Java', 'Python', 'JavaScript', 'Node.js'],
-        progress: 90
-      },
-      { 
-        id: 2, 
-        name: 'Priya Patel', 
-        email: 'priya.patel@gmail.com', 
-        course: 'Plumber',
-        cgpa: '9.2/10',
-        region: 'India',
-        skills: ['Python', 'Django', 'SQL'],
-        progress: 85
-      },
-      { 
-        id: 3, 
-        name: 'Rahul Kumar', 
-        email: 'rahul.kumar@gmail.com', 
-        course: 'Carpenter',
-        cgpa: '8.1/10',
-        region: 'India',
-        skills: ['JavaScript', 'React', 'MongoDB', 'Express'],
-        progress: 75
-      },
-      { 
-        id: 4, 
-        name: 'Sneha Singh', 
-        email: 'sneha.singh@gmail.com', 
-        course: 'Welder',
-        cgpa: '9.5/10',
-        region: 'India',
-        skills: ['Java', 'Spring Boot', 'MySQL'],
-        progress: 95
-      },
-      { 
-        id: 5, 
-        name: 'Vikram Joshi', 
-        email: 'vikram.joshi@gmail.com', 
-        course: 'Electrician',
-        cgpa: '8.9/10',
-        region: 'India',
-        skills: ['React', 'TypeScript', 'GraphQL'],
-        progress: 88
+    async function fetchData() {
+      try {
+        var data = {
+          apiUrl: apiService.studentsList,
+          payload: {
+          },
+        };
+
+        var response = await getMethod(data);
+        console.log(response)
+        if (response.status === true) {
+          // Convert response before setting
+          const formatted = response.data.map((item) => ({
+            id: item.user_info.user_id,
+            name: item.user_info.user_name,
+            email: item.user_info.email,
+            phone: item.user_info.phone_number,
+            dob: item.user_info.dob,
+            gender: item.user_info.gender,
+            isActive: item.user_info.is_active,
+            education: item.profile_info.education,
+            resume: item.profile_info.resume,
+            certificates: item.profile_info.certificates,
+            portfolio: item.profile_info.portfolio_link,
+            linkedin: item.profile_info.linkedin_url,
+            skills: item.profile_info.skills.split(",").map((s) => s.trim()),
+            course: item.profile_info.trade,
+            region: item.profile_info.location,
+            cgpa: '8.7/10',
+            progress: 90
+
+          }));
+
+          const pendingFormatted = response.data
+          .filter((item) => item.profile_info.status === "approved");
+          
+          setTotalStudentCount(response.count);
+          setVerifiedProfileCount(pendingFormatted.length);
+          setStudents(formatted);
+        } else {
+          Swal.fire({
+            title: "Failed",
+            text: response.message || "Failed to retrieve students",
+            icon: "error"
+          });
+        }
+      } catch (error) {
+        // console.error("API Error:", error)
+        // alert("Something went wrong. Please try again.")
+        Swal.fire({
+          title: "API Error",
+          text: "Something went wrong. Please try again.",
+          icon: "error"
+        });
       }
-    ])
+    }
+    fetchData();
   }, [])
 
   const filteredStudents = useMemo(() => {
     return students.filter(student => {
-      const matchesSearch = !searchTerm || 
+      const matchesSearch = !searchTerm ||
         student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student.id.toString().includes(searchTerm)
-      
+
       const matchesCourse = !filters.course || filters.course === 'all' || student.course.toLowerCase() === filters.course
       const matchesSkills = !filters.skills || filters.skills === 'all' || student.skills.some(skill => skill.toLowerCase() === filters.skills)
-      
+
       return matchesSearch && matchesCourse && matchesSkills
     })
   }, [students, filters, searchTerm])
@@ -675,8 +697,8 @@ export default function StudentManagement() {
   }
 
   const handleSelectStudent = (studentId) => {
-    setSelectedStudents(prev => 
-      prev.includes(studentId) 
+    setSelectedStudents(prev =>
+      prev.includes(studentId)
         ? prev.filter(id => id !== studentId)
         : [...prev, studentId]
     )
@@ -787,12 +809,12 @@ export default function StudentManagement() {
     <div className="space-y-6">
       {/* Header Section */}
       <div className="space-y-4">
-        <MatrixCard 
+        <MatrixCard
           title="Student Management"
           subtitle="Manage student profiles, track progress, and monitor placements."
-          className=""  
+          className=""
         />
-        
+
         <div className="flex items-center justify-end gap-3">
           <MetricPillRow items={[
             { key: 'export', label: 'Export Data', icon: <span className="text-sm">📊</span>, onClick: handleExportData },
@@ -804,34 +826,34 @@ export default function StudentManagement() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KPICard 
-          title="Total Students" 
-          value="15,847" 
+        <KPICard
+          title="Total Students"
+          value={totalStudentCount}
           icon={<LuUsers size={24} color={COLORS.PRIMARY} />}
           color={COLORS.PRIMARY}
         />
-        <KPICard 
-          title="Verified Profiles" 
-          value="2,456" 
+        <KPICard
+          title="Verified Profiles"
+          value={verifiedProfileCount}
           icon={<span className="text-2xl">✅</span>}
           color={COLORS.PRIMARY}
         />
-        <KPICard 
-          title="Placement Ready" 
-          value="342" 
+        <KPICard
+          title="Placement Ready"
+          value={placementReadyCount}
           icon={<span className="text-2xl">📁</span>}
           color={COLORS.PRIMARY}
         />
-        <KPICard 
-          title="Successfully Placed" 
-          value="23,891" 
+        <KPICard
+          title="Successfully Placed"
+          value={placedSuccessCount}
           icon={<span className="text-2xl">🎯</span>}
           color={COLORS.PRIMARY}
         />
       </div>
 
       {/* Advanced Filters */}
-      <AdvancedFilters 
+      <AdvancedFilters
         filters={filters}
         onFilterChange={handleFilterChange}
         onClearAll={handleClearAll}
@@ -839,7 +861,7 @@ export default function StudentManagement() {
       />
 
       {/* Student Table */}
-      <StudentTable 
+      <StudentTable
         students={filteredStudents}
         onSelectAll={handleSelectAll}
         selectedStudents={selectedStudents}
