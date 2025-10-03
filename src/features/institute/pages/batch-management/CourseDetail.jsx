@@ -29,16 +29,20 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
   // Configure table columns for batches
   const batchColumns = [
     {
-      key: 'name',
+      key: 'batchName',
       header: 'Batch Name'
     },
     {
-      key: 'time',
-      header: 'Schedule'
+      key: 'schedule',
+      header: 'Time Schedule'
     },
     {
-      key: 'students',
-      header: 'Students'
+      key: 'totalStudents',
+      header: 'Total Students'
+    },
+    {
+      key: 'enrolledStudents',
+      header: 'Enrolled Students'
     },
     {
       key: 'status',
@@ -68,11 +72,21 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
     }
   ]
 
-  // Transform batch data to include unique IDs
-  const batchData = courseData.batches?.map((batch, index) => ({
-    id: index,
-    ...batch
-  })) || []
+  // Transform batch data to include proper batch names and formatted data
+  const batchData = courseData.batches?.map((batch, index) => {
+    const batchName = `Batch ${String.fromCharCode(65 + index)}` // A, B, C, etc.
+    const [enrolled, total] = batch.students ? batch.students.split('/').map(Number) : [0, 0]
+    
+    return {
+      id: index,
+      batchName: batchName,
+      schedule: batch.time || '9:00 AM - 12:00 PM',
+      totalStudents: total || 30,
+      enrolledStudents: enrolled || 0,
+      status: batch.status || 'Active',
+      ...batch
+    }
+  }) || []
 
   return (
     <div className="p-2 bg-[#F6FAFF] min-h-screen">
@@ -213,10 +227,7 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
           <div className="text-center">
             <div className="text-2xl font-bold" style={{ color: 'var(--color-warning)' }}>
-              {courseData.batches ? courseData.batches.reduce((total, batch) => {
-                const [current, max] = batch.students.split('/').map(Number)
-                return total + (current || 0)
-              }, 0) : 0}
+              {batchData.reduce((total, batch) => total + batch.enrolledStudents, 0)}
             </div>
             <div className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Enrolled Students</div>
           </div>
@@ -224,10 +235,7 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
           <div className="text-center">
             <div className="text-2xl font-bold" style={{ color: 'var(--color-info)' }}>
-              {courseData.batches ? courseData.batches.reduce((total, batch) => {
-                const [current, max] = batch.students.split('/').map(Number)
-                return total + (max || 0)
-              }, 0) : 0}
+              {batchData.reduce((total, batch) => total + batch.totalStudents, 0)}
             </div>
             <div className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Max Capacity</div>
           </div>

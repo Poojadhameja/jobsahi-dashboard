@@ -22,73 +22,76 @@ export default function BatchManagement() {
       id: 1,
       title: "Fundamentals of Electricity",
       instructor: "Rajendra Prashad",
-      totalBatches: 4,
-      activeBatches: 1,
+      totalBatches: 5,
+      activeBatches: 3,
       batches: [
-        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
-        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" },
-        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" }
+        {
+          time: "9:00 AM - 12:00 PM",
+          students: "25/30",
+          status: "Active"
+        },
+        {
+          time: "2:00 PM - 5:00 PM",
+          students: "18/30",
+          status: "Active"
+        },
+        {
+          time: "6:00 PM - 9:00 PM",
+          students: "22/30",
+          status: "Active"
+        }
       ]
     },
     {
       id: 2,
       title: "Wiring & Circuit Installation",
       instructor: "Priya Sharma",
-      totalBatches: 3,
-      activeBatches: 3,
+      totalBatches: 4,
+      activeBatches: 2,
       batches: [
-        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
-        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
-        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "24/30", status: "Active" }
+        {
+          time: "10:00 AM - 1:00 PM",
+          students: "20/25",
+          status: "Active"
+        },
+        {
+          time: "3:00 PM - 6:00 PM",
+          students: "15/25",
+          status: "Upcoming"
+        }
       ]
     },
     {
       id: 3,
       title: "Transformer Installation",
       instructor: "Rajendra Prashad",
-      totalBatches: 5,
+      totalBatches: 4,
       activeBatches: 1,
-      batches: [
-        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
-        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" },
-        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" }
-      ]
+      batches: []
     },
     {
       id: 4,
       title: "Power Distribution Systems",
       instructor: "Nitin Soni",
       totalBatches: 4,
-      activeBatches: 1,
-      batches: [
-        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
-        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" },
-        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" }
-      ]
+      activeBatches: 3,
+      batches: []
     },
     {
       id: 5,
       title: "Motor Winding Techniques",
       instructor: "Rajendra Prashad",
       totalBatches: 4,
-      activeBatches: 2,
-      batches: [
-        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
-        { name: "Batch B", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
-        { name: "Batch C", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Upcoming" }
-      ]
+      activeBatches: 1,
+      batches: []
     },
     {
       id: 6,
       title: "House & Industrial Wiring",
       instructor: "Neha Rajput",
-      totalBatches: 3,
-      activeBatches: 1,
-      batches: [
-        { name: "Batch A", time: "9:00 AM - 12:00 PM", students: "25/30", status: "Active" },
-        { name: "Batch B", time: "2:00 PM - 5:00 PM", students: "20/30", status: "Upcoming" },
-        { name: "Batch C", time: "6:00 PM - 9:00 PM", students: "18/30", status: "Upcoming" }
-      ]
+      totalBatches: 4,
+      activeBatches: 2,
+      batches: []
     }
   ]
 
@@ -196,28 +199,7 @@ export default function BatchManagement() {
                 <div className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-xs font-medium`}>Active Batches</div>
               </div>
             </div>
-            
-            {/* Batches Section */}
-            <div className="mb-5">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Batches ({course.batches.length})</h4>
-              <div className="max-h-36 overflow-y-auto space-y-3 pr-2">
-                {course.batches.map((batch, index) => (
-                  <div key={index} className={`flex items-start justify-between p-2 ${TAILWIND_COLORS.BG_MUTED} rounded-lg`}>
-                    <div className="flex-1">
-                      <div className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm mb-1`}>{batch.name}</div>
-                      <div className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs mb-1`}>{batch.time}</div>
-                      <div className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs`}>{batch.students} students</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(batch.status)}`}>
-                        {batch.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
+           
             {/* Action Buttons */}
             <div className="flex gap-2">
               <Button 
