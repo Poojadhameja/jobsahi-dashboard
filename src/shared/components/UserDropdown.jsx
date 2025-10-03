@@ -62,6 +62,9 @@ const UserDropdown = ({ user = { user_name: 'Admin', role: 'Administrator' } }) 
         setIsOpen(false)
         navigate('/login')
         localStorage.clear();
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("authExpiry");
+        localStorage.removeItem("authUser");
 
       } else {
         console.error("Logout Failed:", response)
@@ -81,6 +84,9 @@ const UserDropdown = ({ user = { user_name: 'Admin', role: 'Administrator' } }) 
 
   const handleLogin = () => {
     localStorage.clear();
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("authExpiry");
+    localStorage.removeItem("authUser");
     navigate('/login')
     setIsOpen(false)
   }
