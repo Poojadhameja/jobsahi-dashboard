@@ -1,17 +1,41 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { LuArrowLeft, LuEye } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import CentralizedDataTable from '../../../../shared/components/CentralizedDataTable'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import BatchDetail from './BatchDetail'
 
 export default function CourseDetail({ courseData, onBack, onViewBatch }) {
+  const [currentView, setCurrentView] = useState('course') // 'course' or 'batch'
+  const [selectedBatch, setSelectedBatch] = useState(null)
+
   if (!courseData) {
     return (
       <div className="p-2 bg-[#F6FAFF] min-h-screen">
         <div className="text-center text-gray-500">No course data available</div>
       </div>
     )
+  }
+
+  // Handle viewing a specific batch
+  const handleViewBatch = (courseId, batchId) => {
+    const batch = courseData.batches?.[batchId]
+    if (batch) {
+      setSelectedBatch({
+        batch: batch,
+        courseTitle: courseData.title,
+        courseId: courseId,
+        batchId: batchId
+      })
+      setCurrentView('batch')
+    }
+  }
+
+  // Handle going back from batch detail to course detail
+  const handleBackFromBatch = () => {
+    setCurrentView('course')
+    setSelectedBatch(null)
   }
 
   // Get status color for batch status
@@ -29,16 +53,20 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
   // Configure table columns for batches
   const batchColumns = [
     {
-      key: 'name',
+      key: 'batchName',
       header: 'Batch Name'
     },
     {
-      key: 'time',
-      header: 'Schedule'
+      key: 'schedule',
+      header: 'Time Schedule'
     },
     {
-      key: 'students',
-      header: 'Students'
+      key: 'totalStudents',
+      header: 'Total Students'
+    },
+    {
+      key: 'enrolledStudents',
+      header: 'Enrolled Students'
     },
     {
       key: 'status',
@@ -60,20 +88,41 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
         console.log('View batch clicked:', batch)
         console.log('Course ID:', courseData.id)
         console.log('Batch ID:', batch.id)
-        // Pass the courseId and batch index to match the expected parameters
-        onViewBatch(courseData.id, batch.id)
+        // Use the new handleViewBatch function
+        handleViewBatch(courseData.id, batch.id)
       },
       variant: 'outline',
       size: 'sm'
     }
   ]
 
-  // Transform batch data to include unique IDs
-  const batchData = courseData.batches?.map((batch, index) => ({
-    id: index,
-    ...batch
-  })) || []
+  // Transform batch data to include proper batch names and formatted data
+  const batchData = courseData.batches?.map((batch, index) => {
+    const batchName = `Batch ${String.fromCharCode(65 + index)}` // A, B, C, etc.
+    const [enrolled, total] = batch.students ? batch.students.split('/').map(Number) : [0, 0]
+    
+    return {
+      id: index,
+      batchName: batchName,
+      schedule: batch.time || '9:00 AM - 12:00 PM',
+      totalStudents: total || 30,
+      enrolledStudents: enrolled || 0,
+      status: batch.status || 'Active',
+      ...batch
+    }
+  }) || []
 
+  // If viewing batch detail, render BatchDetail component
+  if (currentView === 'batch' && selectedBatch) {
+    return (
+      <BatchDetail 
+        batchData={selectedBatch} 
+        onBack={handleBackFromBatch}
+      />
+    )
+  }
+
+  // Default course detail view
   return (
     <div className="p-2 bg-[#F6FAFF] min-h-screen">
       {/* Header Section */}
@@ -213,10 +262,7 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
           <div className="text-center">
             <div className="text-2xl font-bold" style={{ color: 'var(--color-warning)' }}>
-              {courseData.batches ? courseData.batches.reduce((total, batch) => {
-                const [current, max] = batch.students.split('/').map(Number)
-                return total + (current || 0)
-              }, 0) : 0}
+              {batchData.reduce((total, batch) => total + batch.enrolledStudents, 0)}
             </div>
             <div className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Enrolled Students</div>
           </div>
@@ -224,10 +270,7 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
           <div className="text-center">
             <div className="text-2xl font-bold" style={{ color: 'var(--color-info)' }}>
-              {courseData.batches ? courseData.batches.reduce((total, batch) => {
-                const [current, max] = batch.students.split('/').map(Number)
-                return total + (max || 0)
-              }, 0) : 0}
+              {batchData.reduce((total, batch) => total + batch.totalStudents, 0)}
             </div>
             <div className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Max Capacity</div>
           </div>

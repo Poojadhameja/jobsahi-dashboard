@@ -9,6 +9,7 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
     course: batchData?.course || 'Full Stack Web Development',
     startDate: batchData?.startDate || '25/12/2024',
     endDate: batchData?.endDate || '1/10/2025',
+    timeSlot: batchData?.timeSlot || '10:00 AM - 12:00 PM',
     instructor: batchData?.instructor || 'Mr. Rajeev Kumar - Web developer',
     students: batchData?.students || ['himanshushrirang@gmail.com'],
     newStudentEmail: 'himanshushrirang4@gmail.com',
@@ -106,6 +107,35 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                     <option value="Full Stack Web Development">Full Stack Web Development</option>
                     <option value="Data Science">Data Science</option>
                     <option value="Mobile Development">Mobile Development</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Time Slot */}
+              <div>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                  BATCH TIME SLOT
+                </label>
+                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Set the daily time slot for this batch.</p>
+                <div className="relative">
+                  <select
+                    value={formData.timeSlot}
+                    onChange={(e) => handleInputChange('timeSlot', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8"
+                  >
+                    <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
+                    <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
+                    <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
+                    <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
+                    <option value="03:00 PM - 05:00 PM">03:00 PM - 05:00 PM</option>
+                    <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                    <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
+                    <option value="07:00 PM - 09:00 PM">07:00 PM - 09:00 PM</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
