@@ -71,7 +71,7 @@ export default function CreateAccount() {
     industryType: '',
     officeAddress: '',
     companyLogo: null,
-    gstPan: '',
+    gstPan: '', 
     // Institute fields
     instituteName: '',
     instituteType: '',
@@ -127,20 +127,20 @@ export default function CreateAccount() {
       verified: ''
     }
 
-    if (role === 'Admin') {
+    if (role === 'admin') {
       payload = {
         ...payload,
-        name: form.fullName,
+        user_name: form.fullName,
         email: form.officialEmail,
         phone_number: form.mobileNumber,
         admin_role: form.adminRole,
         employee_id: form.employeeId,
         profile_photo: form.profilePhoto
       }
-    } else if (role === 'Recruiter') {
+    } else if (role === 'recruiter') {
       payload = {
         ...payload,
-        name: form.companyName,
+        user_name: form.companyName,
         email: form.companyWebsite,
         phone_number: form.designation,
         industry_type: form.industryType,
@@ -148,10 +148,10 @@ export default function CreateAccount() {
         company_logo: form.companyLogo,
         gst_pan: form.gstPan
       }
-    } else if (role === 'Institute') {
+    } else if (role === 'institute') {
       payload = {
         ...payload,
-        name: form.instituteName,
+        user_name: form.instituteName,
         email: form.instituteEmail,
         phone_number: form.instituteContact,
         institute_type: form.instituteType,
@@ -194,6 +194,8 @@ export default function CreateAccount() {
       };
 
       var response = await postMethod(data);
+      console.log(response)
+      console.log(role)
       
       if (response.status === true) {
         Swal.fire({

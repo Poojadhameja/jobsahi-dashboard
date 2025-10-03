@@ -47,7 +47,7 @@ export default function RecruiterHeader({ toggleSidebar }) {
 
         {/* User Dropdown - Always visible but responsive */}
         <div className="block">
-          <UserDropdown user={{ name: 'Recruiter User', role: 'Recruiter' }} />
+          <UserDropdown user={{ user_name: 'Recruiter User', role: 'Recruiter' }} />
         </div>
       </div>
     </header>
