@@ -237,29 +237,7 @@ Status: ${row.status}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-semibold text-[var(--color-primary)]">View Applicants</h1>
         
-        <div className="flex items-center gap-4">
-          {/* Auto Scroll Toggle */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-700">Auto Scroll</span>
-            <button
-              type="button"
-              onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
-              }`}
-              style={{
-                backgroundColor: autoScrollEnabled ? '#5C9A24' : undefined,
-                focusRingColor: autoScrollEnabled ? '#5C9A24' : undefined
-              }}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
-                  autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-          
+        <div className="flex items-center gap-4">          
           <button
             onClick={handleExportAll}
             className="px-6 py-3 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors font-medium flex items-center gap-2"

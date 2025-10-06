@@ -47,21 +47,7 @@ const CentralizedDataTable = ({
     }
   };
 
-  // Auto scroll effect
-  React.useEffect(() => {
-    if (autoScrollEnabled && filteredData.length > 0) {
-      const interval = setInterval(() => {
-        const tableContainer = document.querySelector('.centralized-table-container');
-        if (tableContainer) {
-          tableContainer.scrollTop += 1;
-          if (tableContainer.scrollTop >= tableContainer.scrollHeight - tableContainer.clientHeight) {
-            tableContainer.scrollTop = 0;
-          }
-        }
-      }, 50);
-      return () => clearInterval(interval);
-    }
-  }, [autoScrollEnabled, filteredData.length]);
+
 
   return (
     <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
@@ -72,30 +58,6 @@ const CentralizedDataTable = ({
             <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{title}</h2>
             {subtitle && <p className="text-gray-600 text-sm mt-1">{subtitle}</p>}
           </div>
-          
-          {/* Auto Scroll Toggle */}
-          {showAutoScrollToggle && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-700">Auto Scroll</span>
-              <button
-                type="button"
-                onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
-                }`}
-                style={{
-                  backgroundColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined,
-                  focusRingColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined
-                }}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
-                    autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Search and Actions */}
