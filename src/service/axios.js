@@ -33,6 +33,9 @@ export const checkAuth = () => {
 
 export const logout = () => {
     localStorage.clear();
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("authExpiry");
+    localStorage.removeItem("authUser");
 };
 
 export const handleResp = (respData, type = "success") => {

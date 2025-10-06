@@ -520,22 +520,6 @@ export default function FeaturedContent() {
 
   const currentData = getCurrentData()
 
-  // Auto scroll effect
-  React.useEffect(() => {
-    if (autoScrollEnabled && currentData.data.length > 0) {
-      const interval = setInterval(() => {
-        const tableContainer = document.querySelector('.featured-content-table-container');
-        if (tableContainer) {
-          tableContainer.scrollTop += 1;
-          if (tableContainer.scrollTop >= tableContainer.scrollHeight - tableContainer.clientHeight) {
-            tableContainer.scrollTop = 0;
-          }
-        }
-      }, 50);
-      return () => clearInterval(interval);
-    }
-  }, [autoScrollEnabled, currentData.data.length]);
-
   return (
     <div className="max-w-7xl mx-auto bg-white border border-primary-30 space-y-6 rounded-lg">
       {/* Header */}

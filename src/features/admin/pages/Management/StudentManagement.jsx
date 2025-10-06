@@ -484,21 +484,7 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
 function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent, autoScrollEnabled, setAutoScrollEnabled, onViewCV, onDelete }) {
   const allSelected = selectedStudents.length === students.length && students.length > 0
 
-  // Auto scroll effect
-  React.useEffect(() => {
-    if (autoScrollEnabled && students.length > 0) {
-      const interval = setInterval(() => {
-        const tableContainer = document.querySelector('.student-table-container');
-        if (tableContainer) {
-          tableContainer.scrollTop += 1;
-          if (tableContainer.scrollTop >= tableContainer.scrollHeight - tableContainer.clientHeight) {
-            tableContainer.scrollTop = 0;
-          }
-        }
-      }, 50);
-      return () => clearInterval(interval);
-    }
-  }, [autoScrollEnabled, students.length]);
+
 
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
@@ -590,6 +576,13 @@ export default function StudentManagement() {
   const [searchTerm, setSearchTerm] = useState('')
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
 
+    const [totalStudentCount, setTotalStudentCount] = useState(0)
+  const [verifiedProfileCount, setVerifiedProfileCount] = useState(0)
+  const [placementReadyCount, setPlacementReadyCount] = useState(0)
+  const [placedSuccessCount, setPlacedSuccessCount] = useState(0)
+
+  const [viewCVModal, setViewCVModal] = useState({ isOpen: false, student: null })
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, student: null })
   useEffect(() => {
     // TODO: replace with ApiService
     async function fetchData() {
@@ -609,24 +602,31 @@ export default function StudentManagement() {
             name: item.user_info.user_name,
             email: item.user_info.email,
             phone: item.user_info.phone_number,
-            dob: item.user_info.dob,
-            gender: item.user_info.gender,
-            isActive: item.user_info.is_active,
+            profile_id: item.profile_info.profile_id,
+            skills: item.profile_info.skills ? item.profile_info.skills.split(",").map((s) => s.trim()) : [],
             education: item.profile_info.education,
             resume: item.profile_info.resume,
             certificates: item.profile_info.certificates,
             portfolio: item.profile_info.portfolio_link,
             linkedin: item.profile_info.linkedin_url,
-            skills: item.profile_info.skills.split(",").map((s) => s.trim()),
+            dob: item.profile_info.dob,
+            gender: item.profile_info.gender,
+            job_type: item.profile_info.job_type,
             course: item.profile_info.trade,
             region: item.profile_info.location,
-            cgpa: '8.7/10',
+            admin_action: item.profile_info.admin_action,
+            bio: item.profile_info.bio,
+            experience: item.profile_info.experience,
+            graduation_year: item.profile_info.graduation_year,
+            cgpa: item.profile_info.cgpa,
+            created_at: item.profile_info.created_at,
+            modified_at: item.profile_info.modified_at,
+            deleted_at: item.profile_info.deleted_at,
             progress: 90
-
           }));
 
           const pendingFormatted = response.data
-          .filter((item) => item.profile_info.status === "approved");
+          .filter((item) => item.profile_info.admin_action === "approved");
           
           setTotalStudentCount(response.count);
           setVerifiedProfileCount(pendingFormatted.length);

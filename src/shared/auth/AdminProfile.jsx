@@ -56,6 +56,9 @@ export default function AdminProfile() {
         setShowLogoutModal(true)
         navigate('/login')
         localStorage.clear();
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("authExpiry");
+        localStorage.removeItem("authUser");
 
       } else {
         console.error("Logout Failed:", response)
@@ -112,7 +115,6 @@ export default function AdminProfile() {
       console.log(response);
 
       if (response.status === true) {
-        // Save token + expiry
         //alert(response.message || "User updated successfully!")
         Swal.fire({
           title: "Success",

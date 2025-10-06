@@ -14,7 +14,7 @@ export default function BatchDetail({ batchData, onBack }) {
 
   // Use actual batch data if available, otherwise fallback to sample data
   const batchInfo = batchData?.batch ? {
-    name: batchData.batch.name || "Batch Name",
+    name: batchData.batch.name || "Batch A",
     status: batchData.batch.status || "Active",
     duration: "2/7/2025 - 8/10/2025", // This would come from actual batch data
     timeSlot: batchData.batch.time || "9:00 PM - 12:00 PM",
