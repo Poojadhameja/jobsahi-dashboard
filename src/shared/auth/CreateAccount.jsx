@@ -163,10 +163,10 @@ export default function CreateAccount() {
         institute_address: form.instituteAddress,
         institute_website: form.instituteWebsite
       }
-    } else if (role === 'Student') {
+    } else if (role === 'student') {
       payload = {
         ...payload,
-        name: form.studentFullName,
+        user_name: form.studentFullName,
         email: form.studentEmail,
         phone_number: form.studentMobileNumber,
         date_of_birth: form.dateOfBirth,

@@ -36,7 +36,7 @@ export default function InstituteManagement() {
           };
   
           var response = await getMethod(data);
-          console.log(response)
+          // console.log(response)
           if (response.status === true) {
             // Map API response to required format
             const formatted = response.data.map((item, index) => ({
@@ -107,7 +107,7 @@ export default function InstituteManagement() {
             });
           }
         } catch (error) {
-          console.error("API Error:", error)
+          // console.error("API Error:", error)
           // alert("Something went wrong. Please try again.")
           Swal.fire({
             title: "API Error",
