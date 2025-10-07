@@ -1,23 +1,24 @@
 import React from 'react'
 import { LuX, LuTrash2, LuAlertTriangle } from 'react-icons/lu'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 const DeleteConfirmationPopup = ({ course, onConfirm, onClose }) => {
   if (!course) return null
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+      <div className={`bg-bg-white rounded-lg shadow-xl max-w-md w-full`}>
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+        <div className={`flex justify-between items-center p-6 border-b ${TAILWIND_COLORS.BORDER}`}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
               <LuAlertTriangle className="w-5 h-5 text-red-600" />
             </div>
-            <h2 className="text-xl font-bold text-gray-900">Delete Course</h2>
+            <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Delete Course</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors`}
           >
             <LuX className="w-5 h-5" />
           </button>
@@ -26,20 +27,20 @@ const DeleteConfirmationPopup = ({ course, onConfirm, onClose }) => {
         {/* Content */}
         <div className="p-6">
           <div className="mb-4">
-            <p className="text-gray-600 mb-4">
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-4`}>
               Are you sure you want to delete this course? This action cannot be undone.
             </p>
             
             {/* Course Info */}
-            <div className="bg-gray-50 p-4 rounded-lg border">
+            <div className={`bg-gray-50 p-4 rounded-lg ${TAILWIND_COLORS.BORDER}`}>
               <div className="flex items-start gap-3">
                 <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <LuTrash2 className="w-6 h-6 text-gray-500" />
+                  <LuTrash2 className={`w-6 h-6 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">{course.title}</h3>
-                  <p className="text-sm text-gray-600 uppercase">{course.category}</p>
-                  <p className="text-sm text-gray-500">₹{course.price}</p>
+                  <h3 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{course.title}</h3>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} uppercase`}>{course.category}</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>₹{course.price}</p>
                 </div>
               </div>
             </div>
@@ -57,10 +58,10 @@ const DeleteConfirmationPopup = ({ course, onConfirm, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+        <div className={`flex justify-end gap-3 p-6 border-t ${TAILWIND_COLORS.BORDER}`}>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className={`px-4 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors`}
           >
             Cancel
           </button>

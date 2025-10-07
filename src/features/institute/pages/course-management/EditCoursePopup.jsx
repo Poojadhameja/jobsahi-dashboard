@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { LuX, LuPlus, LuUpload } from 'react-icons/lu'
 import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 const EditCoursePopup = ({ course, onSave, onClose }) => {
   const [formData, setFormData] = useState({
@@ -93,7 +94,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
     const baseClass = "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
     const errorClass = validationErrors[fieldName] 
       ? "border-red-500 focus:ring-red-500" 
-      : "border-gray-300 focus:ring-[#5C9A24]"
+      : `${TAILWIND_COLORS.BORDER} focus:ring-[#5C9A24]`
     return `${baseClass} ${errorClass}`
   }
 
@@ -164,20 +165,20 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">Edit Course</h2>
+        <div className={`flex justify-between items-center p-6 border-b ${TAILWIND_COLORS.BORDER}`}>
+          <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Course</h2>
           <div className="flex gap-4">
           <button
             onClick={onClose}
-              className="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className={`px-6 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors`}
             >
               Discard
             </button>
             <button
               onClick={handleSave}
-              className="px-6 py-2 bg-[#5C9A24] text-white rounded-lg hover:bg-[#3f6c17] transition-colors"
+              className={`px-6 py-2 ${TAILWIND_COLORS.BTN_PRIMARY} rounded-lg transition-colors`}
             >
               Update
           </button>
@@ -187,17 +188,17 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Basic Information Section */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Basic Information</h3>
+          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Basic Information</h3>
             
             <div className="space-y-6">
               {/* Course Title */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   COURSE TITLE <span className="text-red-500">*</span>
                 </label>
-                  <p className="text-sm text-gray-600">The name of the course or job role.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>The name of the course or job role.</p>
                 </div>
                 <div className="flex-1">
                 <input 
@@ -216,10 +217,10 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               {/* Duration */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   DURATION (WEEKS) <span className="text-red-500">*</span>
                 </label>
-                  <p className="text-sm text-gray-600">Duration of the course in weeks.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Duration of the course in weeks.</p>
                 </div>
                 <div className="flex-1">
                   <div className="relative">
@@ -245,10 +246,10 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               {/* Course Description */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     COURSE DESCRIPTION <span className="text-red-500">*</span>
                   </label>
-                  <p className="text-sm text-gray-600">For effective candidate selection, enhance the job description.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>For effective candidate selection, enhance the job description.</p>
                 </div>
                 <div className="flex-1">
                   <RichTextEditor
@@ -266,10 +267,10 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               {/* Tagged Skills */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     TAGGED SKILLS
                   </label>
-                  <p className="text-sm text-gray-600">List needed skills.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>List needed skills.</p>
                 </div>
                 <div className="flex-1">
                   <div className="flex gap-2">
@@ -293,10 +294,10 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               {/* Batch Limits */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     BATCH LIMITS <span className="text-red-500">*</span>
                   </label>
-                  <p className="text-sm text-gray-600">Choose required experience.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose required experience.</p>
                 </div>
                 <div className="flex-1">
                   <div className="relative">
@@ -326,10 +327,10 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               {/* Course Status */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     COURSE STATUS
                   </label>
-                  <p className="text-sm text-gray-600">Choose job type.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job type.</p>
                 </div>
                 <div className="flex-1">
                   <select 
@@ -347,17 +348,17 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
           </div>
 
           {/* Additional Settings Section */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Additional Settings</h3>
+          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Additional Settings</h3>
             
             <div className="space-y-6">
               {/* Category */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   CATEGORY <span className="text-red-500">*</span>
                 </label>
-                  <p className="text-sm text-gray-600">Choose category of course.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose category of course.</p>
                 </div>
                 <div className="flex-1">
                 <select 
@@ -380,10 +381,10 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               {/* Price */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   PRICE <span className="text-red-500">*</span>
                 </label>
-                  <p className="text-sm text-gray-600">Choose course price.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose course price.</p>
                 </div>
                 <div className="flex-1">
                 <input 
@@ -402,10 +403,10 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               {/* Instructor Name */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     INSTRUCTOR NAME <span className="text-red-500">*</span>
                 </label>
-                  <p className="text-sm text-gray-600">Name of instructor.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Name of instructor.</p>
                 </div>
                 <div className="flex-1">
                   <input 
@@ -424,17 +425,17 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
         </div>
 
           {/* Course Modules Section */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Course Modules</h3>
+          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Course Modules</h3>
             
             <div className="space-y-6">
               {/* Module Title */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     MODULE 1 TITLE <span className="text-orange-500">*</span>
                   </label>
-                  <p className="text-sm text-gray-600">Name of instructor.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Name of instructor.</p>
                 </div>
                 <div className="flex-1">
                   <input 
@@ -450,10 +451,10 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               {/* Module Description */}
               <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
                 <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     MODULE DESCRIPTION <span className="text-orange-500">*</span>
                   </label>
-                  <p className="text-sm text-gray-600">Add module description.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Add module description.</p>
                 </div>
                 <div className="flex-1">
                   <textarea 
@@ -471,7 +472,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
           </div>
 
           {/* Drag and Drop Section */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-[#5C9A24] transition-colors cursor-pointer">
               <input
                 type="file"
@@ -485,13 +486,13 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
                 <div className="w-12 h-12 bg-gray-100 rounded-md mx-auto mb-4 flex items-center justify-center">
                   <LuPlus className="w-6 h-6 text-gray-400" />
                 </div>
-                <p className="text-gray-500 mb-2">Drag and Drop files here</p>
+                <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Drag and Drop files here</p>
               </label>
               
               {/* Selected Files List */}
               {selectedMedia.length > 0 && (
                 <div className="mt-6 text-left">
-                  <h4 className="text-sm font-medium text-gray-700 mb-3">Selected Files:</h4>
+                  <h4 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Selected Files:</h4>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {selectedMedia.map((media, index) => (
                       <div key={media.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-2">
@@ -501,7 +502,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                           </div>
-                          <span className="text-sm text-gray-900 truncate">{media.name}</span>
+                          <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{media.name}</span>
                         </div>
           <button
                           onClick={() => handleRemoveMedia(media.id)}

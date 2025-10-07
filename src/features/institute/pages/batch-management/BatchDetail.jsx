@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LuUsers, LuCalendar, LuClock, LuDownload, LuPencil, LuEllipsisVertical, LuMail, LuTrash2 } from 'react-icons/lu'
+import { LuUsers, LuCalendar, LuClock, LuDownload, LuPencil, LuEllipsisVertical, LuTrash2, LuMail } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
@@ -14,7 +14,7 @@ export default function BatchDetail({ batchData, onBack }) {
 
   // Use actual batch data if available, otherwise fallback to sample data
   const batchInfo = batchData?.batch ? {
-    name: batchData.batch.name || "Batch A",
+    name: batchData.batch.name || "Web Dev Batch A",
     status: batchData.batch.status || "Active",
     duration: "2/7/2025 - 8/10/2025", // This would come from actual batch data
     timeSlot: batchData.batch.time || "9:00 PM - 12:00 PM",
@@ -141,18 +141,38 @@ export default function BatchDetail({ batchData, onBack }) {
     setOpenDropdown(openDropdown === studentId ? null : studentId)
   }
 
-  const handleSendMessage = (studentId) => {
-    console.log('Send message to student:', studentId)
-    setOpenDropdown(null)
-  }
-
-  const handleEditStudent = (studentId) => {
-    console.log('Edit student:', studentId)
-    setOpenDropdown(null)
-  }
 
   const handleDeleteStudent = (studentId) => {
     console.log('Delete student:', studentId)
+    setOpenDropdown(null)
+  }
+
+  const handleSendMessageToAll = () => {
+    console.log('Send message to all students in batch:', batchInfo.name)
+    // Navigate to Message component with batch data for sending to all students
+    navigate('/institute/message', {
+      state: {
+        batchInfo: batchInfo,
+        allStudents: students,
+        isBatchMessage: true
+      }
+    })
+  }
+
+  const handleSendMessageToStudent = (studentId) => {
+    console.log('Send message to student:', studentId)
+    // Find the student data
+    const student = students.find(s => s.id === studentId)
+    if (student) {
+      // Navigate to Message component with student and batch data
+      navigate('/institute/message', {
+        state: {
+          selectedStudent: student,
+          batchInfo: batchInfo,
+          isBatchMessage: false
+        }
+      })
+    }
     setOpenDropdown(null)
   }
 
@@ -304,7 +324,18 @@ export default function BatchDetail({ batchData, onBack }) {
       {/* Enrolled Students */}
       <div className={`mt-6 ${TAILWIND_COLORS.CARD}`}>
         <div className={`p-6 ${TAILWIND_COLORS.BORDER}`}>
-          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Enrolled Students ({batchInfo.totalStudents})</h2>
+          <div className="flex items-center justify-between">
+            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Enrolled Students ({batchInfo.totalStudents})</h2>
+            <Button 
+              onClick={handleSendMessageToAll}
+              variant="primary"
+              size="sm"
+              icon={<LuMail className="w-4 h-4" />}
+              className={`${TAILWIND_COLORS.BTN_SECONDARY}`}
+            >
+              Send Message
+            </Button>
+          </div>
         </div>
         
         <div className="overflow-x-auto">
@@ -335,42 +366,13 @@ export default function BatchDetail({ batchData, onBack }) {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="relative" ref={dropdownRef}>
-                      <button
-                        onClick={(e) => handleStudentAction(student.id, e)}
-                        className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} p-1 rounded-md hover:bg-gray-100`}
-                      >
-                        <LuEllipsisVertical className="w-4 h-4" />
-                      </button>
-                      
-                      {openDropdown === student.id && (
-                        <div className={`absolute right-0 mt-2 w-48 ${TAILWIND_COLORS.CARD} shadow-lg z-50`}>
-                          <div className="py-1">
-                            <button
-                              onClick={() => handleSendMessage(student.id)}
-                              className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:${TAILWIND_COLORS.BG_MUTED}`}
-                            >
-                              <LuMail className="w-4 h-4 mr-3" />
-                              Send Message
-                            </button>
-                            <button
-                              onClick={() => handleEditStudent(student.id)}
-                              className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:${TAILWIND_COLORS.BG_MUTED}`}
-                            >
-                              <LuPencil className="w-4 h-4 mr-3" />
-                              Edit Student
-                            </button>
-                            <button
-                              onClick={() => handleDeleteStudent(student.id)}
-                              className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.BADGE_ERROR} hover:${TAILWIND_COLORS.BG_MUTED}`}
-                            >
-                              <LuTrash2 className="w-4 h-4 mr-3" />
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    <button
+                      onClick={() => handleDeleteStudent(student.id)}
+                      className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-red-600 p-1 rounded-md hover:bg-red-50`}
+                      title="Delete Student"
+                    >
+                      <LuTrash2 className="w-4 h-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -389,3 +391,4 @@ export default function BatchDetail({ batchData, onBack }) {
     </div>
   )
 }
+
