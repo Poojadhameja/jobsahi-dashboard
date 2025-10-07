@@ -3,7 +3,7 @@ import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant'
 import { MatrixCard, MetricPillRow } from '../../../../shared/components/metricCard'
 import { getMethod } from '../../../../service/api'
-import apiService from '../../../../service/serviceUrl'
+import apiService from '../../../admin/services/serviceUrl'
 import {
   LuUsers,
   LuSearch,
@@ -13,6 +13,7 @@ import {
   LuEye,
   LuTrash2
 } from 'react-icons/lu'
+import { HiDotsVertical } from 'react-icons/hi'
 // KPI Card Component
 function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
   return (
@@ -190,7 +191,7 @@ function ActionDropdown({ student, onViewCV, onDelete }) {
         onClick={() => setIsOpen(!isOpen)}
         className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
       >
-        {/* <HiDotsVertical className="text-gray-600" size={18} /> */}
+        <HiDotsVertical className="text-gray-600" size={18} />
       </button>
 
       {isOpen && (

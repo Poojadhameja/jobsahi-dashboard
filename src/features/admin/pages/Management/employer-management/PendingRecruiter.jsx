@@ -16,6 +16,8 @@ import {
   LuUsers,
   LuBriefcase
 } from 'react-icons/lu'
+import { postMethod, putMethod } from '../../../../../service/api'
+import apiService from '../../../../admin/services/serviceUrl'
 
 // Approval Card Component
 function ApprovalCard({ company, recruiter, email, phone, website, industry, employees, appliedDate, documents, onReview, onApprove, onReject }) {
@@ -73,21 +75,21 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
 
         {/* Right Side - Action Buttons */}
         <div className="flex flex-col space-y-2 ml-4">
-          <button 
+          <button
             onClick={onReview}
             className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200"
           >
             <LuEye size={16} />
             <span className="text-sm font-medium">Review</span>
           </button>
-          <button 
+          <button
             onClick={onApprove}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
           >
             <LuCheck size={16} />
             <span className="text-sm font-medium">Approve</span>
           </button>
-          <button 
+          <button
             onClick={onReject}
             className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
           >
@@ -116,7 +118,7 @@ function ReviewModal({ recruiter, isOpen, onClose }) {
             <span className="text-2xl">&times;</span>
           </button>
         </div>
-        
+
         <div className="p-6 space-y-6">
           {/* Company Information */}
           <div className="bg-gray-50 rounded-lg p-4">
@@ -144,7 +146,7 @@ function ReviewModal({ recruiter, isOpen, onClose }) {
             </div>
           </div>
         </div>
-        
+
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
           <button
             onClick={onClose}
@@ -182,13 +184,41 @@ export default function PendingRecruiterApprovals({ employers }) {
     }).then((result) => {
       if (result.isConfirmed) {
         // TODO: Add API call to approve recruiter
-        Swal.fire({
-          title: 'Approved!',
-          text: 'Recruiter has been approved successfully.',
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false
-        })
+        try {
+          var data = {
+            apiUrl: apiService.updateEmployer,
+            payload: {
+              id: recruiterId,
+              admin_action: "approved"
+            },
+          };
+
+          var response = postMethod(data);
+          // console.log(response)
+          if (response.status === true) {
+            Swal.fire({
+              title: 'Approved!',
+              text: 'Recruiter has been approved successfully.',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            })
+          } else {
+            Swal.fire({
+              title: "Failed",
+              text: response.message || "Profile updated but you are not authorized to view it",
+              icon: "error"
+            });
+          }
+        } catch (error) {
+          // console.error("API Error:", error)
+          // alert("Something went wrong. Please try again.")
+          Swal.fire({
+            title: "API Error",
+            text: "Something went wrong. Please try again.",
+            icon: "error"
+          });
+        }
       }
     })
   }
@@ -206,13 +236,41 @@ export default function PendingRecruiterApprovals({ employers }) {
     }).then((result) => {
       if (result.isConfirmed) {
         // TODO: Add API call to reject recruiter
-        Swal.fire({
-          title: 'Rejected!',
-          text: 'Recruiter has been rejected.',
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false
-        })
+        try {
+          var data = {
+            apiUrl: apiService.updateEmployer,
+            payload: {
+              id: recruiterId,
+              admin_action: 'rejected'
+            },
+          };
+
+          var response = postMethod(data);
+          // console.log(response)
+          if (response.status === true) {
+            Swal.fire({
+              title: 'Rejected!',
+              text: 'Recruiter has been rejected.',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            })
+          } else {
+            Swal.fire({
+              title: "Failed",
+              text: response.message || "Profile updated but you are not authorized to view it",
+              icon: "error"
+            });
+          }
+        } catch (error) {
+          // console.error("API Error:", error)
+          // alert("Something went wrong. Please try again.")
+          Swal.fire({
+            title: "API Error",
+            text: "Something went wrong. Please try again.",
+            icon: "error"
+          });
+        }
       }
     })
   }
@@ -223,6 +281,7 @@ export default function PendingRecruiterApprovals({ employers }) {
     recruiter: item.user_name || "Recruiter Name",
     email: item.email,
     role: item.role,
+    profile_id: item.profile_id,
     phone: item.phone_number || "+91 9874563210",
     website: item.website || "company.com",
     industry: item.industry || "Technology",
@@ -268,14 +327,14 @@ export default function PendingRecruiterApprovals({ employers }) {
             appliedDate={approval.appliedDate}
             documents={approval.documents}
             onReview={() => handleReview(approval)}
-            onApprove={() => handleApprove(approval.id)}
-            onReject={() => handleReject(approval.id)}
+            onApprove={() => handleApprove(approval.profile_id)}
+            onReject={() => handleReject(approval.profile_id)}
           />
         ))}
       </div>
 
       {/* Review Modal */}
-      <ReviewModal 
+      <ReviewModal
         recruiter={reviewModal.recruiter}
         isOpen={reviewModal.isOpen}
         onClose={handleCloseReview}

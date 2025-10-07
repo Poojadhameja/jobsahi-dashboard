@@ -6,7 +6,7 @@ import { LuPhone, LuMail, LuLock, LuEye, LuEyeOff } from 'react-icons/lu'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import { putMethod } from '../../service/api'
-import apiService from '../../service/serviceUrl'
+import apiService from '../../shared/services/serviceUrl'
 
 function AuthTabs({ mode, setMode }) {
   const items = [

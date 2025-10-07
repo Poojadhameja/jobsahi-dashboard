@@ -5,7 +5,7 @@ import LogoutConfirmationModal from './LogoutConfirmationModal'
 
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
-import apiService from '../../service/serviceUrl'
+import apiService from '../../shared/services/serviceUrl'
 
 const UserDropdown = ({ user = { user_name: 'Admin', role: 'Administrator' } }) => {
   const [isOpen, setIsOpen] = useState(false)

@@ -7,7 +7,7 @@ import { LuGraduationCap } from 'react-icons/lu'
 import { FaUserShield, FaBuilding, FaSchool, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
-import apiService from '../../service/serviceUrl'
+import apiService from '../../shared/services/serviceUrl'
 
 function Pills({ items = [], activeKey, onChange }) {
   return (

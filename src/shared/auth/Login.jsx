@@ -6,7 +6,7 @@ import { LuPhone, LuMail } from 'react-icons/lu'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
-import apiService from '../../service/serviceUrl'
+import apiService from '../../shared/services/serviceUrl'
 
 
 function AuthTabs({ mode, setMode }) {

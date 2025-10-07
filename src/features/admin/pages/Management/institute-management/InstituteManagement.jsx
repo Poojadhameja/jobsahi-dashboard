@@ -15,7 +15,7 @@ import PlacementStudent from './PlacementStudent'
 import CertificateIssuance from './CertificateIssuance'
 import MessageInstitute from './MessageInstitute'
 import { getMethod } from '../../../../../service/api'
-import apiService from '../../../../../service/serviceUrl'
+import apiService from '../../../../admin/services/serviceUrl'
 
 
 export default function InstituteManagement() {
