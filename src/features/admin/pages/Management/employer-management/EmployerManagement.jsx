@@ -130,7 +130,7 @@ export default function EmployerManagement() {
         };
 
         var response = await getMethod(data);
-        console.log(response)
+        // console.log(response)
         if (response.status === true) {
           // Map API response to required format
           const formatted = response.data.map((item, index) => ({
