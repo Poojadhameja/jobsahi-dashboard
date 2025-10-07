@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuPhone, LuMail } from 'react-icons/lu'
@@ -53,6 +54,7 @@ function AuthTabs({ mode, setMode }) {
 }
 
 export default function Login() {
+  const navigate = useNavigate()
   const [mode, setMode] = useState('OTP') // 'OTP' | 'EMAIL'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -63,6 +65,17 @@ export default function Login() {
   const [userId, setUserId] = useState('')
 
   const isEmail = mode === 'EMAIL'
+
+  // Check for pending registration on component mount
+  React.useEffect(() => {
+    const pendingEmail = localStorage.getItem('pendingVerificationEmail');
+    if (pendingEmail) {
+      // Pre-fill email field
+      setEmail(pendingEmail);
+      // Clear the pending email (no popup needed - already shown in CreateAccount)
+      localStorage.removeItem('pendingVerificationEmail');
+    }
+  }, [])
 
   //const baseURL = process.env.REACT_APP_BASEURL;
 
@@ -101,13 +114,13 @@ export default function Login() {
             /* Read more about isConfirmed */
             if (result.isConfirmed) {
               if (response.user.role === "recruiter") {
-                window.location.href = "/recruiter/dashboard"
+                navigate("/recruiter/dashboard")
               } else if (response.user.role === "institute") {
-                window.location.href = "/institute/dashboard"
+                navigate("/institute/dashboard")
               } else if (response.user.role === "student") {
-                window.location.href = "/student/dashboard"
+                navigate("/student/dashboard")
               } else {
-                window.location.href = "/admin/dashboard"
+                navigate("/admin/dashboard")
               }
             }
 

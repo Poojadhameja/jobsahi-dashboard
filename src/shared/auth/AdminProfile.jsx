@@ -17,7 +17,7 @@ export default function AdminProfile() {
 
   const onLogout = async () => {
     localStorage.clear();
-    if (typeof window !== 'undefined') window.location.href = '/login'
+    navigate('/login')
     console.log('Logging out...')
 
   }
