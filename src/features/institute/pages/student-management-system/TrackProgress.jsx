@@ -1,5 +1,7 @@
 import React from 'react'
 import { LuEye } from 'react-icons/lu'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import Button from '../../../../shared/components/Button'
 
 const TrackProgress = () => {
   // Mock student progress data
@@ -18,7 +20,7 @@ const TrackProgress = () => {
     },
     {
       id: 2,
-      name: 'Rahul Kumar',
+      name: 'Raj Singh',
       course: 'Electrician - ELE-2025-M1',
       overallProgress: 50,
       attendance: 85,
@@ -30,7 +32,7 @@ const TrackProgress = () => {
     },
     {
       id: 3,
-      name: 'Rahul Kumar',
+      name: 'Mohan Kumar',
       course: 'Electrician - ELE-2025-M1',
       overallProgress: 60,
       attendance: 85,
@@ -42,7 +44,7 @@ const TrackProgress = () => {
     },
     {
       id: 4,
-      name: 'Rahul Kumar',
+      name: 'Roy Kumar',
       course: 'Electrician - ELE-2025-M1',
       overallProgress: 94,
       attendance: 85,
@@ -54,7 +56,19 @@ const TrackProgress = () => {
     },
     {
       id: 5,
-      name: 'Rahul Kumar',
+      name: 'Rahul Kumar Singh',
+      course: 'Electrician - ELE-2025-M1',
+      overallProgress: 60,
+      attendance: 85,
+      theoryScores: [
+        { id: 1, score: 60, color: 'bg-blue-100 text-blue-800' },
+        { id: 2, score: 78, color: 'bg-green-100 text-green-800' },
+        { id: 3, score: 94, color: 'bg-purple-100 text-purple-800' }
+      ]
+    },
+    {
+      id: 6,
+      name: 'Raj Kumar Singh',
       course: 'Electrician - ELE-2025-M1',
       overallProgress: 60,
       attendance: 85,
@@ -82,8 +96,8 @@ const TrackProgress = () => {
   return (
     <div className="p-2 min-h-screen">
       <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Student Progress Tracking</h1>
-        <p className="text-gray-600 mt-2">Monitor individual student progress and performance</p>
+        <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student Progress Tracking</h1>
+        <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>Monitor individual student progress and performance</p>
       </div>
 
       {/* Student Progress Cards Grid */}
@@ -99,8 +113,8 @@ const TrackProgress = () => {
                 {student.name.split(' ').map(n => n[0]).join('')}
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{student.name}</h3>
-                <p className="text-sm text-gray-600">{student.course}</p>
+                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</h3>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.course}</p>
               </div>
             </div>
 
@@ -109,8 +123,8 @@ const TrackProgress = () => {
               {/* Overall Progress */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">Overall Progress</span>
-                  <span className="text-sm font-semibold text-gray-900">{student.overallProgress}%</span>
+                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Overall Progress</span>
+                  <span className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.overallProgress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
@@ -123,8 +137,8 @@ const TrackProgress = () => {
               {/* Attendance */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">Attendance</span>
-                  <span className="text-sm font-semibold text-gray-900">{student.attendance}%</span>
+                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Attendance</span>
+                  <span className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.attendance}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
@@ -137,7 +151,7 @@ const TrackProgress = () => {
 
             {/* Theory Scores */}
             <div className="mb-6">
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Theory Scores</h4>
+              <h4 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Theory Scores</h4>
               <div className="grid grid-cols-3 gap-2">
                 {student.theoryScores.map((theory) => (
                   <div
@@ -151,13 +165,14 @@ const TrackProgress = () => {
             </div>
 
             {/* Action Button */}
-            <button
+            <Button
               onClick={() => handleViewDetailedProgress(student.id)}
-              className="w-full px-4 py-2 bg-[#5B9821] text-white rounded-lg hover:bg-[#3f6917] transition-colors font-medium flex items-center justify-center gap-2"
+              variant="primary"
+              icon={<LuEye className="w-4 h-4" />}
+              fullWidth
             >
-              <LuEye className="w-4 h-4" />
               View Detailed Progress
-            </button>
+            </Button>
           </div>
         ))}
       </div>
@@ -170,7 +185,7 @@ const TrackProgress = () => {
               <span className="text-blue-600 font-bold text-lg">T</span>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Total Students</h3>
+              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Total Students</h3>
               <p className="text-2xl font-bold text-blue-600">{studentProgressData.length}</p>
             </div>
           </div>
@@ -182,7 +197,7 @@ const TrackProgress = () => {
               <span className="text-green-600 font-bold text-lg">A</span>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Average Progress</h3>
+              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Average Progress</h3>
               <p className="text-2xl font-bold text-green-600">
                 {Math.round(studentProgressData.reduce((sum, s) => sum + s.overallProgress, 0) / studentProgressData.length)}%
               </p>
@@ -196,7 +211,7 @@ const TrackProgress = () => {
               <span className="text-purple-600 font-bold text-lg">S</span>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Average Attendance</h3>
+              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Average Attendance</h3>
               <p className="text-2xl font-bold text-purple-600">
                 {Math.round(studentProgressData.reduce((sum, s) => sum + s.attendance, 0) / studentProgressData.length)}%
               </p>

@@ -63,11 +63,11 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-auto my-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Batch</h2>
+        <div className="flex items-center justify-between p-6 border-b-2 border-gray-300 bg-gradient-to-r from-gray-50 to-white sticky top-0 z-10">
+          <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Batch</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-red-600 transition-all duration-200 hover:scale-110 p-1 rounded-full hover:bg-red-50`}
           >
             <LuX className="w-6 h-6" />
           </button>
@@ -88,7 +88,7 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                   type="text"
                   value={formData.batchName}
                   onChange={(e) => handleInputChange('batchName', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 />
               </div>
 
@@ -102,14 +102,14 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                   <select
                     value={formData.course}
                     onChange={(e) => handleInputChange('course', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8"
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                   >
                     <option value="Full Stack Web Development">Full Stack Web Development</option>
                     <option value="Data Science">Data Science</option>
                     <option value="Mobile Development">Mobile Development</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
@@ -126,7 +126,7 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                   <select
                     value={formData.timeSlot}
                     onChange={(e) => handleInputChange('timeSlot', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8"
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                   >
                     <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
                     <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
@@ -138,7 +138,7 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                     <option value="07:00 PM - 09:00 PM">07:00 PM - 09:00 PM</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
@@ -147,35 +147,35 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
 
               {/* Date Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Starting Date */}
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     STARTING DATE
                   </label>
-                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Modify the batch starting date.</p>
                   <div className="relative">
                     <input
-                      type="text"
+                      type="date"
                       value={formData.startDate}
                       onChange={(e) => handleInputChange('startDate', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent pr-8"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      required
                     />
-                    <LuCalendar className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
                   </div>
                 </div>
 
+                {/* End Date */}
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     END DATE
                   </label>
-                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Modify the batch ending date.</p>
                   <div className="relative">
                     <input
-                      type="text"
+                      type="date"
                       value={formData.endDate}
                       onChange={(e) => handleInputChange('endDate', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent pr-8"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      required
                     />
-                    <LuCalendar className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
                   </div>
                 </div>
               </div>
@@ -195,14 +195,14 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                 <select
                   value={formData.instructor}
                   onChange={(e) => handleInputChange('instructor', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8"
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 >
                   <option value="Mr. Rajeev Kumar - Web developer">Mr. Rajeev Kumar - Web developer</option>
                   <option value="Ms. Priya Sharma - Full Stack Developer">Ms. Priya Sharma - Full Stack Developer</option>
                   <option value="Dr. Amit Singh - Data Scientist">Dr. Amit Singh - Data Scientist</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
@@ -221,15 +221,16 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                   value={formData.newStudentEmail}
                   onChange={(e) => handleInputChange('newStudentEmail', e.target.value)}
                   placeholder="Enter student email"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent"
+                  className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 />
-                <button
+                <Button
                   type="button"
                   onClick={handleAddStudent}
-                  className={`w-10 h-10 ${TAILWIND_COLORS.BTN_SECONDARY} rounded-full flex items-center justify-center transition-colors`}
-                >
-                  <LuPlus className="w-4 h-4" />
-                </button>
+                  variant="secondary"
+                  size="sm"
+                  icon={<LuPlus className="w-4 h-4" />}
+                  className="w-10 h-10 p-0 rounded-full"
+                />
               </div>
 
               {/* Enrolled Students */}
@@ -247,7 +248,7 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                       <button
                         type="button"
                         onClick={() => handleRemoveStudent(email)}
-                        className="text-gray-500 hover:text-gray-700"
+                        className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-gray-700`}
                       >
                         <LuX className="w-3 h-3" />
                       </button>
@@ -259,7 +260,7 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
               {/* File Upload */}
               <div>
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <LuFileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <LuFileText className={`w-8 h-8 ${TAILWIND_COLORS.TEXT_MUTED} mx-auto mb-2`} />
                   <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>{formData.uploadedFile}</p>
                   <input
                     type="file"
@@ -268,13 +269,16 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                     accept=".csv"
                     className="hidden"
                   />
-                  <label
+                  <Button
+                    as="label"
                     htmlFor="file-upload"
-                    className={`inline-flex items-center gap-2 px-4 py-2 ${TAILWIND_COLORS.BTN_SECONDARY} text-sm font-medium rounded-md cursor-pointer transition-colors`}
+                    variant="secondary"
+                    size="sm"
+                    icon={<LuUpload className="w-4 h-4" />}
+                    className="cursor-pointer"
                   >
-                    <LuUpload className="w-4 h-4" />
                     Update File
-                  </label>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -285,15 +289,16 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
             <Button
               type="button"
               onClick={onClose}
-              variant="outline"
-              className="border-gray-300 text-gray-600 hover:bg-gray-50"
+              variant="light"
+              size="md"
+              className={TAILWIND_COLORS.BTN_LIGHT}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              variant="primary"
-              className={TAILWIND_COLORS.BTN_SECONDARY}
+              variant="secondary"
+              size="md"
             >
               Update
             </Button>

@@ -80,23 +80,25 @@ export default function NotificationPreferences() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with Save Button */}
       <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-        <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Notification Preferences</h2>
-        <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>Configure how and when you receive notifications.</p>
-      </div>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <Button
-          onClick={handleSave}
-          loading={isSaving}
-          className={`${TAILWIND_COLORS.BTN_SECONDARY} px-6 py-2 rounded-md flex items-center gap-2`}
-          icon={<LuSave className="w-4 h-4" />}
-        >
-          Save Preferences
-        </Button>
-      </div>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Notification Preferences</h2>
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>Configure how and when you receive notifications.</p>
+          </div>
+          
+          {/* Save Button */}
+          <Button
+            onClick={handleSave}
+            loading={isSaving}
+            className={`${TAILWIND_COLORS.BTN_SECONDARY} px-6 py-2 rounded-md flex items-center gap-2`}
+            icon={<LuSave className="w-4 h-4" />}
+          >
+            Save Preferences
+          </Button>
+        </div>
+      
 
       {/* Notification Categories */}
       <div className="space-y-6">
@@ -105,8 +107,8 @@ export default function NotificationPreferences() {
           return (
             <div key={category.id} className={`${TAILWIND_COLORS.CARD} p-6`}>
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Icon className="w-5 h-5 text-secondary" />
+                <div className={`p-2 rounded-lg ${TAILWIND_COLORS.BADGE_SUCCESS.split(' ')[1]}`}>
+                  <Icon className={`w-5 h-5 text-success`} />
                 </div>
                 <div>
                   <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{category.title}</h2>
@@ -115,7 +117,7 @@ export default function NotificationPreferences() {
 
               <div className="space-y-4">
                 {category.settings.map((setting) => (
-                  <div key={setting.key} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div key={setting.key} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="flex-1">
                       <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{setting.label}</h3>
                       <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>{setting.description}</p>
@@ -139,6 +141,7 @@ export default function NotificationPreferences() {
             </div>
           )
         })}
+      </div>
       </div>
     </div>
   )

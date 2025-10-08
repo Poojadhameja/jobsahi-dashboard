@@ -110,19 +110,19 @@ export default function ManageCourse() {
   return (
     <div className="  ">
       {/* Header Section */}
-      <div className={`${TAILWIND_COLORS.CARD} p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6`}>
-        <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>All Course</h1>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold text-[#1A569A]">All Course</h1>
         
         <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
           {/* Search Bar */}
           <div className="relative">
-            <LuSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} w-5 h-5`} />
+            <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Search by course name"
               value={searchTerm}
               onChange={handleSearch}
-              className={`pl-10 pr-4 py-2 ${TAILWIND_COLORS.BORDER} rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] w-full lg:w-64`}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C9A24] w-full lg:w-64"
             />
           </div>
 
@@ -133,14 +133,14 @@ export default function ManageCourse() {
               <select
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
-                className={`appearance-none bg-white ${TAILWIND_COLORS.BORDER} rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[120px]`}
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[120px]"
               >
                 <option value="">Status</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
                 <option value="draft">Draft</option>
               </select>
-              <LuChevronDown className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} w-4 h-4 pointer-events-none`} />
+              <LuChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             </div>
 
             {/* Fields Filter */}
@@ -148,14 +148,14 @@ export default function ManageCourse() {
               <select
                 value={filters.fields}
                 onChange={(e) => handleFilterChange('fields', e.target.value)}
-                className={`appearance-none bg-white ${TAILWIND_COLORS.BORDER} rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[120px]`}
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[120px]"
               >
                 <option value="">Fields</option>
                 <option value="engineering">Engineering</option>
                 <option value="manufacturing">Manufacturing</option>
                 <option value="office">Office Admin</option>
               </select>
-              <LuChevronDown className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} w-4 h-4 pointer-events-none`} />
+              <LuChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             </div>
 
             {/* Skills Filter */}
@@ -163,7 +163,7 @@ export default function ManageCourse() {
               <select
                 value={filters.skills}
                 onChange={(e) => handleFilterChange('skills', e.target.value)}
-                className={`appearance-none bg-white ${TAILWIND_COLORS.BORDER} rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[120px]`}
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[120px]"
               >
                 <option value="">Skills</option>
                 <option value="wiring">Wiring</option>
@@ -171,7 +171,7 @@ export default function ManageCourse() {
                 <option value="typing">Typing Skills</option>
                 <option value="office">MS Office</option>
               </select>
-              <LuChevronDown className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} w-4 h-4 pointer-events-none`} />
+              <LuChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             </div>
 
             {/* Launching Date Filter */}
@@ -179,14 +179,14 @@ export default function ManageCourse() {
               <select
                 value={filters.launchingDate}
                 onChange={(e) => handleFilterChange('launchingDate', e.target.value)}
-                className={`appearance-none bg-white ${TAILWIND_COLORS.BORDER} rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[140px]`}
+                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[140px]"
               >
                 <option value="">Launching Date</option>
                 <option value="this-week">This Week</option>
                 <option value="this-month">This Month</option>
                 <option value="next-month">Next Month</option>
               </select>
-              <LuCalendar className={`absolute right-2 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} w-4 h-4 pointer-events-none`} />
+              <LuCalendar className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -267,7 +267,7 @@ export default function ManageCourse() {
                   </button>
                   <button
                     onClick={() => handleAction('delete', course.id)}
-                    className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                    className="p-2 text-error hover:text-red-700 transition-colors"
                     title="Delete"
                   >
                     <LuTrash2 className="w-4 h-4" />
@@ -334,11 +334,11 @@ export default function ManageCourse() {
       {/* Delete Confirmation Popup */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-bg-white rounded-lg shadow-xl max-w-md w-full">
+          <div className={`${TAILWIND_COLORS.HEADER_BG} rounded-lg shadow-xl max-w-md w-full`}>
             <div className="p-6">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                  <LuTrash2 className="w-6 h-6 text-red-600" />
+                <div className={`w-12 h-12 ${TAILWIND_COLORS.BADGE_ERROR} rounded-full flex items-center justify-center`}>
+                  <LuTrash2 className="w-6 h-6 text-error" />
                 </div>
                 <div>
                   <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Delete Course</h3>
@@ -358,7 +358,7 @@ export default function ManageCourse() {
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="px-4 py-2 bg-error text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
                   Delete Course
                 </button>

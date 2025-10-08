@@ -9,6 +9,7 @@ import {
 } from 'react-icons/lu'
 import { Horizontal4Cards, MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import StudentCompletion from './StudentCompletion'
 import CoursePopularity from './CoursePopularity'
 
@@ -73,6 +74,8 @@ export default function ReportsAnalytics() {
         <MatrixCard 
           title="Reports & Analytics" 
           subtitle="Comprehensive insights and performance metrics for your institute"
+          titleColor={TAILWIND_COLORS.TEXT_PRIMARY}
+          subtitleColor={TAILWIND_COLORS.TEXT_MUTED}
           className="mb-4"
         />
       </div>

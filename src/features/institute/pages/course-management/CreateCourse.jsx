@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LuArrowLeft, LuPlus, LuUpload, LuX } from 'react-icons/lu'
-import Button from '../../../../shared/components/Button.jsx'
+import Button, { PrimaryButton, OutlineButton, IconButton } from '../../../../shared/components/Button.jsx'
+import DynamicButton from '../../../../shared/components/DynamicButton.jsx'
 import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
 import { useCourseContext } from '../../context/CourseContext'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
@@ -193,26 +194,12 @@ export default function CreateCourse() {
   return (
     <div className="">
         {/* Header with Action Buttons */}
-        <div className={`flex justify-between items-center mb-8 ${TAILWIND_COLORS.CARD} p-6`}>
-          <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Add New Course</h1>
-          <div className="flex gap-4">
-            <button 
-              onClick={handleCancel}
-              className={`px-6 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors`}
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={handleSave}
-              className={`px-6 py-2 ${TAILWIND_COLORS.BTN_PRIMARY} rounded-lg transition-colors`}
-            >
-              Save
-            </button>
-          </div>
-        </div>
-
+       
         {/* Basic Information Section */}
         <div className={`mb-8 ${TAILWIND_COLORS.CARD} p-6`}>
+        <div className={`flex justify-between items-center mb-8 ${TAILWIND_COLORS.CARD} p-6`}>
+          <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Add New Course</h1>
+        </div>
           <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Basic Information</h2>
           
           <div className="space-y-6">
@@ -328,12 +315,14 @@ export default function CreateCourse() {
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C9A24]"
                     placeholder="e.g. Wiring, Safety Measures"
                   />
-                  <button 
+                  {/* Using Button with icon from Button.jsx */}
+                  <Button 
                     type="button"
-                    className="w-10 h-10 bg-[#5C9A24] text-white rounded-full hover:bg-[#3f6c17] flex items-center justify-center"
-                  >
-                    <LuPlus className="w-4 h-4" />
-                  </button>
+                    variant="primary"
+                    size="sm"
+                    icon={<LuPlus />}
+                    className="!w-10 !h-10 !p-0 rounded-full"
+                  />
                 </div>
               </div>
             </div> 
@@ -710,6 +699,29 @@ export default function CreateCourse() {
               </div>
             )}
         </div>
+        
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-4">
+            {/* Using OutlineButton from Button.jsx */}
+            <OutlineButton 
+              onClick={handleCancel}
+              size="md"
+            >
+              Cancel
+            </OutlineButton>
+            
+            {/* Using DynamicButton for Save */}
+            <DynamicButton 
+              onClick={handleSave}
+              backgroundColor="var(--color-secondary)"
+              textColor="white"
+              padding="8px 24px"
+              borderRadius="8px"
+              hoverBackgroundColor="#059669"
+            >
+              Save
+            </DynamicButton>
+          </div>
     </div>
   )
 }

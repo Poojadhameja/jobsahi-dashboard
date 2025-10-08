@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { LuFileText, LuSettings, LuHistory } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import CertificateGeneration from './CertificateGeneration'
 import ManageTemplate from './ManageTemplate'
 import IssuanceLogs from './IssuanceLogs'
@@ -36,6 +37,8 @@ export default function CertificatesCompletion() {
       <MatrixCard
         title="Certificates & Completion"
         subtitle="Manage certificates, templates, and track completion status"
+        titleColor={TAILWIND_COLORS.TEXT_PRIMARY}
+        subtitleColor={TAILWIND_COLORS.TEXT_MUTED}
         className=""
       />
 

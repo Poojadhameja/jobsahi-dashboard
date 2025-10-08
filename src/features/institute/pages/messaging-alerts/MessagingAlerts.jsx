@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { LuBell, LuSend, LuFileText, LuLightbulb } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import SendNotice from './SendNotice'
 import Templates from './Templates'
 import AutoAlerts from './AutoAlerts'
@@ -36,6 +37,8 @@ export default function MessagingAlerts() {
       <MatrixCard
         title="Messaging & Alerts"
         subtitle="Send notifications and manage automated alerts for students"
+        titleColor={TAILWIND_COLORS.TEXT_PRIMARY}
+        subtitleColor={TAILWIND_COLORS.TEXT_MUTED}
         className=""
       />
 

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LuArrowLeft, LuPhone, LuSettings, LuSearch, LuSend, LuPaperclip, LuSmile, LuTrash2, LuCheck, LuMessageSquare } from "react-icons/lu";
 import Button from "../../../../shared/components/Button";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 
 const Message = () => {
   const location = useLocation();
@@ -198,7 +199,7 @@ const Message = () => {
       {/* Header Section */}
       <div className="bg-white border-b border-gray-200 px-4 py-4 sm:px-6 sm:py-5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center">
             <Button 
               onClick={() => navigate(-1)}
               variant="outline"
@@ -207,13 +208,13 @@ const Message = () => {
             >
               Back
             </Button>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Messages</h1>
-              <p className="text-sm mt-1" style={{ color: 'var(--color-text-muted)' }}>Communicate with your students and team</p>
-            </div>
+          </div>
+          <div className="flex-1 text-center">
+            <h1 className={`text-xl sm:text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Messages</h1>
+            <p className={`text-sm mt-1 ${TAILWIND_COLORS.TEXT_MUTED}`}>Communicate with your students and team</p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-2 hover:bg-gray-100 rounded-lg" style={{ color: 'var(--color-text-muted)' }}>
+            <button className={`p-2 hover:bg-gray-100 rounded-lg ${TAILWIND_COLORS.TEXT_MUTED}`}>
               <LuSettings size={20} />
             </button>
           </div>
@@ -227,13 +228,13 @@ const Message = () => {
         {/* Search Bar */}
         <div className="p-3 sm:p-4 border-b border-gray-200">
           <div className="relative">
-            <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2" size={16} style={{ color: 'var(--color-text-muted)' }} />
+            <LuSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`} size={16} />
             <input
               type="text"
               placeholder="Search messages..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+              className={`w-full pl-8 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
             />
           </div>
         </div>
@@ -254,11 +255,11 @@ const Message = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold truncate text-sm sm:text-base" style={{ color: 'var(--color-text-primary)' }}>{conversation.name}</h3>
-                    <span className="text-xs sm:text-sm" style={{ color: 'var(--color-text-muted)' }}>{conversation.timestamp}</span>
+                    <h3 className={`font-semibold truncate text-sm sm:text-base ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{conversation.name}</h3>
+                    <span className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{conversation.timestamp}</span>
                   </div>
                   <p className="text-xs sm:text-sm font-medium truncate" style={{ color: 'var(--color-primary)' }}>{conversation.role}</p>
-                  <p className="text-xs sm:text-sm truncate" style={{ color: 'var(--color-text-muted)' }}>{conversation.lastMessage}</p>
+                  <p className={`text-xs sm:text-sm truncate ${TAILWIND_COLORS.TEXT_MUTED}`}>{conversation.lastMessage}</p>
                 </div>
               </div>
             </div>
@@ -280,14 +281,14 @@ const Message = () => {
                 {currentConversation.avatar}
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-sm sm:text-base truncate" style={{ color: 'var(--color-text-primary)' }}>{currentConversation.name}</h3>
+                <h3 className={`font-semibold text-sm sm:text-base truncate ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{currentConversation.name}</h3>
                 <p className="text-xs sm:text-sm truncate" style={{ color: 'var(--color-primary)' }}>{currentConversation.role}</p>
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               <button className="p-1.5 sm:p-2 rounded-lg">
-                <LuPhone size={16} className="sm:hidden" style={{ color: 'var(--color-text-muted)' }} />
-                <LuPhone size={20} className="hidden sm:block" style={{ color: 'var(--color-text-muted)' }} />
+                <LuPhone size={16} className={`sm:hidden ${TAILWIND_COLORS.TEXT_MUTED}`} />
+                <LuPhone size={20} className={`hidden sm:block ${TAILWIND_COLORS.TEXT_MUTED}`} />
               </button>
               {!isSelectMode ? (
                 <button 
@@ -295,8 +296,8 @@ const Message = () => {
                   className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg"
                   title="Select Messages"
                 >
-                  <LuCheck size={16} className="sm:hidden" style={{ color: 'var(--color-text-muted)' }} />
-                  <LuCheck size={20} className="hidden sm:block" style={{ color: 'var(--color-text-muted)' }} />
+                  <LuCheck size={16} className={`sm:hidden ${TAILWIND_COLORS.TEXT_MUTED}`} />
+                  <LuCheck size={20} className={`hidden sm:block ${TAILWIND_COLORS.TEXT_MUTED}`} />
                 </button>
               ) : (
                 <>
@@ -322,8 +323,7 @@ const Message = () => {
                   </button>
                   <button 
                     onClick={toggleSelectMode}
-                    className="px-2 py-1 text-xs sm:text-sm hover:bg-gray-100 rounded-lg"
-                    style={{ color: 'var(--color-text-muted)' }}
+                    className={`px-2 py-1 text-xs sm:text-sm hover:bg-gray-100 rounded-lg ${TAILWIND_COLORS.TEXT_MUTED}`}
                   >
                     Cancel
                   </button>
@@ -339,7 +339,7 @@ const Message = () => {
             <>
               {/* Date Separator */}
               <div className="text-center">
-                <span className="text-sm bg-gray-100 px-3 py-1 rounded-full" style={{ color: 'var(--color-text-muted)' }}>Today</span>
+                <span className={`text-sm bg-gray-100 px-3 py-1 rounded-full ${TAILWIND_COLORS.TEXT_MUTED}`}>Today</span>
               </div>
 
               {/* Messages */}
@@ -373,18 +373,17 @@ const Message = () => {
                   <div
                     className={`px-3 py-2 sm:px-4 sm:py-2 rounded-2xl ${
                       message.isIncoming
-                        ? 'bg-gray-200'
+                        ? `bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY}`
                         : 'bg-[var(--color-primary)] text-white'
                     } ${
                       isSelectMode && selectedMessages.includes(message.id)
                         ? 'ring-2 ring-[var(--color-primary)] ring-opacity-50'
                         : ''
                     }`}
-                    style={message.isIncoming ? { color: 'var(--color-text-primary)' } : {}}
                   >
                     <p className="text-xs sm:text-sm break-words">{message.content}</p>
                   </div>
-                  <p className="text-xs mt-1 px-2" style={{ color: 'var(--color-text-muted)' }}>
+                  <p className={`text-xs mt-1 px-2 ${TAILWIND_COLORS.TEXT_MUTED}`}>
                     {message.time}
                   </p>
                 </div>
@@ -402,10 +401,10 @@ const Message = () => {
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <LuMessageSquare size={32} style={{ color: 'var(--color-text-muted)' }} />
+                  <LuMessageSquare size={32} className={TAILWIND_COLORS.TEXT_MUTED} />
                 </div>
-                <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>Select a conversation</h3>
-                <p style={{ color: 'var(--color-text-muted)' }}>Choose a conversation from the list to start messaging</p>
+                <h3 className={`text-lg font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Select a conversation</h3>
+                <p className={TAILWIND_COLORS.TEXT_MUTED}>Choose a conversation from the list to start messaging</p>
               </div>
             </div>
           )}
@@ -415,10 +414,10 @@ const Message = () => {
         {currentConversation && (
           <div className="p-4 border-t border-gray-200">
           <div className="flex items-center gap-3">
-            <button className="p-2 hover:bg-gray-100 rounded-lg" style={{ color: 'var(--color-text-muted)' }}>
+            <button className={`p-2 hover:bg-gray-100 rounded-lg ${TAILWIND_COLORS.TEXT_MUTED}`}>
               <LuPaperclip size={20} />
             </button>
-            <button className="p-2 hover:bg-gray-100 rounded-lg" style={{ color: 'var(--color-text-muted)' }}>
+            <button className={`p-2 hover:bg-gray-100 rounded-lg ${TAILWIND_COLORS.TEXT_MUTED}`}>
               <LuSmile size={20} />
             </button>
             <div className="flex-1">
@@ -428,7 +427,7 @@ const Message = () => {
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
+                className={`w-full px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               />
             </div>
             <button 

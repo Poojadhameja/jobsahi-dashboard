@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { LuX, LuPlus, LuUpload, LuCalendar, LuUser, LuSearch } from 'react-icons/lu'
+import { LuX, LuPlus, LuUpload, LuCalendar, LuUser, LuSearch, LuFileImage } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
@@ -16,6 +16,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
 
   const [searchStudent, setSearchStudent] = useState('')
   const [csvFile, setCsvFile] = useState(null)
+  const [dragActiveCsv, setDragActiveCsv] = useState(false)
 
   // Sample instructors data
   const instructors = [
@@ -70,6 +71,30 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
     }
   }
 
+  const handleDrag = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActiveCsv(true)
+    } else if (e.type === 'dragleave') {
+      setDragActiveCsv(false)
+    }
+  }
+
+  const handleDrop = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActiveCsv(false)
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setCsvFile(e.dataTransfer.files[0])
+    }
+  }
+
+  const removeCsvFile = () => {
+    setCsvFile(null)
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
     console.log('Creating batch with data:', formData)
@@ -96,19 +121,21 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+        {/* Header - Fixed */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
           <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Create New Batch</h2>
           <button
             onClick={handleCancel}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary transition-colors`}
           >
             <LuX className="w-6 h-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          {/* Scrollable Content */}
+          <div className="p-6 space-y-8 overflow-y-auto flex-1">
           {/* Basic Information Section */}
           <div>
             <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Basic Information</h3>
@@ -184,7 +211,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     required
                   />
-                  <LuCalendar className="absolute right-3 top-2.5 w-5 h-5 text-gray-400 pointer-events-none" />
+                
                 </div>
               </div>
 
@@ -201,7 +228,6 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     required
                   />
-                  <LuCalendar className="absolute right-3 top-2.5 w-5 h-5 text-gray-400 pointer-events-none" />
                 </div>
               </div>
 
@@ -227,7 +253,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
                     <option key={index} value={instructor}>{instructor}</option>
                   ))}
                 </select>
-                <LuUser className="absolute right-3 top-2.5 w-5 h-5 text-gray-400 pointer-events-none" />
+                <LuUser className={`absolute right-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`} />
               </div>
             </div>
           </div>
@@ -246,7 +272,7 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
                   placeholder="Search or select student name"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
-                <LuSearch className="absolute right-3 top-2.5 w-5 h-5 text-gray-400 pointer-events-none" />
+                <LuSearch className={`absolute right-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`} />
               </div>
               <Button
                 type="button"
@@ -254,7 +280,6 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
                 variant="primary"
                 size="sm"
                 icon={<LuPlus className="w-4 h-4" />}
-                className={`${TAILWIND_COLORS.BTN_PRIMARY} px-4`}
               >
                 Add
               </Button>
@@ -272,11 +297,11 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
                       key={index}
                       className={`flex items-center gap-2 ${TAILWIND_COLORS.BADGE_SUCCESS} px-3 py-1 rounded-full text-sm`}
                     >
-                      <span>{student}</span>
+                      <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{student}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveStudent(student)}
-                        className="text-green-600 hover:text-green-800"
+                        className="text-success hover:text-success transition-opacity hover:opacity-80"
                       >
                         <LuX className="w-4 h-4" />
                       </button>
@@ -287,36 +312,68 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
             )}
 
             {/* CSV Upload */}
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <LuUpload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Or upload a CSV file with student details</p>
-              <input
-                type="file"
-                accept=".csv"
-                onChange={handleCsvUpload}
-                className="hidden"
-                id="csv-upload"
-              />
-              <label
-                htmlFor="csv-upload"
-                className={`inline-block ${TAILWIND_COLORS.BTN_PRIMARY} px-4 py-2 rounded-md cursor-pointer transition-colors`}
-              >
-                Choose File
-              </label>
-              {csvFile && (
-                <p className="text-sm text-green-600 mt-2">Selected: {csvFile.name}</p>
+            <div 
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200 ${
+                dragActiveCsv ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-green-400'
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              {csvFile ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-center">
+                    <LuFileImage className="w-10 h-10 text-green-600" />
+                  </div>
+                  <div>
+                    <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                      {csvFile.name}
+                    </p>
+                    <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      {(csvFile.size / 1024).toFixed(2)} KB
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeCsvFile}
+                    className="text-red-500 hover:text-red-700 transition-colors"
+                  >
+                    <LuX className="w-5 h-5 mx-auto" />
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <LuUpload className={`w-8 h-8 ${TAILWIND_COLORS.TEXT_MUTED} mx-auto`} />
+                  <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>
+                    Drag and drop or click to upload CSV file with student details
+                  </p>
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={handleCsvUpload}
+                    className="hidden"
+                    id="csv-upload"
+                  />
+                  <label
+                    htmlFor="csv-upload"
+                    className={`inline-block bg-gray-100 hover:bg-gray-200 ${TAILWIND_COLORS.TEXT_MUTED} px-4 py-2 rounded text-sm transition-colors duration-200 cursor-pointer`}
+                  >
+                    Choose File
+                  </label>
+                </div>
               )}
             </div>
           </div>
+          </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+          {/* Action Buttons - Fixed */}
+          <div className="flex justify-end gap-3 p-6 border-t border-gray-200 flex-shrink-0">
             <Button
               type="button"
               onClick={handleCancel}
               variant="outline"
               size="md"
-              className={`${TAILWIND_COLORS.BTN_LIGHT} border-green-600 text-green-600 hover:bg-green-50`}
             >
               Cancel
             </Button>
@@ -324,7 +381,6 @@ const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
               type="submit"
               variant="primary"
               size="md"
-              className={TAILWIND_COLORS.BTN_PRIMARY}
             >
               Create
             </Button>

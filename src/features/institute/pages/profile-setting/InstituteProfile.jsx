@@ -174,7 +174,7 @@ export default function InstituteProfile() {
   }, [formData])
 
   return (
-    <div className="space-y-8">
+    <div className={`space-y-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Institute Profile Section */}
       <div className={`${TAILWIND_COLORS.CARD} p-6`}>
         <div className="flex items-center justify-between mb-6">
@@ -264,7 +264,7 @@ export default function InstituteProfile() {
                 type="text"
                 value={formData.instituteName}
                 onChange={(e) => handleInputChange('instituteName', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} ${
                   errors.instituteName ? 'border-error' : TAILWIND_COLORS.BORDER
                 }`}
                 placeholder="Enter institute name"
@@ -282,7 +282,7 @@ export default function InstituteProfile() {
                 type="text"
                 value={formData.tagline}
                 onChange={(e) => handleInputChange('tagline', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} ${
                   errors.tagline ? 'border-error' : TAILWIND_COLORS.BORDER
                 }`}
                 placeholder="Enter institute tagline"
@@ -300,7 +300,7 @@ export default function InstituteProfile() {
                 value={formData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={6}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent resize-none ${
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent resize-none ${TAILWIND_COLORS.TEXT_PRIMARY} ${
                   errors.description ? 'border-error' : TAILWIND_COLORS.BORDER
                 }`}
                 placeholder="Enter institute description"
@@ -332,7 +332,7 @@ export default function InstituteProfile() {
               type="email"
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} ${
                 errors.email ? 'border-error' : TAILWIND_COLORS.BORDER
               }`}
               placeholder="Enter email address"
@@ -350,7 +350,7 @@ export default function InstituteProfile() {
               type="tel"
               value={formData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} ${
                 errors.phone ? 'border-error' : TAILWIND_COLORS.BORDER
               }`}
               placeholder="Enter phone number"
@@ -368,7 +368,7 @@ export default function InstituteProfile() {
               type="url"
               value={formData.website}
               onChange={(e) => handleInputChange('website', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} ${
                 errors.website ? 'border-error' : TAILWIND_COLORS.BORDER
               }`}
               placeholder="Enter website URL"
@@ -386,7 +386,7 @@ export default function InstituteProfile() {
               type="text"
               value={formData.address}
               onChange={(e) => handleInputChange('address', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} ${
                 errors.address ? 'border-error' : TAILWIND_COLORS.BORDER
               }`}
               placeholder="Enter full address"

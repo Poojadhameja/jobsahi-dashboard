@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { LuSend, LuMessageSquare, LuMail, LuBell, LuUsers, LuFileText, LuCalendar, LuBuilding, LuDollarSign } from 'react-icons/lu'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import Button from '../../../../shared/components/Button'
 
 const SendMessages = () => {
   const [messageData, setMessageData] = useState({
@@ -133,19 +135,19 @@ const SendMessages = () => {
   return (
     <div className="p-2 min-h-screen">
       <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Send Messages to Students</h1>
-        <p className="text-gray-600 mt-2">Communicate with students through SMS, Email, or Push Notifications</p>
+        <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Send Messages to Students</h1>
+        <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>Communicate with students through SMS, Email, or Push Notifications</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Section: Message Composition */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Compose Message</h2>
+          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Compose Message</h2>
           
           <div className="space-y-6">
             {/* Message Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Message Type
               </label>
               <select
@@ -164,7 +166,7 @@ const SendMessages = () => {
 
             {/* Recipients */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Recipients
               </label>
               <select
@@ -183,7 +185,7 @@ const SendMessages = () => {
 
             {/* Subject */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Subject
               </label>
               <input
@@ -198,7 +200,7 @@ const SendMessages = () => {
 
             {/* Message */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Message
               </label>
               <textarea
@@ -213,7 +215,7 @@ const SendMessages = () => {
 
             {/* Delivery Options */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>
                 Delivery Options
               </label>
               <div className="space-y-3">
@@ -224,7 +226,7 @@ const SendMessages = () => {
                     onChange={() => handleDeliveryOptionChange('sms')}
                     className="rounded border-gray-300 text-[#5B9821] focus:ring-[#5B9821]"
                   />
-                  <span className="ml-3 text-sm text-gray-700 flex items-center">
+                  <span className={`ml-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center`}>
                     <LuMessageSquare className="w-4 h-4 mr-2 text-green-600" />
                     Send SMS
                   </span>
@@ -237,7 +239,7 @@ const SendMessages = () => {
                     onChange={() => handleDeliveryOptionChange('email')}
                     className="rounded border-gray-300 text-[#5B9821] focus:ring-[#5B9821]"
                   />
-                  <span className="ml-3 text-sm text-gray-700 flex items-center">
+                  <span className={`ml-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center`}>
                     <LuMail className="w-4 h-4 mr-2 text-blue-600" />
                     Send Email
                   </span>
@@ -250,7 +252,7 @@ const SendMessages = () => {
                     onChange={() => handleDeliveryOptionChange('pushNotification')}
                     className="rounded border-gray-300 text-[#5B9821] focus:ring-[#5B9821]"
                   />
-                  <span className="ml-3 text-sm text-gray-700 flex items-center">
+                  <span className={`ml-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center`}>
                     <LuBell className="w-4 h-4 mr-2 text-purple-600" />
                     Push Notification
                   </span>
@@ -259,19 +261,20 @@ const SendMessages = () => {
             </div>
 
             {/* Send Button */}
-            <button
+            <Button
               onClick={handleSendMessage}
-              className="w-full px-6 py-3 bg-[#5B9821] text-white rounded-lg hover:bg-[#3f6917] transition-colors font-medium flex items-center justify-center gap-2"
+              variant="primary"
+              icon={<LuSend className="w-5 h-5" />}
+              fullWidth
             >
-              <LuSend className="w-5 h-5" />
               Send
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Right Section: Quick Message Templates */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Quick Message Templates</h2>
+          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Quick Message Templates</h2>
           
           <div className="space-y-4">
             {quickTemplates.map((template) => (
@@ -285,10 +288,10 @@ const SendMessages = () => {
                     {template.icon}
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                    <h3 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                       {template.title}
                     </h3>
-                    <p className="text-xs text-gray-600">
+                    <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
                       {template.description}
                     </p>
                   </div>
@@ -299,8 +302,8 @@ const SendMessages = () => {
 
           {/* Template Usage Instructions */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">How to use templates:</h3>
-            <p className="text-xs text-gray-600">
+            <h3 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>How to use templates:</h3>
+            <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
               Click on any template above to automatically fill the subject and message fields. 
               You can then customize the content before sending.
             </p>
@@ -311,21 +314,21 @@ const SendMessages = () => {
       {/* Message Preview */}
       {messageData.subject && messageData.message && (
         <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Message Preview</h3>
+          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Message Preview</h3>
           <div className="space-y-2">
             <div>
-              <span className="text-sm font-medium text-gray-700">To:</span>
-              <span className="ml-2 text-sm text-gray-900">
+              <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>To:</span>
+              <span className={`ml-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                 {messageData.recipients || 'Not selected'}
               </span>
             </div>
             <div>
-              <span className="text-sm font-medium text-gray-700">Subject:</span>
-              <span className="ml-2 text-sm text-gray-900">{messageData.subject}</span>
+              <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Subject:</span>
+              <span className={`ml-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{messageData.subject}</span>
             </div>
             <div>
-              <span className="text-sm font-medium text-gray-700">Delivery:</span>
-              <span className="ml-2 text-sm text-gray-900">
+              <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Delivery:</span>
+              <span className={`ml-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                 {Object.entries(messageData.deliveryOptions)
                   .filter(([_, checked]) => checked)
                   .map(([method, _]) => method.toUpperCase())
@@ -333,8 +336,8 @@ const SendMessages = () => {
               </span>
             </div>
             <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700 block mb-2">Message:</span>
-              <p className="text-sm text-gray-900 whitespace-pre-wrap">{messageData.message}</p>
+              <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} block mb-2`}>Message:</span>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} whitespace-pre-wrap`}>{messageData.message}</p>
             </div>
           </div>
         </div>

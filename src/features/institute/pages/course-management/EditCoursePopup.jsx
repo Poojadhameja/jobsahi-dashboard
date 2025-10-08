@@ -165,28 +165,20 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className={`flex justify-between items-center p-6 border-b ${TAILWIND_COLORS.BORDER}`}>
+      <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] flex flex-col">
+        {/* Header - Fixed */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
           <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Course</h2>
-          <div className="flex gap-4">
           <button
             onClick={onClose}
-              className={`px-6 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors`}
-            >
-              Discard
-            </button>
-            <button
-              onClick={handleSave}
-              className={`px-6 py-2 ${TAILWIND_COLORS.BTN_PRIMARY} rounded-lg transition-colors`}
-            >
-              Update
+            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary transition-colors`}
+          >
+            <LuX className="w-6 h-6" />
           </button>
-          </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
+        {/* Scrollable Content */}
+        <div className="p-6 space-y-6 overflow-y-auto flex-1">
           {/* Basic Information Section */}
           <div className={`${TAILWIND_COLORS.CARD} p-6`}>
             <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Basic Information</h3>
@@ -518,6 +510,24 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Action Buttons - Fixed */}
+        <div className="flex justify-end gap-3 p-6 border-t border-gray-200 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className={`px-6 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors hover:opacity-80`}
+          >
+            Discard
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            className={`px-6 py-2 ${TAILWIND_COLORS.BTN_PRIMARY} rounded-lg transition-colors hover:opacity-90`}
+          >
+            Update
+          </button>
         </div>
       </div>
     </div>

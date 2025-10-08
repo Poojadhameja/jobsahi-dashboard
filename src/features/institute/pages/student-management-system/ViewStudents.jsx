@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { LuUsers, LuCheck, LuClock, LuDownload, LuSearch, LuEye, LuPencil, LuMessageSquare, LuTrash2, LuX } from 'react-icons/lu'
 import { Horizontal4Cards } from '../../../../shared/components/metricCard'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import Button from '../../../../shared/components/Button'
 
 const ViewStudents = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -299,10 +301,12 @@ const ViewStudents = () => {
             </select>
           </div>
 
-          <button className="flex items-center gap-2 bg-[#5B9821] text-white px-4 py-2 rounded-lg hover:bg-[#3f6917] transition-colors">
-            <LuDownload className="w-4 h-4" />
+          <Button 
+            variant="primary" 
+            icon={<LuDownload className="w-4 h-4" />}
+          >
             Export Data
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -320,12 +324,12 @@ const ViewStudents = () => {
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Student</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Course & Batch</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Progress</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Attendance</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Actions</th>
+                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student</th>
+                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course & Batch</th>
+                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Progress</th>
+                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Attendance</th>
+                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
+                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -343,16 +347,16 @@ const ViewStudents = () => {
                     <div className="flex items-center">
                       <div className="w-6 h-6 bg-gray-300 rounded-full mr-3 flex-shrink-0"></div>
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                        <div className="text-sm text-gray-500">{student.email}</div>
-                        <div className="text-sm text-gray-500">{student.phone}</div>
+                        <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</div>
+                        <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.email}</div>
+                        <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.phone}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{student.course}</div>
-                      <div className="text-sm text-gray-500">{student.batch}</div>
+                      <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.course}</div>
+                      <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.batch}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -363,10 +367,10 @@ const ViewStudents = () => {
                           style={{ width: `${student.progress}%` }}
                         ></div>
                       </div>
-                      <span className="text-sm font-medium text-gray-900">{student.progress}%</span>
+                      <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.progress}%</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">{student.attendance}%</td>
+                  <td className={`px-6 py-4 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.attendance}%</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(student.status)}`}>
                       <div className={`w-2 h-2 rounded-full mr-2 ${getStatusDotColor(student.status)}`}></div>
@@ -404,7 +408,7 @@ const ViewStudents = () => {
 
       {filteredStudents.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500">No students found matching your criteria.</p>
+          <p className={TAILWIND_COLORS.TEXT_MUTED}>No students found matching your criteria.</p>
         </div>
       )}
 
@@ -413,7 +417,7 @@ const ViewStudents = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Student Resume - {selectedStudent.name}</h2>
+              <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student Resume - {selectedStudent.name}</h2>
               <button
                 onClick={handleClosePopups}
                 className="text-gray-400 hover:text-gray-600"
@@ -425,7 +429,7 @@ const ViewStudents = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Personal Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h3>
+                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Personal Information</h3>
                 <div className="space-y-2">
                   <p><span className="font-medium">Name:</span> {selectedStudent.name}</p>
                   <p><span className="font-medium">Email:</span> {selectedStudent.email}</p>
@@ -438,7 +442,7 @@ const ViewStudents = () => {
 
               {/* Academic Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Academic Information</h3>
+                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Academic Information</h3>
                 <div className="space-y-2">
                   <p><span className="font-medium">Course:</span> {selectedStudent.course}</p>
                   <p><span className="font-medium">Batch:</span> {selectedStudent.batch}</p>
@@ -451,7 +455,7 @@ const ViewStudents = () => {
 
               {/* Skills */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Skills</h3>
+                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Skills</h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedStudent.skills.map((skill, index) => (
                     <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
@@ -463,7 +467,7 @@ const ViewStudents = () => {
 
               {/* Achievements */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Achievements</h3>
+                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Achievements</h3>
                 <ul className="space-y-1">
                   {selectedStudent.achievements.map((achievement, index) => (
                     <li key={index} className="flex items-center">
@@ -476,7 +480,7 @@ const ViewStudents = () => {
 
               {/* Projects */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Projects</h3>
+                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Projects</h3>
                 <ul className="space-y-1">
                   {selectedStudent.projects.map((project, index) => (
                     <li key={index} className="flex items-center">
@@ -489,7 +493,7 @@ const ViewStudents = () => {
 
               {/* Languages */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Languages</h3>
+                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Languages</h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedStudent.languages.map((language, index) => (
                     <span key={index} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
@@ -501,12 +505,12 @@ const ViewStudents = () => {
             </div>
 
             <div className="mt-6 flex justify-end">
-              <button
+              <Button
                 onClick={handleClosePopups}
-                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                variant="neutral"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -517,7 +521,7 @@ const ViewStudents = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Edit Student - {selectedStudent.name}</h2>
+              <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Student - {selectedStudent.name}</h2>
               <button
                 onClick={handleClosePopups}
                 className="text-gray-400 hover:text-gray-600"
@@ -547,7 +551,7 @@ const ViewStudents = () => {
             }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Name</label>
                   <input
                     type="text"
                     name="name"
@@ -557,7 +561,7 @@ const ViewStudents = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Email</label>
                   <input
                     type="email"
                     name="email"
@@ -567,7 +571,7 @@ const ViewStudents = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Phone</label>
                   <input
                     type="tel"
                     name="phone"
@@ -577,7 +581,7 @@ const ViewStudents = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Course</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Course</label>
                   <input
                     type="text"
                     name="course"
@@ -587,7 +591,7 @@ const ViewStudents = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Batch</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Batch</label>
                   <input
                     type="text"
                     name="batch"
@@ -597,7 +601,7 @@ const ViewStudents = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Progress (%)</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Progress (%)</label>
                   <input
                     type="number"
                     name="progress"
@@ -609,7 +613,7 @@ const ViewStudents = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Attendance (%)</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Attendance (%)</label>
                   <input
                     type="number"
                     name="attendance"
@@ -621,7 +625,7 @@ const ViewStudents = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Status</label>
                   <select
                     name="status"
                     defaultValue={selectedStudent.status}
@@ -634,7 +638,7 @@ const ViewStudents = () => {
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Address</label>
                   <textarea
                     name="address"
                     defaultValue={selectedStudent.address}
@@ -643,7 +647,7 @@ const ViewStudents = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Qualification</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Qualification</label>
                   <input
                     type="text"
                     name="qualification"
@@ -652,7 +656,7 @@ const ViewStudents = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Experience</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Experience</label>
                   <input
                     type="text"
                     name="experience"
@@ -663,19 +667,19 @@ const ViewStudents = () => {
               </div>
 
               <div className="mt-6 flex justify-end space-x-3">
-                <button
+                <Button
                   type="button"
                   onClick={handleClosePopups}
-                  className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                  variant="neutral"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  variant="primary"
                 >
                   Update Student
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -691,31 +695,31 @@ const ViewStudents = () => {
                 <LuTrash2 className="w-6 h-6 text-red-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Delete Student</h2>
-                <p className="text-gray-600">This action cannot be undone.</p>
+                <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Delete Student</h2>
+                <p className={TAILWIND_COLORS.TEXT_MUTED}>This action cannot be undone.</p>
               </div>
             </div>
             
             <div className="mb-6">
-              <p className="text-gray-700">
+              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
                 Are you sure you want to delete <span className="font-semibold">{selectedStudent.name}</span>? 
                 This will permanently remove all their data from the system.
               </p>
             </div>
 
             <div className="flex justify-end space-x-3">
-              <button
+              <Button
                 onClick={handleClosePopups}
-                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                variant="neutral"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleConfirmDelete}
-                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                variant="danger"
               >
                 Delete Student
-              </button>
+              </Button>
             </div>
           </div>
         </div>

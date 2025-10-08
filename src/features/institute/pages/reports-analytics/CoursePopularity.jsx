@@ -7,6 +7,14 @@ export default function CoursePopularity() {
     console.log('Exporting course popularity data...')
   }
 
+  // Get semantic colors from CSS variables
+  const successColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--color-success').trim() || '#16A34A'
+  const warningColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--color-warning').trim() || '#F59E0B'
+  const errorColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--color-error').trim() || '#DC2626'
+
   // Chart data for course popularity
   const chartData = {
     labels: [
@@ -18,14 +26,14 @@ export default function CoursePopularity() {
       {
         data: [65, 25, 10],
         backgroundColor: [
-          '#22C55E', // Green
-          '#F97316', // Orange
-          '#EF4444'  // Red
+          successColor, // Green for Completed
+          warningColor, // Orange for In Progress
+          errorColor    // Red for Not Started
         ],
         borderColor: [
-          '#16A34A', // Darker Green
-          '#EA580C', // Darker Orange
-          '#DC2626'  // Darker Red
+          successColor, // Green
+          warningColor, // Orange
+          errorColor    // Red
         ],
         borderWidth: 2,
       },

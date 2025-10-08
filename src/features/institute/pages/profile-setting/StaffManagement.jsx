@@ -13,7 +13,8 @@ export default function StaffManagement() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'Instructor'
+    phone: '',
+    role: 'Instructor'                // TODO: Add role
   })
 
   // Mock data for instructors (matching the image)
@@ -22,6 +23,7 @@ export default function StaffManagement() {
       id: 1,
       name: 'Prof. Rajesh',
       email: 'sarah.johnson@institute.edu',
+      phone: '8833938882',
       role: 'Instructor',
       status: 'Active'
     },
@@ -29,6 +31,7 @@ export default function StaffManagement() {
       id: 2,
       name: 'Prof. Michael Chen',
       email: 'sarah.johnson@institute.edu',
+      phone: '9876543210',
       role: 'Instructor',
       status: 'Active'
     },
@@ -36,6 +39,7 @@ export default function StaffManagement() {
       id: 3,
       name: 'Lisa Rodriguez',
       email: 'lisa.rodriguez@institute.edu',
+      phone: '7654321098',
       role: 'Instructor',
       status: 'Active'
     },
@@ -43,6 +47,7 @@ export default function StaffManagement() {
       id: 4,
       name: 'Prof. Rajesh',
       email: 'sarah.johnson@institute.edu',
+      phone: '8765432109',
       role: 'Instructor',
       status: 'Active'
     },
@@ -50,6 +55,7 @@ export default function StaffManagement() {
       id: 5,
       name: 'Prof. Michael Chen',
       email: 'sarah.johnson@institute.edu',
+      phone: '9012345678',
       role: 'Instructor',
       status: 'Active'
     },
@@ -57,6 +63,7 @@ export default function StaffManagement() {
       id: 6,
       name: 'Lisa Rodriguez',
       email: 'lisa.rodriguez@institute.edu',
+      phone: '8901234567',
       role: 'Instructor',
       status: 'Active'
     },
@@ -64,6 +71,7 @@ export default function StaffManagement() {
       id: 7,
       name: 'Prof. Rajesh',
       email: 'sarah.johnson@institute.edu',
+      phone: '7890123456',
       role: 'Instructor',
       status: 'Active'
     },
@@ -71,6 +79,7 @@ export default function StaffManagement() {
       id: 8,
       name: 'Prof. Michael Chen',
       email: 'sarah.johnson@institute.edu',
+      phone: '9123456780',
       role: 'Instructor',
       status: 'Active'
     },
@@ -78,6 +87,7 @@ export default function StaffManagement() {
       id: 9,
       name: 'Lisa Rodriguez',
       email: 'lisa.rodriguez@institute.edu',
+      phone: '8234567890',
       role: 'Instructor',
       status: 'Active'
     }
@@ -90,7 +100,7 @@ export default function StaffManagement() {
 
   // Handler functions
   const handleAddInstructor = () => {
-    setFormData({ name: '', email: '', role: 'Instructor' })
+    setFormData({ name: '', email: '', phone: '', role: 'Instructor' })
     setShowAddModal(true)
   }
 
@@ -99,7 +109,8 @@ export default function StaffManagement() {
     setFormData({
       name: instructor.name,
       email: instructor.email,
-      role: instructor.role
+      phone: instructor.phone,                // TODO: Add phone number
+      role: instructor.role                // TODO: Add role
     })
     setShowEditModal(true)
   }
@@ -129,7 +140,7 @@ export default function StaffManagement() {
       setInstructors(prev => [...prev, newInstructor])
       setShowAddModal(false)
     }
-    setFormData({ name: '', email: '', role: 'Instructor' })
+    setFormData({ name: '', email: '', phone: '',   role: 'Instructor' })
   }
 
   const handleConfirmDelete = () => {
@@ -144,12 +155,21 @@ export default function StaffManagement() {
     setShowDeleteModal(false)
     setEditingInstructor(null)
     setDeletingInstructor(null)
-    setFormData({ name: '', email: '', role: 'Instructor' })
+    setFormData({ name: '', email: '', phone: '', role: 'Instructor' })
   }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+    
+    // Validate phone number to only accept 10 digits
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, '') // Remove non-numeric characters
+      if (numericValue.length <= 10) {
+        setFormData(prev => ({ ...prev, [name]: numericValue }))
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }))
+    }
   }
 
   return (
@@ -166,7 +186,7 @@ export default function StaffManagement() {
             className={`${TAILWIND_COLORS.BTN_SECONDARY} flex items-center gap-2 px-4 py-2 rounded-md font-medium`}
             icon={<LuPlus className="w-4 h-4" />}
           >
-            + Add Instructor
+             Add Instructor
           </Button>
         </div>
       </div>
@@ -182,7 +202,7 @@ export default function StaffManagement() {
                 placeholder="Search instructors..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent`}
+                className={`w-full pl-10 pr-4 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               />
             </div>
             <Button
@@ -290,7 +310,7 @@ export default function StaffManagement() {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary`}
+                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                   placeholder="Enter instructor name"
                 />
               </div>
@@ -304,8 +324,24 @@ export default function StaffManagement() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary`}
+                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                   placeholder="Enter email address"
+                />
+              </div>
+              
+              <div>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  maxLength={10}
+                  pattern="[0-9]{10}"
+                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                  placeholder="Enter 10-digit phone number"
                 />
               </div>
               
@@ -317,7 +353,7 @@ export default function StaffManagement() {
                   name="role"
                   value={formData.role}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary`}
+                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 >
                   <option value="Instructor">Instructor</option>
                   <option value="Professor">Professor</option>

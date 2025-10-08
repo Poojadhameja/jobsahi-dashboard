@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { LuBuilding2, LuUsers, LuSettings } from "react-icons/lu";
 import { MatrixCard } from "../../../../shared/components/metricCard";
 import { PillNavigation } from "../../../../shared/components/navigation";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import InstituteProfile from "./InstituteProfile";
 import StaffManagement from "./StaffManagement";
 import NotificationPreferences from "./NotificationPreferences";
@@ -31,12 +32,12 @@ const ProfileSetting = () => {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className={`space-y-5 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Header Section using MatrixCard */}
       <MatrixCard
         title="Institute Settings"
         subtitle="Manage your institute profile and system settings"
-        className=""
+        className={TAILWIND_COLORS.TEXT_PRIMARY}
       />
 
       {/* Navigation Pills using PillNavigation */}
@@ -45,7 +46,7 @@ const ProfileSetting = () => {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          className=""
+          className={TAILWIND_COLORS.TEXT_PRIMARY}
         />
       </div>
 

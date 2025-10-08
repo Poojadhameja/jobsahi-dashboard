@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { LuCalendar, LuDownload, LuUpload, LuFileText, LuX } from 'react-icons/lu'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import Button from '../../../../shared/components/Button'
 
 const AddStudents = () => {
   const [formData, setFormData] = useState({
@@ -126,12 +128,12 @@ const AddStudents = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Add Student Manually Section */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Add Student Manually</h2>
+          <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Add Student Manually</h2>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Full Name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -145,7 +147,7 @@ const AddStudents = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Email Address <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -159,7 +161,7 @@ const AddStudents = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Phone number <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -173,7 +175,7 @@ const AddStudents = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Date of birth
                 </label>
                 <div className="relative">
@@ -189,7 +191,7 @@ const AddStudents = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Father's Name
                 </label>
                 <input
@@ -203,7 +205,7 @@ const AddStudents = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Aadhar number
                 </label>
                 <input
@@ -216,7 +218,7 @@ const AddStudents = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Course <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -235,7 +237,7 @@ const AddStudents = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Batch
                 </label>
                 <select
@@ -254,7 +256,7 @@ const AddStudents = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                 Address
               </label>
               <textarea
@@ -268,26 +270,26 @@ const AddStudents = () => {
             </div>
 
             <div className="flex space-x-3 pt-4">
-              <button
+              <Button
                 type="submit"
-                className="px-6 py-2 bg-[#5B9821] text-white rounded-lg hover:bg-[#3f6917] transition-colors font-medium"
+                variant="primary"
               >
                 Add Student
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={handleReset}
-                className="px-6 py-2 bg-white text-[#5B9821] border border-[#5B9821] rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                variant="outline"
               >
                 Reset
-              </button>
+              </Button>
             </div>
           </form>
         </div>
 
         {/* Bulk Upload Students Section */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Bulk Upload Students</h2>
+          <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Bulk Upload Students</h2>
           
           {/* File Upload Area */}
           <div
@@ -305,8 +307,8 @@ const AddStudents = () => {
                   <LuFileText className="w-12 h-12 text-[#5B9821]" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{uploadedFile.name}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{uploadedFile.name}</p>
+                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
                     {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
                   </p>
                 </div>
@@ -325,8 +327,8 @@ const AddStudents = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="text-lg font-medium text-gray-900">Upload CSV/ Excel File</p>
-                  <p className="text-sm text-gray-500">
+                  <p className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Upload CSV/ Excel File</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                     Drag and Drop your file here, or click to browse
                   </p>
                 </div>
@@ -349,8 +351,8 @@ const AddStudents = () => {
 
           {/* File Requirements */}
           <div className="mt-6">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">File Requirements:</h3>
-            <ul className="text-sm text-gray-600 space-y-1">
+            <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>File Requirements:</h3>
+            <ul className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} space-y-1`}>
               <li>• File format: CSV or Excel (.xlsx)</li>
               <li>• Maximum file size: 5MB</li>
               <li>• Required columns: Name, Email, Phone, Course</li>
@@ -360,19 +362,19 @@ const AddStudents = () => {
 
           {/* Action Buttons */}
           <div className="flex space-x-3 mt-6">
-            <button
+            <Button
               onClick={handleDownloadTemplate}
-              className="px-4 py-2 bg-[#5B9821] text-white rounded-lg hover:bg-[#3f6917] transition-colors font-medium flex items-center gap-2"
+              variant="primary"
+              icon={<LuDownload className="w-4 h-4" />}
             >
-              <LuDownload className="w-4 h-4" />
               Download Template
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleBulkUpload}
-              className="px-4 py-2 bg-white text-[#5B9821] border border-[#5B9821] rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              variant="outline"
             >
               Upload Students
-            </button>
+            </Button>
           </div>
         </div>
       </div>

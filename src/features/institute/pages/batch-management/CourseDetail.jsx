@@ -12,8 +12,8 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
 
   if (!courseData) {
     return (
-      <div className="p-2 bg-[#F6FAFF] min-h-screen">
-        <div className="text-center text-gray-500">No course data available</div>
+      <div className={`p-2 ${TAILWIND_COLORS.BG_PRIMARY} min-h-screen`}>
+        <div className={`text-center ${TAILWIND_COLORS.TEXT_MUTED}`}>No course data available</div>
       </div>
     )
   }
@@ -42,11 +42,11 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Active':
-        return 'bg-green-100 text-green-800'
+        return `${TAILWIND_COLORS.BADGE_SUCCESS}`
       case 'Upcoming':
-        return 'bg-blue-100 text-blue-800'
+        return `${TAILWIND_COLORS.BADGE_INFO}`
       default:
-        return 'bg-yellow-100 text-yellow-800'
+        return `${TAILWIND_COLORS.BADGE_WARN}`
     }
   }
 
@@ -124,7 +124,7 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
 
   // Default course detail view
   return (
-    <div className="p-2 bg-[#F6FAFF] min-h-screen">
+    <div className={`p-2 ${TAILWIND_COLORS.BG_PRIMARY} min-h-screen`}>
       {/* Header Section */}
       <div className="mb-6">
         <div className="flex items-center gap-4 mb-4">
@@ -133,7 +133,7 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
             variant="outline"
             size="sm"
             icon={<LuArrowLeft className="w-4 h-4" />}
-            className="border-gray-300 text-gray-600 hover:bg-gray-50"
+            className={`border-gray-300 ${TAILWIND_COLORS.TEXT_MUTED} hover:bg-gray-50`}
           >
             Back
           </Button>
@@ -148,9 +148,9 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
       {/* Course Information & Details Card */}
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Course Information & Details</h2>
+          <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course Information & Details</h2>
           {/* Course Status - Right Corner */}
-          <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">
+          <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${TAILWIND_COLORS.BADGE_SUCCESS}`}>
             Active
           </span>
         </div>
@@ -160,32 +160,32 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Course Title */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Course Title</h4>
-              <p className="text-lg font-medium text-gray-900">{courseData.title}</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Title</h4>
+              <p className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{courseData.title}</p>
             </div>
 
             {/* Instructor */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Instructor</h4>
-              <p className="text-gray-900">{courseData.instructor}</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Instructor</h4>
+              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{courseData.instructor}</p>
             </div>
 
             {/* Total Batches */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Total Batches</h4>
-              <p className="text-gray-900">{courseData.totalBatches}</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Total Batches</h4>
+              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{courseData.totalBatches}</p>
             </div>
 
             {/* Active Batches */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Active Batches</h4>
-              <p className="text-gray-900">{courseData.activeBatches}</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Active Batches</h4>
+              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{courseData.activeBatches}</p>
             </div>
 
             {/* Course Fee */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Course Fee</h4>
-              <p className="text-1xl font-medium text-green-600">₹15,000</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Fee</h4>
+              <p className="text-1xl font-medium text-success">₹15,000</p>
             </div>
           </div>
 
@@ -194,48 +194,48 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Course Duration */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Course Duration</h4>
-              <p className="text-gray-900">3 Months</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Duration</h4>
+              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>3 Months</p>
             </div>
 
             {/* Course Type */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Course Type</h4>
-              <p className="text-gray-900">Practical Training</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Type</h4>
+              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Practical Training</p>
             </div>
 
             {/* Certification */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Certification</h4>
-              <p className="text-gray-900">Industry recognized certificate</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Certification</h4>
+              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Industry recognized certificate</p>
             </div>
 
             {/* Language */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Language</h4>
-              <p className="text-gray-900">English</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Language</h4>
+              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>English</p>
             </div>
 
             {/* Start Date */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">Start Date</h4>
-              <p className="text-gray-900">January 15, 2024</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Start Date</h4>
+              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>January 15, 2024</p>
             </div>
 
             {/* End Date */}
             <div className="space-y-2">
-              <h4 className="text-sm font-semibold text-gray-500">End Date</h4>
-              <p className="text-gray-900">April 15, 2024</p>
+              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>End Date</h4>
+              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>April 15, 2024</p>
             </div>
           </div>
         
 
         {/* Course Description Section */}
         <div className="pt-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Course Description</h3>
+          <h3 className={`text-lg font-semibold mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course Description</h3>
           <div className="bg-blue-50 rounded-lg p-6">
-            <h4 className="text-md font-semibold mb-3 text-gray-900">Overview</h4>
-            <p className="text-gray-700 leading-relaxed">
+            <h4 className={`text-md font-semibold mb-3 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Overview</h4>
+            <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} leading-relaxed`}>
               Comprehensive electrical wiring training covering all aspects of electrical systems, safety protocols, 
               and practical applications in residential and commercial settings. This course provides hands-on 
               experience with modern electrical tools and techniques, ensuring students gain real-world skills 
@@ -297,8 +297,8 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
 
       {/* Available Courses Section */}
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-        <h2 className="text-xl font-bold mb-4 text-gray-900">Available Courses</h2>
-        <p className="text-sm mb-6 text-gray-600">Other courses available in our institute</p>
+        <h2 className={`text-xl font-bold mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Available Courses</h2>
+        <p className={`text-sm mb-6 ${TAILWIND_COLORS.TEXT_MUTED}`}>Other courses available in our institute</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Advanced Electrical Systems */}
@@ -311,8 +311,8 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
               </div>
               <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">Available</span>
             </div>
-            <h3 className="font-semibold mb-2 text-gray-900">Advanced Electrical Systems</h3>
-            <p className="text-sm mb-4 text-gray-600 leading-relaxed">Advanced course covering complex electrical systems and industrial applications</p>
+            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Advanced Electrical Systems</h3>
+            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>Advanced course covering complex electrical systems and industrial applications</p>
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold text-blue-600">₹25,000</span>
               <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">View Details →</button>
@@ -329,8 +329,8 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
               </div>
               <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Available</span>
             </div>
-            <h3 className="font-semibold mb-2 text-gray-900">Solar Panel Installation</h3>
-            <p className="text-sm mb-4 text-gray-600 leading-relaxed">Complete solar panel installation, maintenance, and troubleshooting</p>
+            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Solar Panel Installation</h3>
+            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>Complete solar panel installation, maintenance, and troubleshooting</p>
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold text-green-600">₹20,000</span>
               <button className="text-green-600 hover:text-green-800 text-sm font-medium">View Details →</button>
@@ -347,8 +347,8 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
               </div>
               <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-semibold rounded-full">Coming Soon</span>
             </div>
-            <h3 className="font-semibold mb-2 text-gray-900">Industrial Automation</h3>
-            <p className="text-sm mb-4 text-gray-600 leading-relaxed">PLC programming, HMI design, and industrial automation systems</p>
+            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Industrial Automation</h3>
+            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>PLC programming, HMI design, and industrial automation systems</p>
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold text-orange-600">₹30,000</span>
               <button className="text-orange-600 hover:text-orange-800 text-sm font-medium">Notify Me →</button>

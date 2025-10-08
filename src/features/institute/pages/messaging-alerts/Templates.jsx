@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { LuPlus, LuPencil, LuTrash2, LuBookOpen, LuAward, LuFileText, LuCalendar } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import Button from '../../../../shared/components/Button'
+import CreateTemplateModal from './CreateTemplateModal'
 
 export default function Templates() {
   const [templates, setTemplates] = useState([
@@ -56,6 +58,31 @@ export default function Templates() {
     setShowCreateModal(true)
   }
 
+  // Handle close modal
+  const handleCloseModal = () => {
+    setShowCreateModal(false)
+    setEditingTemplate(null)
+  }
+
+  // Handle save template
+  const handleSaveTemplate = (templateData, editingTemplate) => {
+    if (editingTemplate) {
+      // Update existing template
+      setTemplates(templates.map(t => 
+        t.id === editingTemplate.id
+          ? { ...t, ...templateData }
+          : t
+      ))
+    } else {
+      // Create new template
+      const newTemplate = {
+        id: Math.max(...templates.map(t => t.id), 0) + 1,
+        ...templateData
+      }
+      setTemplates([...templates, newTemplate])
+    }
+  }
+
   // Handle delete template
   const handleDeleteTemplate = (templateId) => {
     setTemplates(templates.filter(template => template.id !== templateId))
@@ -75,13 +102,14 @@ export default function Templates() {
           <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Manage Templates</h2>
           <p className={TAILWIND_COLORS.TEXT_MUTED}>Configure automated notifications for students</p>
         </div>
-        <button
+        <Button
           onClick={() => setShowCreateModal(true)}
-          className={`${TAILWIND_COLORS.BTN_SECONDARY} px-6 py-3 rounded-lg flex items-center space-x-2 transition-colors duration-200`}
+          variant="secondary"
+          size="md"
+          icon={<LuPlus className="w-5 h-5" />}
         >
-          <LuPlus className="w-5 h-5" />
-          <span>Create Template</span>
-        </button>
+          Create Template
+        </Button>
       </div>
 
       {/* Templates Grid */}
@@ -103,20 +131,20 @@ export default function Templates() {
                   </div>
                 </div>
                 <div className="flex space-x-2">
-                  <button 
+                  <Button
                     onClick={() => handleEditTemplate(template)}
-                    className="p-2 text-gray-400 hover:text-green-600 transition-colors"
-                    title="Edit template"
-                  >
-                    <LuPencil className="w-4 h-4" />
-                  </button>
-                  <button 
+                    variant="unstyled"
+                    className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-green-600 transition-colors`}
+                    icon={<LuPencil className="w-4 h-4" />}
+                    aria-label="Edit template"
+                  />
+                  <Button
                     onClick={() => handleConfirmDelete(template.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                    title="Delete template"
-                  >
-                    <LuTrash2 className="w-4 h-4" />
-                  </button>
+                    variant="unstyled"
+                    className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-red-600 transition-colors`}
+                    icon={<LuTrash2 className="w-4 h-4" />}
+                    aria-label="Delete template"
+                  />
                 </div>
               </div>
               
@@ -149,19 +177,29 @@ export default function Templates() {
       {templates.length === 0 && (
         <div className="text-center py-12">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LuPencil className="w-8 h-8 text-gray-400" />
+            <LuPencil className={`w-8 h-8 ${TAILWIND_COLORS.TEXT_MUTED}`} />
           </div>
           <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>No templates yet</h3>
           <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Create your first template to get started.</p>
-          <button
+          <Button
             onClick={() => setShowCreateModal(true)}
-            className={`${TAILWIND_COLORS.BTN_SECONDARY} px-6 py-3 rounded-lg flex items-center space-x-2 mx-auto transition-colors duration-200`}
+            variant="secondary"
+            size="md"
+            icon={<LuPlus className="w-5 h-5" />}
+            className="mx-auto"
           >
-            <LuPlus className="w-5 h-5" />
-            <span>Create Template</span>
-          </button>
+            Create Template
+          </Button>
         </div>
       )}
+
+      {/* Create/Edit Template Modal */}
+      <CreateTemplateModal
+        isOpen={showCreateModal}
+        onClose={handleCloseModal}
+        onSave={handleSaveTemplate}
+        editingTemplate={editingTemplate}
+      />
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
@@ -180,18 +218,20 @@ export default function Templates() {
               Are you sure you want to delete this template? This will permanently remove it from your templates.
             </p>
             <div className="flex space-x-3 justify-end">
-              <button
+              <Button
                 onClick={() => setShowDeleteModal(null)}
-                className={`${TAILWIND_COLORS.BTN_LIGHT} px-4 py-2 rounded-lg transition-colors duration-200`}
+                variant="light"
+                size="md"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => handleDeleteTemplate(showDeleteModal)}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                variant="danger"
+                size="md"
               >
                 Delete
-              </button>
+              </Button>
             </div>
           </div>
         </div>

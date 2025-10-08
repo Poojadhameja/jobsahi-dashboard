@@ -304,8 +304,8 @@ export default function BatchDetail({ batchData, onBack }) {
           <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Instructor</h2>
           <div className="space-y-4">
             {instructors.map((instructor) => (
-              <div key={instructor.id} className={`flex items-center gap-3 p-3 ${TAILWIND_COLORS.BG_MUTED} rounded-lg`}>
-                <div className={`w-10 h-10 ${TAILWIND_COLORS.BG_MUTED} rounded-full flex items-center justify-center`}>
+              <div key={instructor.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                   <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
                     {instructor.name.split(' ').map(n => n[0]).join('')}
                   </span>
@@ -340,7 +340,7 @@ export default function BatchDetail({ batchData, onBack }) {
         
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className={TAILWIND_COLORS.BG_MUTED}>
+            <thead className="bg-gray-50">
               <tr>
                 <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>Student</th>
                 <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>Join Date</th>
@@ -350,7 +350,7 @@ export default function BatchDetail({ batchData, onBack }) {
             </thead>
             <tbody className={`${TAILWIND_COLORS.BG_PRIMARY} divide-y ${TAILWIND_COLORS.BORDER}`}>
               {students.map((student) => (
-                <tr key={student.id} className={`hover:${TAILWIND_COLORS.BG_MUTED}`}>
+                <tr key={student.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</div>
