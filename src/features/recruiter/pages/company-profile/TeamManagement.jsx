@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { LuUsers, LuUpload, LuEye, LuShield, LuPencil, LuTrash2, LuMail } from "react-icons/lu";
 import { COLORS } from "@shared/WebConstant";
+import EditTeamMemberModal from "./EditTeamMemberModal";
 
 const TeamManagement = () => {
   const [inviteData, setInviteData] = useState({
@@ -33,11 +34,12 @@ const TeamManagement = () => {
   ]);
 
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState(null);
 
   const roleOptions = [
     { value: "Admin", label: "Admin", icon: LuShield },
-    { value: "Viewer", label: "Viewer", icon: LuEye },
-    { value: "Editor", label: "Editor", icon: LuPencil }
+    { value: "Viewer", label: "Viewer", icon: LuEye }
   ];
 
   const handleInputChange = (field, value) => {
@@ -78,8 +80,32 @@ const TeamManagement = () => {
   };
 
   const handleEditMember = (memberId) => {
-    console.log("Edit member:", memberId);
-    // TODO: Implement edit member logic
+    const member = teamMembers.find(m => m.id === memberId);
+    if (member) {
+      setEditingMember(member);
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleSaveEdit = (memberId, updatedData) => {
+    setTeamMembers(prev => 
+      prev.map(member => 
+        member.id === memberId 
+          ? { 
+              ...member, 
+              ...updatedData,
+              avatar: updatedData.name.charAt(0).toUpperCase() // Update avatar based on new name
+            }
+          : member
+      )
+    );
+    
+    console.log("Team member updated:", updatedData);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setEditingMember(null);
   };
 
   const handleDeleteMember = (memberId) => {
@@ -155,7 +181,6 @@ const TeamManagement = () => {
                   size: 16, 
                   style: { color: COLORS.GREEN_PRIMARY } 
                 })}
-                <span className="text-gray-400">▼</span>
               </div>
             </div>
           </div>
@@ -200,7 +225,7 @@ const TeamManagement = () => {
             const RoleIcon = getRoleIcon(member.role);
             return (
               <div key={member.id} className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
                   {/* Left side - Avatar and Info */}
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
@@ -244,6 +269,14 @@ const TeamManagement = () => {
           })}
         </div>
       </div>
+
+      {/* Edit Team Member Modal */}
+      <EditTeamMemberModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        member={editingMember}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 };
