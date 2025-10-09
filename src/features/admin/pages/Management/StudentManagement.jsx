@@ -506,13 +506,13 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <LuUsers className="text-gray-600" size={20} />
           <h3 className="font-medium text-gray-800">All Student Profiles</h3>
-        </div>
+        </div> */}
 
         {/* Auto Scroll Toggle */}
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <span className="text-sm text-gray-700">Auto Scroll</span>
           <button
             type="button"
@@ -529,16 +529,16 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
                 }`}
             />
           </button>
-        </div>
+        </div> */}
 
-        <div className="relative w-full sm:w-auto">
+        {/* <div className="relative w-full sm:w-auto">
           <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
           <input
             type="text"
             placeholder="Search by name, email, or student ID..."
             className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-80"
           />
-        </div>
+        </div> */}
       </div>
 
        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
