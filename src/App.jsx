@@ -1,5 +1,6 @@
 ﻿import React, { Suspense, lazy } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { ThemeProvider } from './shared/hooks/useTheme.jsx'
 import Login from './shared/auth/Login.jsx'
 import CreateAccount from './shared/auth/CreateAccount.jsx'
 import RoleRoute from './RoleRoute.jsx'
@@ -12,31 +13,33 @@ const WebsiteRoutes = lazy(() => import('./features/website/routes.jsx'))
 
 export default function App() {
   return (
-    <Router>
-      <Suspense fallback={<div className="p-8">Loading...</div>}>
-        <Routes>
-          <Route path="/*" element={<WebsiteRoutes />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/create-account" element={<CreateAccount />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/admin/*" element={
-            <RoleRoute allowedRoles={['admin']}>
-              <AdminRoutes />
-            </RoleRoute>
-          } />
-          <Route path="/recruiter/*" element={
-            <RoleRoute allowedRoles={['recruiter']}>
-              <RecruiterRoutes />
-            </RoleRoute>
-          } />
-          <Route path="/institute/*" element={
-            <RoleRoute allowedRoles={['institute']}>
-              <InstituteRoutes />
-            </RoleRoute>
-          } />
-          <Route path="*" element={<div className="p-8">404 — Not Found</div>} />
-        </Routes>
-      </Suspense>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <Suspense fallback={<div className="p-8">Loading...</div>}>
+          <Routes>
+            <Route path="/*" element={<WebsiteRoutes />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/create-account" element={<CreateAccount />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/admin/*" element={
+              <RoleRoute allowedRoles={['admin']}>
+                <AdminRoutes />
+              </RoleRoute>
+            } />
+            <Route path="/recruiter/*" element={
+              <RoleRoute allowedRoles={['recruiter']}>
+                <RecruiterRoutes />
+              </RoleRoute>
+            } />
+            <Route path="/institute/*" element={
+              <RoleRoute allowedRoles={['institute']}>
+                <InstituteRoutes />
+              </RoleRoute>
+            } />
+            <Route path="*" element={<div className="p-8">404 — Not Found</div>} />
+          </Routes>
+        </Suspense>
+      </Router>
+    </ThemeProvider>
   )
 }

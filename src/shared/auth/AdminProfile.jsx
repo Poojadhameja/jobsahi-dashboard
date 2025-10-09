@@ -5,7 +5,7 @@ import { TAILWIND_COLORS, COLORS } from '../WebConstant'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import { putMethod } from '../../service/api'
-import apiService from '../../service/serviceUrl'
+import apiService from '../../shared/services/serviceUrl'
 import LogoutConfirmationModal from '../components/LogoutConfirmationModal'
 
 export default function AdminProfile() {
@@ -17,7 +17,7 @@ export default function AdminProfile() {
 
   const onLogout = async () => {
     localStorage.clear();
-    if (typeof window !== 'undefined') window.location.href = '/login'
+    navigate('/login')
     console.log('Logging out...')
 
   }

@@ -12,12 +12,7 @@ export const ThemeProvider = ({ children }) => {
       return savedTheme;
     }
     
-    // Check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-    
-    // Default to light
+    // Always default to light mode (ignore system preference)
     return 'light';
   });
 
@@ -28,18 +23,10 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Listen for system theme changes
+  // Listen for system theme changes (disabled - always default to light)
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e) => {
-      // Only auto-switch if user hasn't manually set a preference
-      if (!localStorage.getItem('theme')) {
-        setTheme(e.matches ? 'dark' : 'light');
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    // System preference auto-switching is disabled
+    // Users can manually toggle theme if needed
   }, []);
 
   const toggleTheme = () => {

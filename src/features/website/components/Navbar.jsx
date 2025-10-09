@@ -136,7 +136,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+        <div className="lg:hidden absolute top-full left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
           <div className="px-6 py-4 space-y-4">
             {/* Navigation Links */}
             {navigationItems.map((item) => (
@@ -205,7 +205,7 @@ const Navbar = () => {
               </Link>
               
               <Link
-                to="/register"
+                to="/login"
                 className="w-full px-4 py-2 text-white border border-gray-300 rounded-full hover:bg-gray-50 hover:text-[#00395B] transition-colors duration-200 block text-center"
                 style={{
                   backgroundColor: colors.primary.darkBlue,
@@ -213,7 +213,7 @@ const Navbar = () => {
                 }}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Sign Up
+                Login
               </Link>
             </div>
           </div>

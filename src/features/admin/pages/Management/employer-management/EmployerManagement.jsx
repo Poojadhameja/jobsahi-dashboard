@@ -20,7 +20,7 @@ import {
   LuMessageSquare
 } from 'react-icons/lu'
 import { getMethod } from '../../../../../service/api'
-import apiService from '../../../../../service/serviceUrl'
+import apiService from '../../../../admin/services/serviceUrl'
 // KPI Card Component
 function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
   return (
@@ -130,7 +130,7 @@ export default function EmployerManagement() {
         };
 
         var response = await getMethod(data);
-        console.log(response)
+        // console.log(response)
         if (response.status === true) {
           // Map API response to required format
           const formatted = response.data.map((item, index) => ({
@@ -142,7 +142,7 @@ export default function EmployerManagement() {
           }));
 
           const pendingFormatted = response.data
-          .filter((item) => item.profile.status !== "approved")
+          .filter((item) => item.profile.admin_action !== "approved")
           .map((item, index) => ({
             id: item.user_id, // or just use index+1 if you want serial id
             email: item.email,

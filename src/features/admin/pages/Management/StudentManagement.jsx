@@ -2,6 +2,8 @@ import React, { useMemo, useState, useEffect } from 'react'
 import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant'
 import { MatrixCard, MetricPillRow } from '../../../../shared/components/metricCard'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../../admin/services/serviceUrl'
 import {
   LuUsers,
   LuSearch,
@@ -11,6 +13,7 @@ import {
   LuEye,
   LuTrash2
 } from 'react-icons/lu'
+import { HiDotsVertical } from 'react-icons/hi'
 // KPI Card Component
 function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
   return (
@@ -190,7 +193,7 @@ function ActionDropdown({ student, onViewCV, onDelete }) {
       >
         <HiDotsVertical className="text-gray-600" size={18} />
       </button>
-      
+
       {isOpen && (
         <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px]">
           <button
@@ -286,7 +289,7 @@ Generated on: ${new Date().toLocaleDateString()}
             <span className="text-2xl">&times;</span>
           </button>
         </div>
-        
+
         <div className="p-6 space-y-6">
           {/* Personal Information */}
           <div className="bg-gray-50 rounded-lg p-4">
@@ -324,7 +327,7 @@ Generated on: ${new Date().toLocaleDateString()}
             <h3 className="text-lg font-medium text-gray-800 mb-4">Skills</h3>
             <div className="flex flex-wrap gap-2">
               {student.skills.map((skill, index) => (
-                <span 
+                <span
                   key={index}
                   className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800"
                 >
@@ -405,7 +408,7 @@ Generated on: ${new Date().toLocaleDateString()}
                 <span className="text-2xl">📄</span>
                 <span className="text-gray-800">{student.name}_Resume.pdf</span>
               </div>
-              <button 
+              <button
                 onClick={handleDownloadCV}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
               >
@@ -414,7 +417,7 @@ Generated on: ${new Date().toLocaleDateString()}
             </div>
           </div>
         </div>
-        
+
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
           <button
             onClick={onClose}
@@ -450,7 +453,7 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
               <p className="text-gray-600">This action cannot be undone</p>
             </div>
           </div>
-          
+
           <div className="mb-6">
             <p className="text-gray-700">
               Are you sure you want to delete <span className="font-semibold">{student.name}</span> from the student list?
@@ -459,7 +462,7 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
               This will permanently remove all data associated with this student including their profile, progress, and records.
             </p>
           </div>
-          
+
           <div className="flex gap-3 justify-end">
             <button
               onClick={onClose}
@@ -502,34 +505,47 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
 
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+        {/* <div className="flex items-center gap-2">
+          <LuUsers className="text-gray-600" size={20} />
+          <h3 className="font-medium text-gray-800">All Student Profiles</h3>
+        </div> */}
+
+        {/* Auto Scroll Toggle */}
+        {/* <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700">Auto Scroll</span>
+          <button
+            type="button"
+            onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+              }`}
+            style={{
+              backgroundColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined,
+              focusRingColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined
+            }}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+            />
+          </button>
+        </div> */}
+
+        {/* <div className="relative w-full sm:w-auto">
+          <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+          <input
+            type="text"
+            placeholder="Search by name, email, or student ID..."
+            className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-80"
+          />
+        </div> */}
+      </div>
+
        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
          <div className="flex items-center gap-2">
            <LuUsers className="text-gray-600" size={20} />
            <h3 className="font-medium text-gray-800">All Student Profiles</h3>
-         </div>
-         
-         {/* Auto Scroll Toggle */}
-         <div className="flex items-center gap-2">
-           <span className="text-sm text-gray-700">Auto Scroll</span>
-           <button
-             type="button"
-             onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
-             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-               autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
-             }`}
-             style={{
-               backgroundColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined,
-               focusRingColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined
-             }}
-           >
-             <span
-               className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
-                 autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
-               }`}
-             />
-           </button>
-         </div>
-         
+         </div>         
          <div className="relative w-full sm:w-auto">
            <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
            <input 
@@ -591,10 +607,10 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
                   </div>
                 </td>
                 <td className="py-4 px-4">
-                  <ActionDropdown 
-                    student={student} 
-                    onViewCV={onViewCV} 
-                    onDelete={onDelete} 
+                  <ActionDropdown
+                    student={student}
+                    onViewCV={onViewCV}
+                    onDelete={onDelete}
                   />
                 </td>
               </tr>
@@ -613,7 +629,7 @@ export default function StudentManagement() {
   const [searchTerm, setSearchTerm] = useState('')
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
 
-    const [totalStudentCount, setTotalStudentCount] = useState(0)
+  const [totalStudentCount, setTotalStudentCount] = useState(0)
   const [verifiedProfileCount, setVerifiedProfileCount] = useState(0)
   const [placementReadyCount, setPlacementReadyCount] = useState(0)
   const [placedSuccessCount, setPlacedSuccessCount] = useState(0)
@@ -621,8 +637,11 @@ export default function StudentManagement() {
   const [viewCVModal, setViewCVModal] = useState({ isOpen: false, student: null })
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, student: null })
   useEffect(() => {
+    let called = false;
     // TODO: replace with ApiService
     async function fetchData() {
+      if (called) return; // prevent second call
+      called = true;
       try {
         var data = {
           apiUrl: apiService.studentsList,
@@ -631,7 +650,7 @@ export default function StudentManagement() {
         };
 
         var response = await getMethod(data);
-        console.log(response)
+        // console.log(response)
         if (response.status === true) {
           // Convert response before setting
           const formatted = response.data.map((item) => ({
@@ -663,8 +682,8 @@ export default function StudentManagement() {
           }));
 
           const pendingFormatted = response.data
-          .filter((item) => item.profile_info.admin_action === "approved");
-          
+            .filter((item) => item.profile_info.admin_action === "approved");
+
           setTotalStudentCount(response.count);
           setVerifiedProfileCount(pendingFormatted.length);
           setStudents(formatted);
@@ -757,7 +776,7 @@ export default function StudentManagement() {
   const handleConfirmDelete = (student) => {
     // Remove student from the list
     setStudents(prevStudents => prevStudents.filter(s => s.id !== student.id))
-    
+
     // Show success message
     Swal.fire({
       title: "Deleted!",
@@ -787,12 +806,12 @@ export default function StudentManagement() {
     const headers = Object.keys(exportData[0])
     const csvContent = [
       headers.join(','),
-      ...exportData.map(row => 
+      ...exportData.map(row =>
         headers.map(header => {
           const value = row[header]
           // Escape commas and quotes in CSV
-          return typeof value === 'string' && (value.includes(',') || value.includes('"')) 
-            ? `"${value.replace(/"/g, '""')}"` 
+          return typeof value === 'string' && (value.includes(',') || value.includes('"'))
+            ? `"${value.replace(/"/g, '""')}"`
             : value
         }).join(',')
       )
@@ -887,14 +906,14 @@ export default function StudentManagement() {
       />
 
       {/* View CV Modal */}
-      <ViewCVModal 
+      <ViewCVModal
         student={viewCVModal.student}
         isOpen={viewCVModal.isOpen}
         onClose={handleCloseViewCV}
       />
 
       {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal 
+      <DeleteConfirmationModal
         student={deleteModal.student}
         isOpen={deleteModal.isOpen}
         onClose={handleCloseDelete}

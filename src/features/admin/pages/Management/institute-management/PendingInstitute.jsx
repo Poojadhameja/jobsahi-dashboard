@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { 
+import {
   LuBuilding,
   LuMail,
   LuPhone,
@@ -13,6 +13,8 @@ import {
   LuEye
 } from 'react-icons/lu'
 import Swal from 'sweetalert2'
+import { postMethod, putMethod } from '../../../../../service/api'
+import apiService from '../../../../admin/services/serviceUrl'
 
 // Institute Approval Card Component
 function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }) {
@@ -22,7 +24,7 @@ function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }
       'APPROVED': 'bg-green-100 text-green-800',
       'REJECTED': 'bg-red-100 text-red-800'
     }
-    
+
     return (
       <span className={`px-3 py-1 text-xs font-medium rounded-full ${statusStyles[status]}`}>
         {status}
@@ -37,7 +39,7 @@ function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }
           <span className="text-white font-bold text-lg">{institute.initials}</span>
         </div>
         <div className="flex-1">
-          <h3 className="font-bold text-gray-900 text-lg">{institute.name}</h3>
+          <h3 className="font-bold text-gray-900 text-lg">{institute.institute_name}</h3>
           <p className="text-gray-600 text-sm">{institute.email}</p>
         </div>
       </div>
@@ -71,7 +73,7 @@ function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }
         </div>
 
         <div className="flex gap-3">
-          <button 
+          <button
             onClick={() => onViewDetails(institute)}
             className="text-sm px-2 py-2 border-2 border-blue-600 text-blue-600 hover:text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
           >
@@ -80,15 +82,15 @@ function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }
           </button>
           {institute.status === 'PENDING REVIEW' && (
             <>
-              <button 
-                onClick={() => onApprove(institute.id)}
+              <button
+                onClick={() => onApprove(institute.institute_id)}
                 className="text-sm px-2 py-2 border-2 border-green-600 text-green-600 hover:text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
               >
                 <LuCheck size={16} />
                 Approve
               </button>
-              <button 
-                onClick={() => onReject(institute.id)}
+              <button
+                onClick={() => onReject(institute.institute_id)}
                 className="text-sm px-2 py-2 border-2 border-red-600 text-red-600 hover:text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center gap-2"
               >
                 <LuX size={16} />
@@ -97,8 +99,8 @@ function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }
             </>
           )}
           {institute.status === 'APPROVED' && (
-            <button 
-              onClick={() => onReject(institute.id)}
+            <button
+              onClick={() => onReject(institute.institute_id)}
               className="text-sm px-2 py-2 border-2 border-red-600 text-red-600 hover:text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center gap-2"
             >
               <LuX size={16} />
@@ -106,8 +108,8 @@ function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }
             </button>
           )}
           {institute.status === 'REJECTED' && (
-            <button 
-              onClick={() => onApprove(institute.id)}
+            <button
+              onClick={() => onApprove(institute.institute_id)}
               className="text-sm px-2 py-2 border-2 border-green-600 text-green-600 hover:text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
             >
               <LuCheck size={16} />
@@ -136,7 +138,7 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
             <span className="text-2xl">&times;</span>
           </button>
         </div>
-        
+
         <div className="p-6 space-y-6">
           {/* Institute Information */}
           <div className="bg-gray-50 rounded-lg p-4">
@@ -147,7 +149,7 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-600">Institute Name</label>
-                <p className="text-gray-800 font-medium">{institute.name}</p>
+                <p className="text-gray-800 font-medium">{institute.institute_name}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-600">Email Address</label>
@@ -228,9 +230,9 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
           <div className="bg-gray-50 rounded-lg p-4">
             <h3 className="text-lg font-medium text-gray-800 mb-4">Institute Description</h3>
             <p className="text-gray-700 leading-relaxed">
-              {institute.name} is a leading technical institute specializing in vocational training and skill development. 
-              We are committed to providing quality education and practical training to students, preparing them for 
-              successful careers in their chosen fields. Our institute has been serving the community since {institute.established} 
+              {institute.institute_name} is a leading technical institute specializing in vocational training and skill development.
+              We are committed to providing quality education and practical training to students, preparing them for
+              successful careers in their chosen fields. Our institute has been serving the community since {institute.established}
               and has successfully trained over {institute.students} students.
             </p>
           </div>
@@ -253,7 +255,7 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
             </div>
           </div>
         </div>
-        
+
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
           <button
             onClick={onClose}
@@ -291,13 +293,40 @@ export default function PendingInstituteApprovals({ institutes }) {
     }).then((result) => {
       if (result.isConfirmed) {
         // TODO: Add API call to approve institute
-        Swal.fire({
-          title: 'Approved!',
-          text: 'Institute has been approved successfully.',
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false
-        })
+        try {
+          var data = {
+            apiUrl: `${apiService.updateInstitute}/${instituteId}` ,
+            payload: {
+              admin_action: "approved"
+            },
+          };
+
+          var response = postMethod(data);
+          console.log(response)
+          if (response.status === true) {
+            Swal.fire({
+              title: 'Approved!',
+              text: 'Institute has been approved successfully.',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            })
+          } else {
+            Swal.fire({
+              title: "Failed",
+              text: response.message || "Profile updated but you are not authorized to view it",
+              icon: "error"
+            });
+          }
+        } catch (error) {
+          // console.error("API Error:", error)
+          // alert("Something went wrong. Please try again.")
+          Swal.fire({
+            title: "API Error",
+            text: "Something went wrong. Please try again.",
+            icon: "error"
+          });
+        }
       }
     })
   }
@@ -315,22 +344,52 @@ export default function PendingInstituteApprovals({ institutes }) {
     }).then((result) => {
       if (result.isConfirmed) {
         // TODO: Add API call to reject institute
-        Swal.fire({
-          title: 'Rejected!',
-          text: 'Institute has been rejected.',
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false
-        })
+
+        try {
+          var data = {
+            apiUrl: `${apiService.updateInstitute}/${instituteId}` ,
+            payload: {
+              admin_action: "rejected"
+            },
+          };
+
+          var response = postMethod(data);
+          // console.log(response)
+          if (response.status === true) {
+            Swal.fire({
+              title: 'Rejected!',
+              text: 'Institute has been rejected.',
+              icon: 'success',
+              timer: 2000,
+              showConfirmButton: false
+            })
+          } else {
+            Swal.fire({
+              title: "Failed",
+              text: response.message || "Profile updated but you are not authorized to view it",
+              icon: "error"
+            });
+          }
+        } catch (error) {
+          // console.error("API Error:", error)
+          // alert("Something went wrong. Please try again.")
+          Swal.fire({
+            title: "API Error",
+            text: "Something went wrong. Please try again.",
+            icon: "error"
+          });
+        }
       }
     })
   }
 
   const pendingInstitutes = institutes.map((item, index) => ({
     id: item.id,
-    initials: item.name ? item.name.substring(0, 2).toUpperCase() : "ST",
+    initials: item.institute_name ? item.institute_name.substring(0, 2).toUpperCase() : "ST",
     name: item.name,
     email: item.email,
+    institute_id: item.institute_id,
+    institute_name : item.institute_name,
     location: item.location,
     established: item.established_year,
     students: "2,500+",
@@ -351,18 +410,18 @@ export default function PendingInstituteApprovals({ institutes }) {
       {/* Institute Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {pendingInstitutes.map((institute) => (
-          <InstituteApprovalCard 
-            key={institute.id} 
+          <InstituteApprovalCard
+            key={institute.id}
             institute={institute}
-            onViewDetails={handleViewDetails}
-            onApprove={handleApprove}
-            onReject={handleReject}
+            onViewDetails={() => handleViewDetails(institute)}
+            onApprove={() =>handleApprove(institute.institute_id)}
+            onReject={() =>handleReject(institute.institute_id)}
           />
         ))}
       </div>
 
       {/* View Details Modal */}
-      <ViewDetailsModal 
+      <ViewDetailsModal
         institute={viewDetailsModal.institute}
         isOpen={viewDetailsModal.isOpen}
         onClose={handleCloseViewDetails}
