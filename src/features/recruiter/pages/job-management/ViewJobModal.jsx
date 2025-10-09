@@ -9,7 +9,7 @@ const ViewJobModal = ({ isOpen, onClose, job }) => {
       <div className="bg-white rounded-xl max-w-6xl w-full max-h-[95vh] flex flex-col shadow-2xl">
         {/* Fixed Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-2xl font-semibold text-gray-900">JOB DETAILS</h2>
+          <h2 className="text-2xl font-semibold text-[var(--color-primary)]">JOB DETAILS</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"

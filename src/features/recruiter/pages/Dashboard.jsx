@@ -472,7 +472,7 @@ const Dashboard = () => {
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
             {/* Fixed Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
-              <h2 className="text-2xl font-bold text-gray-900">Applicant Details</h2>
+              <h2 className="text-2xl font-bold text-[var(--color-primary)]">Applicant Details</h2>
               <button
                 onClick={closeDetailsModal}
                 className="text-gray-400 hover:text-gray-600 transition-colors"

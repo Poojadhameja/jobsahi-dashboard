@@ -138,7 +138,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
         {/* Fixed Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-2xl font-semibold text-gray-900">Edit Candidate</h2>
+          <h2 className="text-2xl font-semibold text-[var(--color-primary)]">Edit Candidate</h2>
           <button
             onClick={handleCancel}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
