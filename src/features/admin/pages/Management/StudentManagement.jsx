@@ -541,6 +541,21 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
         </div>
       </div>
 
+       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+         <div className="flex items-center gap-2">
+           <LuUsers className="text-gray-600" size={20} />
+           <h3 className="font-medium text-gray-800">All Student Profiles</h3>
+         </div>         
+         <div className="relative w-full sm:w-auto">
+           <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+           <input 
+             type="text"
+             placeholder="Search by name, email, or student ID..."
+             className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-80"
+           />
+         </div>
+       </div>
+      
       <div className="student-table-container overflow-x-auto max-h-96 overflow-y-auto">
         <table className="min-w-full text-sm">
           <thead>
