@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import Button from '../../../../../shared/components/Button'
 
 // Employer Ratings (Student Feedback) Component
 function EmployerRatings() {
@@ -159,12 +160,13 @@ function EmployerRatings() {
                     <p className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{company.responseRate}%</p>
                   </div>
                   
-                  <button
+                  <Button
                     onClick={() => handleViewReviews(company.id)}
+                    variant="unstyled"
                     className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors duration-200 text-sm font-medium"
                   >
                     View Reviews
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import Button from '../../../../../shared/components/Button'
+import DynamicButton from '../../../../../shared/components/DynamicButton'
 
 // Message Specific Institute Component
 function MessageSpecificInstitute() {
@@ -126,23 +128,25 @@ function MessageSpecificInstitute() {
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
-              <button
+              <Button
                 onClick={handleSendMessage}
-                className="px-6 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors duration-200 font-medium"
+                variant="primary"
+                size="md"
               >
                 Send Message
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   setSelectedInstitute('')
                   setMessageType('')
                   setMessageSubject('')
                   setMessageContent('')
                 }}
-                className="px-6 py-2 border-2 border-[var(--color-secondary)] hover:text-white rounded-lg hover:bg-[var(--color-secondary)] transition-colors duration-200 font-medium"
+                variant="outline"
+                size="md"
               >
                 Clear
-              </button>
+              </Button>
             </div>
           </div>
         </div>

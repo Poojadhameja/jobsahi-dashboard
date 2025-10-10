@@ -1,5 +1,6 @@
 import React from 'react'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import Button from '../../../../../shared/components/Button'
 
 // Course List Table Component
 function CourseListTable() {
@@ -50,9 +51,13 @@ function CourseListTable() {
                   </span>
                 </td>
                 <td className="py-3 px-4">
-                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                  <Button 
+                    variant="light" 
+                    size="sm"
+                    onClick={() => console.log('View course:', course.courseName)}
+                  >
                     {course.status}
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}

@@ -5,6 +5,7 @@ import ConversionReports from './ConversionReports.jsx'
 import HiringFunnel from './HiringFunnel.jsx'
 import CompletionRates from './CompletionRates.jsx'
 import CoursePerformance from './CoursePerformance.jsx'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
 import { 
   LuEye,
   LuFileText,
@@ -68,11 +69,13 @@ export default function ReportAnalytics() {
   ]
 
   return (
-    <div className=" space-y-5 ">
+    <div className="space-y-5">
       {/* Title Card */}
       <MatrixCard 
         title="Reports & Analytics Center"
         subtitle="Comprehensive insights and performance metrics for your job portal"
+        titleColor={TAILWIND_COLORS.TEXT_PRIMARY}
+        subtitleColor={TAILWIND_COLORS.TEXT_MUTED}
         className=""
       />
 

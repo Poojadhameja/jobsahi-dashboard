@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant'
 import { MatrixCard, MetricPillRow } from '../../../../../shared/components/metricCard'
+import Button from '../../../../../shared/components/Button'
 import PendingRecruiterApprovals from './PendingRecruiter'
 import JobPostingAnalytics from './JobPosting'
 import PaymentHistory from './Payment'
@@ -9,15 +10,11 @@ import EmployerRatings from './EmployerRating'
 import ResumeUsageTracker from './ResumeUsage'
 import FraudControlSystem from './FraudControl'
 import {
-  LuBriefcase,
   LuBuilding,
   LuUsers,
-  LuTrendingUp,
   LuSearch,
-  LuFilter,
-  LuPlus,
   LuDownload,
-  LuMessageSquare
+  LuMenu
 } from 'react-icons/lu'
 import { getMethod } from '../../../../../service/api'
 import apiService from '../../../../admin/services/serviceUrl'
@@ -242,11 +239,7 @@ export default function EmployerManagement() {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="bg-primary text-white p-3 rounded-lg shadow-lg transition-colors duration-200 hover:bg-primary-dark"
         >
-          <div className="flex flex-col space-y-1">
-            <div className="w-6 h-0.5 bg-white"></div>
-            <div className="w-6 h-0.5 bg-white"></div>
-            <div className="w-6 h-0.5 bg-white"></div>
-          </div>
+          <LuMenu size={24} />
         </button>
 
         {/* Dropdown Menu */}
@@ -254,66 +247,72 @@ export default function EmployerManagement() {
           <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
             {/* Menu Items */}
             <div className="py-2">
-              <button
+              <Button
                 onClick={() => { setActiveView('approve-reject'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'approve-reject'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Approve/Reject
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => { setActiveView('job-tracking'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'job-tracking'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Job Tracking
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => { setActiveView('payments'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'payments'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Payments
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => { setActiveView('ratings'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'ratings'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Ratings
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => { setActiveView('resume-usage'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'resume-usage'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Resume Usage
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => { setActiveView('fraud-control'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'fraud-control'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Fraud Control
-              </button>
+              </Button>
             </div>
           </div>
         )}

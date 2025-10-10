@@ -4,6 +4,8 @@ import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant'
 import { MatrixCard, MetricPillRow } from '../../../../shared/components/metricCard'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../../admin/services/serviceUrl'
+import Button, { DangerButton, PrimaryButton } from '../../../../shared/components/Button'
+import DynamicButton from '../../../../shared/components/DynamicButton'
 import {
   LuUsers,
   LuSearch,
@@ -106,18 +108,20 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
       </div>
 
       <div className="flex justify-end gap-3">
-        <button
+        <Button
           onClick={onClearAll}
-          className={`px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED} hover:underline font-medium`}
+          variant="light"
+          size="md"
         >
           Clear All
-        </button>
-        <button
+        </Button>
+        <DynamicButton
           onClick={onApplyFilter}
-          className="px-4 py-2 text-sm rounded-lg bg-[var(--color-secondary)] text-white hover:bg-secondary-dark transition-colors duration-200 font-medium"
+          backgroundColor="var(--color-secondary)"
+          textColor="white"
         >
           Apply Filter
-        </button>
+        </DynamicButton>
       </div>
     </div>
   )
@@ -196,20 +200,24 @@ function ActionDropdown({ student, onViewCV, onDelete }) {
 
       {isOpen && (
         <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px]">
-          <button
+          <Button
             onClick={handleViewCV}
-            className={`w-full px-4 py-2 text-left text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-50 flex items-center gap-2 transition-colors duration-200`}
+            variant="unstyled"
+            size="sm"
+            className="w-full justify-start px-4 py-2 hover:bg-gray-50"
+            icon={<LuEye size={16} />}
           >
-            <LuEye size={16} />
             View CV
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleDelete}
-            className={`w-full px-4 py-2 text-left text-sm ${TAILWIND_COLORS.BADGE_ERROR} hover:bg-red-50 flex items-center gap-2 transition-colors duration-200`}
+            variant="unstyled"
+            size="sm"
+            className={`w-full justify-start px-4 py-2 ${TAILWIND_COLORS.BADGE_ERROR} hover:bg-red-50`}
+            icon={<LuTrash2 size={16} />}
           >
-            <LuTrash2 size={16} />
             Delete
-          </button>
+          </Button>
         </div>
       )}
     </div>
@@ -408,23 +416,24 @@ Generated on: ${new Date().toLocaleDateString()}
                 <span className="text-2xl">📄</span>
                 <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.name}_Resume.pdf</span>
               </div>
-              <button
+              <PrimaryButton
                 onClick={handleDownloadCV}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                size="md"
               >
                 Download CV
-              </button>
+              </PrimaryButton>
             </div>
           </div>
         </div>
 
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-          <button
+          <Button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            variant="neutral"
+            size="md"
           >
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -464,18 +473,19 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
           </div>
 
           <div className="flex gap-3 justify-end">
-            <button
+            <Button
               onClick={onClose}
-              className={`px-4 py-2 ${TAILWIND_COLORS.TEXT_MUTED} border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200`}
+              variant="neutral"
+              size="md"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <DangerButton
               onClick={handleConfirm}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+              size="md"
             >
               Delete Student
-            </button>
+            </DangerButton>
           </div>
         </div>
       </div>
