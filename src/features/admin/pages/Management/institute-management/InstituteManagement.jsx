@@ -16,6 +16,7 @@ import CertificateIssuance from './CertificateIssuance'
 import MessageInstitute from './MessageInstitute'
 import { getMethod } from '../../../../../service/api'
 import apiService from '../../../../admin/services/serviceUrl'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 
 
 export default function InstituteManagement() {
@@ -129,7 +130,7 @@ export default function InstituteManagement() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Title Section with MatrixCard */}
       <MatrixCard 
         title="Institute Management"

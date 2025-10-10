@@ -27,7 +27,7 @@ function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-600 mb-1">{title}</p>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>{title}</p>
           <p className="text-2xl font-bold" style={{ color }}>{value}</p>
         </div>
         <div
@@ -47,11 +47,11 @@ function EmployerTable({ employers }) {
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <LuBuilding className="text-gray-600" size={20} />
-          <h3 className="font-medium text-gray-800">All Employer Profiles</h3>
+          <LuBuilding className={TAILWIND_COLORS.TEXT_MUTED} size={20} />
+          <h3 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>All Employer Profiles</h3>
         </div>
         <div className="relative">
-          <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+          <LuSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`} size={16} />
           <input
             type="text"
             placeholder="Search by company name or email..."
@@ -63,7 +63,7 @@ function EmployerTable({ employers }) {
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="text-left text-gray-500 border-b">
+            <tr className={`text-left ${TAILWIND_COLORS.TEXT_MUTED} border-b`}>
               <th className="py-3 px-4 font-medium">Company</th>
               <th className="py-3 px-4 font-medium">Industry</th>
               <th className="py-3 px-4 font-medium">Location</th>
@@ -77,13 +77,13 @@ function EmployerTable({ employers }) {
               <tr key={employer.id} className="border-b hover:bg-gray-50">
                 <td className="py-4 px-4">
                   <div>
-                    <div className="font-medium text-gray-900">{employer.company}</div>
-                    <div className="text-gray-500 text-xs">{employer.email}</div>
+                    <div className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{employer.company}</div>
+                    <div className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs`}>{employer.email}</div>
                   </div>
                 </td>
-                <td className="py-4 px-4 text-gray-700">{employer.industry}</td>
-                <td className="py-4 px-4 text-gray-700">{employer.location}</td>
-                <td className="py-4 px-4 text-gray-700">{employer.activeJobs}</td>
+                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{employer.industry}</td>
+                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{employer.location}</td>
+                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{employer.activeJobs}</td>
                 <td className="py-4 px-4">
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     employer.status === 'Active'
@@ -95,7 +95,7 @@ function EmployerTable({ employers }) {
                 </td>
                 <td className="py-4 px-4">
                   <button className="p-1 hover:bg-gray-100 rounded">
-                    <span className="text-gray-400 text-sm">⋯</span>
+                    <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>⋯</span>
                   </button>
                 </td>
               </tr>

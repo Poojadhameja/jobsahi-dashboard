@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 
 // Resume Access Usage Tracker Component
 function ResumeUsageTracker() {
@@ -87,7 +88,7 @@ function ResumeUsageTracker() {
   const getUsageProgressBar = (progress) => {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-900">{progress}%</span>
+        <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{progress}%</span>
         <div className="w-16 bg-gray-200 rounded-full h-2">
           <div 
             className="bg-gray-600 h-2 rounded-full" 
@@ -105,11 +106,11 @@ function ResumeUsageTracker() {
         <div>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-              <span className="text-gray-600 text-lg font-bold">📝</span>
+              <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-lg font-bold`}>📝</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Resume Access Usage Tracker</h2>
+            <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Resume Access Usage Tracker</h2>
           </div>
-          <p className="text-gray-600 mt-1">Monitor resume access credits and usage patterns</p>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Monitor resume access credits and usage patterns</p>
         </div>
         
         {/* Time Filter */}
@@ -117,14 +118,14 @@ function ResumeUsageTracker() {
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
-            className="appearance-none bg-gray-50 text-gray-700 px-4 py-2 pr-8 rounded-lg text-sm font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`appearance-none bg-gray-50 ${TAILWIND_COLORS.TEXT_PRIMARY} px-4 py-2 pr-8 rounded-lg text-sm font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500`}
           >
             {timeFilterOptions.map((option) => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <span className="text-gray-500">▼</span>
+            <span className={TAILWIND_COLORS.TEXT_MUTED}>▼</span>
           </div>
         </div>
       </div>
@@ -135,25 +136,25 @@ function ResumeUsageTracker() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Company
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Subscription Plan
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Credits Used
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Credits Remaining
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Usage Progress
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Last Access
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Actions
                 </th>
               </tr>
@@ -164,30 +165,30 @@ function ResumeUsageTracker() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-gray-500 text-sm font-medium">
+                        <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm font-medium`}>
                           {item.company.charAt(0)}
                         </span>
                       </div>
-                      <div className="text-sm font-medium text-gray-900">{item.company}</div>
+                      <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{item.company}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getPlanBadge(item.subscriptionPlan)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-bold text-gray-900">{item.creditsUsed.toLocaleString()}</div>
+                    <div className={`text-sm font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{item.creditsUsed.toLocaleString()}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-bold text-gray-900">{item.creditsRemaining.toLocaleString()}</div>
+                    <div className={`text-sm font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{item.creditsRemaining.toLocaleString()}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getUsageProgressBar(item.usageProgress)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     {item.lastAccess}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <button className="text-gray-400 hover:text-gray-600">
+                    <button className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                       <span className="text-lg">⋯</span>
                     </button>
                   </td>
@@ -203,8 +204,8 @@ function ResumeUsageTracker() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Credits Used</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Total Credits Used</p>
+              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                 {usageData.reduce((sum, item) => sum + item.creditsUsed, 0).toLocaleString()}
               </p>
             </div>
@@ -217,8 +218,8 @@ function ResumeUsageTracker() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Credits Remaining</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Total Credits Remaining</p>
+              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                 {usageData.reduce((sum, item) => sum + item.creditsRemaining, 0).toLocaleString()}
               </p>
             </div>
@@ -231,8 +232,8 @@ function ResumeUsageTracker() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Active Companies</p>
-              <p className="text-2xl font-bold text-gray-900">{usageData.length}</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Active Companies</p>
+              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{usageData.length}</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
               <span className="text-purple-600 text-xl">🏢</span>
@@ -243,8 +244,8 @@ function ResumeUsageTracker() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Avg Usage Rate</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Avg Usage Rate</p>
+              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                 {Math.round(usageData.reduce((sum, item) => sum + item.usageProgress, 0) / usageData.length)}%
               </p>
             </div>

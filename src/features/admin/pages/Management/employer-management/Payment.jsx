@@ -15,6 +15,7 @@ import {
   LuDollarSign
 } from 'react-icons/lu'
 import { HiDotsVertical } from 'react-icons/hi'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 
 // Payment History & Subscription Status Component
 function PaymentHistory() {
@@ -159,14 +160,14 @@ function PaymentHistory() {
           onClick={() => setIsOpen(!isOpen)}
           className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
         >
-          <HiDotsVertical className="text-gray-600" size={18} />
+          <HiDotsVertical className={TAILWIND_COLORS.TEXT_MUTED} size={18} />
         </button>
         
         {isOpen && (
           <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px]">
             <button
               onClick={handleViewDetails}
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors duration-200"
+              className={`w-full px-4 py-2 text-left text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-50 flex items-center gap-2 transition-colors duration-200`}
             >
               <LuEye size={16} />
               View Details
@@ -212,10 +213,10 @@ function PaymentHistory() {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Payment Details & History</h2>
+            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Payment Details & History</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors duration-200`}
             >
               <span className="text-2xl">&times;</span>
             </button>
@@ -224,17 +225,17 @@ function PaymentHistory() {
           <div className="p-6 space-y-6">
             {/* Company Information */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
                 <LuBuilding className="text-blue-600" size={20} />
                 Company Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Company Name</label>
-                  <p className="text-gray-800 font-medium">{payment.company}</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Company Name</label>
+                  <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}>{payment.company}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Current Subscription Plan</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Current Subscription Plan</label>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                     payment.subscriptionPlan === 'Basic' ? 'bg-blue-100 text-blue-800' :
                     payment.subscriptionPlan === 'Premium' ? 'bg-purple-100 text-purple-800' :
@@ -244,11 +245,11 @@ function PaymentHistory() {
                   </span>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Current Amount</label>
-                  <p className="text-gray-800 font-bold text-lg">{formatCurrency(payment.amount)}</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Current Amount</label>
+                  <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-bold text-lg`}>{formatCurrency(payment.amount)}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Current Status</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Current Status</label>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                     payment.status === 'Paid' ? 'bg-green-100 text-green-800' :
                     payment.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -262,7 +263,7 @@ function PaymentHistory() {
 
             {/* Payment Statistics */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
                 <LuDollarSign className="text-green-600" size={20} />
                 Payment Statistics
               </h3>
@@ -270,34 +271,34 @@ function PaymentHistory() {
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-green-600 text-lg">💰</span>
-                    <span className="text-sm font-medium text-gray-600">Total Paid</span>
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Total Paid</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     {formatCurrency(paymentHistory.filter(p => p.status === 'Paid').reduce((sum, p) => sum + p.amount, 0))}
                   </p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-blue-600 text-lg">📊</span>
-                    <span className="text-sm font-medium text-gray-600">Total Transactions</span>
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Total Transactions</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-800">{paymentHistory.length}</p>
+                  <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{paymentHistory.length}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-yellow-600 text-lg">⏰</span>
-                    <span className="text-sm font-medium text-gray-600">Pending Payments</span>
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Pending Payments</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     {paymentHistory.filter(p => p.status === 'Pending').length}
                   </p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-purple-600 text-lg">💳</span>
-                    <span className="text-sm font-medium text-gray-600">Avg. Amount</span>
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Avg. Amount</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     {formatCurrency(paymentHistory.reduce((sum, p) => sum + p.amount, 0) / paymentHistory.length)}
                   </p>
                 </div>
@@ -306,7 +307,7 @@ function PaymentHistory() {
 
             {/* Payment History Table */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
                 <LuReceipt className="text-orange-600" size={20} />
                 Payment History (Last 6 Months)
               </h3>
@@ -314,22 +315,22 @@ function PaymentHistory() {
                 <table className="w-full bg-white rounded-lg border border-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className={`px-4 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                         Month
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className={`px-4 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                         Amount
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className={`px-4 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                         Status
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className={`px-4 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                         Payment Date
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className={`px-4 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                         Payment Method
                       </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className={`px-4 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                         Invoice
                       </th>
                     </tr>
@@ -337,10 +338,10 @@ function PaymentHistory() {
                   <tbody className="divide-y divide-gray-200">
                     {paymentHistory.map((historyItem) => (
                       <tr key={historyItem.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                        <td className={`px-4 py-3 text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                           {historyItem.month}
                         </td>
-                        <td className="px-4 py-3 text-sm font-bold text-gray-900">
+                        <td className={`px-4 py-3 text-sm font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                           {formatCurrency(historyItem.amount)}
                         </td>
                         <td className="px-4 py-3">
@@ -351,12 +352,12 @@ function PaymentHistory() {
                             {historyItem.status}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">
+                        <td className={`px-4 py-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                           {historyItem.paymentDate}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">
+                        <td className={`px-4 py-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                           <div className="flex items-center gap-2">
-                            <LuCreditCard size={14} className="text-gray-400" />
+                            <LuCreditCard size={14} className={TAILWIND_COLORS.TEXT_MUTED} />
                             {historyItem.paymentMethod}
                           </div>
                         </td>
@@ -372,26 +373,26 @@ function PaymentHistory() {
 
             {/* Additional Information */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
                 <LuFileText className="text-purple-600" size={20} />
                 Additional Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Billing Address</label>
-                  <p className="text-gray-800">123 Business Street, Tech City, TC 12345</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Billing Address</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>123 Business Street, Tech City, TC 12345</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Tax ID</label>
-                  <p className="text-gray-800">TAX-2024-TC-001</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Tax ID</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>TAX-2024-TC-001</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Payment Terms</label>
-                  <p className="text-gray-800">Net 30 Days</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Payment Terms</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Net 30 Days</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Auto-Renewal</label>
-                  <p className="text-gray-800">Enabled</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Auto-Renewal</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Enabled</p>
                 </div>
               </div>
             </div>
@@ -419,9 +420,9 @@ function PaymentHistory() {
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
               <span className="text-blue-600 text-lg font-bold">💰</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Payment History & Subscription Status</h2>
+            <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Payment History & Subscription Status</h2>
           </div>
-          <p className="text-gray-600 mt-1">Monitor payment transactions and subscription management</p>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Monitor payment transactions and subscription management</p>
         </div>
         
         {/* Time Filter */}
@@ -429,14 +430,14 @@ function PaymentHistory() {
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
-            className="appearance-none bg-gray-50 text-gray-700 px-4 py-2 pr-8 rounded-lg text-sm font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`appearance-none bg-gray-50 ${TAILWIND_COLORS.TEXT_PRIMARY} px-4 py-2 pr-8 rounded-lg text-sm font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500`}
           >
             {timeFilterOptions.map((option) => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <span className="text-gray-500">▼</span>
+            <span className={TAILWIND_COLORS.TEXT_MUTED}>▼</span>
           </div>
         </div>
       </div>
@@ -447,8 +448,8 @@ function PaymentHistory() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">₹4,50,000</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Total Revenue</p>
+              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>₹4,50,000</p>
               <p className="text-sm text-green-600 mt-1">+15% from last month</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -461,7 +462,7 @@ function PaymentHistory() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Pending Payments</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Pending Payments</p>
               <p className="text-2xl font-bold text-red-600">₹45,000</p>
               <p className="text-sm text-red-600 mt-1">3 overdue invoices</p>
             </div>
@@ -475,8 +476,8 @@ function PaymentHistory() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Active Subscriptions</p>
-              <p className="text-2xl font-bold text-gray-900">1,234</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Active Subscriptions</p>
+              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>1,234</p>
               <p className="text-sm text-green-600 mt-1">98% retention rate</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -489,31 +490,31 @@ function PaymentHistory() {
       {/* Payment History Table */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Payment History</h3>
+          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Payment History</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Company
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Subscription Plan
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Amount
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Payment Date
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Status
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Invoice
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Actions
                 </th>
               </tr>
@@ -522,15 +523,15 @@ function PaymentHistory() {
               {paymentData.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{item.company}</div>
+                    <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{item.company}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getPlanBadge(item.subscriptionPlan)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-bold text-gray-900">{formatCurrency(item.amount)}</div>
+                    <div className={`text-sm font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{formatCurrency(item.amount)}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     {item.paymentDate}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
