@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { LuChevronLeft, LuChevronRight } from 'react-icons/lu'
 
-const Calendar = ({ selectedDate = new Date(), onDateSelect, className = '' }) => {
+const Calendar = ({ selectedDate = new Date(), onDateSelect, interviewDates = [], className = '' }) => {
   const [currentDate, setCurrentDate] = useState(new Date()) // Current date
   
   const months = [
@@ -44,16 +44,19 @@ const Calendar = ({ selectedDate = new Date(), onDateSelect, className = '' }) =
   
   const isSelected = (date) => {
     if (!date) return false
-    if (!selectedDate) return false
-    if (!(selectedDate instanceof Date)) return false
-    if (!(date instanceof Date)) return false
-    return date.toDateString() === selectedDate.toDateString()
+    if (selectedDate === null || selectedDate === undefined) return false
+    return date.getDate() === selectedDate
   }
   
   const isToday = (date) => {
     if (!date) return false
     const today = new Date()
     return date.toDateString() === today.toDateString()
+  }
+  
+  const hasInterview = (date) => {
+    if (!date) return false
+    return interviewDates.includes(date.getDate())
   }
   
   const daysInMonth = getDaysInMonth(currentDate)
@@ -90,13 +93,14 @@ const Calendar = ({ selectedDate = new Date(), onDateSelect, className = '' }) =
         {daysInMonth.map((date, index) => (
           <button
             key={index}
-            onClick={() => date && onDateSelect && onDateSelect(date)}
+            onClick={() => date && onDateSelect && onDateSelect(date.getDate())}
             className={`
               w-8 h-8 text-sm rounded transition-colors flex items-center justify-center
               ${!date ? 'cursor-default' : 'hover:bg-gray-200 cursor-pointer'}
-              ${isSelected(date) ? 'bg-secondary-10 text-secondary font-bold border border-secondary ' : ''}
-              ${!isSelected(date) && isToday(date) ? 'bg-secondary-10 text-secondary font-bold border border-secondary ' : ''}
-              ${!isSelected(date) && !isToday(date) ? 'text-gray-700' : ''}
+              ${isSelected(date) ? 'bg-green-500 text-white font-bold border border-green-500' : ''}
+              ${!isSelected(date) && hasInterview(date) ? 'bg-green-100 text-green-600 font-semibold border border-green-300' : ''}
+              ${!isSelected(date) && !hasInterview(date) && isToday(date) ? 'bg-gray-200 text-gray-800 font-bold border border-gray-300' : ''}
+              ${!isSelected(date) && !hasInterview(date) && !isToday(date) ? 'text-gray-700' : ''}
             `}
             disabled={!date}
           >

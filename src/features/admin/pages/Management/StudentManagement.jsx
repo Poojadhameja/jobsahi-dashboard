@@ -487,21 +487,7 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
 function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent, autoScrollEnabled, setAutoScrollEnabled, onViewCV, onDelete }) {
   const allSelected = selectedStudents.length === students.length && students.length > 0
 
-  // Auto scroll effect
-  React.useEffect(() => {
-    if (autoScrollEnabled && students.length > 0) {
-      const interval = setInterval(() => {
-        const tableContainer = document.querySelector('.student-table-container');
-        if (tableContainer) {
-          tableContainer.scrollTop += 1;
-          if (tableContainer.scrollTop >= tableContainer.scrollHeight - tableContainer.clientHeight) {
-            tableContainer.scrollTop = 0;
-          }
-        }
-      }, 50);
-      return () => clearInterval(interval);
-    }
-  }, [autoScrollEnabled, students.length]);
+
 
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>

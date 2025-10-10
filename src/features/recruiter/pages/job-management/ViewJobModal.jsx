@@ -6,10 +6,10 @@ const ViewJobModal = ({ isOpen, onClose, job }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-6xl w-full max-h-[95vh] overflow-y-auto shadow-2xl">
-        {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-900">JOB DETAILS</h2>
+      <div className="bg-white rounded-xl max-w-6xl w-full max-h-[95vh] flex flex-col shadow-2xl">
+        {/* Fixed Header */}
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
+          <h2 className="text-2xl font-semibold text-[var(--color-primary)]">JOB DETAILS</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -18,8 +18,9 @@ const ViewJobModal = ({ isOpen, onClose, job }) => {
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-8">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-8">
           {/* Basic Information Form */}
           <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
             <h2 className="text-xl font-bold text-gray-900 mb-8">Basic Information</h2>
@@ -340,16 +341,17 @@ const ViewJobModal = ({ isOpen, onClose, job }) => {
               </div>
             </div>
           </div>
-        </div>
+          </div>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
-          <button
-            onClick={onClose}
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-          >
-            Close
-          </button>
+          {/* Footer */}
+          <div className="flex justify-end gap-4 p-6 border-t border-gray-200">
+            <button
+              onClick={onClose}
+              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            >
+              Close
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -409,8 +409,6 @@ export default function OrderHistory() {
     )
   }
 
-  // Auto scroll effect
-  // React.usy
   
 
   return (
