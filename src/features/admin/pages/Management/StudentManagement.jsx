@@ -491,47 +491,11 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
 
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-        {/* <div className="flex items-center gap-2">
-          <LuUsers className="text-gray-600" size={20} />
-          <h3 className="font-medium text-gray-800">All Student Profiles</h3>
-        </div> */}
-
-        {/* Auto Scroll Toggle */}
-        {/* <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-700">Auto Scroll</span>
-          <button
-            type="button"
-            onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
-              }`}
-            style={{
-              backgroundColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined,
-              focusRingColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined
-            }}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
-                }`}
-            />
-          </button>
-        </div> */}
-
-        {/* <div className="relative w-full sm:w-auto">
-          <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
-          <input
-            type="text"
-            placeholder="Search by name, email, or student ID..."
-            className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-80"
-          />
-        </div> */}
-      </div>
-
        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
          <div className="flex items-center gap-2">
            <LuUsers className="text-gray-600" size={20} />
            <h3 className="font-medium text-gray-800">All Student Profiles</h3>
-         </div>         
+         </div>
          <div className="relative w-full sm:w-auto">
            <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
            <input 
