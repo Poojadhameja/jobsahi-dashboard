@@ -52,7 +52,7 @@ function Pills({ items = [], activeKey, onChange }) {
 
 export default function CreateAccount() {
   const navigate = useNavigate()
-  const [role, setRole] = useState('Student') // Admin | Recruiter | Institute | Student
+  const [role, setRole] = useState('Admin') // Admin | Recruiter | Institute | Student
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [form, setForm] = useState({
@@ -63,7 +63,6 @@ export default function CreateAccount() {
     fullName: '',
     officialEmail: '',
     mobileNumber: '',
-    adminRole: 'Super Admin',
     employeeId: '',
     profilePhoto: null,
     // Recruiter fields
@@ -171,7 +170,7 @@ export default function CreateAccount() {
         institute_address: form.instituteAddress,
         institute_website: form.instituteWebsite
       }
-    } else if (role === 'student') {
+    } else if (role === 'Admin') {
       payload = {
         ...payload,
         user_name: form.studentFullName,
@@ -319,31 +318,6 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Role*</label>
-                    <select
-                      value={form.adminRole}
-                      onChange={update('adminRole')}
-                      required
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    >
-                      <option value="Super Admin">Super Admin</option>
-                      <option value="Sub Admin">Sub Admin</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
-                  <input
-                    type="text"
-                    value={form.employeeId}
-                    onChange={update('employeeId')}
-                    placeholder="Enter employee ID (if organization based)"
-                    className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                  />
-                </div>
-
-                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Profile Photo (Optional)</label>
                   <input
                     type="file"
@@ -351,6 +325,7 @@ export default function CreateAccount() {
                     onChange={(e) => setForm((f) => ({ ...f, profilePhoto: e.target.files[0] }))}
                     className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                   />
+                </div>
                 </div>
               </>
             )}
