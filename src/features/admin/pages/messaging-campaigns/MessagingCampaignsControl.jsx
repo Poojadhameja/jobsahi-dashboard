@@ -5,6 +5,8 @@ import { PillNavigation } from '../../../../shared/components/navigation.jsx';
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';
 import { FilterButton, NewCampaignButton } from '../../../../shared/components/Button.jsx';
+import { LuX, LuSave, LuEye, LuPlay } from 'react-icons/lu';
+import Swal from 'sweetalert2';
 import SystemWidePush from './SystemWidePush.jsx';
 import SegmentBasedMessaging from './SegmentBasedMessaging.jsx';
 import EmailSmsCampaignsManager from './EmailSmsCampaignsManager.jsx'; 
@@ -22,6 +24,10 @@ const MessagingCampaignsView = () => {
       default: return 0; // 'messaging'
     }
   });
+
+  // State for campaign creation modal
+  const [campaignModal, setCampaignModal] = useState({ isOpen: false });
+  const [previewModal, setPreviewModal] = useState({ isOpen: false, content: null });
 
   useEffect(() => {
     const current = searchParams.get('tab');
@@ -41,9 +47,45 @@ const MessagingCampaignsView = () => {
   };
 
   const handleNewCampaignClick = () => {
-    console.log('New Campaign button clicked');
-    // Add new campaign functionality here
-    // For example: navigate to campaign creation, show modal, etc.
+    setCampaignModal({ isOpen: true });
+  };
+
+  const handleCloseCampaignModal = () => {
+    setCampaignModal({ isOpen: false });
+  };
+
+  const handleLaunchCampaign = (campaignData) => {
+    console.log('Launching campaign:', campaignData);
+    setCampaignModal({ isOpen: false });
+    
+    Swal.fire({
+      title: "Campaign Launched!",
+      text: `"${campaignData.campaignName}" has been launched successfully.`,
+      icon: "success",
+      timer: 3000,
+      showConfirmButton: false
+    });
+  };
+
+  const handleSaveDraft = (campaignData) => {
+    console.log('Saving draft:', campaignData);
+    setCampaignModal({ isOpen: false });
+    
+    Swal.fire({
+      title: "Draft Saved!",
+      text: `"${campaignData.campaignName}" has been saved as draft.`,
+      icon: "success",
+      timer: 3000,
+      showConfirmButton: false
+    });
+  };
+
+  const handlePreview = (campaignData) => {
+    setPreviewModal({ isOpen: true, content: campaignData });
+  };
+
+  const handleClosePreview = () => {
+    setPreviewModal({ isOpen: false, content: null });
   };
 
   // Navigation tabs data for messaging campaigns
@@ -87,7 +129,232 @@ const MessagingCampaignsView = () => {
     }
   ];
 
+  // New Campaign Modal Component
+  const NewCampaignModal = ({ isOpen, onClose, onLaunch, onSaveDraft, onPreview }) => {
+    const [campaignForm, setCampaignForm] = useState({
+      campaignName: '',
+      channel: '',
+      subjectLine: '',
+      campaignContent: ''
+    });
 
+    const handleInputChange = (field, value) => {
+      setCampaignForm(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleLaunch = () => {
+      // Validate form
+      if (!campaignForm.campaignName.trim() || !campaignForm.channel.trim() || !campaignForm.subjectLine.trim() || !campaignForm.campaignContent.trim()) {
+        Swal.fire({
+          title: "Validation Error",
+          text: "Please fill in all required fields!",
+          icon: "error"
+        });
+        return;
+      }
+
+      onLaunch(campaignForm);
+      
+      // Reset form
+      setCampaignForm({
+        campaignName: '',
+        channel: '',
+        subjectLine: '',
+        campaignContent: ''
+      });
+    };
+
+    const handleSaveDraft = () => {
+      // Validate at least campaign name
+      if (!campaignForm.campaignName.trim()) {
+        Swal.fire({
+          title: "Validation Error",
+          text: "Please enter a campaign name!",
+          icon: "error"
+        });
+        return;
+      }
+
+      onSaveDraft(campaignForm);
+      
+      // Reset form
+      setCampaignForm({
+        campaignName: '',
+        channel: '',
+        subjectLine: '',
+        campaignContent: ''
+      });
+    };
+
+    const handlePreview = () => {
+      if (!campaignForm.campaignName.trim()) {
+        Swal.fire({
+          title: "Validation Error",
+          text: "Please enter a campaign name!",
+          icon: "error"
+        });
+        return;
+      }
+
+      onPreview(campaignForm);
+    };
+
+    const handleClose = () => {
+      // Reset form when closing
+      setCampaignForm({
+        campaignName: '',
+        channel: '',
+        subjectLine: '',
+        campaignContent: ''
+      });
+      onClose();
+    };
+
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800">Create New Campaign</h2>
+            <button
+              onClick={handleClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            >
+              <LuX size={24} />
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-6">
+            {/* Campaign Name and Channel */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Campaign Name*</label>
+                <input
+                  type="text"
+                  value={campaignForm.campaignName}
+                  onChange={(e) => handleInputChange('campaignName', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Enter campaign name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Channel*</label>
+                <select
+                  value={campaignForm.channel}
+                  onChange={(e) => handleInputChange('channel', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">Select Channel</option>
+                  <option value="email">Email</option>
+                  <option value="sms">SMS</option>
+                  <option value="push">Push Notification</option>
+                  <option value="in-app">In-App Message</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Subject Line */}
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Subject Line*</label>
+              <input
+                type="text"
+                value={campaignForm.subjectLine}
+                onChange={(e) => handleInputChange('subjectLine', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Enter email subject or SMS preview"
+              />
+            </div>
+
+            {/* Campaign Content */}
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Campaign Content*</label>
+              <textarea
+                value={campaignForm.campaignContent}
+                onChange={(e) => handleInputChange('campaignContent', e.target.value)}
+                rows={6}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                placeholder="Enter your campaign message"
+              />
+            </div>
+          </div>
+          
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-between gap-3">
+            <button
+              onClick={handlePreview}
+              className="px-6 py-2 bg-white border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors duration-200 flex items-center gap-2"
+            >
+              <LuEye size={16} />
+              Preview
+            </button>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={handleSaveDraft}
+                className="px-6 py-2 bg-white border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors duration-200 flex items-center gap-2"
+              >
+                <LuSave size={16} />
+                Save Draft
+              </button>
+              <button
+                onClick={handleLaunch}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+              >
+                <LuPlay size={16} />
+                Launch Campaign
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Preview Modal Component
+  const PreviewModal = ({ isOpen, content, onClose }) => {
+    if (!isOpen || !content) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800">Campaign Preview</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            >
+              <LuX size={24} />
+            </button>
+          </div>
+          
+          <div className="p-6 space-y-4">
+            <div>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">{content.campaignName}</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                <strong>Channel:</strong> {content.channel} | <strong>Subject:</strong> {content.subjectLine}
+              </p>
+            </div>
+            
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <h4 className="font-medium text-gray-800 mb-2">Content Preview:</h4>
+              <div className="text-gray-700 whitespace-pre-wrap">
+                {content.campaignContent}
+              </div>
+            </div>
+          </div>
+          
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   
   return (
@@ -130,6 +397,22 @@ const MessagingCampaignsView = () => {
 
       {/* Notification Templates Manager Content */}
       {activeTab === 3 && <NotificationTemplatesManager />}
+
+      {/* New Campaign Modal */}
+      <NewCampaignModal
+        isOpen={campaignModal.isOpen}
+        onClose={handleCloseCampaignModal}
+        onLaunch={handleLaunchCampaign}
+        onSaveDraft={handleSaveDraft}
+        onPreview={handlePreview}
+      />
+
+      {/* Preview Modal */}
+      <PreviewModal
+        isOpen={previewModal.isOpen}
+        content={previewModal.content}
+        onClose={handleClosePreview}
+      />
 
     </div>
   );
