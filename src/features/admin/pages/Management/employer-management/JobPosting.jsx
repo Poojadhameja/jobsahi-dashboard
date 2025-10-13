@@ -12,7 +12,7 @@ import {
   LuFileText
 } from 'react-icons/lu'
 import { HiDotsVertical } from 'react-icons/hi'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 
 // Job Posting Analytics Component
 function JobPostingAnalytics() {

@@ -15,7 +15,7 @@ import {
   LuDollarSign
 } from 'react-icons/lu'
 import { HiDotsVertical } from 'react-icons/hi'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 
 // Payment History & Subscription Status Component
 function PaymentHistory() {

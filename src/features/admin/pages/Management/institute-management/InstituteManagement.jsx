@@ -16,7 +16,7 @@ import CertificateIssuance from './CertificateIssuance'
 import MessageInstitute from './MessageInstitute'
 import { getMethod } from '../../../../../service/api'
 import apiService from '../../../../admin/services/serviceUrl'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 
 
 export default function InstituteManagement() {

@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
+import { FilterButton, Button } from '../../../../shared/components/Button.jsx'
 
 export default function ErrorLogs() {
   const [logs, setLogs] = useState([
@@ -28,13 +30,13 @@ export default function ErrorLogs() {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Critical':
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-100 text-success'
       case 'Warning':
-        return 'bg-orange-100 text-orange-800'
+        return 'bg-yellow-100 text-warning'
       case 'Error':
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-100 text-error'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 text-text-muted'
     }
   }
 
@@ -50,20 +52,26 @@ export default function ErrorLogs() {
       <div className="">
         <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-xl font-semibold text-primary mb-2">
+            <h2 className="text-xl font-semibold text-text-primary mb-2">
               Crash/Error Logs
             </h2>
-            <p className="text-gray-600">
+            <p className="text-text-muted">
               Monitor system errors, crashes, and technical issues
             </p>
           </div>
           <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors duration-200 font-medium">
-              <span className="text-sm">Filter</span>
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors duration-200 font-medium">
-              <span className="text-sm">Export</span>
-            </button>
+            <FilterButton />
+            <Button 
+              variant="outline" 
+              size="md"
+              icon={
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              }
+            >
+              Export
+            </Button>
           </div>
         </div>
       </div>
@@ -75,13 +83,13 @@ export default function ErrorLogs() {
             <div key={log.id} className="flex items-center bg-white justify-between p-4 border border-[var(--color-primary)28] rounded-lg transition-colors">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                  <span className="text-gray-500 text-sm font-medium">
+                  <span className="text-text-muted text-sm font-medium">
                     {log.title.split(' ').map(word => word[0]).join('').substring(0, 2).toUpperCase()}
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{log.title}</p>
-                  <p className="text-gray-500 text-sm">{log.timestamp}</p>
+                  <p className="font-medium text-text-primary">{log.title}</p>
+                  <p className="text-text-muted text-sm">{log.timestamp}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -101,7 +109,7 @@ export default function ErrorLogs() {
                       }`}
                     />
                   </button>
-                  <span className="text-gray-700 text-sm">
+                  <span className="text-text-primary text-sm">
                     {log.isOpen ? 'Open' : 'Resolved'}
                   </span>
                 </div>

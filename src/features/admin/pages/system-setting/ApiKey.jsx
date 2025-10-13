@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { LuKey, LuRefreshCw, LuArrowLeft } from 'react-icons/lu';
-import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant';
-import { PrimaryButton } from '../../../../shared/components/Button';
+import { LuKey, LuRefreshCw } from 'react-icons/lu';
+import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js';
+import { PrimaryButton, BackToOverviewButton, OutlineButton } from '../../../../shared/components/Button';
 
 /* Small reusable toggle */
 const ToggleSwitch = ({ checked, onChange }) => (
@@ -94,13 +94,9 @@ export default function ApiKeyWebhookControl() {
         </div>
 
         {/* Back to overview button */}
-        <PrimaryButton
+        <BackToOverviewButton
           onClick={() => window.history.back()}
-          className="h-10 px-4 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-sm font-medium"
-          icon={<LuArrowLeft className="w-4 h-4" />}
-        >
-          Back to overview
-        </PrimaryButton>
+        />
       </div>
 
       {/* API Key Management & Webhook Configuration */}
@@ -120,20 +116,21 @@ export default function ApiKeyWebhookControl() {
                 <input
                   value={apiKey}
                   disabled
-                  className="flex-1 h-12 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                  className={`flex-1 h-12 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}
                 />
                 <div className="flex flex-col items-end gap-2">
                   <StatusPill
                     active={apiKeyActive}
                     onClick={() => setApiKeyActive((v) => !v)}
                   />
-                  <PrimaryButton
+                  <OutlineButton
                     onClick={handleRegenerateApi}
-                    className="h-8 px-3 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-xs font-medium"
+                    size="sm"
+                    className="h-8 px-3 text-xs"
                     icon={<LuRefreshCw className="h-3 w-3" />}
                   >
                     Regenerate
-                  </PrimaryButton>
+                  </OutlineButton>
                 </div>
               </div>
               <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Last used: {lastUsed}</p>
@@ -146,20 +143,21 @@ export default function ApiKeyWebhookControl() {
                 <input
                   value={webhookSecret}
                   disabled
-                  className="flex-1 h-12 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                  className={`flex-1 h-12 px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}
                 />
                 <div className="flex flex-col items-end gap-2">
                   <StatusPill
                     active={secretActive}
                     onClick={() => setSecretActive((v) => !v)}
                   />
-                  <PrimaryButton
+                  <OutlineButton
                     onClick={handleRegenerateSecret}
-                    className="h-8 px-3 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-xs font-medium"
+                    size="sm"
+                    className="h-8 px-3 text-xs"
                     icon={<LuRefreshCw className="h-3 w-3" />}
                   >
                     Regenerate
-                  </PrimaryButton>
+                  </OutlineButton>
                 </div>
               </div>
               <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Created: {createdAt}</p>
@@ -178,7 +176,7 @@ export default function ApiKeyWebhookControl() {
               <input
                 value={webhookUrl}
                 onChange={(e) => setWebhookUrl(e.target.value)}
-                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}
                 placeholder="https://jobsahiapp.com/webhooks"
               />
             </div>
@@ -219,14 +217,6 @@ export default function ApiKeyWebhookControl() {
             <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Configure API security and access controls</p>
           </div>
 
-          {/* Back to overview button */}
-          <PrimaryButton
-            onClick={() => window.history.back()}
-            className="h-10 px-4 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-sm font-medium"
-            icon={<LuArrowLeft className="w-4 h-4" />}
-          >
-            Back to overview
-          </PrimaryButton>
         </div>
 
         <div className="space-y-4">

@@ -486,6 +486,6 @@ export const BackToOverviewButton = ({
 export const CMSSaveButton = SaveButton;
 export const CMSBackButton = BackToOverviewButton;
 
+export { Button };
 export default Button;
-
 

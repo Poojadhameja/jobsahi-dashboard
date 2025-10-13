@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { LuBell, LuChevronDown, LuSearch, LuSave, LuEye, LuPlus } from "react-icons/lu";
-import { TAILWIND_COLORS } from "../../../../shared/WebConstant.js";
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from "../../../../shared/components/Button.jsx";
 import { PillNavigation } from "../../../../shared/components/navigation.jsx";
 

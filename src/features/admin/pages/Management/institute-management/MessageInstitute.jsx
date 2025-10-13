@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 import Button from '../../../../../shared/components/Button'
 import DynamicButton from '../../../../../shared/components/DynamicButton'
 

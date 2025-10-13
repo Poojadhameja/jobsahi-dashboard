@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 import Swal from 'sweetalert2'
 import {
   LuPaperclip,

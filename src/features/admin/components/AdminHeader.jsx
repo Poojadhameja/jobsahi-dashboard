@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { TAILWIND_COLORS, COLORS } from '../../../shared/WebConstant'
+import { TAILWIND_COLORS, COLORS } from '../../../shared/WebConstant.js'
 import Button from '../../../shared/components/Button.jsx'
 import UserDropdown from '../../../shared/components/UserDropdown.jsx'
 import DarkModeToggle from '../../../shared/components/DarkModeToggle.jsx'
