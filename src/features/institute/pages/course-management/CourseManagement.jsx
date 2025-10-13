@@ -4,6 +4,7 @@ import { LuPlus, LuSettings } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
 import { CourseProvider } from '../../context/CourseContext'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import CreateCourse from './CreateCourse'
 import ManageCourse from './ManageCourse'
 
@@ -35,7 +36,7 @@ export default function CourseManagement() {
 
   return (
     <CourseProvider>
-      <div className="p-2 bg-[#F6FAFF] min-h-screen">
+      <div className={`p-2 ${TAILWIND_COLORS.BG_PRIMARY} min-h-screen`}>
         {/* Header Section */}
         <div className="mb-6">
           <MatrixCard 

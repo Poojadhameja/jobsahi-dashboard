@@ -19,7 +19,9 @@ export const removeAuthToken = () => {
 export const removeToken = () => {
     localStorage.removeItem("authToken");
     localStorage.clear();
-    window.location.href = "/login";
+    // Note: This function should be called from a component that has access to navigate
+    // For now, we'll use window.location.reload() as fallback
+    window.location.reload();
 };
 
 export const checkAuth = () => {

@@ -1,4 +1,7 @@
 import React, { useState } from 'react'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import Button from '../../../../../shared/components/Button'
+import DynamicButton from '../../../../../shared/components/DynamicButton'
 
 // Message Specific Institute Component
 function MessageSpecificInstitute() {
@@ -45,7 +48,7 @@ function MessageSpecificInstitute() {
         <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
           <span className="text-white text-sm font-bold">✓</span>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">Message Specific Institute</h2>
+        <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Message Specific Institute</h2>
       </div>
 
       {/* Message Form */}
@@ -53,7 +56,7 @@ function MessageSpecificInstitute() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Institute Selection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Select Institute</h3>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Select Institute</h3>
             
             {/* Institute List */}
             <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -67,8 +70,8 @@ function MessageSpecificInstitute() {
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <div className="font-medium text-gray-900">{institute.name}</div>
-                  <div className="text-sm text-gray-500">{institute.location}</div>
+                  <div className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{institute.name}</div>
+                  <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{institute.location}</div>
                 </div>
               ))}
             </div>
@@ -76,11 +79,11 @@ function MessageSpecificInstitute() {
 
           {/* Right Column - Message Details */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Message Details</h3>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Message Details</h3>
             
             {/* Message Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>
                 Message Type
               </label>
               <select
@@ -97,7 +100,7 @@ function MessageSpecificInstitute() {
 
             {/* Subject */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>
                 Subject
               </label>
               <input
@@ -111,7 +114,7 @@ function MessageSpecificInstitute() {
 
             {/* Message Content */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>
                 Message Content
               </label>
               <textarea
@@ -125,23 +128,25 @@ function MessageSpecificInstitute() {
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4">
-              <button
+              <Button
                 onClick={handleSendMessage}
-                className="px-6 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors duration-200 font-medium"
+                variant="primary"
+                size="md"
               >
                 Send Message
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   setSelectedInstitute('')
                   setMessageType('')
                   setMessageSubject('')
                   setMessageContent('')
                 }}
-                className="px-6 py-2 border-2 border-[var(--color-secondary)] hover:text-white rounded-lg hover:bg-[var(--color-secondary)] transition-colors duration-200 font-medium"
+                variant="outline"
+                size="md"
               >
                 Clear
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -149,14 +154,14 @@ function MessageSpecificInstitute() {
 
       {/* Recent Messages */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Messages</h3>
+        <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Recent Messages</h3>
         <div className="space-y-3">
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="flex justify-between items-start">
               <div>
-                <div className="font-medium text-gray-900">Course Update Notification</div>
-                <div className="text-sm text-gray-500">Sent to SPI Tech Institute</div>
-                <div className="text-xs text-gray-400">2 hours ago</div>
+                <div className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course Update Notification</div>
+                <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Sent to SPI Tech Institute</div>
+                <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>2 hours ago</div>
               </div>
               <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
                 Sent
@@ -167,9 +172,9 @@ function MessageSpecificInstitute() {
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="flex justify-between items-start">
               <div>
-                <div className="font-medium text-gray-900">Certificate Ready</div>
-                <div className="text-sm text-gray-500">Sent to Xaviers Institute</div>
-                <div className="text-xs text-gray-400">1 day ago</div>
+                <div className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Certificate Ready</div>
+                <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Sent to Xaviers Institute</div>
+                <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>1 day ago</div>
               </div>
               <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
                 Sent
@@ -180,9 +185,9 @@ function MessageSpecificInstitute() {
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="flex justify-between items-start">
               <div>
-                <div className="font-medium text-gray-900">Payment Reminder</div>
-                <div className="text-sm text-gray-500">Sent to National IT Academy</div>
-                <div className="text-xs text-gray-400">3 days ago</div>
+                <div className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Payment Reminder</div>
+                <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Sent to National IT Academy</div>
+                <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>3 days ago</div>
               </div>
               <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
                 Sent

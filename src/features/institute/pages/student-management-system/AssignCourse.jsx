@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { LuCheck, LuEye } from 'react-icons/lu'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import Button from '../../../../shared/components/Button'
 
 const AssignCourse = () => {
   const [selectedStudents, setSelectedStudents] = useState([])
@@ -195,7 +197,7 @@ const AssignCourse = () => {
         {/* Left Panel: Assign Students to Course/Batch */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Assign Students to Course/Batch</h2>
+            <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Assign Students to Course/Batch</h2>
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
@@ -203,7 +205,7 @@ const AssignCourse = () => {
                 onChange={(e) => handleSelectAll(e.target.checked)}
                 className="rounded border-gray-300 text-[#5B9821] focus:ring-[#5B9821]"
               />
-              <span className="text-sm text-gray-600">Select All</span>
+              <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select All</span>
             </div>
           </div>
 
@@ -222,8 +224,8 @@ const AssignCourse = () => {
                 />
                 
                 <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-gray-900">{student.name}</h3>
-                  <p className="text-xs text-gray-600">
+                  <h3 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</h3>
+                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
                     Current: {student.currentCourse} - {student.currentBatch}
                   </p>
                 </div>
@@ -247,12 +249,12 @@ const AssignCourse = () => {
 
         {/* Right Panel: Assignment Options */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Assignment Options</h2>
+          <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Assignment Options</h2>
           
           <div className="space-y-6">
             {/* New Course */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 New Course
               </label>
               <select
@@ -271,7 +273,7 @@ const AssignCourse = () => {
 
             {/* New Batch */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 New Batch
               </label>
               <select
@@ -290,7 +292,7 @@ const AssignCourse = () => {
 
             {/* Assignment Reason */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Assignment Reason
               </label>
               <textarea
@@ -305,28 +307,30 @@ const AssignCourse = () => {
 
             {/* Action Buttons */}
             <div className="flex space-x-3 pt-4">
-              <button
+              <Button
                 onClick={handleAssignSelected}
-                className="flex-1 px-6 py-2 bg-[#5B9821] text-white rounded-lg hover:bg-[#3f6917] transition-colors font-medium flex items-center justify-center gap-2"
+                variant="primary"
+                icon={<LuCheck className="w-4 h-4" />}
+                fullWidth
               >
-                <LuCheck className="w-4 h-4" />
                 Assign Selected
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handlePreviewChanges}
-                className="flex-1 px-6 py-2 bg-white text-[#5B9821] border border-[#5B9821] rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center justify-center gap-2"
+                variant="outline"
+                icon={<LuEye className="w-4 h-4" />}
+                fullWidth
               >
-                <LuEye className="w-4 h-4" />
                 Preview Changes
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* Assignment Summary */}
           {selectedStudents.length > 0 && (assignmentData.newCourse || assignmentData.newBatch) && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-900 mb-2">Assignment Summary</h3>
-              <div className="text-sm text-gray-600 space-y-1">
+              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Assignment Summary</h3>
+              <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} space-y-1`}>
                 <p><span className="font-medium">Selected Students:</span> {selectedStudents.length}</p>
                 {assignmentData.newCourse && (
                   <p><span className="font-medium">New Course:</span> {assignmentData.newCourse}</p>

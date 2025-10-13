@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { LuSearch, LuChevronDown, LuCalendar, LuLink, LuEye, LuPencil, LuTrash2, LuBuilding } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { useCourseContext } from '../../context/CourseContext'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import ViewCoursePopup from './ViewCoursePopup'
 import EditCoursePopup from './EditCoursePopup'
 
@@ -194,22 +195,22 @@ export default function ManageCourse() {
       {/* Course Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {currentCourses.map((course) => (
-          <div key={course.id} className="bg-white rounded-lg p-6 border border-gray-200">
+          <div key={course.id} className={`${TAILWIND_COLORS.CARD} p-6`}>
             {/* Team and Status */}
             <div className="flex justify-between items-center mb-3">
-              <span className="text-sm text-gray-600">{course.team}</span>
-              <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+              <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{course.team}</span>
+              <span className={`${TAILWIND_COLORS.BADGE_SUCCESS} text-xs font-medium px-2.5 py-0.5 rounded-full`}>
                 {course.status}
               </span>
             </div>
 
             {/* Course Title */}
-            <h3 className="text-lg font-bold text-gray-900 mb-2">{course.title}</h3>
+            <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>{course.title}</h3>
 
             {/* Category */}
             <div className="flex items-center gap-2 mb-3">
-              <LuBuilding className="w-4 h-4 text-gray-500" />
-              <span className="text-xs font-medium text-gray-600 uppercase">{course.category}</span>
+              <LuBuilding className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
+              <span className={`text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase`}>{course.category}</span>
             </div>
 
             {/* Skills Tags */}
@@ -217,56 +218,56 @@ export default function ManageCourse() {
               {course.skills.map((skill, index) => (
                 <span
                   key={index}
-                  className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full"
+                  className={`${TAILWIND_COLORS.BADGE_SUCCESS} text-xs font-medium px-2 py-1 rounded-full`}
                 >
                   {skill}
                 </span>
               ))}
               {course.additionalSkills > 0 && (
-                <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                <span className={`${TAILWIND_COLORS.BADGE_SUCCESS} text-xs font-medium px-2 py-1 rounded-full`}>
                   +{course.additionalSkills}
                 </span>
               )}
             </div>
 
             {/* Description */}
-            <p className="text-sm text-gray-600 mb-4 line-clamp-3">{course.description}</p>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-4 line-clamp-3`}>{course.description}</p>
 
             {/* Price and Actions */}
             <div className="flex items-center justify-between">
-              <div className="text-2xl font-bold text-gray-900">₹{course.price}</div>
+              <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>₹{course.price}</div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleBuyNow(course.id)}
-                  className="bg-[#5C9A24] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#3f6c17] transition-colors"
+                  className={`${TAILWIND_COLORS.BTN_PRIMARY} px-4 py-2 rounded-lg text-sm font-medium transition-colors`}
                 >
                   Buy Now
                 </button>
                 <div className="flex gap-1">
                   {/* <button
                     onClick={() => handleAction('link', course.id)}
-                    className="p-2 text-gray-500 hover:text-[#5C9A24] transition-colors"
+                    className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-[#5C9A24] transition-colors`}
                     title="Link"
                   >
                     <LuLink className="w-4 h-4" />
                   </button> */}
                   <button
                     onClick={() => handleAction('view', course.id)}
-                    className="p-2 text-gray-500 hover:text-[#5C9A24] transition-colors"
+                    className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-[#5C9A24] transition-colors`}
                     title="View"
                   >
                     <LuEye className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleAction('edit', course.id)}
-                    className="p-2 text-gray-500 hover:text-[#5C9A24] transition-colors"
+                    className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-[#5C9A24] transition-colors`}
                     title="Edit"
                   >
                     <LuPencil className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleAction('delete', course.id)}
-                    className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                    className="p-2 text-error hover:text-red-700 transition-colors"
                     title="Delete"
                   >
                     <LuTrash2 className="w-4 h-4" />
@@ -284,7 +285,7 @@ export default function ManageCourse() {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`px-3 py-2 text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} bg-white ${TAILWIND_COLORS.BORDER} rounded-lg hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             Previous
           </button>
@@ -296,7 +297,7 @@ export default function ManageCourse() {
               className={`px-3 py-2 text-sm font-medium rounded-lg ${
                 currentPage === page
                   ? 'bg-[#5C9A24] text-white'
-                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-white'
+                  : `${TAILWIND_COLORS.TEXT_MUTED} bg-white ${TAILWIND_COLORS.BORDER} hover:bg-white`
               }`}
             >
               {page}
@@ -306,7 +307,7 @@ export default function ManageCourse() {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`px-3 py-2 text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} bg-white ${TAILWIND_COLORS.BORDER} rounded-lg hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             Next
           </button>
@@ -333,31 +334,31 @@ export default function ManageCourse() {
       {/* Delete Confirmation Popup */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+          <div className={`${TAILWIND_COLORS.HEADER_BG} rounded-lg shadow-xl max-w-md w-full`}>
             <div className="p-6">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                  <LuTrash2 className="w-6 h-6 text-red-600" />
+                <div className={`w-12 h-12 ${TAILWIND_COLORS.BADGE_ERROR} rounded-full flex items-center justify-center`}>
+                  <LuTrash2 className="w-6 h-6 text-error" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Delete Course</h3>
-                  <p className="text-sm text-gray-600">This action cannot be undone.</p>
+                  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Delete Course</h3>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>This action cannot be undone.</p>
                 </div>
               </div>
-              <p className="text-gray-700 mb-6">
+              <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>
                 Are you sure you want to delete <strong>"{courseToDelete?.title}"</strong>? 
                 This will permanently remove the course and all its data.
               </p>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={handleDeleteCancel}
-                  className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  className={`px-4 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors`}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="px-4 py-2 bg-error text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
                   Delete Course
                 </button>

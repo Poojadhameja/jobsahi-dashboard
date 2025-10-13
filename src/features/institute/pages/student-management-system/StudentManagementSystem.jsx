@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { LuPlus, LuUsers, LuBookOpen, LuTrendingUp, LuMessageSquare, LuEye } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import ViewStudents from './ViewStudents'
 import AddStudents from './AddStudents'
 import AssignCourse from './AssignCourse'
@@ -45,7 +46,7 @@ export default function StudentManagementSystem() {
   }
 
   return (
-    <div className="p-2">
+    <div className={`p-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Header Section with MatrixCard */}
       <div className="mb-5">
         <MatrixCard 
@@ -66,7 +67,7 @@ export default function StudentManagementSystem() {
       </div>
 
       {/* Conditional Content Rendering */}
-      <div className="mt-6">
+      <div className={`mt-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
         {activeTab === 0 && <ViewStudents />}
         {activeTab === 1 && <AddStudents />}
         {activeTab === 2 && <AssignCourse />}

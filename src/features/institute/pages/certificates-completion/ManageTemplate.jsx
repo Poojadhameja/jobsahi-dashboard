@@ -9,9 +9,11 @@ import {
   LuDownload,
   LuImage,
   LuCalendar,
-  LuFileImage
+  LuFileImage,
+  LuX
 } from 'react-icons/lu'
 import RichTextEditor from '../../../../shared/components/RichTextEditor'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 function ManageTemplate() {
   const [templates, setTemplates] = useState([
@@ -52,6 +54,10 @@ function ManageTemplate() {
     officialSeal: null
   })
 
+  // Drag states for both file uploads
+  const [dragActiveLogo, setDragActiveLogo] = useState(false)
+  const [dragActiveSeal, setDragActiveSeal] = useState(false)
+
   const handleDeleteTemplate = (id) => {
     setTemplates(templates.filter(template => template.id !== id))
   }
@@ -70,10 +76,55 @@ function ManageTemplate() {
     }))
   }
 
-  const handleFileUpload = (field, file) => {
+  const handleFileUpload = (field, e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setCertificateInfo(prev => ({
+        ...prev,
+        [field]: file
+      }))
+    }
+  }
+
+  const handleDrag = (e, field) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      if (field === 'instituteLogo') {
+        setDragActiveLogo(true)
+      } else {
+        setDragActiveSeal(true)
+      }
+    } else if (e.type === 'dragleave') {
+      if (field === 'instituteLogo') {
+        setDragActiveLogo(false)
+      } else {
+        setDragActiveSeal(false)
+      }
+    }
+  }
+
+  const handleDrop = (e, field) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (field === 'instituteLogo') {
+      setDragActiveLogo(false)
+    } else {
+      setDragActiveSeal(false)
+    }
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setCertificateInfo(prev => ({
+        ...prev,
+        [field]: e.dataTransfer.files[0]
+      }))
+    }
+  }
+
+  const removeFile = (field) => {
     setCertificateInfo(prev => ({
       ...prev,
-      [field]: file
+      [field]: null
     }))
   }
 
@@ -87,18 +138,18 @@ function ManageTemplate() {
       {/* Certificate Information Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-1">Certificate Information</h2>
-          <p className="text-sm text-gray-600">Create new certificate templates with custom logos and seals.</p>
+          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Certificate Information</h2>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Create new certificate templates with custom logos and seals.</p>
         </div>
 
         <div className="space-y-6">
           {/* Date of Completion */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-1">
-              <label className="block text-sm font-medium text-gray-900 mb-1">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                 DATE OF COMPLETION <span className="text-red-500">*</span>
               </label>
-              <p className="text-xs text-gray-500 mb-3">Choose the course to enroll the student.</p>
+              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>Choose the course to enroll the student.</p>
             </div>
             <div className="lg:col-span-3">
               <div className="relative">
@@ -108,7 +159,6 @@ function ManageTemplate() {
                   onChange={(e) => handleInputChange('completionDate', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent pr-10"
                 />
-                <LuCalendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
             </div>
           </div>
@@ -116,10 +166,10 @@ function ManageTemplate() {
           {/* Description */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-1">
-              <label className="block text-sm font-medium text-gray-900 mb-1">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                 DESCRIPTION <span className="text-red-500">*</span>
               </label>
-              <p className="text-xs text-gray-500 mb-3">Pick the batch for the selected course.</p>
+              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>Pick the batch for the selected course.</p>
             </div>
             <div className="lg:col-span-3">
               <RichTextEditor
@@ -134,36 +184,124 @@ function ManageTemplate() {
 
           {/* Logo and Seal Section */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Logo and Seal</h3>
+            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Logo and Seal</h3>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Institute Logo */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   INSTITUTE LOGO <span className="text-red-500">*</span>
                 </label>
-                <p className="text-xs text-gray-500 mb-3">Choose the course to enroll the student.</p>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors duration-200">
-                  <LuUpload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 mb-3">Upload logo image</p>
-                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors duration-200">
-                    Choose file
-                  </button>
+                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>Upload your institute logo (PNG, JPG, JPEG)</p>
+                <div 
+                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200 ${
+                    dragActiveLogo ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-green-400'
+                  }`}
+                  onDragEnter={(e) => handleDrag(e, 'instituteLogo')}
+                  onDragLeave={(e) => handleDrag(e, 'instituteLogo')}
+                  onDragOver={(e) => handleDrag(e, 'instituteLogo')}
+                  onDrop={(e) => handleDrop(e, 'instituteLogo')}
+                >
+                  {certificateInfo.instituteLogo ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-center">
+                        <LuFileImage className="w-10 h-10 text-green-600" />
+                      </div>
+                      <div>
+                        <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                          {certificateInfo.instituteLogo.name}
+                        </p>
+                        <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                          {(certificateInfo.instituteLogo.size / 1024).toFixed(2)} KB
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => removeFile('instituteLogo')}
+                        className="text-red-500 hover:text-red-700 transition-colors"
+                      >
+                        <LuX className="w-5 h-5 mx-auto" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <LuUpload className="h-8 w-8 text-gray-400 mx-auto" />
+                      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                        Drag and drop or click to upload
+                      </p>
+                      <input
+                        type="file"
+                        id="logo-upload"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={(e) => handleFileUpload('instituteLogo', e)}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="logo-upload"
+                        className={`inline-block bg-gray-100 hover:bg-gray-200 ${TAILWIND_COLORS.TEXT_MUTED} px-3 py-1 rounded text-sm transition-colors duration-200 cursor-pointer`}
+                      >
+                        Choose file
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Official Seal */}
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   OFFICIAL SEAL <span className="text-red-500">*</span>
                 </label>
-                <p className="text-xs text-gray-500 mb-3">Choose the course to enroll the student.</p>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-green-400 transition-colors duration-200">
-                  <LuUpload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 mb-3">Upload seal image</p>
-                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors duration-200">
-                    Choose file
-                  </button>
+                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>Upload your official seal (PNG, JPG, JPEG)</p>
+                <div 
+                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200 ${
+                    dragActiveSeal ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-green-400'
+                  }`}
+                  onDragEnter={(e) => handleDrag(e, 'officialSeal')}
+                  onDragLeave={(e) => handleDrag(e, 'officialSeal')}
+                  onDragOver={(e) => handleDrag(e, 'officialSeal')}
+                  onDrop={(e) => handleDrop(e, 'officialSeal')}
+                >
+                  {certificateInfo.officialSeal ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-center">
+                        <LuFileImage className="w-10 h-10 text-green-600" />
+                      </div>
+                      <div>
+                        <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                          {certificateInfo.officialSeal.name}
+                        </p>
+                        <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                          {(certificateInfo.officialSeal.size / 1024).toFixed(2)} KB
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => removeFile('officialSeal')}
+                        className="text-red-500 hover:text-red-700 transition-colors"
+                      >
+                        <LuX className="w-5 h-5 mx-auto" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <LuUpload className="h-8 w-8 text-gray-400 mx-auto" />
+                      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                        Drag and drop or click to upload
+                      </p>
+                      <input
+                        type="file"
+                        id="seal-upload"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={(e) => handleFileUpload('officialSeal', e)}
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="seal-upload"
+                        className={`inline-block bg-gray-100 hover:bg-gray-200 ${TAILWIND_COLORS.TEXT_MUTED} px-3 py-1 rounded text-sm transition-colors duration-200 cursor-pointer`}
+                      >
+                        Choose file
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -185,8 +323,8 @@ function ManageTemplate() {
       {/* Existing Template Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-1">Existing Template</h2>
-          <p className="text-sm text-gray-600">Manage your certificate template.</p>
+          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Existing Template</h2>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Manage your certificate template.</p>
         </div>
 
         {/* Certificate Preview */}
@@ -204,14 +342,14 @@ function ManageTemplate() {
 
               {/* Main Title */}
               <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-gray-800 mb-4" style={{ fontFamily: 'serif' }}>
+                <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`} style={{ fontFamily: 'serif' }}>
                   Certificate of Completion
                 </h1>
               </div>
 
               {/* Description */}
               <div className="text-center mb-8">
-                <p className="text-gray-700 leading-relaxed text-sm">
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} leading-relaxed text-sm`}>
                   Upon successful completion of the course, participants will receive a Certificate of Completion, 
                   recognizing their achievement and confirming that they have acquired the essential skills and 
                   knowledge outlined in the curriculum.
@@ -223,11 +361,11 @@ function ManageTemplate() {
 
               {/* Footer */}
               <div className="flex justify-between items-end">
-                <div className="text-xs text-gray-600">
+                <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   Date: 8/3/2025
                 </div>
                 <div className="text-center">
-                  <div className="text-sm font-bold text-gray-800 mb-2">POWER TECHNICIAN</div>
+                  <div className={`text-sm font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>POWER TECHNICIAN</div>
                 </div>
                 <div className="w-16 h-12 bg-gray-200 rounded"></div>
               </div>

@@ -14,6 +14,7 @@ import ProfileSetting from './pages/profile-setting/ProfileSetting.jsx'
 import InstituteProfile from './pages/profile-setting/InstituteProfile.jsx'
 import StaffManagement from './pages/profile-setting/StaffManagement.jsx'
 import NotificationPreferences from './pages/profile-setting/NotificationPreferences.jsx'
+import Message from './pages/batch-management/Message.jsx'
 
 export default function InstituteRoutes() {
   return (
@@ -32,6 +33,7 @@ export default function InstituteRoutes() {
         <Route path="profile-setting/institute-profile" element={<InstituteProfile />} />
         <Route path="profile-setting/staff-management" element={<StaffManagement />} />
         <Route path="profile-setting/notification-preferences" element={<NotificationPreferences />} />
+        <Route path="message" element={<Message />} />
         <Route path="*" element={<Navigate to="dashboard" replace />} />
       </Route>
     </Routes>

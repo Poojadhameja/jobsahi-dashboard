@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant'
 import { MatrixCard, MetricPillRow } from '../../../../../shared/components/metricCard'
+import Button from '../../../../../shared/components/Button'
 import PendingRecruiterApprovals from './PendingRecruiter'
 import JobPostingAnalytics from './JobPosting'
 import PaymentHistory from './Payment'
@@ -9,25 +10,21 @@ import EmployerRatings from './EmployerRating'
 import ResumeUsageTracker from './ResumeUsage'
 import FraudControlSystem from './FraudControl'
 import {
-  LuBriefcase,
   LuBuilding,
   LuUsers,
-  LuTrendingUp,
   LuSearch,
-  LuFilter,
-  LuPlus,
   LuDownload,
-  LuMessageSquare
+  LuMenu
 } from 'react-icons/lu'
 import { getMethod } from '../../../../../service/api'
-import apiService from '../../../../../service/serviceUrl'
+import apiService from '../../../../admin/services/serviceUrl'
 // KPI Card Component
 function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-600 mb-1">{title}</p>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>{title}</p>
           <p className="text-2xl font-bold" style={{ color }}>{value}</p>
         </div>
         <div
@@ -47,11 +44,11 @@ function EmployerTable({ employers }) {
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <LuBuilding className="text-gray-600" size={20} />
-          <h3 className="font-medium text-gray-800">All Employer Profiles</h3>
+          <LuBuilding className={TAILWIND_COLORS.TEXT_MUTED} size={20} />
+          <h3 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>All Employer Profiles</h3>
         </div>
         <div className="relative">
-          <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+          <LuSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`} size={16} />
           <input
             type="text"
             placeholder="Search by company name or email..."
@@ -63,7 +60,7 @@ function EmployerTable({ employers }) {
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="text-left text-gray-500 border-b">
+            <tr className={`text-left ${TAILWIND_COLORS.TEXT_MUTED} border-b`}>
               <th className="py-3 px-4 font-medium">Company</th>
               <th className="py-3 px-4 font-medium">Industry</th>
               <th className="py-3 px-4 font-medium">Location</th>
@@ -77,13 +74,13 @@ function EmployerTable({ employers }) {
               <tr key={employer.id} className="border-b hover:bg-gray-50">
                 <td className="py-4 px-4">
                   <div>
-                    <div className="font-medium text-gray-900">{employer.company}</div>
-                    <div className="text-gray-500 text-xs">{employer.email}</div>
+                    <div className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{employer.company}</div>
+                    <div className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs`}>{employer.email}</div>
                   </div>
                 </td>
-                <td className="py-4 px-4 text-gray-700">{employer.industry}</td>
-                <td className="py-4 px-4 text-gray-700">{employer.location}</td>
-                <td className="py-4 px-4 text-gray-700">{employer.activeJobs}</td>
+                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{employer.industry}</td>
+                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{employer.location}</td>
+                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{employer.activeJobs}</td>
                 <td className="py-4 px-4">
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     employer.status === 'Active'
@@ -95,7 +92,7 @@ function EmployerTable({ employers }) {
                 </td>
                 <td className="py-4 px-4">
                   <button className="p-1 hover:bg-gray-100 rounded">
-                    <span className="text-gray-400 text-sm">⋯</span>
+                    <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>⋯</span>
                   </button>
                 </td>
               </tr>
@@ -130,7 +127,7 @@ export default function EmployerManagement() {
         };
 
         var response = await getMethod(data);
-        console.log(response)
+        // console.log(response)
         if (response.status === true) {
           // Map API response to required format
           const formatted = response.data.map((item, index) => ({
@@ -142,7 +139,7 @@ export default function EmployerManagement() {
           }));
 
           const pendingFormatted = response.data
-          .filter((item) => item.profile.status !== "approved")
+          .filter((item) => item.profile.admin_action !== "approved")
           .map((item, index) => ({
             id: item.user_id, // or just use index+1 if you want serial id
             email: item.email,
@@ -242,11 +239,7 @@ export default function EmployerManagement() {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="bg-primary text-white p-3 rounded-lg shadow-lg transition-colors duration-200 hover:bg-primary-dark"
         >
-          <div className="flex flex-col space-y-1">
-            <div className="w-6 h-0.5 bg-white"></div>
-            <div className="w-6 h-0.5 bg-white"></div>
-            <div className="w-6 h-0.5 bg-white"></div>
-          </div>
+          <LuMenu size={24} />
         </button>
 
         {/* Dropdown Menu */}
@@ -254,66 +247,72 @@ export default function EmployerManagement() {
           <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
             {/* Menu Items */}
             <div className="py-2">
-              <button
+              <Button
                 onClick={() => { setActiveView('approve-reject'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'approve-reject'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Approve/Reject
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => { setActiveView('job-tracking'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'job-tracking'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Job Tracking
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => { setActiveView('payments'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'payments'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Payments
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => { setActiveView('ratings'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'ratings'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Ratings
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => { setActiveView('resume-usage'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'resume-usage'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Resume Usage
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => { setActiveView('fraud-control'); setIsDropdownOpen(false); }}
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 ${
+                variant="unstyled"
+                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
                   activeView === 'fraud-control'
                     ? 'bg-primary text-white'
                     : 'text-primary hover:bg-gray-50'
                   }`}
               >
                 Fraud Control
-              </button>
+              </Button>
             </div>
           </div>
         )}

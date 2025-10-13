@@ -3,6 +3,11 @@ import { jwtDecode } from "jwt-decode";
 
 
 const RoleRoute = ({ children, allowedRoles }) => {
+    // Bypass authentication - allow access without login
+    return children;
+    
+    // Original authentication code (commented out for bypass)
+    /*
     const token = localStorage.getItem("authToken");
     const user = JSON.parse(localStorage.getItem("authUser"));
 
@@ -14,6 +19,7 @@ const RoleRoute = ({ children, allowedRoles }) => {
     }
 
     return allowedRoles.includes(user.role) ? children : <Navigate to="/login" replace />;
+    */
 };
 
 export default RoleRoute;

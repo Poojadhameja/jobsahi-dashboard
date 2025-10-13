@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 
 // Job Flag/Review System (Fraud/spam control) Component
 function FraudControlSystem() {
@@ -103,11 +104,11 @@ function FraudControlSystem() {
         <div>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-              <span className="text-gray-600 text-lg font-bold">📋</span>
+              <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-lg font-bold`}>📋</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Job Flag/Review System (Fraud/spam control)</h2>
+            <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Flag/Review System (Fraud/spam control)</h2>
           </div>
-          <p className="text-gray-600 mt-1">Monitor & moderate flagged job postings and suspicious activities</p>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Monitor & moderate flagged job postings and suspicious activities</p>
         </div>
         
         {/* Time Filter */}
@@ -115,14 +116,14 @@ function FraudControlSystem() {
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
-            className="appearance-none bg-gray-50 text-gray-700 px-4 py-2 pr-8 rounded-lg text-sm font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`appearance-none bg-gray-50 ${TAILWIND_COLORS.TEXT_PRIMARY} px-4 py-2 pr-8 rounded-lg text-sm font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500`}
           >
             {timeFilterOptions.map((option) => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <span className="text-gray-500">▼</span>
+            <span className={TAILWIND_COLORS.TEXT_MUTED}>▼</span>
           </div>
         </div>
       </div>
@@ -133,9 +134,9 @@ function FraudControlSystem() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Total Flags</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Total Flags</p>
               <p className="text-2xl font-bold text-red-600">23</p>
-              <p className="text-sm text-gray-500 mt-1">This month</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>This month</p>
             </div>
             <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
               <span className="text-red-600 text-xl">🚩</span>
@@ -147,9 +148,9 @@ function FraudControlSystem() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Under Review</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Under Review</p>
               <p className="text-2xl font-bold text-orange-600">8</p>
-              <p className="text-sm text-gray-500 mt-1">Pending action</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Pending action</p>
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
               <span className="text-orange-600 text-xl">⏳</span>
@@ -161,9 +162,9 @@ function FraudControlSystem() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Resolved</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Resolved</p>
               <p className="text-2xl font-bold text-green-600">12</p>
-              <p className="text-sm text-gray-500 mt-1">This month</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>This month</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
               <span className="text-green-600 text-xl">✅</span>
@@ -175,9 +176,9 @@ function FraudControlSystem() {
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 mb-1">Blocked Jobs</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Blocked Jobs</p>
               <p className="text-2xl font-bold text-red-600">3</p>
-              <p className="text-sm text-gray-500 mt-1">Spam/Fraud</p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Spam/Fraud</p>
             </div>
             <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
               <span className="text-red-600 text-xl">🚫</span>
@@ -189,28 +190,28 @@ function FraudControlSystem() {
       {/* Job Flagging Details Table */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Job Flagging Details</h3>
+          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Flagging Details</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Job Title
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Company
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Flag Reason
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Severity
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Status
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Actions
                 </th>
               </tr>
@@ -219,13 +220,13 @@ function FraudControlSystem() {
               {flaggedJobsData.map((job) => (
                 <tr key={job.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{job.jobTitle}</div>
+                    <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{job.jobTitle}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{job.company}</div>
+                    <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{job.company}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{job.flagReason}</div>
+                    <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{job.flagReason}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getSeverityBadge(job.severity)}
@@ -236,7 +237,7 @@ function FraudControlSystem() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <button
                       onClick={() => handleReview(job.id)}
-                      className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                     >
                       <span className="mr-1">👁️</span>
                       Review

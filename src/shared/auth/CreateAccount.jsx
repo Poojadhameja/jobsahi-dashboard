@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuUsers } from 'react-icons/lu'
@@ -6,7 +7,7 @@ import { LuGraduationCap } from 'react-icons/lu'
 import { FaUserShield, FaBuilding, FaSchool, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
-import apiService from '../../service/serviceUrl'
+import apiService from '../../shared/services/serviceUrl'
 
 function Pills({ items = [], activeKey, onChange }) {
   return (
@@ -50,7 +51,8 @@ function Pills({ items = [], activeKey, onChange }) {
 }
 
 export default function CreateAccount() {
-  const [role, setRole] = useState('Student') // Admin | Recruiter | Institute | Student
+  const navigate = useNavigate()
+  const [role, setRole] = useState('Admin') // Admin | Recruiter | Institute | Student
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [form, setForm] = useState({
@@ -61,11 +63,12 @@ export default function CreateAccount() {
     fullName: '',
     officialEmail: '',
     mobileNumber: '',
-    adminRole: 'Super Admin',
     employeeId: '',
     profilePhoto: null,
     // Recruiter fields
     companyName: '',
+    companyEmail: '',
+    companyContact: '',
     companyWebsite: '',
     designation: '',
     industryType: '',
@@ -123,11 +126,13 @@ export default function CreateAccount() {
     // Prepare payload based on role
     let payload = {
       password: form.password,
-      role: role,
-      verified: ''
+      role: role.toLowerCase(), // Convert to lowercase for API
+      verified: '1', // Set as verified by default
+      is_verified: 1, // Additional verification field
+      status: 'active' // Set account status as active
     }
 
-    if (role === 'admin') {
+    if (role === 'Admin') {
       payload = {
         ...payload,
         user_name: form.fullName,
@@ -137,18 +142,20 @@ export default function CreateAccount() {
         employee_id: form.employeeId,
         profile_photo: form.profilePhoto
       }
-    } else if (role === 'recruiter') {
+    } else if (role === 'Recruiter') {
       payload = {
         ...payload,
         user_name: form.companyName,
-        email: form.companyWebsite,
-        phone_number: form.designation,
+        email: form.companyEmail,
+        phone_number: form.companyContact,
         industry_type: form.industryType,
         office_address: form.officeAddress,
         company_logo: form.companyLogo,
-        gst_pan: form.gstPan
+        gst_pan: form.gstPan,
+        company_website: form.companyWebsite,
+        designation: form.designation
       }
-    } else if (role === 'institute') {
+    } else if (role === 'Institute') {
       payload = {
         ...payload,
         user_name: form.instituteName,
@@ -163,10 +170,10 @@ export default function CreateAccount() {
         institute_address: form.instituteAddress,
         institute_website: form.instituteWebsite
       }
-    } else if (role === 'Student') {
+    } else if (role === 'Admin') {
       payload = {
         ...payload,
-        name: form.studentFullName,
+        user_name: form.studentFullName,
         email: form.studentEmail,
         phone_number: form.studentMobileNumber,
         date_of_birth: form.dateOfBirth,
@@ -194,31 +201,53 @@ export default function CreateAccount() {
       };
 
       var response = await postMethod(data);
-      console.log(response)
-      console.log(role)
+      console.log('Full API Response:', response)
+      console.log('Response Status:', response.status)
+      console.log('Response Success:', response.success)
+      console.log('HTTP Status:', response.httpStatus)
+      console.log('Role:', role)
       
-      if (response.status === true) {
+      // Check multiple success conditions including HTTP status
+      // Also check that it's not an error message
+      const isSuccess = (response.status === 'success' || 
+          response.success === true || 
+          (response.data && response.data.success === true) ||
+          response.message === 'User registered successfully' ||
+          (response.message && response.message.includes('successfully')) ||
+          response.httpStatus === 200) &&
+          !response.message?.includes('already exists') &&
+          !response.message?.includes('failed') &&
+          !response.message?.includes('error');
+      
+      if (isSuccess) {
+        
         Swal.fire({
           title: "Success",
-          text: "User registered successfully!",
+          text: response.message || "User registered successfully! You can now login.",
           confirmButtonText: "Ok",
           icon: "success"
         }).then((result) => {
           if (result.isConfirmed) {
-            window.location.href = "/login"
+            // Store user email for login page
+            const userEmail = payload.email;
+            if (userEmail) {
+              localStorage.setItem('pendingVerificationEmail', userEmail);
+            }
+            navigate("/login")
           }
         });
       } else {
         Swal.fire({
           title: "Failed",
-          text: "Registration Failed",
+          text: response.message || "Registration Failed",
           icon: "error"
         });
       }
     } catch (error) {
+      console.error('Registration error:', error);
       Swal.fire({
         title: "API Error",
-        text: "Something went wrong. Please try again.",
+        text: error.message || "Something went wrong. Please try again.",
         icon: "error"
       });
     }
@@ -289,31 +318,6 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Role*</label>
-                    <select
-                      value={form.adminRole}
-                      onChange={update('adminRole')}
-                      required
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    >
-                      <option value="Super Admin">Super Admin</option>
-                      <option value="Sub Admin">Sub Admin</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
-                  <input
-                    type="text"
-                    value={form.employeeId}
-                    onChange={update('employeeId')}
-                    placeholder="Enter employee ID (if organization based)"
-                    className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                  />
-                </div>
-
-                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Profile Photo (Optional)</label>
                   <input
                     type="file"
@@ -321,6 +325,7 @@ export default function CreateAccount() {
                     onChange={(e) => setForm((f) => ({ ...f, profilePhoto: e.target.files[0] }))}
                     className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                   />
+                </div>
                 </div>
               </>
             )}
@@ -337,6 +342,31 @@ export default function CreateAccount() {
                       onChange={update('companyName')}
                       required
                       placeholder="Enter company name"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Email*</label>
+                    <input
+                      type="email"
+                      value={form.companyEmail}
+                      onChange={update('companyEmail')}
+                      required
+                      placeholder="Enter company email"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Contact Number*</label>
+                    <input
+                      type="tel"
+                      value={form.companyContact}
+                      onChange={(e) => setForm((f) => ({ ...f, companyContact: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                      required
+                      placeholder="Enter company contact number"
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     />
                   </div>
@@ -437,6 +467,31 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Email*</label>
+                    <input
+                      type="email"
+                      value={form.instituteEmail}
+                      onChange={update('instituteEmail')}
+                      required
+                      placeholder="Enter institute email"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Contact Number*</label>
+                    <input
+                      type="tel"
+                      value={form.instituteContact}
+                      onChange={(e) => setForm((f) => ({ ...f, instituteContact: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                      required
+                      placeholder="Enter institute contact number"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Institute Type*</label>
                     <select
                       value={form.instituteType}
@@ -498,30 +553,6 @@ export default function CreateAccount() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Email*</label>
-                    <input
-                      type="email"
-                      value={form.instituteEmail}
-                      onChange={update('instituteEmail')}
-                      required
-                      placeholder="Enter institute email"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Contact Number*</label>
-                    <input
-                      type="tel"
-                      value={form.instituteContact}
-                      onChange={(e) => setForm((f) => ({ ...f, instituteContact: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
-                      required
-                      placeholder="Enter contact number"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    />
-                  </div>
-                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

@@ -2,6 +2,10 @@ import React, { useMemo, useState, useEffect } from 'react'
 import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant'
 import { MatrixCard, MetricPillRow } from '../../../../shared/components/metricCard'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../../admin/services/serviceUrl'
+import Button, { DangerButton, PrimaryButton } from '../../../../shared/components/Button'
+import DynamicButton from '../../../../shared/components/DynamicButton'
 import {
   LuUsers,
   LuSearch,
@@ -11,13 +15,14 @@ import {
   LuEye,
   LuTrash2
 } from 'react-icons/lu'
+import { HiDotsVertical } from 'react-icons/hi'
 // KPI Card Component
 function KPICard({ title, value, icon, color = COLORS.PRIMARY }) {
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-600 mb-1">{title}</p>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>{title}</p>
           <p className="text-2xl font-bold" style={{ color }}>{value}</p>
         </div>
         <div
@@ -36,13 +41,13 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
   return (
     <div className="bg-white border border-[var(--color-primary)28] rounded-lg p-6">
       <div className="flex items-center gap-2 mb-6">
-        <LuFilter className="text-gray-600" size={20} />
-        <h3 className="font-medium text-[var(--color-primary)]">Advanced Filters</h3>
+        <LuFilter className={TAILWIND_COLORS.TEXT_MUTED} size={20} />
+        <h3 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Advanced Filters</h3>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[var(--color-primary)]">Courses</label>
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Courses</label>
           <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.course || 'all'}
@@ -57,7 +62,7 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[var(--color-primary)]">Placement Status</label>
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Placement Status</label>
           <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.placementStatus || 'all'}
@@ -72,7 +77,7 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[var(--color-primary)]">Skills</label>
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Skills</label>
           <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.skills || 'all'}
@@ -87,7 +92,7 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-[var(--color-primary)]">Experience</label>
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Experience</label>
           <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={filters.experience || 'all'}
@@ -103,18 +108,20 @@ function AdvancedFilters({ filters, onFilterChange, onClearAll, onApplyFilter })
       </div>
 
       <div className="flex justify-end gap-3">
-        <button
+        <Button
           onClick={onClearAll}
-          className="px-4 py-2 text-sm text-[var(--color-secondary)] hover:underline font-medium"
+          variant="light"
+          size="md"
         >
           Clear All
-        </button>
-        <button
+        </Button>
+        <DynamicButton
           onClick={onApplyFilter}
-          className="px-4 py-2 text-sm rounded-lg bg-[var(--color-secondary)] text-white hover:bg-secondary-dark transition-colors duration-200 font-medium"
+          backgroundColor="var(--color-secondary)"
+          textColor="white"
         >
           Apply Filter
-        </button>
+        </DynamicButton>
       </div>
     </div>
   )
@@ -130,13 +137,13 @@ function SkillsTags({ skills }) {
       {displaySkills.map((skill, index) => (
         <span
           key={index}
-          className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
+          className={`px-2 py-1 text-xs rounded-full bg-blue-100 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
         >
           {skill}
         </span>
       ))}
       {remainingCount > 0 && (
-        <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+        <span className={`px-2 py-1 text-xs rounded-full bg-gray-100 ${TAILWIND_COLORS.TEXT_MUTED}`}>
           +{remainingCount}
         </span>
       )}
@@ -188,25 +195,29 @@ function ActionDropdown({ student, onViewCV, onDelete }) {
         onClick={() => setIsOpen(!isOpen)}
         className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
       >
-        <HiDotsVertical className="text-gray-600" size={18} />
+        <HiDotsVertical className={TAILWIND_COLORS.TEXT_MUTED} size={18} />
       </button>
-      
+
       {isOpen && (
         <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px]">
-          <button
+          <Button
             onClick={handleViewCV}
-            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors duration-200"
+            variant="unstyled"
+            size="sm"
+            className="w-full justify-start px-4 py-2 hover:bg-gray-50"
+            icon={<LuEye size={16} />}
           >
-            <LuEye size={16} />
             View CV
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleDelete}
-            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors duration-200"
+            variant="unstyled"
+            size="sm"
+            className={`w-full justify-start px-4 py-2 ${TAILWIND_COLORS.BADGE_ERROR} hover:bg-red-50`}
+            icon={<LuTrash2 size={16} />}
           >
-            <LuTrash2 size={16} />
             Delete
-          </button>
+          </Button>
         </div>
       )}
     </div>
@@ -278,55 +289,55 @@ Generated on: ${new Date().toLocaleDateString()}
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-800">Student CV Details</h2>
+          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student CV Details</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors duration-200`}
           >
             <span className="text-2xl">&times;</span>
           </button>
         </div>
-        
+
         <div className="p-6 space-y-6">
           {/* Personal Information */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-medium text-gray-800 mb-4">Personal Information</h3>
+            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Personal Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600">Full Name</label>
-                <p className="text-gray-800">{student.name}</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Full Name</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.name}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">Email</label>
-                <p className="text-gray-800">{student.email}</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Email</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.email}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">Course</label>
-                <p className="text-gray-800">{student.course}</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Course</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.course}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">CGPA</label>
-                <p className="text-gray-800">{student.cgpa}</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>CGPA</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.cgpa}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">Region</label>
-                <p className="text-gray-800">{student.region}</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Region</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.region}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">Progress</label>
-                <p className="text-gray-800">{student.progress}%</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Progress</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.progress}%</p>
               </div>
             </div>
           </div>
 
           {/* Skills */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-medium text-gray-800 mb-4">Skills</h3>
+            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Skills</h3>
             <div className="flex flex-wrap gap-2">
               {student.skills.map((skill, index) => (
-                <span 
+                <span
                   key={index}
-                  className="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-800"
+                  className={`px-3 py-1 text-sm rounded-full bg-blue-100 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 >
                   {skill}
                 </span>
@@ -336,61 +347,61 @@ Generated on: ${new Date().toLocaleDateString()}
 
           {/* Educational Details */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-medium text-gray-800 mb-4">Educational Details</h3>
+            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Educational Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600">Highest Qualification</label>
-                <p className="text-gray-800">Graduation</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Highest Qualification</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Graduation</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">College/Institute</label>
-                <p className="text-gray-800">ABC Technical Institute</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>College/Institute</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>ABC Technical Institute</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">Passing Year</label>
-                <p className="text-gray-800">2023</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Passing Year</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>2023</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">Marks/CGPA</label>
-                <p className="text-gray-800">{student.cgpa}</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Marks/CGPA</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.cgpa}</p>
               </div>
             </div>
           </div>
 
           {/* Address Information */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-medium text-gray-800 mb-4">Address Information</h3>
+            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Address Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600">City</label>
-                <p className="text-gray-800">Mumbai</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>City</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Mumbai</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">State</label>
-                <p className="text-gray-800">Maharashtra</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>State</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Maharashtra</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">Country</label>
-                <p className="text-gray-800">India</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Country</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>India</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">Pin Code</label>
-                <p className="text-gray-800">400001</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Pin Code</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>400001</p>
               </div>
             </div>
           </div>
 
           {/* Additional Information */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-medium text-gray-800 mb-4">Additional Information</h3>
+            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Additional Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600">Preferred Job Location</label>
-                <p className="text-gray-800">Mumbai, Pune</p>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Preferred Job Location</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Mumbai, Pune</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600">LinkedIn/Portfolio</label>
-                <p className="text-gray-800">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>LinkedIn/Portfolio</label>
+                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
                   <a href="#" className="text-blue-600 hover:underline">linkedin.com/in/{student.name.toLowerCase().replace(' ', '')}</a>
                 </p>
               </div>
@@ -399,29 +410,30 @@ Generated on: ${new Date().toLocaleDateString()}
 
           {/* Resume/CV Section */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="text-lg font-medium text-gray-800 mb-4">Resume/CV</h3>
+            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Resume/CV</h3>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">📄</span>
-                <span className="text-gray-800">{student.name}_Resume.pdf</span>
+                <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.name}_Resume.pdf</span>
               </div>
-              <button 
+              <PrimaryButton
                 onClick={handleDownloadCV}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                size="md"
               >
                 Download CV
-              </button>
+              </PrimaryButton>
             </div>
           </div>
         </div>
-        
+
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-          <button
+          <Button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            variant="neutral"
+            size="md"
           >
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -446,33 +458,34 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
               <LuTrash2 className="text-red-600" size={24} />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-800">Delete Student</h2>
-              <p className="text-gray-600">This action cannot be undone</p>
+              <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Delete Student</h2>
+              <p className={TAILWIND_COLORS.TEXT_MUTED}>This action cannot be undone</p>
             </div>
           </div>
-          
+
           <div className="mb-6">
-            <p className="text-gray-700">
+            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
               Are you sure you want to delete <span className="font-semibold">{student.name}</span> from the student list?
             </p>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>
               This will permanently remove all data associated with this student including their profile, progress, and records.
             </p>
           </div>
-          
+
           <div className="flex gap-3 justify-end">
-            <button
+            <Button
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              variant="neutral"
+              size="md"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <DangerButton
               onClick={handleConfirm}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+              size="md"
             >
               Delete Student
-            </button>
+            </DangerButton>
           </div>
         </div>
       </div>
@@ -484,54 +497,53 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
 function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent, autoScrollEnabled, setAutoScrollEnabled, onViewCV, onDelete }) {
   const allSelected = selectedStudents.length === students.length && students.length > 0
 
-  // Auto scroll effect
-  React.useEffect(() => {
-    if (autoScrollEnabled && students.length > 0) {
-      const interval = setInterval(() => {
-        const tableContainer = document.querySelector('.student-table-container');
-        if (tableContainer) {
-          tableContainer.scrollTop += 1;
-          if (tableContainer.scrollTop >= tableContainer.scrollHeight - tableContainer.clientHeight) {
-            tableContainer.scrollTop = 0;
-          }
-        }
-      }, 50);
-      return () => clearInterval(interval);
-    }
-  }, [autoScrollEnabled, students.length]);
+
 
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+        {/* <div className="flex items-center gap-2">
+          <LuUsers className="text-gray-600" size={20} />
+          <h3 className="font-medium text-gray-800">All Student Profiles</h3>
+        </div> */}
+
+        {/* Auto Scroll Toggle */}
+        {/* <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700">Auto Scroll</span>
+          <button
+            type="button"
+            onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
+              }`}
+            style={{
+              backgroundColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined,
+              focusRingColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined
+            }}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+            />
+          </button>
+        </div> */}
+
+        {/* <div className="relative w-full sm:w-auto">
+          <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+          <input
+            type="text"
+            placeholder="Search by name, email, or student ID..."
+            className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-80"
+          />
+        </div> */}
+      </div>
+
        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
          <div className="flex items-center gap-2">
-           <LuUsers className="text-gray-600" size={20} />
-           <h3 className="font-medium text-gray-800">All Student Profiles</h3>
-         </div>
-         
-         {/* Auto Scroll Toggle */}
-         <div className="flex items-center gap-2">
-           <span className="text-sm text-gray-700">Auto Scroll</span>
-           <button
-             type="button"
-             onClick={() => setAutoScrollEnabled(!autoScrollEnabled)}
-             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-               autoScrollEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
-             }`}
-             style={{
-               backgroundColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined,
-               focusRingColor: autoScrollEnabled ? COLORS.GREEN_PRIMARY : undefined
-             }}
-           >
-             <span
-               className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
-                 autoScrollEnabled ? 'translate-x-6' : 'translate-x-1'
-               }`}
-             />
-           </button>
-         </div>
-         
+           <LuUsers className={TAILWIND_COLORS.TEXT_MUTED} size={20} />
+           <h3 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>All Student Profiles</h3>
+         </div>         
          <div className="relative w-full sm:w-auto">
-           <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+           <LuSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`} size={16} />
            <input 
              type="text"
              placeholder="Search by name, email, or student ID..."
@@ -543,7 +555,7 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
       <div className="student-table-container overflow-x-auto max-h-96 overflow-y-auto">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="text-left text-gray-500 border-b">
+            <tr className={`text-left ${TAILWIND_COLORS.TEXT_MUTED} border-b`}>
               <th className="py-3 px-4">
                 <input
                   type="checkbox"
@@ -574,27 +586,27 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
                 </td>
                 <td className="py-4 px-4">
                   <div>
-                    <div className="font-medium text-gray-900">{student.name}</div>
-                    <div className="text-gray-500 text-xs">{student.email}</div>
+                    <div className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</div>
+                    <div className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs`}>{student.email}</div>
                   </div>
                 </td>
-                <td className="py-4 px-4 text-gray-700">{student.course}</td>
-                <td className="py-4 px-4 text-gray-700">{student.cgpa}</td>
-                <td className="py-4 px-4 text-gray-700">{student.region}</td>
+                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.course}</td>
+                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.cgpa}</td>
+                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.region}</td>
                 <td className="py-4 px-4">
                   <SkillsTags skills={student.skills} />
                 </td>
                 <td className="py-4 px-4">
                   <div className="w-20">
                     <ProgressBar progress={student.progress} />
-                    <div className="text-xs text-gray-500 mt-1">{student.progress}%</div>
+                    <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>{student.progress}%</div>
                   </div>
                 </td>
                 <td className="py-4 px-4">
-                  <ActionDropdown 
-                    student={student} 
-                    onViewCV={onViewCV} 
-                    onDelete={onDelete} 
+                  <ActionDropdown
+                    student={student}
+                    onViewCV={onViewCV}
+                    onDelete={onDelete}
                   />
                 </td>
               </tr>
@@ -613,7 +625,7 @@ export default function StudentManagement() {
   const [searchTerm, setSearchTerm] = useState('')
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
 
-    const [totalStudentCount, setTotalStudentCount] = useState(0)
+  const [totalStudentCount, setTotalStudentCount] = useState(0)
   const [verifiedProfileCount, setVerifiedProfileCount] = useState(0)
   const [placementReadyCount, setPlacementReadyCount] = useState(0)
   const [placedSuccessCount, setPlacedSuccessCount] = useState(0)
@@ -621,8 +633,11 @@ export default function StudentManagement() {
   const [viewCVModal, setViewCVModal] = useState({ isOpen: false, student: null })
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, student: null })
   useEffect(() => {
+    let called = false;
     // TODO: replace with ApiService
     async function fetchData() {
+      if (called) return; // prevent second call
+      called = true;
       try {
         var data = {
           apiUrl: apiService.studentsList,
@@ -631,7 +646,7 @@ export default function StudentManagement() {
         };
 
         var response = await getMethod(data);
-        console.log(response)
+        // console.log(response)
         if (response.status === true) {
           // Convert response before setting
           const formatted = response.data.map((item) => ({
@@ -663,8 +678,8 @@ export default function StudentManagement() {
           }));
 
           const pendingFormatted = response.data
-          .filter((item) => item.profile_info.admin_action === "approved");
-          
+            .filter((item) => item.profile_info.admin_action === "approved");
+
           setTotalStudentCount(response.count);
           setVerifiedProfileCount(pendingFormatted.length);
           setStudents(formatted);
@@ -757,7 +772,7 @@ export default function StudentManagement() {
   const handleConfirmDelete = (student) => {
     // Remove student from the list
     setStudents(prevStudents => prevStudents.filter(s => s.id !== student.id))
-    
+
     // Show success message
     Swal.fire({
       title: "Deleted!",
@@ -787,12 +802,12 @@ export default function StudentManagement() {
     const headers = Object.keys(exportData[0])
     const csvContent = [
       headers.join(','),
-      ...exportData.map(row => 
+      ...exportData.map(row =>
         headers.map(header => {
           const value = row[header]
           // Escape commas and quotes in CSV
-          return typeof value === 'string' && (value.includes(',') || value.includes('"')) 
-            ? `"${value.replace(/"/g, '""')}"` 
+          return typeof value === 'string' && (value.includes(',') || value.includes('"'))
+            ? `"${value.replace(/"/g, '""')}"`
             : value
         }).join(',')
       )
@@ -887,14 +902,14 @@ export default function StudentManagement() {
       />
 
       {/* View CV Modal */}
-      <ViewCVModal 
+      <ViewCVModal
         student={viewCVModal.student}
         isOpen={viewCVModal.isOpen}
         onClose={handleCloseViewCV}
       />
 
       {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal 
+      <DeleteConfirmationModal
         student={deleteModal.student}
         isOpen={deleteModal.isOpen}
         onClose={handleCloseDelete}

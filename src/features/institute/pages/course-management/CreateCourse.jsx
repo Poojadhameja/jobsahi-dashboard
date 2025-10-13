@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LuArrowLeft, LuPlus, LuUpload, LuX } from 'react-icons/lu'
-import Button from '../../../../shared/components/Button.jsx'
+import Button, { PrimaryButton, OutlineButton, IconButton } from '../../../../shared/components/Button.jsx'
+import DynamicButton from '../../../../shared/components/DynamicButton.jsx'
 import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
 import { useCourseContext } from '../../context/CourseContext'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 export default function CreateCourse() {
   const navigate = useNavigate()
@@ -185,43 +187,29 @@ export default function CreateCourse() {
     const baseClass = "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
     const errorClass = validationErrors[fieldName] 
       ? "border-red-500 focus:ring-red-500" 
-      : "border-gray-300 focus:ring-[#5C9A24]"
+      : `${TAILWIND_COLORS.BORDER} focus:ring-[#5C9A24]`
     return `${baseClass} ${errorClass}`
   }
 
   return (
     <div className="">
         {/* Header with Action Buttons */}
-        <div className="flex justify-between items-center mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h1 className="text-2xl font-bold text-gray-900">Add New Course</h1>
-          <div className="flex gap-4">
-            <button 
-              onClick={handleCancel}
-              className="px-6 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={handleSave}
-              className="px-6 py-2 bg-[#5C9A24] text-white rounded-lg hover:bg-[#3f6c17] transition-colors"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-
+       
         {/* Basic Information Section */}
-        <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Basic Information</h2>
+        <div className={`mb-8 ${TAILWIND_COLORS.CARD} p-6`}>
+        <div className={`flex justify-between items-center mb-8 ${TAILWIND_COLORS.CARD} p-6`}>
+          <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Add New Course</h1>
+        </div>
+          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Basic Information</h2>
           
           <div className="space-y-6">
             {/* Course Title */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   COURSE TITLE <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-600">Enter the name of the course or job role.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter the name of the course or job role.</p>
               </div>
               <div className="flex-1">
                 <input 
@@ -240,10 +228,10 @@ export default function CreateCourse() {
             {/* Duration */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   DURATION (WEEKS) <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-600">Specify the total duration of the course in weeks.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Specify the total duration of the course in weeks.</p>
               </div>
               <div className="flex-1">
                 <div className="relative">
@@ -269,10 +257,10 @@ export default function CreateCourse() {
             {/* Category */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   CATEGORY <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-600">Choose a category like "Technical".</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose a category like "Technical".</p>
               </div>
               <div className="flex-1">
                 <select 
@@ -295,10 +283,10 @@ export default function CreateCourse() {
             {/* Course Description */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   COURSE DESCRIPTION <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-600">Select the domain or trade related to the course.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select the domain or trade related to the course.</p>
               </div>
               <div className="flex-1">
                 <RichTextEditor
@@ -313,10 +301,10 @@ export default function CreateCourse() {
             {/* Tagged Skills */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   TAGGED SKILLS
                 </label>
-                <p className="text-sm text-gray-600">Add relevant skills taught in the course.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Add relevant skills taught in the course.</p>
               </div>
               <div className="flex-1">
                 <div className="flex gap-2">
@@ -327,12 +315,14 @@ export default function CreateCourse() {
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C9A24]"
                     placeholder="e.g. Wiring, Safety Measures"
                   />
-                  <button 
+                  {/* Using Button with icon from Button.jsx */}
+                  <Button 
                     type="button"
-                    className="w-10 h-10 bg-[#5C9A24] text-white rounded-full hover:bg-[#3f6c17] flex items-center justify-center"
-                  >
-                    <LuPlus className="w-4 h-4" />
-                  </button>
+                    variant="primary"
+                    size="sm"
+                    icon={<LuPlus />}
+                    className="!w-10 !h-10 !p-0 rounded-full"
+                  />
                 </div>
               </div>
             </div> 
@@ -340,10 +330,10 @@ export default function CreateCourse() {
             {/* Batch Limits */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   BATCH LIMITS <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-600">Specify the maximum number of students.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Specify the maximum number of students.</p>
               </div>
               <div className="flex-1">
                 <div className="relative">
@@ -373,10 +363,10 @@ export default function CreateCourse() {
             {/* Course Status */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   COURSE STATUS
                 </label>
-                <p className="text-sm text-gray-600">Set the current status of the course.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Set the current status of the course.</p>
               </div>
               <div className="flex-1">
                 <select 
@@ -394,17 +384,17 @@ export default function CreateCourse() {
         </div>
 
         {/* Additional Settings Section */}
-        <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Additional Settings</h2>
+        <div className={`mb-8 ${TAILWIND_COLORS.CARD} p-6`}>
+          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Additional Settings</h2>
           
           <div className="space-y-6">
             {/* Instructor Name */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   INSTRUCTOR NAME <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-600">Enter the full name of the course instructor.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter the full name of the course instructor.</p>
               </div>
               <div className="flex-1">
                 <input 
@@ -423,10 +413,10 @@ export default function CreateCourse() {
             {/* Mode */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   MODE <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-600">Mode of the course</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Mode of the course</p>
               </div>
               <div className="flex-1">
                 <select 
@@ -449,10 +439,10 @@ export default function CreateCourse() {
             {/* Price */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   PRICE <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-600">Enter the course fee in Indian Rupees.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter the course fee in Indian Rupees.</p>
               </div>
               <div className="flex-1">
                 <input 
@@ -471,10 +461,10 @@ export default function CreateCourse() {
             {/* Certification Allowed */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   CERTIFICATION
                 </label>
-                <p className="text-sm text-gray-600">Allow certification for this course</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Allow certification for this course</p>
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-3">
@@ -498,7 +488,7 @@ export default function CreateCourse() {
                         )}
                       </div>
                     </div>
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                       Is Certification Allowed for this Course?
                     </span>
                   </label>
@@ -509,17 +499,17 @@ export default function CreateCourse() {
         </div>
 
         {/* Course Modules Section */}
-        <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Course Modules</h2>
+        <div className={`mb-8 ${TAILWIND_COLORS.CARD} p-6`}>
+          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Course Modules</h2>
           
           <div className="space-y-6">
             {/* Module Title */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   MODULE 1 TITLE <span className="text-orange-500">*</span>
                 </label>
-                <p className="text-sm text-gray-600">Enter the name of the module.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter the name of the module.</p>
               </div>
               <div className="flex-1">
                 <div className="flex gap-2">
@@ -561,10 +551,10 @@ export default function CreateCourse() {
             {/* Module Description */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   MODULE DESCRIPTION <span className="text-orange-500">*</span>
                 </label>
-                <p className="text-sm text-gray-600">Describe the content and objective of the module.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Describe the content and objective of the module.</p>
               </div>
               <div className="flex-1">
                 <textarea 
@@ -598,11 +588,11 @@ export default function CreateCourse() {
           {/* Display added modules */}
           {modules.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-md font-semibold text-gray-900 mb-4">Added Modules</h3>
+              <h3 className={`text-md font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Added Modules</h3>
               {modules.map((module, index) => (
                 <div key={module.id} className="bg-gray-50 p-4 rounded-md mb-2">
-                  <h4 className="font-medium text-gray-900">{module.title}</h4>
-                  <p className="text-sm text-gray-600">{module.description}</p>
+                  <h4 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{module.title}</h4>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{module.description}</p>
                 </div>
               ))}
             </div>
@@ -610,8 +600,8 @@ export default function CreateCourse() {
         </div>
 
         {/* Add Media Section */}
-        <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Add Media</h2>
+        <div className={`mb-8 ${TAILWIND_COLORS.CARD} p-6`}>
+          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Add Media</h2>
           
           {/* File Upload Area */}
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-[#5C9A24] transition-colors cursor-pointer">
@@ -627,13 +617,13 @@ export default function CreateCourse() {
               <div className="w-12 h-12 bg-gray-100 rounded-md mx-auto mb-4 flex items-center justify-center">
                 <LuPlus className="w-6 h-6 text-gray-400" />
               </div>
-              <p className="text-gray-500 mb-2">Drag and Drop files here</p>
+              <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Drag and Drop files here</p>
             </label>
             
             {/* Selected Files List */}
             {selectedMedia.length > 0 && (
               <div className="mt-6 text-left">
-                <h4 className="text-sm font-medium text-gray-700 mb-3">Selected Files:</h4>
+                <h4 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Selected Files:</h4>
                 <div className="space-y-2 max-h-32 overflow-y-auto">
                   {selectedMedia.map((media, index) => (
                     <div key={media.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-2">
@@ -643,7 +633,7 @@ export default function CreateCourse() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
                         </div>
-                        <span className="text-sm text-gray-900 truncate">{media.name}</span>
+                        <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{media.name}</span>
                       </div>
                       <button
                         onClick={() => handleRemoveMedia(media.id)}
@@ -662,14 +652,14 @@ export default function CreateCourse() {
             {/* Selected Media Preview */}
             {selectedMedia.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-md font-semibold text-gray-900 mb-4">Selected Media ({selectedMedia.length})</h3>
+                <h3 className={`text-md font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Selected Media ({selectedMedia.length})</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {selectedMedia.map((media) => (
                     <div key={media.id} className="border border-gray-200 rounded-lg p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{media.name}</p>
-                          <p className="text-xs text-gray-500">{formatFileSize(media.size)}</p>
+                          <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{media.name}</p>
+                          <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{formatFileSize(media.size)}</p>
                         </div>
                         <button
                           onClick={() => handleRemoveMedia(media.id)}
@@ -698,7 +688,7 @@ export default function CreateCourse() {
                           <div className="w-full h-24 bg-gray-100 rounded border flex items-center justify-center">
                             <div className="text-center">
                               <LuUpload className="w-6 h-6 text-gray-400 mx-auto mb-1" />
-                              <p className="text-xs text-gray-500">{media.type.split('/')[1]?.toUpperCase()}</p>
+                              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{media.type.split('/')[1]?.toUpperCase()}</p>
                             </div>
                           </div>
                         )}
@@ -709,6 +699,29 @@ export default function CreateCourse() {
               </div>
             )}
         </div>
+        
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-4">
+            {/* Using OutlineButton from Button.jsx */}
+            <OutlineButton 
+              onClick={handleCancel}
+              size="md"
+            >
+              Cancel
+            </OutlineButton>
+            
+            {/* Using DynamicButton for Save */}
+            <DynamicButton 
+              onClick={handleSave}
+              backgroundColor="var(--color-secondary)"
+              textColor="white"
+              padding="8px 24px"
+              borderRadius="8px"
+              hoverBackgroundColor="#059669"
+            >
+              Save
+            </DynamicButton>
+          </div>
     </div>
   )
 }

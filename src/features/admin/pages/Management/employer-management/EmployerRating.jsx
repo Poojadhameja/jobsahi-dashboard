@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import Button from '../../../../../shared/components/Button'
 
 // Employer Ratings (Student Feedback) Component
 function EmployerRatings() {
@@ -98,9 +100,9 @@ function EmployerRatings() {
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
               <span className="text-blue-600 text-lg font-bold">📝</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Employer Ratings (Student Feedback)</h2>
+            <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Employer Ratings (Student Feedback)</h2>
           </div>
-          <p className="text-gray-600 mt-1">Monitor employer ratings and feedback from job seekers</p>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Monitor employer ratings and feedback from job seekers</p>
         </div>
         
         {/* Time Filter */}
@@ -108,14 +110,14 @@ function EmployerRatings() {
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
-            className="appearance-none bg-gray-50 text-gray-700 px-4 py-2 pr-8 rounded-lg text-sm font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`appearance-none bg-gray-50 ${TAILWIND_COLORS.TEXT_PRIMARY} px-4 py-2 pr-8 rounded-lg text-sm font-medium border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500`}
           >
             {timeFilterOptions.map((option) => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <span className="text-gray-500">▼</span>
+            <span className={TAILWIND_COLORS.TEXT_MUTED}>▼</span>
           </div>
         </div>
       </div>
@@ -130,21 +132,21 @@ function EmployerRatings() {
                 <div className="flex items-center space-x-4">
                   {/* Company Logo Placeholder */}
                   <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                    <span className="text-gray-500 text-sm font-bold">
+                    <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm font-bold`}>
                       {company.company.charAt(0)}
                     </span>
                   </div>
                   
                   {/* Company Info */}
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">{company.company}</h3>
+                    <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>{company.company}</h3>
                     
                     {/* Rating Stars */}
                     <div className="flex items-center space-x-2">
                       <div className="flex">
                         {renderStars(company.rating)}
                       </div>
-                      <span className="text-sm text-gray-600">
+                      <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                         ({company.totalReviews} reviews)
                       </span>
                     </div>
@@ -154,16 +156,17 @@ function EmployerRatings() {
                 {/* Right Side - Response Rate and Button */}
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
-                    <p className="text-sm text-gray-500">Response rate</p>
-                    <p className="text-lg font-semibold text-gray-900">{company.responseRate}%</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Response rate</p>
+                    <p className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{company.responseRate}%</p>
                   </div>
                   
-                  <button
+                  <Button
                     onClick={() => handleViewReviews(company.id)}
+                    variant="unstyled"
                     className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors duration-200 text-sm font-medium"
                   >
                     View Reviews
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -173,31 +176,31 @@ function EmployerRatings() {
 
       {/* Summary Stats */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Overall Statistics</h3>
+        <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Overall Statistics</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">
+            <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               {ratingsData.reduce((sum, company) => sum + company.rating, 0) / ratingsData.length}
             </div>
-            <div className="text-sm text-gray-600">Average Rating</div>
+            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Average Rating</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">
+            <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               {ratingsData.reduce((sum, company) => sum + company.totalReviews, 0)}
             </div>
-            <div className="text-sm text-gray-600">Total Reviews</div>
+            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Total Reviews</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">
+            <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               {ratingsData.length}
             </div>
-            <div className="text-sm text-gray-600">Companies</div>
+            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Companies</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">
+            <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               {Math.round(ratingsData.reduce((sum, company) => sum + company.responseRate, 0) / ratingsData.length)}%
             </div>
-            <div className="text-sm text-gray-600">Avg Response Rate</div>
+            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Avg Response Rate</div>
           </div>
         </div>
       </div>

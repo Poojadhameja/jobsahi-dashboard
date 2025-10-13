@@ -1,5 +1,6 @@
 import React from 'react'
 import { BarChart } from '../../../../shared/components/charts'
+import { colors } from '../../../../shared/colors'
 
 export default function StudentCompletion() {
   const handleExport = () => {
@@ -19,16 +20,16 @@ export default function StudentCompletion() {
       {
         data: [195, 150, 100, 45],
         backgroundColor: [
-          '#0b537dc0',
-          '#0b537dc0',
-          '#0b537dc0',
-          '#0b537dc0'
+          colors.primary.darkBlue,
+          colors.primary.darkBlue,
+          colors.primary.darkBlue,
+          colors.primary.darkBlue
         ],
         borderColor: [
-          '#0b537dc0',
-          '#0b537dc0',
-          '#0b537dc0',
-          '#0b537dc0'
+          colors.primary.darkBlue,
+          colors.primary.darkBlue,
+          colors.primary.darkBlue,
+          colors.primary.darkBlue
         ],
         borderWidth: 1,
       },

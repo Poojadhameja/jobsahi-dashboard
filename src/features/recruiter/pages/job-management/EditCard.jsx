@@ -143,10 +143,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-6xl w-full max-h-[95vh] overflow-y-auto shadow-2xl">
-        {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-900">Edit Job Post</h2>
+      <div className="bg-white rounded-xl max-w-6xl w-full max-h-[95vh] flex flex-col shadow-2xl">
+        {/* Fixed Header */}
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
+          <h2 className="text-2xl font-semibold text-[var(--color-primary)]">Edit Job Post</h2>
           <button
             onClick={handleCancel}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -155,17 +155,19 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
           </button>
         </div>
 
-        {/* Warning Message */}
-        {showWarning && (
-          <div className="mx-6 mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center">
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            <span className="font-medium">Please fill in all required fields before saving!</span>
-          </div>
-        )}
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Warning Message */}
+          {showWarning && (
+            <div className="mx-6 mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium">Please fill in all required fields before saving!</span>
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+          <form onSubmit={handleSubmit} className="p-6 space-y-8">
           {/* Basic Information Form */}
           <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
             <h2 className="text-xl font-bold text-gray-900 mb-8">Basic Information</h2>
@@ -737,7 +739,8 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               Update Job
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   )

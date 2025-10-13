@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { PillNavigation, MANAGEMENT_TABS } from '../../../../shared/components/navigation.jsx'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import StudentManagement from './StudentManagement'
 import EmployerManagement from './employer-management/EmployerManagement'
 import InstituteManagement from './institute-management/InstituteManagement'
@@ -29,8 +30,8 @@ export default function Management() {
     <div className="space-y-6">
       {/* Header */}
       {/* <div className="mb-6">
-        <h1 className="text-3xl font-bold text-blue-600 mb-2">Management Dashboard</h1>
-        <p className="text-gray-600">Manage students, employers, and institutes from one place.</p>
+        <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Management Dashboard</h1>
+        <p className={TAILWIND_COLORS.TEXT_MUTED}>Manage students, employers, and institutes from one place.</p>
       </div> */}
 
       {/* Navigation using shared component */}

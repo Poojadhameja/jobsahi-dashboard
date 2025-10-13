@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuPhone, LuMail, LuLock, LuEye, LuEyeOff } from 'react-icons/lu'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import { putMethod } from '../../service/api'
-import apiService from '../../service/serviceUrl'
+import apiService from '../../shared/services/serviceUrl'
 
 function AuthTabs({ mode, setMode }) {
   const items = [
@@ -52,6 +53,7 @@ function AuthTabs({ mode, setMode }) {
 }
 
 export default function ForgotPassword() {
+  const navigate = useNavigate()
   const [mode, setMode] = useState('OTP') // 'OTP' | 'EMAIL'
   const [step, setStep] = useState('input') // 'input' | 'otp' | 'new-password'
   const [email, setEmail] = useState('')
@@ -191,7 +193,7 @@ export default function ForgotPassword() {
             }).then((result) => {
               /* Read more about isConfirmed */
               if (result.isConfirmed) {
-                window.location.href = '/login'
+                navigate('/login')
               }
 
             });

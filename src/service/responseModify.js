@@ -2,14 +2,22 @@
 import axios from './axios';
 
 export const respChanges = (data) => {
-    if(data.success === true) {
+    // Handle different response formats
+    if(data.success === true || data.status === 'success' || data.message === 'User registered successfully') {
         data.status = 'success';
-    }else if(data.success === false) {
-        data.status = 'error'
+        data.success = true;
+    } else if(data.success === false || data.status === 'error') {
+        data.status = 'error';
+        data.success = false;
     }
 
     if(typeof data.error == 'undefined') {
         data.error = {}
     }
+    
+    // Log the response for debugging
+    console.log('ResponseModify - Original:', data);
+    console.log('ResponseModify - Final Status:', data.status);
+    
     return data;
 }

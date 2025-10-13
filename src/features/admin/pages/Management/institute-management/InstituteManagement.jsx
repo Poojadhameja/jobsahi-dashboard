@@ -15,7 +15,8 @@ import PlacementStudent from './PlacementStudent'
 import CertificateIssuance from './CertificateIssuance'
 import MessageInstitute from './MessageInstitute'
 import { getMethod } from '../../../../../service/api'
-import apiService from '../../../../../service/serviceUrl'
+import apiService from '../../../../admin/services/serviceUrl'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 
 
 export default function InstituteManagement() {
@@ -36,7 +37,7 @@ export default function InstituteManagement() {
           };
   
           var response = await getMethod(data);
-          console.log(response)
+          // console.log(response)
           if (response.status === true) {
             // Map API response to required format
             const formatted = response.data.map((item, index) => ({
@@ -107,7 +108,7 @@ export default function InstituteManagement() {
             });
           }
         } catch (error) {
-          console.error("API Error:", error)
+          // console.error("API Error:", error)
           // alert("Something went wrong. Please try again.")
           Swal.fire({
             title: "API Error",
@@ -129,7 +130,7 @@ export default function InstituteManagement() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Title Section with MatrixCard */}
       <MatrixCard 
         title="Institute Management"

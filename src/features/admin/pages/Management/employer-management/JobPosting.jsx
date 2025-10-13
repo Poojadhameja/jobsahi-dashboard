@@ -12,6 +12,7 @@ import {
   LuFileText
 } from 'react-icons/lu'
 import { HiDotsVertical } from 'react-icons/hi'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 
 // Job Posting Analytics Component
 function JobPostingAnalytics() {
@@ -111,7 +112,7 @@ function JobPostingAnalytics() {
   const getSuccessRateBar = (rate) => {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-900">{rate}%</span>
+        <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{rate}%</span>
         <div className="w-16 bg-gray-200 rounded-full h-2">
           <div 
             className="bg-gray-600 h-2 rounded-full" 
@@ -149,14 +150,14 @@ function JobPostingAnalytics() {
           onClick={() => setIsOpen(!isOpen)}
           className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
         >
-          <HiDotsVertical className="text-gray-600" size={18} />
+          <HiDotsVertical className={TAILWIND_COLORS.TEXT_MUTED} size={18} />
         </button>
         
         {isOpen && (
           <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px]">
             <button
               onClick={handleViewDetails}
-              className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2 transition-colors duration-200"
+              className={`w-full px-4 py-2 text-left text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-50 flex items-center gap-2 transition-colors duration-200`}
             >
               <LuEye size={16} />
               View Details
@@ -175,10 +176,10 @@ function JobPostingAnalytics() {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Company Details</h2>
+            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Company Details</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors duration-200`}
             >
               <span className="text-2xl">&times;</span>
             </button>
@@ -187,26 +188,26 @@ function JobPostingAnalytics() {
           <div className="p-6 space-y-6">
             {/* Company Information */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
                 <LuBuilding className="text-blue-600" size={20} />
                 Company Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Company Name</label>
-                  <p className="text-gray-800 font-medium">{company.company}</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Company Name</label>
+                  <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}>{company.company}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Industry</label>
-                  <p className="text-gray-800">Technology</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Industry</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Technology</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Company Size</label>
-                  <p className="text-gray-800">100-500 employees</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Company Size</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>100-500 employees</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Website</label>
-                  <p className="text-gray-800">
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Website</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
                     <a href={`https://${company.company.toLowerCase()}.com`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                       {company.company.toLowerCase()}.com
                     </a>
@@ -217,37 +218,37 @@ function JobPostingAnalytics() {
 
             {/* Contact Person Details */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
                 <LuUsers className="text-green-600" size={20} />
                 Contact Person Details
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Contact Person</label>
-                  <p className="text-gray-800 font-medium">{company.contactPerson}</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Contact Person</label>
+                  <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}>{company.contactPerson}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Email Address</label>
-                  <p className="text-gray-800 flex items-center gap-2">
-                    <LuMail size={16} className="text-gray-400" />
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Email Address</label>
+                  <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
+                    <LuMail size={16} className={TAILWIND_COLORS.TEXT_MUTED} />
                     <a href={`mailto:${company.contactPerson.toLowerCase().replace(' ', '.')}@${company.company.toLowerCase()}.com`} className="text-blue-600 hover:underline">
                       {company.contactPerson.toLowerCase().replace(' ', '.')}@{company.company.toLowerCase()}.com
                     </a>
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Phone Number</label>
-                  <p className="text-gray-800 flex items-center gap-2">
-                    <LuPhone size={16} className="text-gray-400" />
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Phone Number</label>
+                  <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
+                    <LuPhone size={16} className={TAILWIND_COLORS.TEXT_MUTED} />
                     <a href="tel:+919876543210" className="text-blue-600 hover:underline">
                       +91 9876543210
                     </a>
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Last Activity</label>
-                  <p className="text-gray-800 flex items-center gap-2">
-                    <LuCalendar size={16} className="text-gray-400" />
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Last Activity</label>
+                  <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
+                    <LuCalendar size={16} className={TAILWIND_COLORS.TEXT_MUTED} />
                     {company.lastActivity}
                   </p>
                 </div>
@@ -256,7 +257,7 @@ function JobPostingAnalytics() {
 
             {/* Job Posting Statistics */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
                 <LuBriefcase className="text-purple-600" size={20} />
                 Job Posting Statistics
               </h3>
@@ -264,64 +265,64 @@ function JobPostingAnalytics() {
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-blue-600 text-lg">💼</span>
-                    <span className="text-sm font-medium text-gray-600">Jobs Posted</span>
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Jobs Posted</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-800">{company.jobsPosted}</p>
+                  <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{company.jobsPosted}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-blue-600 text-lg">👥</span>
-                    <span className="text-sm font-medium text-gray-600">Total Applicants</span>
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Total Applicants</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-800">{company.totalApplicants.toLocaleString()}</p>
+                  <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{company.totalApplicants.toLocaleString()}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-yellow-600 text-lg">⭐</span>
-                    <span className="text-sm font-medium text-gray-600">Shortlisted</span>
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Shortlisted</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-800">{company.shortlisted}</p>
+                  <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{company.shortlisted}</p>
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-green-600 text-lg">📈</span>
-                    <span className="text-sm font-medium text-gray-600">Success Rate</span>
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Success Rate</span>
                   </div>
-                  <p className="text-2xl font-bold text-gray-800">{company.successRate}%</p>
+                  <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{company.successRate}%</p>
                 </div>
               </div>
             </div>
 
             {/* Additional Information */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4 flex items-center gap-2">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
                 <LuFileText className="text-orange-600" size={20} />
                 Additional Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Company Address</label>
-                  <p className="text-gray-800">123 Business Street, Tech City, TC 12345</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Company Address</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>123 Business Street, Tech City, TC 12345</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">Registration Number</label>
-                  <p className="text-gray-800">REG-2024-TC-001</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Registration Number</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>REG-2024-TC-001</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">GST Number</label>
-                  <p className="text-gray-800">GST-2024-TC-001</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>GST Number</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>GST-2024-TC-001</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600">PAN Number</label>
-                  <p className="text-gray-800">PAN-2024-TC-001</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>PAN Number</label>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>PAN-2024-TC-001</p>
                 </div>
               </div>
             </div>
 
             {/* Company Description */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Company Description</h3>
-              <p className="text-gray-700 leading-relaxed">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Company Description</h3>
+              <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} leading-relaxed`}>
                 {company.company} is a leading technology company specializing in innovative solutions for modern businesses. 
                 We are committed to providing exceptional services and building long-term partnerships with our clients. 
                 Our team consists of experienced professionals dedicated to delivering high-quality results and maintaining 
@@ -352,9 +353,9 @@ function JobPostingAnalytics() {
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
               <span className="text-blue-600 text-lg font-bold">📊</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Job Posting Analytics</h2>
+            <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Posting Analytics</h2>
           </div>
-          <p className="text-gray-600 mt-1">Track jobs posted, applications received, and shortlisting activity</p>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Track jobs posted, applications received, and shortlisting activity</p>
         </div>
         
         {/* Time Filter */}
@@ -380,28 +381,28 @@ function JobPostingAnalytics() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Company
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Status
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Jobs Posted
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Total Applicants
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Shortlisted
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Success Rate
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Last Activity
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Actions
                 </th>
               </tr>
@@ -412,13 +413,13 @@ function JobPostingAnalytics() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-gray-500 text-sm font-medium">
+                        <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm font-medium`}>
                           {item.company.charAt(0)}
                         </span>
                       </div>
                       <div>
-                        <div className="text-sm font-bold text-gray-900">{item.company}</div>
-                        <div className="text-sm text-gray-500">{item.contactPerson}</div>
+                        <div className={`text-sm font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{item.company}</div>
+                        <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{item.contactPerson}</div>
                       </div>
                     </div>
                   </td>
@@ -428,25 +429,25 @@ function JobPostingAnalytics() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <span className="text-blue-600 mr-2">💼</span>
-                      <span className="text-sm font-medium text-gray-900">{item.jobsPosted}</span>
+                      <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{item.jobsPosted}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <span className="text-blue-600 mr-2">👥</span>
-                      <span className="text-sm font-medium text-gray-900">{item.totalApplicants.toLocaleString()}</span>
+                      <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{item.totalApplicants.toLocaleString()}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <span className="text-yellow-600 mr-2">⭐</span>
-                      <span className="text-sm font-medium text-gray-900">{item.shortlisted}</span>
+                      <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{item.shortlisted}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getSuccessRateBar(item.successRate)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     {item.lastActivity}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

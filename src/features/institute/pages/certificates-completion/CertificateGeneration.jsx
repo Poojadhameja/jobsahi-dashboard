@@ -10,6 +10,7 @@ import {
   LuAward,
   LuSettings
 } from 'react-icons/lu'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 function CertificateGeneration() {
   const [selectedCourse, setSelectedCourse] = useState('')
@@ -116,17 +117,17 @@ function CertificateGeneration() {
       {/* Certificate Generation Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-text-primary mb-1">Certificate Generation</h3>
-          <p className="text-sm text-text-muted">Preview of the generated certificate</p>
+          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Certificate Generation</h3>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Preview of the generated certificate</p>
         </div>
 
         {/* Basic Information */}
         <div className="mb-8">
-          <h4 className="text-md font-medium text-text-primary mb-4">Basic Information</h4>
+          <h4 className={`text-md font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Basic Information</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Course Selection */}
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 SELECT COURSE
               </label>
               <select
@@ -145,7 +146,7 @@ function CertificateGeneration() {
 
             {/* Batch Selection */}
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 SELECT BATCH
               </label>
               <select
@@ -164,7 +165,7 @@ function CertificateGeneration() {
 
             {/* Completion Date */}
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 COMPLETION DATE
               </label>
               <div className="relative">
@@ -174,7 +175,6 @@ function CertificateGeneration() {
                   onChange={(e) => setCompletionDate(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
-                <LuCalendar className="absolute right-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
               </div>
             </div>
           </div>
@@ -182,18 +182,18 @@ function CertificateGeneration() {
 
         {/* Students in Batch */}
         <div className="mb-6">
-          <h4 className="text-md font-medium text-text-primary mb-4">Student in Batch</h4>
+          <h4 className={`text-md font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Student in Batch</h4>
           <div className="space-y-3">
             {students.map(student => (
               <div key={student.id} className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                 <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mr-4">
-                  <LuUser className="h-6 w-6 text-text-muted" />
+                  <LuUser className={`h-6 w-6 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                 </div>
                 <div className="flex-1">
-                  <h5 className="font-medium text-text-primary">{student.name}</h5>
-                  <p className="text-sm text-text-muted">Enrollment ID: {student.enrollmentId}</p>
+                  <h5 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</h5>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enrollment ID: {student.enrollmentId}</p>
                 </div>
-                <div className="flex items-center space-x-4 text-sm text-text-muted">
+                <div className={`flex items-center space-x-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   <div className="flex items-center">
                     <LuPhone className="h-4 w-4 mr-1" />
                     {student.phone}
@@ -228,8 +228,8 @@ function CertificateGeneration() {
       {/* Certificate Preview Section */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-text-primary mb-1">Certificate Preview</h3>
-          <p className="text-sm text-text-muted">Preview of the generated certificate</p>
+          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Certificate Preview</h3>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Preview of the generated certificate</p>
         </div>
 
         {/* Certificate Design */}
@@ -244,10 +244,10 @@ function CertificateGeneration() {
           </div>
 
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold italic text-text-primary mb-4">
+            <h1 className={`text-3xl font-bold italic ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
               Certificate of Completion
             </h1>
-            <p className="text-sm text-text-muted max-w-2xl mx-auto leading-relaxed">
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} max-w-2xl mx-auto leading-relaxed`}>
               Upon successful completion of the course, participants will receive a Certificate of Completion, 
               recognizing their achievement and confirming that they have acquired the essential skills and 
               knowledge outlined in the curriculum.
@@ -255,20 +255,17 @@ function CertificateGeneration() {
           </div>
 
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-text-primary mb-2">
+            <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
               Himanshu Shrirang
             </h2>
-            <p className="text-lg text-text-primary uppercase tracking-wide">
+            <p className={`text-lg ${TAILWIND_COLORS.TEXT_PRIMARY} uppercase tracking-wide`}>
               POWER TECHNICIAN
             </p>
           </div>
 
           <div className="flex justify-between items-end">
-            <div className="text-sm text-text-muted">
+            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
               Date: 8/3/2025
-            </div>
-            <div className="w-12 h-12 bg-gray-400 rounded-lg flex items-center justify-center">
-              <LuSettings className="h-6 w-6 text-white" />
             </div>
           </div>
         </div>

@@ -17,6 +17,8 @@ import {
   LuFileSpreadsheet
 } from 'react-icons/lu'
 import Swal from 'sweetalert2'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
+import Button from '../../../../shared/components/Button.jsx'
 
 // Register Chart.js components
 ChartJS.register(
@@ -302,10 +304,10 @@ Successful Hires,55,`
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Flow Section */}
         <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
-          <h3 className="text-xl font-semibold text-primary mb-2">
+          <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
             Visits → Resume → Application Flow
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
             Track user journey from initial visit to job application
           </p>
           
@@ -313,10 +315,10 @@ Successful Hires,55,`
             {flowData.map((item, index) => (
               <div key={index} className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="font-medium text-gray-900">{item.title}</span>
+                  <span className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{item.title}</span>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">{item.value}</p>
-                    <p className="text-sm text-gray-600">{item.percentage}</p>
+                    <p className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{item.value}</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{item.percentage}</p>
                   </div>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -332,10 +334,10 @@ Successful Hires,55,`
 
         {/* Monthly Conversion Trends Chart */}
         <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
-          <h3 className="text-xl font-semibold text-primary mb-2">
+          <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
             Monthly Conversion Trends
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
             6 month performance overview
           </p>
           
@@ -347,23 +349,25 @@ Successful Hires,55,`
 
       {/* Export Options */}
       <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
-        <h3 className="text-xl font-semibold text-primary mb-2">
+        <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
           Export Options
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
           Download reports in various formats or share with stakeholders
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {exportOptions.map((option, index) => (
-            <button
+            <Button
               key={index}
               onClick={option.onClick}
-              className="flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors duration-200 font-medium"
+              variant="outline"
+              size="md"
+              icon={option.icon}
+              className="py-4 font-medium"
             >
-              <span className="text-lg">{option.icon}</span>
-              <span className="text-sm">{option.label}</span>
-            </button>
+              {option.label}
+            </Button>
           ))}
         </div>
       </div>

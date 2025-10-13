@@ -17,6 +17,7 @@ import {
   LuFileSpreadsheet
 } from 'react-icons/lu'
 import Swal from 'sweetalert2'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 // Register Chart.js components
 ChartJS.register(
@@ -274,10 +275,10 @@ Hires Completed,200,66.7%`
     <div className="space-y-8">
       {/* Monthly Conversion Trends Chart */}
       <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
-        <h3 className="text-xl font-semibold text-primary mb-2">
+        <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
           Monthly Conversion Trends
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
           6 month performance overview
         </p>
         
@@ -288,10 +289,10 @@ Hires Completed,200,66.7%`
 
       {/* Export Options */}
       <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
-        <h3 className="text-xl font-semibold text-primary mb-2">
+        <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
           Export Options
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
           Download reports in various formats or share with stakeholders
         </p>
         

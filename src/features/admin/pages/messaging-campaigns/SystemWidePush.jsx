@@ -55,7 +55,7 @@ const SystemwidePush = () => {
           </div>
           <div>
             <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>System-wide Push Notifications</h2>
-            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>System-wide Push Notifications</p>
+            {/* <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>System-wide Push Notifications</p> */}
           </div>
         </div>
 
@@ -144,7 +144,7 @@ const SystemwidePush = () => {
 
       {/* Recent System-wide Push Notifications */}
       <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm">
-        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 sm:mb-6`}>System-wide Push Notifications</h2>
+        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 sm:mb-6`}> Manage Push Notifications</h2>
 
         <div className="space-y-3">
           {recentNotifications.map((notification) => (
