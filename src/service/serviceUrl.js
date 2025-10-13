@@ -15,6 +15,12 @@ const service = {
     employersList: '/admin/list_employers.php',
     institutesList: '/admin/list_institutes.php',
 
+    //recruiter url
+    getRecruiterJobs: '/employer/get_recruiter_jobs.php',
+    recruiterProfile: '/employer/profile.php',
+    recruiterReports: '/employer/recruiter_reports.php',
+    fetchEmployerJobs: '/employer/fetch_employer_jobs.php',
+
 }
 
 export default service;

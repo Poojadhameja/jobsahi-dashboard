@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Pie } from 'react-chartjs-2'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { FaBriefcase, FaUsers, FaCalendarAlt, FaEnvelope, FaCheck, FaTimes, FaEllipsisV, FaWrench, FaDownload, FaEye, FaPhone, FaMapMarkerAlt, FaGraduationCap, FaCode, FaLanguage, FaAward } from 'react-icons/fa'
@@ -7,34 +7,129 @@ import { Horizontal4Cards } from '../../../shared/components/metricCard'
 import Calendar from '../../../shared/components/Calendar'
 import DataTable from '../../../shared/components/DataTable'
 import jsPDF from 'jspdf'
+import { getMethod } from '../../../service/api'
+import apiService from '../../../service/serviceUrl'
+import Swal from 'sweetalert2'
+
+console.log('📦 Imports loaded:', { getMethod, apiService })
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 const Dashboard = () => {
+  console.log('🎯 Dashboard component loaded!')
+  
   const [selectedApplicant, setSelectedApplicant] = useState(null)
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
+  
+  // API State
+  const [dashboardMetrics, setDashboardMetrics] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  
+  console.log('📊 Current state:', { loading, dashboardMetrics, error })
 
-  // Metric cards data for Horizontal4Cards
-  const metricCardsData = [
+  // Fetch Dashboard Metrics
+  const fetchDashboardMetrics = async () => {
+    try {
+      setLoading(true)
+      console.log('🚀 Fetching dashboard metrics...')
+      
+      // Get Jobs Count
+      const jobsResponse = await getMethod({
+        apiUrl: apiService.getRecruiterJobs,
+        payload: {}
+      })
+      
+      console.log('📊 Jobs Response:', jobsResponse)
+      
+      if (jobsResponse.status === 'success') {
+        // Extract count from jobs response
+        const jobsCount = jobsResponse.count || 0
+        console.log('📈 Jobs Count:', jobsCount)
+        
+        // Set dashboard metrics with jobs count
+        const metricsData = {
+          jobsPosted: jobsCount,
+          appliedJobs: 0, // Will add other APIs later
+          interviewJobs: 0, // Will add other APIs later
+          messages: 0 // Will add other APIs later
+        }
+        
+        console.log('✅ Setting metrics:', metricsData)
+        setDashboardMetrics(metricsData)
+        setError(null)
+      } else {
+        console.log('❌ API Error:', jobsResponse)
+        setError(jobsResponse.message || 'Failed to fetch jobs data')
+        Swal.fire({
+          title: "Error",
+          text: jobsResponse.message || 'Failed to fetch jobs data',
+          icon: "error"
+        })
+      }
+    } catch (error) {
+      console.log('💥 Network Error:', error)
+      setError('Network error occurred')
+      Swal.fire({
+        title: "Network Error",
+        text: "Something went wrong. Please try again.",
+        icon: "error"
+      })
+    } finally {
+      setLoading(false)
+      console.log('🏁 Loading finished')
+    }
+  }
+
+  // useEffect to fetch data on component mount
+  useEffect(() => {
+    console.log('🔄 useEffect triggered - calling fetchDashboardMetrics')
+    fetchDashboardMetrics()
+  }, [])
+
+  // Metric cards data for Horizontal4Cards - Dynamic from API
+  const metricCardsData = dashboardMetrics ? [
     {
       title: 'Jobs Posted',
-      value: '79',
+      value: dashboardMetrics.jobsPosted || '0',
       icon: <FaBriefcase className="w-5 h-5" />
     },
     {
       title: 'Applied Job',
-      value: '7',
+      value: dashboardMetrics.appliedJobs || '0',
       icon: <FaUsers className="w-5 h-5" />
     },
     {
       title: 'Interview Job',
-      value: '160',
+      value: dashboardMetrics.interviewJobs || '0',
       icon: <FaCalendarAlt className="w-5 h-5" />
     },
     {
+      title: 'Messages',
+      value: dashboardMetrics.messages || '0',
+      icon: <FaEnvelope className="w-5 h-5" />
+    }
+  ] : [
+    // Fallback data while loading
+    {
+      title: 'Jobs Posted',
+      value: '0',
+      icon: <FaBriefcase className="w-5 h-5" />
+    },
+    {
+      title: 'Applied Job',
+      value: '0',
+      icon: <FaUsers className="w-5 h-5" />
+    },
+    {
       title: 'Interview Job',
-      value: '18',
+      value: '0',
+      icon: <FaCalendarAlt className="w-5 h-5" />
+    },
+    {
+      title: 'Messages',
+      value: '0',
       icon: <FaEnvelope className="w-5 h-5" />
     }
   ]
@@ -345,8 +440,32 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Debug Info */}
+      <div className="mb-4 p-4 bg-yellow-100 rounded-lg">
+        <p><strong>Debug Info:</strong></p>
+        <p>Loading: {loading ? 'Yes' : 'No'}</p>
+        <p>Dashboard Metrics: {JSON.stringify(dashboardMetrics)}</p>
+        <p>Error: {error || 'None'}</p>
+      </div>
+
       {/* Metric Cards */}
-      <Horizontal4Cards data={metricCardsData} className="mb-5" />
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-5">
+          {[1, 2, 3, 4].map((index) => (
+            <div key={index} className="bg-white rounded-lg border border-primary-30 shadow-sm p-6 animate-pulse">
+              <div className="flex items-center justify-between mb-4">
+                <div className="">
+                  <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                  <div className="h-8 bg-gray-200 rounded w-16"></div>
+                </div>
+                <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <Horizontal4Cards data={metricCardsData} className="mb-5" />
+      )}
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
