@@ -26,6 +26,13 @@ export default function Management() {
     setActiveTab(tabIndex)
   }
 
+  // Debug: Check authentication status
+  React.useEffect(() => {
+    const token = localStorage.getItem("authToken")
+    console.log('🔐 Auth Token Status:', token ? 'Present' : 'Missing')
+    console.log('🔐 Token Value:', token ? `${token.substring(0, 20)}...` : 'No token')
+  }, [])
+
   return (
     <div className="space-y-6">
       {/* Header */}

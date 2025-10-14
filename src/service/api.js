@@ -5,10 +5,16 @@ const backendHost = env.apiHost
 
 export const getMethod = async (data) => {
     try {
+        const token = localStorage.getItem("authToken");
+        console.log('🌐 API Request:', {
+            url: backendHost + data.apiUrl,
+            token: token ? `${token.substring(0, 20)}...` : 'No token',
+            payload: data.payload
+        });
 
         var headers = {
             "content-type": "application/json",
-            'Authorization': `Bearer ${localStorage.getItem("authToken")}`
+            'Authorization': `Bearer ${token}`
         }
 
         let respData = await axios({
@@ -18,13 +24,22 @@ export const getMethod = async (data) => {
             headers: headers
 
         });
+        
+        console.log('🌐 API Response:', respData.data);
         return respChanges(respData.data);
     }
     catch (err) {
+        console.error('🌐 API Error:', {
+            message: err.message,
+            status: err.response?.status,
+            data: err.response?.data,
+            url: backendHost + data.apiUrl
+        });
+        
         return {
             status: 'error',
-            message: err.response.data.message,
-            error: err.response.data.errors
+            message: err.response?.data?.message || err.message || 'Network error occurred',
+            error: err.response?.data?.errors || {}
         }
     }
 }
