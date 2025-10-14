@@ -69,7 +69,7 @@ const SystemwidePush = () => {
                 value={notificationForm.title}
                 onChange={(e) => setNotificationForm({...notificationForm, title: e.target.value})}
                 placeholder="Enter notification title"
-                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none   focus:border-transparent text-sm"
+                className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               />
             </div>
 
@@ -79,7 +79,7 @@ const SystemwidePush = () => {
                 <select
                   value={notificationForm.type}
                   onChange={(e) => setNotificationForm({...notificationForm, type: e.target.value})}
-                  className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none   focus:border-transparent text-sm appearance-none bg-white"
+                  className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-transparent text-sm appearance-none bg-white ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 >
                   <option value="">select notification type</option>
                   <option value="job-alert">Job Alert</option>
@@ -104,7 +104,7 @@ const SystemwidePush = () => {
               onChange={(e) => setNotificationForm({...notificationForm, message: e.target.value})}
               placeholder="Enter your notification message"
               rows="4"
-              className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none   focus:border-transparent text-sm resize-none"
+              className={`w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-transparent text-sm resize-none ${TAILWIND_COLORS.TEXT_PRIMARY}`}
             />
           </div>
           

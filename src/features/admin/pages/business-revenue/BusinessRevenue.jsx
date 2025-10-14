@@ -7,6 +7,7 @@ import {
 } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import RevenueDashboard from './RevenueDashboard'
 import OrderHistory from './OrderHistory'
 import SubscriptionPlan from './SubscriptionPlan'
@@ -45,8 +46,8 @@ export default function BusinessRevenue() {
                 <MatrixCard 
                     title="Business & Revenue Panel"
                     subtitle="Manage your revenue streams, subscriptions, and featured content"
-                    titleColor="text-primary"
-                    subtitleColor="text-primary"
+                    titleColor={TAILWIND_COLORS.TEXT_PRIMARY}
+                    subtitleColor={TAILWIND_COLORS.TEXT_MUTED}
                 />
             </div>
 
