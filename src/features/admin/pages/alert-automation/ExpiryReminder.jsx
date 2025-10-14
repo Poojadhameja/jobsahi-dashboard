@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
-import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
 
 // Toggle Switch Component
 const Toggle = ({ checked, onChange, label }) => (
@@ -19,7 +19,7 @@ const Toggle = ({ checked, onChange, label }) => (
         }`}
       />
     </span>
-    <span className="text-sm text-gray-600">{label}</span>
+    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{label}</span>
   </label>
 )
 
@@ -92,7 +92,8 @@ const SpamDetectionRules = ({ rules, onRulesChange, onUpdateRules }) => {
         <div className="pt-4">
           <PrimaryButton 
             onClick={handleSubmit}
-            className="w-full h-12 bg-[var(--color-secondary)] hover:bg-secondary-dark text-white rounded-lg text-sm font-medium"
+            fullWidth
+            size="lg"
           >
             Update Rules
           </PrimaryButton>
@@ -151,7 +152,7 @@ const FlaggedItemsReview = ({ flaggedItems, onReviewItem }) => {
               {item.status === 'Pending' && (
                 <OutlineButton 
                   onClick={() => onReviewItem(index)}
-                  className="border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] px-3 py-1 text-sm font-medium rounded-md"
+                  size="sm"
                 >
                   Review
                 </OutlineButton>

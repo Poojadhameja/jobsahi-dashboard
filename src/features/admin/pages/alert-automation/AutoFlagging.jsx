@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
-import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
 
 // Toggle Switch Component
 const Toggle = ({ checked, onChange, label }) => (
@@ -19,7 +19,7 @@ const Toggle = ({ checked, onChange, label }) => (
         }`}
       />
     </span>
-    <span className="text-sm text-gray-600">{label}</span>
+    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{label}</span>
   </label>
 )
 
@@ -61,7 +61,7 @@ const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) =>
             <select
               value={settings.reminderDays}
               onChange={(e) => onSettingsChange({ ...settings, reminderDays: e.target.value })}
-              className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white pr-9 text-sm"
+              className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none bg-white pr-9 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
             >
               <option value="">select days</option>
               {reminderDaysOptions.map(option => (
@@ -87,7 +87,7 @@ const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) =>
             value={settings.emailTemplate}
             onChange={(e) => onSettingsChange({ ...settings, emailTemplate: e.target.value })}
             placeholder="Your plan expires in X days. Renew now to continue..."
-            className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"
+            className={`w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
           />
         </div>
 
@@ -104,7 +104,9 @@ const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) =>
         <div className="pt-4">
           <PrimaryButton 
             onClick={handleSubmit}
-            className="w-full h-12 bg-[var(--color-secondary)] hover:bg-secondary-dark text-white rounded-lg text-sm font-medium"
+            fullWidth
+            size="lg"
+            className="h-12"
           >
             Save Settings
           </PrimaryButton>

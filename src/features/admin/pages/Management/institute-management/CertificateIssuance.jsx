@@ -1,5 +1,5 @@
 import React from 'react'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 
 // Certificate Issuance Table Component
 function CertificateIssuanceTable() {

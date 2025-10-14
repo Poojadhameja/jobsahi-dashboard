@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 
 // Resume Access Usage Tracker Component
 function ResumeUsageTracker() {

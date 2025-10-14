@@ -320,7 +320,7 @@ export default function FeaturedContent() {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Edit Featured Content</h2>
+            <h2 className="text-xl font-semibold text-text-primary">Edit Featured Content</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -335,7 +335,7 @@ export default function FeaturedContent() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Job Title*</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Job Title*</label>
                     <input
                       type="text"
                       value={editForm.jobTitle}
@@ -345,7 +345,7 @@ export default function FeaturedContent() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Company*</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Company*</label>
                     <input
                       type="text"
                       value={editForm.company}
@@ -357,7 +357,7 @@ export default function FeaturedContent() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Priority*</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Priority*</label>
                     <select
                       value={editForm.priority}
                       onChange={(e) => handleInputChange('priority', e.target.value)}
@@ -370,7 +370,7 @@ export default function FeaturedContent() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Status</label>
                     <select
                       value={editForm.status}
                       onChange={(e) => handleInputChange('status', e.target.value)}
@@ -383,7 +383,7 @@ export default function FeaturedContent() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Start Date</label>
                     <input
                       type="date"
                       value={editForm.startDate}
@@ -392,7 +392,7 @@ export default function FeaturedContent() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">End Date</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">End Date</label>
                     <input
                       type="date"
                       value={editForm.endDate}
@@ -409,7 +409,7 @@ export default function FeaturedContent() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Course Title*</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Course Title*</label>
                     <input
                       type="text"
                       value={editForm.courseTitle}
@@ -419,7 +419,7 @@ export default function FeaturedContent() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Institute*</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Institute*</label>
                     <input
                       type="text"
                       value={editForm.institute}
@@ -431,7 +431,7 @@ export default function FeaturedContent() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Priority*</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Priority*</label>
                     <select
                       value={editForm.priority}
                       onChange={(e) => handleInputChange('priority', e.target.value)}
@@ -444,7 +444,7 @@ export default function FeaturedContent() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Duration</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Duration</label>
                     <input
                       type="text"
                       value={editForm.duration}
@@ -473,7 +473,7 @@ export default function FeaturedContent() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Banner Title*</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Banner Title*</label>
                     <input
                       type="text"
                       value={editForm.bannerTitle}
@@ -483,7 +483,7 @@ export default function FeaturedContent() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Location*</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Location*</label>
                     <input
                       type="text"
                       value={editForm.location}
@@ -495,7 +495,7 @@ export default function FeaturedContent() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Priority*</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Priority*</label>
                     <select
                       value={editForm.priority}
                       onChange={(e) => handleInputChange('priority', e.target.value)}
@@ -508,7 +508,7 @@ export default function FeaturedContent() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Status</label>
                     <select
                       value={editForm.status}
                       onChange={(e) => handleInputChange('status', e.target.value)}
@@ -521,7 +521,7 @@ export default function FeaturedContent() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">Start Date</label>
                     <input
                       type="date"
                       value={editForm.startDate}
@@ -530,7 +530,7 @@ export default function FeaturedContent() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">End Date</label>
+                    <label className="block text-sm font-medium text-text-muted mb-1">End Date</label>
                     <input
                       type="date"
                       value={editForm.endDate}
@@ -612,7 +612,7 @@ export default function FeaturedContent() {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">
+            <h2 className="text-xl font-semibold text-text-primary">
               Add {activeTab === 0 ? 'Featured Job' : activeTab === 1 ? 'Featured Course' : 'Featured Content'}
             </h2>
             <button
@@ -626,10 +626,10 @@ export default function FeaturedContent() {
           <div className="p-6 space-y-6">
             {/* Basic Information */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Content Information</h3>
+              <h3 className="text-lg font-medium text-text-primary mb-4">Content Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                  <label className="block text-sm font-medium text-text-muted mb-1">
                     {activeTab === 0 ? 'Job Title*' : activeTab === 1 ? 'Course Title*' : 'Title*'}
                   </label>
                   <input
@@ -641,7 +641,7 @@ export default function FeaturedContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                  <label className="block text-sm font-medium text-text-muted mb-1">
                     {activeTab === 0 ? 'Company*' : activeTab === 1 ? 'Institute*' : 'Organization*'}
                   </label>
                   <input
@@ -657,10 +657,10 @@ export default function FeaturedContent() {
 
             {/* Priority and Status */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Priority & Status</h3>
+              <h3 className="text-lg font-medium text-text-primary mb-4">Priority & Status</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Priority*</label>
+                  <label className="block text-sm font-medium text-text-muted mb-1">Priority*</label>
                   <select
                     value={addForm.priority}
                     onChange={(e) => handleInputChange('priority', e.target.value)}
@@ -673,7 +673,7 @@ export default function FeaturedContent() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
+                  <label className="block text-sm font-medium text-text-muted mb-1">Status</label>
                   <select
                     value={addForm.status}
                     onChange={(e) => handleInputChange('status', e.target.value)}
@@ -688,10 +688,10 @@ export default function FeaturedContent() {
 
             {/* Date Range */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Date Range</h3>
+              <h3 className="text-lg font-medium text-text-primary mb-4">Date Range</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
+                  <label className="block text-sm font-medium text-text-muted mb-1">Start Date</label>
                   <input
                     type="date"
                     value={addForm.startDate}
@@ -700,7 +700,7 @@ export default function FeaturedContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">End Date</label>
+                  <label className="block text-sm font-medium text-text-muted mb-1">End Date</label>
                   <input
                     type="date"
                     value={addForm.endDate}
@@ -740,8 +740,8 @@ export default function FeaturedContent() {
       <div className="p-5">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Featured Content Manager</h1>
-            <p className="text-gray-600 mt-1">Manage featured jobs, courses, and priority banners</p>
+            <h1 className="text-xl font-bold text-text-primary">Featured Content Manager</h1>
+            <p className="text-text-muted mt-1">Manage featured jobs, courses, and priority banners</p>
           </div>
           
           
@@ -767,8 +767,8 @@ export default function FeaturedContent() {
        <div className=" ">
          <div className="px-6 ">
            <div>
-             <h2 className="text-lg font-bold text-gray-900">{currentData.title}</h2>
-             <p className="text-gray-600">{currentData.subtitle}</p>
+             <h2 className="text-lg font-bold text-text-primary">{currentData.title}</h2>
+             <p className="text-text-muted">{currentData.subtitle}</p>
            </div>
          </div>
 
@@ -781,7 +781,7 @@ export default function FeaturedContent() {
                   <div className="flex flex-col md:flex-row gap-4 justify-start md:gap-10">
                     {/* Banner Title */}
                   <div className="w-full md:w-1/2">
-                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                    <label className="block text-sm font-medium text-text-primary mb-2">
                       Banner Title
                     </label>
                     <input
@@ -795,7 +795,7 @@ export default function FeaturedContent() {
 
                   {/* Priority */}
                   <div className="w-full md:w-auto">
-                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                    <label className="block text-sm font-medium text-text-primary mb-2">
                       Priority
                     </label>
                       <select
@@ -812,7 +812,7 @@ export default function FeaturedContent() {
 
                   {/* Description */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-800 mb-2">
+                    <label className="block text-sm font-medium text-text-primary mb-2">
                       Description
                     </label>
                     <textarea
@@ -860,7 +860,7 @@ export default function FeaturedContent() {
                  <thead className="bg-gray-50">
                    <tr>
                      {currentData.columns.map((column, index) => (
-                       <th key={index} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                       <th key={index} className="px-6 py-3 text-left text-xs font-medium text-text-muted uppercase tracking-wider">
                          {column}
                        </th>
                      ))}
@@ -869,10 +869,10 @@ export default function FeaturedContent() {
                  <tbody className="bg-white divide-y divide-gray-200">
                    {currentData.data.map((item) => (
                      <tr key={item.id} className="hover:bg-gray-50">
-                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-text-primary">
                          {activeTab === 0 ? item.jobTitle : item.courseTitle}
                        </td>
-                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                       <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
                          {activeTab === 0 ? item.company : item.institute}
                        </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -895,15 +895,15 @@ export default function FeaturedContent() {
                           {item.status}
                         </span>
                       </td>
-                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                       <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
                          {activeTab === 1 ? item.duration : item.startDate}
                        </td>
                        {activeTab !== 1 && (
-                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-primary">
                            {item.endDate}
                          </td>
                        )}
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-text-muted">
                         <div className="flex space-x-2">
                           <button
                             onClick={() => handleEdit(item)}
@@ -930,7 +930,7 @@ export default function FeaturedContent() {
             {/* Empty State */}
             {currentData.data.length === 0 && (
               <div className="text-center py-12">
-                <div className="text-gray-500">
+                <div className="text-text-muted">
                   <p className="text-lg font-medium">No {currentData.title.toLowerCase()} found</p>
                   <p className="text-sm">Add your first {currentData.title.toLowerCase().slice(0, -1)} to get started</p>
                   <button 

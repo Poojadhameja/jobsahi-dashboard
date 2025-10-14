@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant';
+import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';
 
 const JobPosting = () => {

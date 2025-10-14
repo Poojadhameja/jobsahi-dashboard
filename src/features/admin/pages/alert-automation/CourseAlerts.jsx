@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx';
-import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant';
+import Button from '../../../../shared/components/Button.jsx';
+import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 
 // Toggle Switch Component
 const Toggle = ({ checked, onChange, label }) => (
@@ -19,7 +19,7 @@ const Toggle = ({ checked, onChange, label }) => (
         }`}
       />
     </span>
-    <span className="text-sm text-gray-600">{label}</span>
+    <span className="text-sm text-text-muted">{label}</span>
   </label>
 )
 
@@ -46,15 +46,15 @@ const CourseDeadlineSettings = ({ settings, onSettingsChange, onUpdateSettings }
             <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
           </svg>
         </div>
-        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course Deadline Settings</h2>
+        <h2 className="text-lg font-semibold text-text-primary">Course Deadline Settings</h2>
       </div>
-      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Automatic alerts for course deadlines</p>
+      <p className="text-sm text-text-muted mb-6">Automatic alerts for course deadlines</p>
       
       {/* Form Content */}
       <div className="space-y-6 flex-1">
         {/* Alert Schedule Dropdown */}
         <div className="space-y-2">
-          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+          <label className="block text-sm font-medium text-text-primary">
             Alert Schedule
           </label>
           <div className="relative">
@@ -94,7 +94,7 @@ const CourseDeadlineSettings = ({ settings, onSettingsChange, onUpdateSettings }
 
         {/* Message Template */}
         <div className="space-y-2">
-          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+          <label className="block text-sm font-medium text-text-primary">
             Message Template
           </label>
           <input
@@ -108,12 +108,15 @@ const CourseDeadlineSettings = ({ settings, onSettingsChange, onUpdateSettings }
 
         {/* Save Button */}
         <div className="pt-4">
-          <PrimaryButton 
+          <Button 
             onClick={handleSubmit}
-            className="w-full h-12 bg-[var(--color-secondary)] hover:bg-secondary-dark text-white rounded-lg text-sm font-medium"
+            variant="primary"
+            size="md"
+            fullWidth
+            className="font-medium"
           >
             Save Alert Settings
-          </PrimaryButton>
+          </Button>
         </div>
       </div>
     </div>
@@ -131,9 +134,9 @@ const UpcomingDeadlines = ({ deadlines }) => {
             <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
           </svg>
         </div>
-        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Upcoming Deadlines</h2>
+        <h2 className="text-lg font-semibold text-text-primary">Upcoming Deadlines</h2>
       </div>
-      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Courses with approaching deadlines</p>
+      <p className="text-sm text-text-muted mb-6">Courses with approaching deadlines</p>
 
       {/* Deadlines List */}
       <div className="space-y-3 flex-1">
@@ -144,10 +147,10 @@ const UpcomingDeadlines = ({ deadlines }) => {
           >
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              <h3 className="text-sm font-medium text-text-primary mb-1">
                 {deadline.courseName}
               </h3>
-              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+              <p className="text-xs text-text-muted">
                 {deadline.studentCount} students - Deadline in {deadline.deadline}
               </p>
             </div>

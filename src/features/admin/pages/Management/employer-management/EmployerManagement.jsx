@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Swal from 'sweetalert2'
-import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant'
+import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant.js'
 import { MatrixCard, MetricPillRow } from '../../../../../shared/components/metricCard'
 import Button from '../../../../../shared/components/Button'
 import PendingRecruiterApprovals from './PendingRecruiter'

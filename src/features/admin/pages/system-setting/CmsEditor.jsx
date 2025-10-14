@@ -4,8 +4,9 @@ import {
   LuCheck,
   LuCircleDot,
 } from 'react-icons/lu';
-import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant';
-import { PrimaryButton } from '../../../../shared/components/Button';
+import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js';
+import { PrimaryButton, SaveButton, BackToOverviewButton } from '../../../../shared/components/Button';
+import DynamicButton from '../../../../shared/components/DynamicButton';
 
 const CMSEditor = () => {
   // State for each page
@@ -94,7 +95,7 @@ const CMSEditor = () => {
               setter(prev => ({ ...prev, title: e.target.value }));
             }}
             placeholder={titlePlaceholder}
-            className="w-full h-12 px-4 py-3 border border-[var(--color-primary)2c] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+            className={`w-full h-12 px-4 py-3 border border-[var(--color-primary)2c] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
           />
         </div>
 
@@ -110,23 +111,20 @@ const CMSEditor = () => {
               setter(prev => ({ ...prev, content: e.target.value }));
             }}
             placeholder={contentPlaceholder}
-            className="w-full h-32 px-4 py-3 border border-[var(--color-primary)2c] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none"
+            className={`w-full h-32 px-4 py-3 border border-[var(--color-primary)2c] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none ${TAILWIND_COLORS.TEXT_PRIMARY}`}
           />
         </div>
 
         {/* Save Button */}
         <div className="pt-2">
-          <PrimaryButton
+          <SaveButton
             onClick={() => handleSave(pageType, { title: pageData.title, content: pageData.content })}
+            loading={pageData.isSaving}
+            savedTick={pageData.savedTick}
             disabled={pageData.isSaving}
-            className="w-full h-12 bg-[var(--color-secondary)] hover:bg-secondary-dark text-white rounded-lg text-sm font-medium"
           >
-            {pageData.isSaving ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              'Save'
-            )}
-          </PrimaryButton>
+            Save
+          </SaveButton>
         </div>
       </div>
     </div>
@@ -149,13 +147,9 @@ const CMSEditor = () => {
         </div>
 
         {/* Back to overview button */}
-        <PrimaryButton
+        <BackToOverviewButton
           onClick={() => window.history.back()}
-          className="h-10 px-4 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-sm font-medium"
-          icon={<LuArrowLeft className="w-4 h-4" />}
-        >
-          Back to overview
-        </PrimaryButton>
+        />
       </div>
 
       {/* Cards Grid */}

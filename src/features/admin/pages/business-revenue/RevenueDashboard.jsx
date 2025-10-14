@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import { LuChevronDown, LuCreditCard, LuWallet, LuUsers } from 'react-icons/lu'
 import { Horizontal4Cards } from '../../../../shared/components/metricCard'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 const INR = (n) => `₹${Number(n).toLocaleString('en-IN')}`
 
@@ -56,17 +57,17 @@ export default function RevenueDashboard() {
     <div className="max-w-7xl mx-auto space-y-5 min-h-screen">
       {/* Filters & Analytics */}
       <section className="bg-white rounded-xl border border-[var(--color-primary)3c] p-6 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-800 mb-6">Filters & Analytics</h2>
+        <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Filters & Analytics</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Date range */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Date Range</label>
             <div className="relative w-1/2">
               <select
                 value={range}
                 onChange={(e) => setRange(e.target.value)}
-                className="w-full px-4 py-3  border border-[var(--color-primary)3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 cursor-pointer"
+                className={`w-full px-4 py-3  border border-[var(--color-primary)3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer`}
               >
                 <option value="7d">Last 7 days</option>
                 <option value="30d">Last 30 days</option>
@@ -74,18 +75,18 @@ export default function RevenueDashboard() {
                 <option value="yr">This Year</option>
                 <option value="custom">Custom Range</option>
               </select>
-              <LuChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" size={20} />
+              <LuChevronDown className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`} size={20} />
             </div>
           </div>
 
           {/* Payment Method */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Payment Method</label>
             <div className="relative w-1/2">
               <select
                 value={method}
                 onChange={(e) => setMethod(e.target.value)}
-                className="w-full px-4 py-3  border border-[var(--color-primary)3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 cursor-pointer"
+                className={`w-full px-4 py-3  border border-[var(--color-primary)3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer`}
               >
                 <option value="all">All Methods</option>
                 <option value="razorpay">Razorpay</option>
@@ -93,25 +94,25 @@ export default function RevenueDashboard() {
                 <option value="wallet">Wallet</option>
                 <option value="bank">Bank Transfer</option>
               </select>
-              <LuChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" size={20} />
+              <LuChevronDown className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`} size={20} />
             </div>
           </div>
 
           {/* User Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">User Type</label>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>User Type</label>
             <div className="relative w-1/2">
               <select
                 value={userType}
                 onChange={(e) => setUserType(e.target.value)}
-                className="w-full px-4 py-3  border border-[var(--color-primary)3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                className={`w-full px-4 py-3  border border-[var(--color-primary)3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer`}
               >
-                <option value="" className="text-gray-400">Select user type</option>
+                <option value="" className={TAILWIND_COLORS.TEXT_MUTED}>Select user type</option>
                 <option value="employer">Employer</option>
                 <option value="institute">Institute</option>
                 <option value="student">Student</option>
               </select>
-              <LuChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" size={20} />
+              <LuChevronDown className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`} size={20} />
             </div>
           </div>
         </div>
@@ -123,8 +124,8 @@ export default function RevenueDashboard() {
       {/* Payment Method Analytics */}
       <section className="bg-white rounded-lg border border-[var(--color-primary)3c] p-6 shadow-sm">
         <div className="mb-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Payment Method Analytics</h2>
-          <p className="text-gray-600">Revenue breakdown by payment methods</p>
+          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Payment Method Analytics</h2>
+          <p className={TAILWIND_COLORS.TEXT_MUTED}>Revenue breakdown by payment methods</p>
         </div>
 
         <div className="space-y-2">
@@ -134,16 +135,16 @@ export default function RevenueDashboard() {
                 <div className={`w-4 h-4 ${p.dot} rounded-full`}></div>
                 <div className="flex items-center space-x-2">
                   {p.key === 'wallet' ? (
-                    <LuWallet className="w-5 h-5 text-gray-600" />
+                    <LuWallet className={`w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                   ) : (
-                    <LuCreditCard className="w-5 h-5 text-gray-600" />
+                    <LuCreditCard className={`w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                   )}
-                  <span className="font-medium text-gray-800">{p.label}</span>
+                  <span className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{p.label}</span>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-lg font-semibold text-gray-900">{INR(p.amount)}</p>
-                <p className="text-sm text-gray-600">{p.percent}%</p>
+                <p className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{INR(p.amount)}</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{p.percent}%</p>
               </div>
             </div>
           ))}

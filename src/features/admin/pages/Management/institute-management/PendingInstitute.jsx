@@ -15,7 +15,7 @@ import {
 import Swal from 'sweetalert2'
 import { postMethod, putMethod } from '../../../../../service/api'
 import apiService from '../../../../admin/services/serviceUrl'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 
 // Institute Approval Card Component
 function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }) {

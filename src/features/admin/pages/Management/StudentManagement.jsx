@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import Swal from 'sweetalert2'
-import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant'
+import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js'
 import { MatrixCard, MetricPillRow } from '../../../../shared/components/metricCard'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../../admin/services/serviceUrl'

@@ -17,7 +17,7 @@ import {
   LuFileSpreadsheet
 } from 'react-icons/lu'
 import Swal from 'sweetalert2'
-import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
 
 // Register Chart.js components
 ChartJS.register(

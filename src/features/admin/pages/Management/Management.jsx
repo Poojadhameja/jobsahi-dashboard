@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { PillNavigation, MANAGEMENT_TABS } from '../../../../shared/components/navigation.jsx'
-import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
 import StudentManagement from './StudentManagement'
 import EmployerManagement from './employer-management/EmployerManagement'
 import InstituteManagement from './institute-management/InstituteManagement'

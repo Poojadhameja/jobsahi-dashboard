@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 
 // Job Flag/Review System (Fraud/spam control) Component
 function FraudControlSystem() {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { MatrixCard } from '../../../../shared/components/metricCard.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
 import ActivityLogs from './ActivityLogs.jsx'
 import ErrorLogs from './ErrorLogs.jsx'
 import MessageLogs from './MessageLogs.jsx'
@@ -45,6 +46,8 @@ export default function AdminTools() {
       <MatrixCard 
         title="Admin Tools & Logs"
         subtitle="Comprehensive logging system and administrative tools for monitoring, debugging, managing your job portal platform"
+        titleColor={TAILWIND_COLORS.TEXT_PRIMARY}
+        subtitleColor={TAILWIND_COLORS.TEXT_MUTED}
         className=""
       />
 

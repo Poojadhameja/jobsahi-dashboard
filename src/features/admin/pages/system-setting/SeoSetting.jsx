@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
-import { PrimaryButton } from '../../../../shared/components/Button'
+import { PrimaryButton, BackToOverviewButton } from '../../../../shared/components/Button'
+import DynamicButton from '../../../../shared/components/DynamicButton'
 import { LuPlus, LuUpload, LuArrowLeft } from 'react-icons/lu'
 
 export default function SEOSetting() {
@@ -45,38 +46,28 @@ export default function SEOSetting() {
         </div>
 
         {/* Back to overview button */}
-        <PrimaryButton
+        <BackToOverviewButton
           onClick={handleBack}
-          className="h-10 px-4 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-sm font-medium"
-          icon={<LuArrowLeft className="w-4 h-4" />}
-        >
-          Back to overview
-        </PrimaryButton>
+        />
       </div>
 
       {/* SEO Settings Card */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div className="flex items-start gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
-              <LuPlus className="h-4 w-4 text-green-600" />
-            </div>
-            <div>
-              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>SEO Settings</h3>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Public pages optimization</p>
-            </div>
-          </div>
+        <div className="flex items-start justify-between mb-">
         </div>
-
+        
         <div className="space-y-6">
           {/* Site title */}
+          <div>
+            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>SEO Settings</h2>
+          </div>
           <div className="space-y-2">
             <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Site title</label>
             <input
               type="text"
               value={seoData.siteTitle}
               onChange={(e) => handleInputChange('siteTitle', e.target.value)}
-              className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               placeholder="Job Portal – Find your dream job"
             />
           </div>
@@ -88,7 +79,7 @@ export default function SEOSetting() {
               type="text"
               value={seoData.keywords}
               onChange={(e) => handleInputChange('keywords', e.target.value)}
-              className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               placeholder="jobs, careers, employment, hiring"
             />
           </div>
@@ -100,7 +91,7 @@ export default function SEOSetting() {
               type="text"
               value={seoData.metaDescription}
               onChange={(e) => handleInputChange('metaDescription', e.target.value)}
-              className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               placeholder="Discover thousands of job opportunities"
             />
           </div>
@@ -123,7 +114,7 @@ export default function SEOSetting() {
                 type="text"
                 value={seoData.ogTitle}
                 onChange={(e) => handleInputChange('ogTitle', e.target.value)}
-                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 placeholder="Job Portal"
               />
             </div>
@@ -134,7 +125,7 @@ export default function SEOSetting() {
                 type="text"
                 value={seoData.ogDescription}
                 onChange={(e) => handleInputChange('ogDescription', e.target.value)}
-                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 placeholder="Find your next career opportunity"
               />
             </div>
@@ -146,16 +137,22 @@ export default function SEOSetting() {
                   type="text"
                   value={seoData.ogImage}
                   onChange={(e) => handleInputChange('ogImage', e.target.value)}
-                  className="flex-1 h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                  className={`flex-1 h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                   placeholder="Image URL"
                 />
-                <button
+                <DynamicButton
                   type="button"
-                  className="h-12 w-12 bg-[var(--color-secondary)] hover:bg-secondary-dark text-white rounded-lg flex items-center justify-center"
+                  backgroundColor="var(--color-secondary)"
+                  hoverBackgroundColor="var(--color-secondary-dark)"
+                  textColor="white"
+                  width="48px"
+                  height="48px"
+                  borderRadius="8px"
+                  padding="0"
                   title="Upload"
                 >
                   <LuUpload className="h-5 w-5" />
-                </button>
+                </DynamicButton>
               </div>
             </div>
           </div>
@@ -175,7 +172,7 @@ export default function SEOSetting() {
                 type="text"
                 value={seoData.googleAnalyticsId}
                 onChange={(e) => handleInputChange('googleAnalyticsId', e.target.value)}
-                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 placeholder="GA-XXXXXXXX-X"
               />
             </div>
@@ -186,7 +183,7 @@ export default function SEOSetting() {
                 type="text"
                 value={seoData.googleTagManager}
                 onChange={(e) => handleInputChange('googleTagManager', e.target.value)}
-                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 placeholder="GTM-XXXXX"
               />
             </div>
@@ -208,6 +205,16 @@ export default function SEOSetting() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Save Button */}
+      <div className="flex justify-end">
+        <PrimaryButton
+          onClick={handleSave}
+          className="px-6 py-3"
+        >
+          Save SEO Settings
+        </PrimaryButton>
       </div>
     </div>
   )

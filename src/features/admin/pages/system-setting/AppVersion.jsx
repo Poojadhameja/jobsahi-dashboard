@@ -5,8 +5,8 @@ import {
   LuMonitor,
   LuArrowLeft,
 } from 'react-icons/lu';
-import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant';
-import { PrimaryButton } from '../../../../shared/components/Button';
+import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js';
+import { PrimaryButton, BackToOverviewButton } from '../../../../shared/components/Button';
 import { Horizontal4Cards } from '../../../../shared/components/metricCard';
 
 export default function AppVersionMonitor() {
@@ -52,13 +52,9 @@ export default function AppVersionMonitor() {
         </div>
 
         {/* Back to overview button */}
-        <PrimaryButton
+        <BackToOverviewButton
           onClick={() => window.history.back()}
-          className="h-10 px-4 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] hover:bg-[var(--color-secondary)] hover:text-white rounded-lg text-sm font-medium"
-          icon={<LuArrowLeft className="w-4 h-4" />}
-        >
-          Back to overview
-        </PrimaryButton>
+        />
       </div>
 
       {/* Metrics Cards */}
@@ -119,7 +115,8 @@ export default function AppVersionMonitor() {
           </div>
 
           <PrimaryButton
-            className="w-full mt-6 bg-[var(--color-secondary)] hover:bg-secondary-dark text-white rounded-lg py-3 font-medium"
+            className="w-full mt-6"
+            fullWidth
           >
             Check for Updates
           </PrimaryButton>
@@ -146,7 +143,7 @@ function HealthRow({ label, status, tone = "emerald" }) {
     <div
       className={`rounded-xl border ${t.border} bg-white px-4 py-2.5 flex items-center justify-between`}
     >
-      <span className="text-sm text-slate-700">{label}</span>
+      <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{label}</span>
       <span
         className={`inline-flex items-center rounded-full ${t.pillBg} ${t.pillText} text-xs font-semibold px-2.5 py-1`}
       >
@@ -164,10 +161,10 @@ function SettingTile({ title, subtitle, active, onClick }) {
       className={`w-full text-left rounded-lg border px-4 py-3 transition
         ${active ? "bg-emerald-50 border-emerald-300" : "bg-white border-slate-200 hover:bg-slate-50"}`}
     >
-      <p className={`font-medium ${active ? "text-emerald-700" : "text-slate-800"}`}>
+      <p className={`font-medium ${active ? "text-emerald-700" : TAILWIND_COLORS.TEXT_PRIMARY}`}>
         {title}
       </p>
-      <p className="text-sm text-slate-500">{subtitle}</p>
+      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{subtitle}</p>
     </button>
   );
 }
