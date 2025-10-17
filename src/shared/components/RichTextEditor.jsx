@@ -23,21 +23,7 @@ const RichTextEditor = ({
       style={{ height }}
       placeholder={placeholder}
       className={`w-full ${className}`}
-      modules={{
-        toolbar: [
-          ['bold', 'underline'],
-          [{ 'list': 'bullet' }],
-          [{ 'align': [] }],
-          ['link'],
-          ['undo', 'redo']
-        ]
-      }}
-      formats={[
-        'bold', 'underline',
-        'list', 'bullet', 'align',
-        'link',
-        'undo', 'redo'
-      ]}
+      showHeader={true} // ✅ enables default toolbar safely
       {...props}
     />
   )

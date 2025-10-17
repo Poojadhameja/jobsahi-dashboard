@@ -1,4 +1,4 @@
-import React from 'react'
+// import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { 
   LuBookOpen, 
@@ -18,7 +18,32 @@ import {
 import { Horizontal4Cards } from '../../../shared/components/metricCard'
 import ProgressChart from '../../../shared/components/charts/ProgressChart'
 
+import React, { useEffect, useState } from 'react'
+import { getMethod } from '../../../service/api'
+import apiService from '../services/serviceUrl'
+// import ProgressChart from '../../../shared/components/charts/ProgressChart'
+
+
 export default function Dashboard() {
+
+  // api integration for performance overview
+  const [performance, setPerformance] = useState({
+    course_completion_rate: 0,
+    student_satisfaction: 0,
+    placement_success: 0
+  })
+  
+  useEffect(() => {
+    getMethod({ apiUrl: apiService.dashboardStats })
+      .then((res) => {
+        if (res.status === 'success') {
+          setPerformance(res.data)
+        }
+      })
+      .catch((err) => console.error(err))
+  }, [])
+
+
   const navigate = useNavigate()
 
   const handleCourseManagement = () => {
@@ -205,7 +230,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Course Completion Rate */}
           <ProgressChart 
-            percentage={85}
+            percentage={performance.course_completion_rate}
             label="Course Completion Rate"
             color="#10B981"
             size={120}
@@ -213,7 +238,7 @@ export default function Dashboard() {
 
           {/* Student Satisfaction */}
           <ProgressChart 
-            percentage={85}
+            percentage={performance.student_satisfaction}
             label="Student Satisfaction"
             color="#3B82F6"
             size={120}
@@ -221,7 +246,7 @@ export default function Dashboard() {
 
           {/* Placement Success */}
           <ProgressChart 
-            percentage={85}
+            percentage={performance.placement_success}
             label="Placement Success"
             color="#8B5CF6"
             size={120}

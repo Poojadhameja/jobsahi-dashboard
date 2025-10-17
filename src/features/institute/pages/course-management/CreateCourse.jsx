@@ -7,7 +7,12 @@ import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
 import { useCourseContext } from '../../context/CourseContext'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
+
+import { postMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl.js'
+
 export default function CreateCourse() {
+  
   const navigate = useNavigate()
   const { addCourse } = useCourseContext()
   const [formData, setFormData] = useState({
@@ -43,7 +48,6 @@ export default function CreateCourse() {
     if (newModule.title.trim() && newModule.description.trim()) {
       setModules(prev => [...prev, { ...newModule, id: Date.now() }])
       setNewModule({ title: '', description: '' })
-      // Clear module validation errors when successfully adding
       setValidationErrors(prev => {
         const newErrors = { ...prev }
         delete newErrors.moduleTitle
@@ -53,11 +57,10 @@ export default function CreateCourse() {
     }
   }
 
-  const handleSave = () => {
-    // Clear previous validation errors
+  // ✅ Backend integration for Save button
+  const handleSave = async () => {
     setValidationErrors({})
-    
-    // Validate all required fields
+
     const requiredFields = [
       { field: 'courseTitle', label: 'Course Title' },
       { field: 'duration', label: 'Duration' },
@@ -70,82 +73,50 @@ export default function CreateCourse() {
     ]
 
     const missingFields = requiredFields.filter(field => !formData[field.field] || formData[field.field].toString().trim() === '')
-    
-    // Validate module fields if they have content
-    if (newModule.title.trim() || newModule.description.trim()) {
-      if (!newModule.title.trim()) {
-        missingFields.push({ field: 'moduleTitle', label: 'Module Title' })
-      }
-      if (!newModule.description.trim()) {
-        missingFields.push({ field: 'moduleDescription', label: 'Module Description' })
-      }
-    }
-    
     if (missingFields.length > 0) {
       const missingFieldNames = missingFields.map(field => field.label).join(', ')
-      
-      // Set validation errors for visual feedback
       const errors = {}
-      missingFields.forEach(field => {
-        errors[field.field] = `${field.label} is required`
-      })
+      missingFields.forEach(field => { errors[field.field] = `${field.label} is required` })
       setValidationErrors(errors)
-      
       alert(`Please fill in all required fields: ${missingFieldNames}`)
       return
     }
 
-    // Validate that if user started adding a module, both title and description must be filled
-    if ((newModule.title.trim() && !newModule.description.trim()) || 
-        (!newModule.title.trim() && newModule.description.trim())) {
-      setValidationErrors({
-        moduleTitle: 'Both Module Title and Description are required',
-        moduleDescription: 'Both Module Title and Description are required'
-      })
-      alert('Please fill both Module Title and Description, or clear both fields')
-      return
+    // Payload to backend
+    const payload = {
+      title: formData.courseTitle,
+      description: formData.description,
+      duration: formData.duration,
+      fee: parseFloat(formData.price)
     }
 
-    // Validate modules if any are added
-    if (modules.length === 0 && !newModule.title.trim() && !newModule.description.trim()) {
-      const addModules = window.confirm('No modules added. Do you want to continue without modules?')
-      if (!addModules) {
-        return
+    try {
+      const res = await postMethod({ apiUrl: apiService.createCourse, payload })
+      if (res?.status) {
+        alert('✅ Course created successfully!')
+        setFormData({
+          courseTitle: '',
+          duration: '',
+          category: '',
+          description: '',
+          taggedSkills: '',
+          batchLimits: '',
+          courseStatus: 'Active',
+          instructorName: '',
+          mode: '',
+          price: '',
+          certificationAllowed: true
+        })
+        setModules([])
+        setNewModule({ title: '', description: '' })
+        setSelectedMedia([])
+      } else {
+        alert(`❌ ${res?.message || 'Failed to create course'}`)
       }
+    } catch (err) {
+      console.error('Create Course Error:', err)
+      alert('Something went wrong while creating the course.')
     }
-
-    // Add course to context with media
-    const courseDataWithMedia = {
-      ...formData,
-      media: selectedMedia.map(media => ({
-        name: media.name,
-        size: media.size,
-        type: media.type,
-        url: media.url
-      }))
-    }
-    addCourse(courseDataWithMedia)
-    
-    // Show success message
-    alert('Course created successfully!')
-    
-    // Reset form
-    setFormData({
-      courseTitle: '',
-      duration: '',
-      category: '',
-      description: '',
-      taggedSkills: '',
-      batchLimits: '',
-      courseStatus: 'Active',
-      instructorName: '',
-      mode: '',
-      price: '',
-      certificationAllowed: true
-    })
-    setModules([])
-    setNewModule({ title: '', description: '' })
-    setSelectedMedia([])
   }
 
   const handleCancel = () => {
@@ -168,9 +139,7 @@ export default function CreateCourse() {
   const handleRemoveMedia = (mediaId) => {
     setSelectedMedia(prev => {
       const mediaToRemove = prev.find(media => media.id === mediaId)
-      if (mediaToRemove) {
-        URL.revokeObjectURL(mediaToRemove.url)
-      }
+      if (mediaToRemove) URL.revokeObjectURL(mediaToRemove.url)
       return prev.filter(media => media.id !== mediaId)
     })
   }
@@ -190,6 +159,7 @@ export default function CreateCourse() {
       : `${TAILWIND_COLORS.BORDER} focus:ring-[#5C9A24]`
     return `${baseClass} ${errorClass}`
   }
+
 
   return (
     <div className="">
