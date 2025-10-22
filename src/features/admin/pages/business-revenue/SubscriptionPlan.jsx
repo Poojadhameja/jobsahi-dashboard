@@ -7,6 +7,8 @@ import {
   LuPlus
 } from 'react-icons/lu'
 import Swal from 'sweetalert2'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { Button, NeutralButton, SuccessButton, DangerButton } from '../../../../shared/components/Button'
 
 export default function SubscriptionPlan() {
   const [editModal, setEditModal] = useState({ isOpen: false, plan: null })
@@ -226,7 +228,7 @@ export default function SubscriptionPlan() {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Edit Subscription Plan</h2>
+            <h2 className="text-xl font-semibold text-[var(--color-text-primary)]">Edit Subscription Plan</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -238,10 +240,10 @@ export default function SubscriptionPlan() {
           <div className="p-6 space-y-6">
             {/* Basic Information */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Basic Information</h3>
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Plan Name*</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Plan Name*</label>
                   <input
                     type="text"
                     value={editForm.name}
@@ -251,7 +253,7 @@ export default function SubscriptionPlan() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Target Audience*</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Target Audience*</label>
                   <input
                     type="text"
                     value={editForm.targetAudience}
@@ -265,10 +267,10 @@ export default function SubscriptionPlan() {
 
             {/* Pricing */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Pricing</h3>
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Pricing</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Price*</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Price*</label>
                   <div className="flex">
                     <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-lg">
                       ₹
@@ -283,7 +285,7 @@ export default function SubscriptionPlan() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Period</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Period</label>
                   <select
                     value={editForm.period}
                     onChange={(e) => handleInputChange('period', e.target.value)}
@@ -300,14 +302,15 @@ export default function SubscriptionPlan() {
             {/* Features */}
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-800">Features</h3>
-                <button
+                <h3 className="text-lg font-medium text-[var(--color-text-primary)]">Features</h3>
+                <Button
                   onClick={addFeature}
-                  className="flex items-center gap-2 px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+                  variant="success"
+                  size="sm"
+                  icon={<LuPlus size={16} />}
                 >
-                  <LuPlus size={16} />
                   Add Feature
-                </button>
+                </Button>
               </div>
               <div className="space-y-3">
                 {editForm.features.map((feature, index) => (
@@ -332,9 +335,9 @@ export default function SubscriptionPlan() {
 
             {/* Free Credits */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Free Credits</h3>
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Free Credits</h3>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Number of Free Credits</label>
+                <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Number of Free Credits</label>
                 <input
                   type="number"
                   value={editForm.freeCredits}
@@ -348,9 +351,9 @@ export default function SubscriptionPlan() {
 
             {/* Status */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Status</h3>
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Status</h3>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Plan Status</span>
+                <span className="text-sm font-medium text-[var(--color-text-primary)]">Plan Status</span>
                 <button
                   onClick={() => handleInputChange('isActive', !editForm.isActive)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
@@ -368,19 +371,19 @@ export default function SubscriptionPlan() {
           </div>
           
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-            <button
+            <NeutralButton
               onClick={onClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+              size="md"
             >
               Cancel
-            </button>
-            <button
+            </NeutralButton>
+            <SuccessButton
               onClick={handleSave}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+              size="md"
+              icon={<LuSave size={16} />}
             >
-              <LuSave size={16} />
               Save Changes
-            </button>
+            </SuccessButton>
           </div>
         </div>
       </div>
@@ -469,7 +472,7 @@ export default function SubscriptionPlan() {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Create New Subscription Plan</h2>
+            <h2 className="text-xl font-semibold text-[var(--color-text-primary)]">Create New Subscription Plan</h2>
             <button
               onClick={handleClose}
               className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -481,10 +484,10 @@ export default function SubscriptionPlan() {
           <div className="p-6 space-y-6">
             {/* Basic Information */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Basic Information</h3>
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Plan Name*</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Plan Name*</label>
                   <input
                     type="text"
                     value={createForm.name}
@@ -494,7 +497,7 @@ export default function SubscriptionPlan() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Target Audience*</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Target Audience*</label>
                   <input
                     type="text"
                     value={createForm.targetAudience}
@@ -508,10 +511,10 @@ export default function SubscriptionPlan() {
 
             {/* Pricing */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Pricing</h3>
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Pricing</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Price*</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Price*</label>
                   <div className="flex">
                     <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-lg">
                       ₹
@@ -526,7 +529,7 @@ export default function SubscriptionPlan() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Period</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Period</label>
                   <select
                     value={createForm.period}
                     onChange={(e) => handleInputChange('period', e.target.value)}
@@ -543,14 +546,15 @@ export default function SubscriptionPlan() {
             {/* Features */}
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-800">Features</h3>
-                <button
+                <h3 className="text-lg font-medium text-[var(--color-text-primary)]">Features</h3>
+                <Button
                   onClick={addFeature}
-                  className="flex items-center gap-2 px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+                  variant="success"
+                  size="sm"
+                  icon={<LuPlus size={16} />}
                 >
-                  <LuPlus size={16} />
                   Add Feature
-                </button>
+                </Button>
               </div>
               <div className="space-y-3">
                 {createForm.features.map((feature, index) => (
@@ -577,9 +581,9 @@ export default function SubscriptionPlan() {
 
             {/* Free Credits */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Free Credits</h3>
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Free Credits</h3>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Number of Free Credits</label>
+                <label className="block text-sm font-medium text-[var(--color-text-muted)] mb-1">Number of Free Credits</label>
                 <input
                   type="number"
                   value={createForm.freeCredits}
@@ -593,9 +597,9 @@ export default function SubscriptionPlan() {
 
             {/* Status */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-lg font-medium text-gray-800 mb-4">Status</h3>
+              <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Status</h3>
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Plan Status</span>
+                <span className="text-sm font-medium text-[var(--color-text-primary)]">Plan Status</span>
                 <button
                   onClick={() => handleInputChange('isActive', !createForm.isActive)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
@@ -613,19 +617,19 @@ export default function SubscriptionPlan() {
           </div>
           
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-            <button
+            <NeutralButton
               onClick={handleClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+              size="md"
             >
               Cancel
-            </button>
-            <button
+            </NeutralButton>
+            <SuccessButton
               onClick={handleSave}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+              size="md"
+              icon={<LuSave size={16} />}
             >
-              <LuSave size={16} />
               Create Plan
-            </button>
+            </SuccessButton>
           </div>
         </div>
       </div>
@@ -638,15 +642,17 @@ export default function SubscriptionPlan() {
       <div className=" rounded-lg shadow-sm p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Subscription Plan Manager</h1>
-            <p className="text-gray-600 mt-1">Create, edit, and manage subscription plans</p>
+            <h1 className="text-xl font-bold text-[var(--color-text-primary)]">Subscription Plan Manager</h1>
+            <p className="text-[var(--color-text-muted)] mt-1">Create, edit, and manage subscription plans</p>
           </div>
-          <button 
+          <Button 
             onClick={handleCreateNew}
-            className="bg-white hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] px-4 py-2 rounded-lg font-medium transition-colors"
+            variant="outline"
+            size="md"
+            icon={<LuPlus size={16} />}
           >
-            + Create New Plan
-          </button>
+            Create New Plan
+          </Button>
         </div>
       </div>
 
@@ -657,13 +663,13 @@ export default function SubscriptionPlan() {
             {/* Plan Header */}
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">{plan.targetAudience}</p>
+                <h3 className="text-xl font-bold text-[var(--color-text-primary)]">{plan.name}</h3>
+                <p className="text-sm text-[var(--color-text-muted)] mt-1">{plan.targetAudience}</p>
               </div>
               <span className={`inline-flex items-center px-3 border-[var(--color-secondary)] border py-1 rounded-full text-xs font-medium ${
                 plan.status === 'Active' 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
+                  ? 'bg-green-100 text-[var(--color-success)]' 
+                  : 'bg-red-100 text-[var(--color-error)]'
               }`}>
                 {plan.status}
               </span>
@@ -672,19 +678,19 @@ export default function SubscriptionPlan() {
             {/* Pricing */}
             <div className="mb-2">
               <div className="flex items-baseline">
-                <span className="text-3xl font-bold text-gray-900">{plan.price}</span>
-                <span className="text-gray-600 ml-1">{plan.period}</span>
+                <span className="text-3xl font-bold text-[var(--color-text-primary)]">{plan.price}</span>
+                <span className="text-[var(--color-text-muted)] ml-1">{plan.period}</span>
               </div>
             </div>
 
             {/* Features */}
             <div className="mb-6">
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Features:</h4>
+              <h4 className="text-sm font-medium text-[var(--color-text-primary)] mb-3">Features:</h4>
               <ul className="space-y-2">
                 {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-start">
                     <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                    <span className="text-sm text-gray-700">{feature}</span>
+                    <span className="text-sm text-[var(--color-text-primary)]">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -692,7 +698,7 @@ export default function SubscriptionPlan() {
 
             {/* Free Credits */}
             <div className="mb-6">
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-[var(--color-text-primary)]">
                 <span className="font-medium">Free Credits:</span> {plan.freeCredits}
               </p>
             </div>
@@ -700,7 +706,7 @@ export default function SubscriptionPlan() {
             {/* Toggle Switch */}
             <div className="mb-6">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">Plan Status</span>
+                <span className="text-sm font-medium text-[var(--color-text-primary)]">Plan Status</span>
                 <button
                   onClick={() => togglePlanStatus(plan.id)}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
@@ -718,20 +724,26 @@ export default function SubscriptionPlan() {
 
             {/* Action Buttons */}
             <div className="flex space-x-3">
-              <button
+              <Button
                 onClick={() => handleEdit(plan.id)}
-                className="flex-1 border-2 border-green-600 text-green-600 hover:bg-green-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                variant="outline"
+                size="md"
+                fullWidth
+                icon={<LuPencil size={16} />}
+                className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
               >
-                <LuPencil size={16} />
                 Edit
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => handleDelete(plan.id)}
-                className="flex-1 border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                variant="outline"
+                size="md"
+                fullWidth
+                icon={<LuTrash2 size={16} />}
+                className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
               >
-                <LuTrash2 size={16} />
                 Delete
-              </button>
+              </Button>
             </div>
           </div>
         ))}
@@ -740,15 +752,18 @@ export default function SubscriptionPlan() {
       {/* Empty State */}
       {plans.length === 0 && (
         <div className="text-center py-12">
-          <div className="text-gray-500">
+          <div className="text-[var(--color-text-muted)]">
             <p className="text-lg font-medium">No subscription plans found</p>
             <p className="text-sm">Create your first subscription plan to get started</p>
-            <button 
+            <Button 
               onClick={handleCreateNew}
-              className="mt-4 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              variant="success"
+              size="lg"
+              icon={<LuPlus size={16} />}
+              className="mt-4"
             >
-              + Create New Plan
-            </button>
+              Create New Plan
+            </Button>
           </div>
         </div>
       )}

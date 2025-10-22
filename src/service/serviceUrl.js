@@ -15,6 +15,7 @@ const service = {
     employersList: '/admin/list_employers.php',
     institutesList: '/admin/list_institutes.php',
 
+
 }
 
 export default service;

@@ -127,8 +127,8 @@ export default function EmployerManagement() {
         };
 
         var response = await getMethod(data);
-        // console.log(response)
-        if (response.status === true) {
+        console.log('Employer API Response:', response)
+        if (response.status === 'success' || response.status === true) {
           // Map API response to required format
           const formatted = response.data.map((item, index) => ({
             id: item.user_id, // or just use index+1 if you want serial id
@@ -160,11 +160,10 @@ export default function EmployerManagement() {
           });
         }
       } catch (error) {
-        // console.error("API Error:", error)
-        // alert("Something went wrong. Please try again.")
+        console.error("Employer API Error:", error)
         Swal.fire({
           title: "API Error",
-          text: "Something went wrong. Please try again.",
+          text: error.message || "Something went wrong. Please try again.",
           icon: "error"
         });
       }

@@ -67,13 +67,13 @@ const SegmentBasedMessaging = () => {
                 name="targetSegment"
                 value={formData.targetSegment}
                 onChange={handleInputChange}
-                className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm appearance-none bg-white"
+                className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm appearance-none bg-white ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               >
-                <option value="">Select user segment</option>
-                <option value="active-job-seekers">Active job seekers</option>
-                <option value="employers">Employers</option>
-                <option value="premium-users">Premium Users</option>
-                <option value="inactive-users">Inactive users</option>
+                <option value="" style={{ color: 'var(--color-text-muted)' }}>Select user segment</option>
+                <option value="active-job-seekers" style={{ color: 'var(--color-text-primary)' }}>Active job seekers</option>
+                <option value="employers" style={{ color: 'var(--color-text-primary)' }}>Employers</option>
+                <option value="premium-users" style={{ color: 'var(--color-text-primary)' }}>Premium Users</option>
+                <option value="inactive-users" style={{ color: 'var(--color-text-primary)' }}>Inactive users</option>
               </select>
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,13 +94,13 @@ const SegmentBasedMessaging = () => {
                   name="messageType"
                   value={formData.messageType}
                   onChange={handleInputChange}
-                  className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm appearance-none bg-white"
+                  className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm appearance-none bg-white ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 >
-                  <option value="">select message type</option>
-                  <option value="promotional">Promotional</option>
-                  <option value="informational">Informational</option>
-                  <option value="urgent">Urgent</option>
-                  <option value="reminder">Reminder</option>
+                  <option value="" style={{ color: 'var(--color-text-muted)' }}>select message type</option>
+                  <option value="promotional" style={{ color: 'var(--color-text-primary)' }}>Promotional</option>
+                  <option value="informational" style={{ color: 'var(--color-text-primary)' }}>Informational</option>
+                  <option value="urgent" style={{ color: 'var(--color-text-primary)' }}>Urgent</option>
+                  <option value="reminder" style={{ color: 'var(--color-text-primary)' }}>Reminder</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -120,13 +120,13 @@ const SegmentBasedMessaging = () => {
                   name="priority"
                   value={formData.priority}
                   onChange={handleInputChange}
-                  className="w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm appearance-none bg-white"
+                  className={`w-full h-12 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm appearance-none bg-white ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                 >
-                  <option value="">select priority</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
+                  <option value="" style={{ color: 'var(--color-text-muted)' }}>select priority</option>
+                  <option value="low" style={{ color: 'var(--color-text-primary)' }}>Low</option>
+                  <option value="medium" style={{ color: 'var(--color-text-primary)' }}>Medium</option>
+                  <option value="high" style={{ color: 'var(--color-text-primary)' }}>High</option>
+                  <option value="urgent" style={{ color: 'var(--color-text-primary)' }}>Urgent</option>
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +148,8 @@ const SegmentBasedMessaging = () => {
               onChange={handleInputChange}
               rows={4}
               placeholder="Enter your targeted message"
-              className="w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none"
+              style={{ color: 'var(--color-text-muted)' }}
+              className={`w-full h-24 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none ${TAILWIND_COLORS.TEXT_PRIMARY}`}
             />
           </div>
 
@@ -158,7 +159,8 @@ const SegmentBasedMessaging = () => {
               type="button" 
               variant="primary" 
               size="md"
-              className="w-full sm:w-auto h-12"
+              fullWidth
+              className="sm:w-auto h-12"
               onClick={handleSendToSegment}
               icon={
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -172,7 +174,8 @@ const SegmentBasedMessaging = () => {
               type="button" 
               variant="outline" 
               size="md"
-              className="w-full sm:w-auto h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
+              fullWidth
+              className="sm:w-auto h-12"
               onClick={handlePreview}
             >
               Preview

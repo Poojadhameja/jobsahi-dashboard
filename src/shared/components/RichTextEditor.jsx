@@ -8,11 +8,20 @@ const RichTextEditor = ({
   height = '200px',
   className = '',
   required = false,
+  returnPlainText = false, // ✅ New prop to return plain text instead of HTML
   ...props 
 }) => {
   const handleTextChange = (e) => {
     if (onChange) {
-      onChange(e.htmlValue)
+      if (returnPlainText) {
+        // Return plain text without HTML tags
+        const tempDiv = document.createElement('div')
+        tempDiv.innerHTML = e.htmlValue || ''
+        onChange(tempDiv.textContent || tempDiv.innerText || '')
+      } else {
+        // Return HTML content (default behavior)
+        onChange(e.htmlValue)
+      }
     }
   }
 

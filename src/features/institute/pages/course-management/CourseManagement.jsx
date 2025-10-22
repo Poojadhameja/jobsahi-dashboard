@@ -10,7 +10,7 @@ import ManageCourse from './ManageCourse'
 
 export default function CourseManagement() {
   const navigate = useNavigate()
-  const [activeTabIndex, setActiveTabIndex] = useState(1)
+  const [activeTabIndex, setActiveTabIndex] = useState(0)
 
   const handleCreateCourse = () => {
     navigate('/institute/course-management/create')

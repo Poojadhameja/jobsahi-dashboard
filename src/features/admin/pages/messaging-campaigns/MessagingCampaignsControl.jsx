@@ -4,8 +4,8 @@ import MetricCard, { MatrixCard, Horizontal4Cards } from '../../../../shared/com
 import { PillNavigation } from '../../../../shared/components/navigation.jsx';
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';
-import { FilterButton, NewCampaignButton } from '../../../../shared/components/Button.jsx';
-import { LuX, LuSave, LuEye, LuPlay } from 'react-icons/lu';
+import { FilterButton, NewCampaignButton, LaunchCampaignButton, SaveDraftButton, PreviewButton } from '../../../../shared/components/Button.jsx';
+import { LuX } from 'react-icons/lu';
 import Swal from 'sweetalert2';
 import SystemWidePush from './SystemWidePush.jsx';
 import SegmentBasedMessaging from './SegmentBasedMessaging.jsx';
@@ -216,7 +216,7 @@ const MessagingCampaignsView = () => {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Create New Campaign</h2>
+            <h2 className="text-xl font-semibold text-text-primary">Create New Campaign</h2>
             <button
               onClick={handleClose}
               className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -229,7 +229,7 @@ const MessagingCampaignsView = () => {
             {/* Campaign Name and Channel */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Campaign Name*</label>
+                <label className="block text-sm font-medium text-text-muted mb-1">Campaign Name*</label>
                 <input
                   type="text"
                   value={campaignForm.campaignName}
@@ -239,7 +239,7 @@ const MessagingCampaignsView = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Channel*</label>
+                <label className="block text-sm font-medium text-text-muted mb-1">Channel*</label>
                 <select
                   value={campaignForm.channel}
                   onChange={(e) => handleInputChange('channel', e.target.value)}
@@ -256,7 +256,7 @@ const MessagingCampaignsView = () => {
 
             {/* Subject Line */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Subject Line*</label>
+              <label className="block text-sm font-medium text-text-muted mb-1">Subject Line*</label>
               <input
                 type="text"
                 value={campaignForm.subjectLine}
@@ -268,7 +268,7 @@ const MessagingCampaignsView = () => {
 
             {/* Campaign Content */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Campaign Content*</label>
+              <label className="block text-sm font-medium text-text-muted mb-1">Campaign Content*</label>
               <textarea
                 value={campaignForm.campaignContent}
                 onChange={(e) => handleInputChange('campaignContent', e.target.value)}
@@ -280,29 +280,17 @@ const MessagingCampaignsView = () => {
           </div>
           
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-between gap-3">
-            <button
+            <PreviewButton
               onClick={handlePreview}
-              className="px-6 py-2 bg-white border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors duration-200 flex items-center gap-2"
-            >
-              <LuEye size={16} />
-              Preview
-            </button>
+            />
             
             <div className="flex gap-3">
-              <button
+              <SaveDraftButton
                 onClick={handleSaveDraft}
-                className="px-6 py-2 bg-white border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors duration-200 flex items-center gap-2"
-              >
-                <LuSave size={16} />
-                Save Draft
-              </button>
-              <button
+              />
+              <LaunchCampaignButton
                 onClick={handleLaunch}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
-              >
-                <LuPlay size={16} />
-                Launch Campaign
-              </button>
+              />
             </div>
           </div>
         </div>
@@ -318,7 +306,7 @@ const MessagingCampaignsView = () => {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Campaign Preview</h2>
+            <h2 className="text-xl font-semibold text-text-primary">Campaign Preview</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -329,27 +317,28 @@ const MessagingCampaignsView = () => {
           
           <div className="p-6 space-y-4">
             <div>
-              <h3 className="text-lg font-medium text-gray-800 mb-2">{content.campaignName}</h3>
-              <p className="text-sm text-gray-600 mb-4">
+              <h3 className="text-lg font-medium text-text-primary mb-2">{content.campaignName}</h3>
+              <p className="text-sm text-text-muted mb-4">
                 <strong>Channel:</strong> {content.channel} | <strong>Subject:</strong> {content.subjectLine}
               </p>
             </div>
             
             <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-              <h4 className="font-medium text-gray-800 mb-2">Content Preview:</h4>
-              <div className="text-gray-700 whitespace-pre-wrap">
+              <h4 className="font-medium text-text-primary mb-2">Content Preview:</h4>
+              <div className="text-text-primary whitespace-pre-wrap">
                 {content.campaignContent}
               </div>
             </div>
           </div>
           
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-            <button
+            <Button
               onClick={onClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+              variant="neutral"
+              size="md"
             >
               Close
-            </button>
+            </Button>
           </div>
         </div>
       </div>

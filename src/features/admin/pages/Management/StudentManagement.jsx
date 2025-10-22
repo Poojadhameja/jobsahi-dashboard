@@ -646,8 +646,8 @@ export default function StudentManagement() {
         };
 
         var response = await getMethod(data);
-        // console.log(response)
-        if (response.status === true) {
+        console.log('Student API Response:', response)
+        if (response.status === 'success' || response.status === true) {
           // Convert response before setting
           const formatted = response.data.map((item) => ({
             id: item.user_info.user_id,
@@ -691,11 +691,10 @@ export default function StudentManagement() {
           });
         }
       } catch (error) {
-        // console.error("API Error:", error)
-        // alert("Something went wrong. Please try again.")
+        console.error("Student API Error:", error)
         Swal.fire({
           title: "API Error",
-          text: "Something went wrong. Please try again.",
+          text: error.message || "Something went wrong. Please try again.",
           icon: "error"
         });
       }

@@ -178,7 +178,7 @@ const NotificationTemplatesManager = () => {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Template Details</h2>
+            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Template Details</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -191,8 +191,8 @@ const NotificationTemplatesManager = () => {
             {/* Template Header */}
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">{template.name}</h3>
-                <p className="text-gray-600 mb-4">{template.category}</p>
+                <h3 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>{template.name}</h3>
+                <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-4`}>{template.category}</p>
                 <div className="flex items-center gap-3">
                   <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${getTypeColor(template.type)}`}>
                     {getTypeIcon(template.type)}
@@ -208,29 +208,29 @@ const NotificationTemplatesManager = () => {
             {/* Template Statistics */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">Usage Statistics</h4>
+                <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Usage Statistics</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Total Usage:</span>
-                    <span className="font-semibold">{template.usage.toLocaleString()} times</span>
+                    <span className={TAILWIND_COLORS.TEXT_MUTED}>Total Usage:</span>
+                    <span className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{template.usage.toLocaleString()} times</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Last Modified:</span>
-                    <span className="font-semibold">{template.lastModified}</span>
+                    <span className={TAILWIND_COLORS.TEXT_MUTED}>Last Modified:</span>
+                    <span className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{template.lastModified}</span>
                   </div>
                 </div>
               </div>
               
               <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-900 mb-2">Template Information</h4>
+                <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Template Information</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Template ID:</span>
-                    <span className="font-semibold">#{template.id}</span>
+                    <span className={TAILWIND_COLORS.TEXT_MUTED}>Template ID:</span>
+                    <span className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>#{template.id}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Category:</span>
-                    <span className="font-semibold">{template.category}</span>
+                    <span className={TAILWIND_COLORS.TEXT_MUTED}>Category:</span>
+                    <span className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{template.category}</span>
                   </div>
                 </div>
               </div>
@@ -238,12 +238,12 @@ const NotificationTemplatesManager = () => {
 
             {/* Sample Content */}
             <div className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-semibold text-gray-900 mb-3">Sample Content</h4>
+              <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Sample Content</h4>
               <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <div className="text-sm text-gray-600 mb-2">
+                <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>
                   <strong>Subject:</strong> {template.name} - Your {template.category.toLowerCase()} notification
                 </div>
-                <div className="text-sm text-gray-800">
+                <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                   <strong>Message:</strong> This is a sample {template.type.toLowerCase()} message for the "{template.name}" template. 
                   This template is used for {template.category.toLowerCase()} and has been used {template.usage.toLocaleString()} times.
                 </div>
@@ -315,7 +315,7 @@ const NotificationTemplatesManager = () => {
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">Edit Template</h2>
+            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Template</h2>
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
@@ -327,7 +327,7 @@ const NotificationTemplatesManager = () => {
           <div className="p-6 space-y-6">
             {/* Template Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Template Name*</label>
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Template Name*</label>
               <input
                 type="text"
                 value={editForm.name}
@@ -340,7 +340,7 @@ const NotificationTemplatesManager = () => {
             {/* Category and Type */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Category*</label>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Category*</label>
                 <select
                   value={editForm.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
@@ -354,7 +354,7 @@ const NotificationTemplatesManager = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Type*</label>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Type*</label>
                 <select
                   value={editForm.type}
                   onChange={(e) => handleInputChange('type', e.target.value)}
@@ -370,7 +370,7 @@ const NotificationTemplatesManager = () => {
 
             {/* Status */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Status</label>
               <select
                 value={editForm.status}
                 onChange={(e) => handleInputChange('status', e.target.value)}
@@ -384,7 +384,7 @@ const NotificationTemplatesManager = () => {
 
             {/* Template Content */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Template Content</label>
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Template Content</label>
               <textarea
                 value={editForm.content}
                 onChange={(e) => handleInputChange('content', e.target.value)}
