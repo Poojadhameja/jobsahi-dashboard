@@ -191,7 +191,7 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
 
         {/* Course Details Section */}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-5">
             {/* Course Duration */}
             <div className="space-y-2">
               <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Duration</h4>
@@ -199,10 +199,10 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
             </div>
 
             {/* Course Type */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Type</h4>
               <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Practical Training</p>
-            </div>
+            </div> */}
 
             {/* Certification */}
             <div className="space-y-2">

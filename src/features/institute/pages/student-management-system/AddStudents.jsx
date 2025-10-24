@@ -9,7 +9,6 @@ const AddStudents = () => {
     email: 'aaru@2gmail.com',
     phone: '98765 43210',
     dateOfBirth: '',
-    fathersName: '',
     aadharNumber: '1234-5678-9101',
     course: '',
     batch: '',
@@ -58,7 +57,6 @@ const AddStudents = () => {
       email: '',
       phone: '',
       dateOfBirth: '',
-      fathersName: '',
       aadharNumber: '',
       course: '',
       batch: '',
@@ -106,7 +104,7 @@ const AddStudents = () => {
 
   const handleDownloadTemplate = () => {
     // Create and download CSV template
-    const csvContent = 'Name,Email,Phone,Course,Batch,Address,Father Name,DOB,Aadhar\n' +
+    const csvContent = 'Name,Email,Phone,Course,Batch,Address,DOB,Aadhar\n' +
       'John Doe,john@example.com,9876543210,Electrician,ELE-2025-M1,123 Main St,John Sr,1995-01-01,1234-5678-9012\n' +
       'Jane Smith,jane@example.com,9876543211,Fitter,FIT-2025-M1,456 Oak Ave,Jane Sr,1996-02-02,1234-5678-9013'
     
@@ -190,20 +188,7 @@ const AddStudents = () => {
                 </div>
               </div>
 
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
-                  Father's Name
-                </label>
-                <input
-                  type="text"
-                  name="fathersName"
-                  value={formData.fathersName}
-                  onChange={handleInputChange}
-                  placeholder="Enter father's name"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#5B9821] focus:border-transparent"
-                />
-              </div>
-
+              
               <div>
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Aadhar number
@@ -356,7 +341,7 @@ const AddStudents = () => {
               <li>• File format: CSV or Excel (.xlsx)</li>
               <li>• Maximum file size: 5MB</li>
               <li>• Required columns: Name, Email, Phone, Course</li>
-              <li>• Optional Columns: Batch, Address, Father Name, DOB, Aadhar</li>
+              <li>• Optional Columns: Batch, Address, DOB, Aadhar</li>
             </ul>
           </div>
 

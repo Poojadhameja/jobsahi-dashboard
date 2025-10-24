@@ -1,5 +1,6 @@
 import React from 'react'
 import { LuEye } from 'react-icons/lu'
+import Swal from 'sweetalert2'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Button from '../../../../shared/components/Button'
 
@@ -11,7 +12,7 @@ const TrackProgress = () => {
       name: 'Rahul Kumar',
       course: 'Electrician - ELE-2025-M1',
       overallProgress: 75,
-      attendance: 85,
+      // attendance: 85,
       theoryScores: [
         { id: 1, score: 78, color: 'bg-blue-100 text-blue-800' },
         { id: 2, score: 78, color: 'bg-green-100 text-green-800' },
@@ -23,7 +24,7 @@ const TrackProgress = () => {
       name: 'Raj Singh',
       course: 'Electrician - ELE-2025-M1',
       overallProgress: 50,
-      attendance: 85,
+      // attendance: 85,
       theoryScores: [
         { id: 1, score: 50, color: 'bg-blue-100 text-blue-800' },
         { id: 2, score: 68, color: 'bg-green-100 text-green-800' },
@@ -35,7 +36,7 @@ const TrackProgress = () => {
       name: 'Mohan Kumar',
       course: 'Electrician - ELE-2025-M1',
       overallProgress: 60,
-      attendance: 85,
+      // attendance: 85,
       theoryScores: [
         { id: 1, score: 60, color: 'bg-blue-100 text-blue-800' },
         { id: 2, score: 94, color: 'bg-green-100 text-green-800' },
@@ -47,7 +48,7 @@ const TrackProgress = () => {
       name: 'Roy Kumar',
       course: 'Electrician - ELE-2025-M1',
       overallProgress: 94,
-      attendance: 85,
+      // attendance: 85,
       theoryScores: [
         { id: 1, score: 94, color: 'bg-blue-100 text-blue-800' },
         { id: 2, score: 60, color: 'bg-green-100 text-green-800' },
@@ -59,7 +60,7 @@ const TrackProgress = () => {
       name: 'Rahul Kumar Singh',
       course: 'Electrician - ELE-2025-M1',
       overallProgress: 60,
-      attendance: 85,
+      // attendance: 85,
       theoryScores: [
         { id: 1, score: 60, color: 'bg-blue-100 text-blue-800' },
         { id: 2, score: 78, color: 'bg-green-100 text-green-800' },
@@ -71,7 +72,7 @@ const TrackProgress = () => {
       name: 'Raj Kumar Singh',
       course: 'Electrician - ELE-2025-M1',
       overallProgress: 60,
-      attendance: 85,
+      // attendance: 85,
       theoryScores: [
         { id: 1, score: 60, color: 'bg-blue-100 text-blue-800' },
         { id: 2, score: 78, color: 'bg-green-100 text-green-800' },
@@ -90,7 +91,19 @@ const TrackProgress = () => {
   const handleViewDetailedProgress = (studentId) => {
     console.log('View detailed progress for student:', studentId)
     // Here you would typically navigate to a detailed progress page or open a modal
-    alert(`Viewing detailed progress for student ID: ${studentId}`)
+    Swal.fire({
+      title: 'localhost:5173 says',
+      text: `Viewing detailed progress for student ID: ${studentId}`,
+      icon: 'info',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#3085d6',
+      customClass: {
+        popup: 'swal2-popup-dark',
+        title: 'swal2-title-dark',
+        content: 'swal2-content-dark',
+        confirmButton: 'swal2-confirm-button-dark'
+      }
+    })
   }
 
   return (
@@ -135,7 +148,7 @@ const TrackProgress = () => {
               </div>
 
               {/* Attendance */}
-              <div>
+              {/* <div>
                 <div className="flex justify-between items-center mb-2">
                   <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Attendance</span>
                   <span className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.attendance}%</span>
@@ -146,7 +159,7 @@ const TrackProgress = () => {
                     style={{ width: `${student.attendance}%` }}
                   ></div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Theory Scores */}
@@ -178,7 +191,7 @@ const TrackProgress = () => {
       </div>
 
       {/* Summary Statistics */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
@@ -205,7 +218,7 @@ const TrackProgress = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
               <span className="text-purple-600 font-bold text-lg">S</span>
@@ -217,7 +230,7 @@ const TrackProgress = () => {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )
