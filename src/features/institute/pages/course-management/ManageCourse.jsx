@@ -5,7 +5,7 @@ import { useCourseContext } from '../../context/CourseContext'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import ViewCoursePopup from './ViewCoursePopup'
 import EditCoursePopup from './EditCoursePopup'
-import { getMethod, deleteMethod } from '../../../../service/api'
+import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
 
 export default function ManageCourse() {

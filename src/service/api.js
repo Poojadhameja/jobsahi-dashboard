@@ -2,7 +2,8 @@ import axios from './axios';
 import { respChanges } from './responseModify';
 import { env } from './envConfig';
 
-const backendHost = env.apiHost;
+export const SERVICE_URL = env.apiHost;  // ✅ expose same base URL for direct use if needed
+const backendHost = SERVICE_URL;
 
 /**
  * 🟢 Common header generator
@@ -141,6 +142,25 @@ export const deleteMethod = async (data) => {
       status: false,
       message: err.response?.data?.message || 'Delete failed',
       data: []
+    };
+  }
+};
+
+/**
+ * 🟢 Custom function — Create Batch (for Institute / Admin)
+ */
+export const createBatch = async (payload) => {
+  try {
+    const response = await postMethod({
+      apiUrl: '/batches/create_batch.php', // ✅ your PHP endpoint
+      payload
+    });
+    return response;
+  } catch (err) {
+    console.error('❌ createBatch() Error:', err);
+    return {
+      status: false,
+      message: err.message || 'Failed to create batch.'
     };
   }
 };
