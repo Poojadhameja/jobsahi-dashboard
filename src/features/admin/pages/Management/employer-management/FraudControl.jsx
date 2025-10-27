@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
+import { Button } from '../../../../../shared/components/Button.jsx'
 
 // Job Flag/Review System (Fraud/spam control) Component
 function FraudControlSystem() {
@@ -235,13 +236,14 @@ function FraudControlSystem() {
                     {getStatusBadge(job.status)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <button
+                    <Button
                       onClick={() => handleReview(job.id)}
-                      className={`inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                      variant="light"
+                      size="sm"
+                      icon="👁️"
                     >
-                      <span className="mr-1">👁️</span>
                       Review
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}

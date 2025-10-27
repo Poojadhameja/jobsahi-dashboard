@@ -8,7 +8,7 @@ import {
 } from 'react-icons/lu'
 import Swal from 'sweetalert2'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import { Button, NeutralButton, SuccessButton, DangerButton } from '../../../../shared/components/Button'
+import { Button, NeutralButton, SuccessButton, DangerButton, IconButton } from '../../../../shared/components/Button'
 
 export default function SubscriptionPlan() {
   const [editModal, setEditModal] = useState({ isOpen: false, plan: null })
@@ -354,8 +354,9 @@ export default function SubscriptionPlan() {
               <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Status</h3>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[var(--color-text-primary)]">Plan Status</span>
-                <button
+                <Button
                   onClick={() => handleInputChange('isActive', !editForm.isActive)}
+                  variant="unstyled"
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                     editForm.isActive ? 'bg-green-600' : 'bg-gray-200'
                   }`}
@@ -365,7 +366,7 @@ export default function SubscriptionPlan() {
                       editForm.isActive ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -600,8 +601,9 @@ export default function SubscriptionPlan() {
               <h3 className="text-lg font-medium text-[var(--color-text-primary)] mb-4">Status</h3>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[var(--color-text-primary)]">Plan Status</span>
-                <button
+                <Button
                   onClick={() => handleInputChange('isActive', !createForm.isActive)}
+                  variant="unstyled"
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                     createForm.isActive ? 'bg-green-600' : 'bg-gray-200'
                   }`}
@@ -611,7 +613,7 @@ export default function SubscriptionPlan() {
                       createForm.isActive ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -707,8 +709,9 @@ export default function SubscriptionPlan() {
             <div className="mb-6">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[var(--color-text-primary)]">Plan Status</span>
-                <button
+                <Button
                   onClick={() => togglePlanStatus(plan.id)}
+                  variant="unstyled"
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                     plan.isActive ? 'bg-gray-900' : 'bg-gray-200'
                   }`}
@@ -718,7 +721,7 @@ export default function SubscriptionPlan() {
                       plan.isActive ? 'translate-x-6' : 'translate-x-1'
                     }`}
                   />
-                </button>
+                </Button>
               </div>
             </div>
 

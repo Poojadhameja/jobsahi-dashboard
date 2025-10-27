@@ -200,24 +200,20 @@ function ActionDropdown({ student, onViewCV, onDelete }) {
 
       {isOpen && (
         <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[140px]">
-          <Button
+          <button
             onClick={handleViewCV}
-            variant="unstyled"
-            size="sm"
-            className="w-full justify-start px-4 py-2 hover:bg-gray-50"
-            icon={<LuEye size={16} />}
+            className={`w-full px-4 py-2 text-left text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-50 flex items-center gap-2 transition-colors duration-200`}
           >
+            <LuEye size={16} />
             View CV
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={handleDelete}
-            variant="unstyled"
-            size="sm"
-            className={`w-full justify-start px-4 py-2 ${TAILWIND_COLORS.BADGE_ERROR} hover:bg-red-50`}
-            icon={<LuTrash2 size={16} />}
+            className={`w-full px-4 py-2 text-left text-sm text-error hover:bg-red-50 flex items-center gap-2 transition-colors duration-200`}
           >
+            <LuTrash2 size={16} />
             Delete
-          </Button>
+          </button>
         </div>
       )}
     </div>
@@ -440,6 +436,462 @@ Generated on: ${new Date().toLocaleDateString()}
   )
 }
 
+// Add Student Modal Component
+function AddStudentModal({ isOpen, onClose, onAddStudent }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    course: '',
+    cgpa: '',
+    region: '',
+    skills: '',
+    bio: '',
+    experience: '',
+    graduation_year: '',
+    dob: '',
+    gender: '',
+    job_type: '',
+    linkedin: '',
+    portfolio: ''
+  })
+  const [errors, setErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }))
+    }
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+    
+    if (!formData.name.trim()) newErrors.name = 'Name is required'
+    if (!formData.email.trim()) newErrors.email = 'Email is required'
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid'
+    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required'
+    if (!formData.course.trim()) newErrors.course = 'Course is required'
+    if (!formData.cgpa.trim()) newErrors.cgpa = 'CGPA is required'
+    else if (isNaN(formData.cgpa) || parseFloat(formData.cgpa) < 0 || parseFloat(formData.cgpa) > 10) {
+      newErrors.cgpa = 'CGPA must be between 0 and 10'
+    }
+    if (!formData.region.trim()) newErrors.region = 'Region is required'
+    if (!formData.skills.trim()) newErrors.skills = 'Skills are required'
+    if (!formData.graduation_year.trim()) newErrors.graduation_year = 'Graduation year is required'
+    else if (isNaN(formData.graduation_year) || formData.graduation_year < 1990 || formData.graduation_year > new Date().getFullYear() + 5) {
+      newErrors.graduation_year = 'Please enter a valid graduation year'
+    }
+    if (!formData.dob.trim()) newErrors.dob = 'Date of birth is required'
+    if (!formData.gender.trim()) newErrors.gender = 'Gender is required'
+    if (!formData.job_type.trim()) newErrors.job_type = 'Job type is required'
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    if (!validateForm()) return
+
+    setIsSubmitting(true)
+    try {
+      // Convert skills string to array
+      const skillsArray = formData.skills.split(',').map(skill => skill.trim()).filter(skill => skill)
+      
+      const studentData = {
+        ...formData,
+        skills: skillsArray,
+        cgpa: parseFloat(formData.cgpa),
+        graduation_year: parseInt(formData.graduation_year),
+        progress: 0, // New students start with 0% progress
+        admin_action: 'pending' // New students need approval
+      }
+
+      await onAddStudent(studentData)
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        course: '',
+        cgpa: '',
+        region: '',
+        skills: '',
+        bio: '',
+        experience: '',
+        graduation_year: '',
+        dob: '',
+        gender: '',
+        job_type: '',
+        linkedin: '',
+        portfolio: ''
+      })
+      setErrors({})
+      onClose()
+    } catch (error) {
+      console.error('Error adding student:', error)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleClose = () => {
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      course: '',
+      cgpa: '',
+      region: '',
+      skills: '',
+      bio: '',
+      experience: '',
+      graduation_year: '',
+      dob: '',
+      gender: '',
+      job_type: '',
+      linkedin: '',
+      portfolio: ''
+    })
+    setErrors({})
+    onClose()
+  }
+
+  if (!isOpen) return null
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Add New Student</h2>
+          <button
+            onClick={handleClose}
+            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors duration-200`}
+          >
+            <span className="text-2xl">&times;</span>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="space-y-6">
+            {/* Personal Information */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Personal Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.name ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter full name"
+                  />
+                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.email ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter email address"
+                  />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.phone ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter phone number"
+                  />
+                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Date of Birth *
+                  </label>
+                  <input
+                    type="date"
+                    name="dob"
+                    value={formData.dob}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.dob ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  />
+                  {errors.dob && <p className="text-red-500 text-xs mt-1">{errors.dob}</p>}
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Gender *
+                  </label>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.gender ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                  {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Region *
+                  </label>
+                  <input
+                    type="text"
+                    name="region"
+                    value={formData.region}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.region ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter region/city"
+                  />
+                  {errors.region && <p className="text-red-500 text-xs mt-1">{errors.region}</p>}
+                </div>
+              </div>
+            </div>
+
+            {/* Educational Information */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Educational Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Course *
+                  </label>
+                  <select
+                    name="course"
+                    value={formData.course}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.course ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    <option value="">Select Course</option>
+                    <option value="electrician">Electrician</option>
+                    <option value="plumber">Plumber</option>
+                    <option value="carpenter">Carpenter</option>
+                    <option value="welder">Welder</option>
+                    <option value="mechanic">Mechanic</option>
+                    <option value="technician">Technician</option>
+                  </select>
+                  {errors.course && <p className="text-red-500 text-xs mt-1">{errors.course}</p>}
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    CGPA *
+                  </label>
+                  <input
+                    type="number"
+                    name="cgpa"
+                    value={formData.cgpa}
+                    onChange={handleInputChange}
+                    min="0"
+                    max="10"
+                    step="0.01"
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.cgpa ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter CGPA (0-10)"
+                  />
+                  {errors.cgpa && <p className="text-red-500 text-xs mt-1">{errors.cgpa}</p>}
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Graduation Year *
+                  </label>
+                  <input
+                    type="number"
+                    name="graduation_year"
+                    value={formData.graduation_year}
+                    onChange={handleInputChange}
+                    min="1990"
+                    max={new Date().getFullYear() + 5}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.graduation_year ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter graduation year"
+                  />
+                  {errors.graduation_year && <p className="text-red-500 text-xs mt-1">{errors.graduation_year}</p>}
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Experience (Years)
+                  </label>
+                  <input
+                    type="number"
+                    name="experience"
+                    value={formData.experience}
+                    onChange={handleInputChange}
+                    min="0"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter years of experience"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Skills and Career Information */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Skills & Career Information</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Skills *
+                  </label>
+                  <input
+                    type="text"
+                    name="skills"
+                    value={formData.skills}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.skills ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter skills separated by commas (e.g., React, JavaScript, Python)"
+                  />
+                  {errors.skills && <p className="text-red-500 text-xs mt-1">{errors.skills}</p>}
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Job Type *
+                  </label>
+                  <select
+                    name="job_type"
+                    value={formData.job_type}
+                    onChange={handleInputChange}
+                    className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.job_type ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    <option value="">Select Job Type</option>
+                    <option value="full-time">Full Time</option>
+                    <option value="part-time">Part Time</option>
+                    <option value="contract">Contract</option>
+                    <option value="internship">Internship</option>
+                    <option value="freelance">Freelance</option>
+                  </select>
+                  {errors.job_type && <p className="text-red-500 text-xs mt-1">{errors.job_type}</p>}
+                </div>
+
+                <div>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                    Bio/About
+                  </label>
+                  <textarea
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Tell us about yourself..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                      LinkedIn URL
+                    </label>
+                    <input
+                      type="url"
+                      name="linkedin"
+                      value={formData.linkedin}
+                      onChange={handleInputChange}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="https://linkedin.com/in/username"
+                    />
+                  </div>
+
+                  <div>
+                    <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                      Portfolio URL
+                    </label>
+                    <input
+                      type="url"
+                      name="portfolio"
+                      value={formData.portfolio}
+                      onChange={handleInputChange}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="https://portfolio-website.com"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
+            <Button
+              onClick={handleClose}
+              variant="neutral"
+              size="md"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <PrimaryButton
+              type="submit"
+              size="md"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Adding Student...' : 'Add Student'}
+            </PrimaryButton>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 // Delete Confirmation Modal Component
 function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
   if (!isOpen || !student) return null
@@ -494,7 +946,7 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
 }
 
 // Student Table Component
-function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent, autoScrollEnabled, setAutoScrollEnabled, onViewCV, onDelete }) {
+function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent, autoScrollEnabled, setAutoScrollEnabled, onViewCV, onDelete, searchTerm, setSearchTerm }) {
   const allSelected = selectedStudents.length === students.length && students.length > 0
 
 
@@ -547,6 +999,8 @@ function StudentTable({ students, onSelectAll, selectedStudents, onSelectStudent
            <input 
              type="text"
              placeholder="Search by name, email, or student ID..."
+             value={searchTerm}
+             onChange={(e) => setSearchTerm(e.target.value)}
              className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-80"
            />
          </div>
@@ -632,6 +1086,7 @@ export default function StudentManagement() {
 
   const [viewCVModal, setViewCVModal] = useState({ isOpen: false, student: null })
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, student: null })
+  const [addStudentModal, setAddStudentModal] = useState({ isOpen: false })
   useEffect(() => {
     let called = false;
     // TODO: replace with ApiService
@@ -782,6 +1237,70 @@ export default function StudentManagement() {
     })
   }
 
+  // Handle Add Student
+  const handleAddStudent = () => {
+    setAddStudentModal({ isOpen: true })
+  }
+
+  const handleCloseAddStudent = () => {
+    setAddStudentModal({ isOpen: false })
+  }
+
+  const handleSubmitAddStudent = async (studentData) => {
+    try {
+      // TODO: Replace with actual API call
+      // For now, we'll add the student to the local state
+      const newStudent = {
+        id: Date.now(), // Temporary ID
+        ...studentData,
+        email: studentData.email,
+        phone: studentData.phone,
+        created_at: new Date().toISOString(),
+        modified_at: new Date().toISOString(),
+        deleted_at: null
+      }
+
+      // Add to students list
+      setStudents(prevStudents => [newStudent, ...prevStudents])
+      
+      // Update counts
+      setTotalStudentCount(prev => prev + 1)
+      if (studentData.admin_action === 'approved') {
+        setVerifiedProfileCount(prev => prev + 1)
+      }
+
+      // Show success message
+      Swal.fire({
+        title: "Success!",
+        text: `${studentData.name} has been successfully added to the student list.`,
+        icon: "success",
+        timer: 3000,
+        showConfirmButton: false
+      })
+
+      // TODO: Make API call to add student
+      // const data = {
+      //   apiUrl: apiService.addStudent, // You'll need to add this to your serviceUrl.js
+      //   payload: studentData
+      // }
+      // const response = await postMethod(data)
+      // if (response.status === 'success' || response.status === true) {
+      //   // Handle success
+      // } else {
+      //   throw new Error(response.message || 'Failed to add student')
+      // }
+
+    } catch (error) {
+      console.error('Error adding student:', error)
+      Swal.fire({
+        title: "Error!",
+        text: error.message || "Failed to add student. Please try again.",
+        icon: "error"
+      })
+      throw error // Re-throw to let the modal handle the error state
+    }
+  }
+
   // Handle Export Data
   const handleExportData = () => {
     // Prepare data for export
@@ -847,7 +1366,7 @@ export default function StudentManagement() {
           <MetricPillRow items={[
             { key: 'export', label: 'Export Data', icon: <span className="text-sm">📊</span>, onClick: handleExportData },
             { key: 'notification', label: 'Send Bulk Notification', icon: <LuMessageSquare size={16} />, onClick: () => console.log('Send Notification') },
-            { key: 'add', label: 'Add Student', icon: <LuPlus size={16} />, onClick: () => console.log('Add Student') }
+            { key: 'add', label: 'Add Student', icon: <LuPlus size={16} />, onClick: handleAddStudent }
           ]} />
         </div>
       </div>
@@ -898,6 +1417,8 @@ export default function StudentManagement() {
         setAutoScrollEnabled={setAutoScrollEnabled}
         onViewCV={handleViewCV}
         onDelete={handleDelete}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
       />
 
       {/* View CV Modal */}
@@ -905,6 +1426,13 @@ export default function StudentManagement() {
         student={viewCVModal.student}
         isOpen={viewCVModal.isOpen}
         onClose={handleCloseViewCV}
+      />
+
+      {/* Add Student Modal */}
+      <AddStudentModal
+        isOpen={addStudentModal.isOpen}
+        onClose={handleCloseAddStudent}
+        onAddStudent={handleSubmitAddStudent}
       />
 
       {/* Delete Confirmation Modal */}

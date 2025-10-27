@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { LuX, LuShield, LuEye, LuPencil } from 'react-icons/lu'
-import { COLORS } from '@shared/WebConstant'
+import { COLORS, TAILWIND_COLORS } from '@shared/WebConstant'
+import { Button } from '@shared/components/Button'
 
 const EditTeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
   const [formData, setFormData] = useState({
@@ -88,12 +89,12 @@ const EditTeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] flex flex-col">
         {/* Fixed Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-2xl font-semibold text-gray-900">Edit Team Member</h2>
+          <h2 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Team Member</h2>
           <button
             onClick={handleCancel}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <LuX size={24} className="text-gray-500" />
+            <LuX size={24} className={TAILWIND_COLORS.TEXT_MUTED} />
           </button>
         </div>
 
@@ -102,7 +103,7 @@ const EditTeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Full Name *
               </label>
               <input
@@ -121,7 +122,7 @@ const EditTeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Email Address *
               </label>
               <input
@@ -140,7 +141,7 @@ const EditTeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
 
             {/* Role */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Role *
               </label>
               <div className="relative">
@@ -163,7 +164,7 @@ const EditTeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
                     size: 16, 
                     style: { color: COLORS.GREEN_PRIMARY } 
                   })}
-                  <span className="text-gray-400">▼</span>
+                  <span className={TAILWIND_COLORS.TEXT_MUTED}>▼</span>
                 </div>
               </div>
               {errors.role && (
@@ -173,22 +174,21 @@ const EditTeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
 
             {/* Action Buttons */}
             <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-              <button
+              <Button
                 type="button"
                 onClick={handleCancel}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                variant="neutral"
+                size="md"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                className="px-6 py-2 text-white rounded-lg transition-colors"
-                style={{ backgroundColor: COLORS.GREEN_PRIMARY }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = COLORS.GREEN_DARK}
-                onMouseLeave={(e) => e.target.style.backgroundColor = COLORS.GREEN_PRIMARY}
+                variant="primary"
+                size="md"
               >
                 Save Changes
-              </button>
+              </Button>
             </div>
           </form>
         </div>

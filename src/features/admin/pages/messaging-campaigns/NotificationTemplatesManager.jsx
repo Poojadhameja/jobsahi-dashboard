@@ -252,12 +252,13 @@ const NotificationTemplatesManager = () => {
           </div>
           
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-            <button
+            <Button
               onClick={onClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+              variant="neutral"
+              size="md"
             >
               Close
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -396,19 +397,21 @@ const NotificationTemplatesManager = () => {
           </div>
           
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-            <button
+            <Button
               onClick={onClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+              variant="neutral"
+              size="md"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleSave}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+              variant="primary"
+              size="md"
+              icon={<LuSave size={16} />}
             >
-              <LuSave size={16} />
               Save Changes
-            </button>
+            </Button>
           </div>
         </div>
       </div>

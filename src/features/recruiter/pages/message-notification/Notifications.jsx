@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { LuBell, LuCheck, LuX, LuUser, LuCalendar, LuFileText } from "react-icons/lu";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
+import { OutlineButton, IconButton } from "../../../../shared/components/Button";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([
@@ -89,16 +91,16 @@ const Notifications = () => {
             <div className="w-8 h-8 bg-[var(--color-secondary)] rounded-full flex items-center justify-center">
               <LuBell size={20} className="text-white" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Notifications</h1>
+            <h1 className={`text-xl sm:text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Notifications</h1>
           </div>
-          <button
+          <OutlineButton
             onClick={markAllAsRead}
-            className="px-3 py-2 text-xs sm:text-sm text-[var(--color-secondary)] border border-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white font-bold transition-colors w-full sm:w-auto"
+            className="font-bold w-full sm:w-auto text-xs sm:text-sm"
           >
             Mark All as Read
-          </button>
+          </OutlineButton>
         </div>
-        <p className="text-sm sm:text-base text-gray-600">Stay updated with your latest notifications</p>
+        <p className={`text-sm sm:text-base ${TAILWIND_COLORS.TEXT_MUTED}`}>Stay updated with your latest notifications</p>
       </div>
 
       {/* Filter Tabs */}
@@ -156,14 +158,14 @@ const Notifications = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">
+                        <h3 className={`font-semibold mb-1 text-sm sm:text-base ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                           {notification.title}
                         </h3>
-                        <p className="text-gray-600 mb-2 text-xs sm:text-sm line-clamp-2">
+                        <p className={`mb-2 text-xs sm:text-sm line-clamp-2 ${TAILWIND_COLORS.TEXT_MUTED}`}>
                           {notification.message}
                         </p>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs sm:text-sm text-gray-500">{notification.time}</span>
+                          <span className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{notification.time}</span>
                           {notification.unread && (
                             <div className="w-2 h-2 bg-[var(--color-secondary)] rounded-full"></div>
                           )}
@@ -173,23 +175,25 @@ const Notifications = () => {
                       {/* Actions */}
                       <div className="flex items-center gap-1 sm:gap-2 self-end sm:self-start">
                         {notification.unread && (
-                          <button
+                          <IconButton
+                            label="Mark as read"
                             onClick={() => markAsRead(notification.id)}
-                            className="p-1.5 sm:p-2 text-gray-400 hover:text-[var(--color-secondary)] hover:bg-green-100 rounded-lg transition-colors"
-                            title="Mark as read"
+                            variant="unstyled"
+                            className="text-gray-400 hover:text-[var(--color-secondary)] hover:bg-green-100"
                           >
                             <LuCheck size={14} className="sm:hidden" />
                             <LuCheck size={16} className="hidden sm:block" />
-                          </button>
+                          </IconButton>
                         )}
-                        <button
+                        <IconButton
+                          label="Delete notification"
                           onClick={() => deleteNotification(notification.id)}
-                          className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                          title="Delete notification"
+                          variant="unstyled"
+                          className="text-gray-400 hover:text-red-600 hover:bg-red-100"
                         >
                           <LuX size={14} className="sm:hidden" />
                           <LuX size={16} className="hidden sm:block" />
-                        </button>
+                        </IconButton>
                       </div>
                     </div>
                   </div>
@@ -202,8 +206,8 @@ const Notifications = () => {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <LuBell size={32} className="text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No notifications</h3>
-            <p className="text-gray-500">You're all caught up! No new notifications.</p>
+            <h3 className={`text-lg font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>No notifications</h3>
+            <p className={TAILWIND_COLORS.TEXT_MUTED}>You're all caught up! No new notifications.</p>
           </div>
         )}
       </div>

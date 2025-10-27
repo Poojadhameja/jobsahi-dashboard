@@ -92,7 +92,7 @@ const SpamDetectionRules = ({ rules, onRulesChange, onUpdateRules }) => {
         <div className="pt-4">
           <PrimaryButton 
             onClick={handleSubmit}
-            fullWidth
+            fullWidth={true}
             size="lg"
           >
             Update Rules

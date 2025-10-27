@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { LuUsers, LuUpload, LuEye, LuShield, LuPencil, LuTrash2, LuMail } from "react-icons/lu";
-import { COLORS } from "@shared/WebConstant";
+import { TAILWIND_COLORS } from "@shared/WebConstant";
+import { Button, IconButton } from "@shared/components/Button";
 import EditTeamMemberModal from "./EditTeamMemberModal";
 
 const TeamManagement = () => {
@@ -130,16 +131,16 @@ const TeamManagement = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {/* Left Section - Invite Teammate */}
-      <div className="bg-white rounded-2xl p-6" style={{ border: `1px solid ${COLORS.GRAY_200}` }}>
+      {/* Left Section - Invite Teammate */}                        
+      <div className={`${TAILWIND_COLORS.CARD} p-6 flex flex-col`}>
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-          <LuUpload style={{ color: COLORS.GREEN_PRIMARY }} size={20} />
-          <h3 className="font-semibold text-lg" style={{ color: COLORS.PRIMARY }}>
+          <LuUpload className={`${TAILWIND_COLORS.SECONDARY}`} size={20} />
+          <h3 className={`font-semibold text-lg    ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Invite Teammate
           </h3>
-        </div>
-        <p className="text-sm mb-6" style={{ color: COLORS.GRAY_600 }}>
+        </div >
+        <p className={`text-sm mb-6 ${TAILWIND_COLORS.TEXT_MUTED}`}>
           Add new team members to your account
         </p>
 
@@ -147,7 +148,7 @@ const TeamManagement = () => {
         <div className="space-y-4">
           {/* Email Address */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium mb-2" style={{ color: COLORS.PRIMARY }}>
+            <label className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               Email Address
             </label>
             <input
@@ -161,7 +162,7 @@ const TeamManagement = () => {
 
           {/* Role */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium mb-2" style={{ color: COLORS.PRIMARY }}>
+            <label className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               Role
             </label>
             <div className="relative">
@@ -179,7 +180,7 @@ const TeamManagement = () => {
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                 {React.createElement(getRoleIcon(inviteData.role), { 
                   size: 16, 
-                  style: { color: COLORS.GREEN_PRIMARY } 
+                  style: { color: 'var(--color-secondary)' } 
                 })}
               </div>
             </div>
@@ -193,29 +194,29 @@ const TeamManagement = () => {
           )}
 
           {/* Send Invitation Button */}
-          <button
+          <Button
             onClick={handleSendInvitation}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-white font-medium transition-colors"
-            style={{ backgroundColor: COLORS.GREEN_PRIMARY }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = COLORS.GREEN_DARK}
-            onMouseLeave={(e) => e.target.style.backgroundColor = COLORS.GREEN_PRIMARY}
+            variant="primary"
+            size="lg"
+            fullWidth
+            icon={<LuMail size={16} />}
+            className="font-medium"
           >
-            <LuMail size={16} />
             Send invitation
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Right Section - Team Members */}
-      <div className="bg-white rounded-2xl p-6 flex flex-col" style={{ border: `1px solid ${COLORS.GRAY_200}`, height: '500px' }}>
+      <div className={`${TAILWIND_COLORS.CARD} p-6 flex flex-col`}>
         {/* Header */}
         <div className="flex items-center gap-3 mb-2 flex-shrink-0">
-          <LuUsers style={{ color: COLORS.GREEN_PRIMARY }} size={20} />
-          <h3 className="font-semibold text-lg" style={{ color: COLORS.PRIMARY }}>
+          <LuUsers className={`${TAILWIND_COLORS.SECONDARY}`} size={20} />
+          <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Team Members
           </h3>
         </div>
-        <p className="text-sm mb-6 flex-shrink-0" style={{ color: COLORS.GRAY_600 }}>
+        <p className={`text-sm mb-6 flex-shrink-0 ${TAILWIND_COLORS.TEXT_MUTED}`}>
           Manage your current team members and their roles
         </p>
 
@@ -224,16 +225,16 @@ const TeamManagement = () => {
           {teamMembers.map((member) => {
             const RoleIcon = getRoleIcon(member.role);
             return (
-              <div key={member.id} className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                <div key={member.id} className={`${TAILWIND_COLORS.CARD} p-4`}>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
                   {/* Left side - Avatar and Info */}
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                      <span className="text-sm font-semibold text-gray-600">{member.avatar}</span>
+                      <span className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>{member.avatar}</span>
                     </div>
                     <div>
-                      <h4 className="font-semibold text-gray-900">{member.name}</h4>
-                      <p className="text-sm text-gray-500">{member.email}</p>
+                      <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{member.name}</h4>
+                      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{member.email}</p>
                     </div>
                   </div>
 
@@ -249,14 +250,14 @@ const TeamManagement = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleEditMember(member.id)}
-                        className="p-2 text-[var(--color-secondary)] hover:bg-gray-100 rounded-lg transition-colors"
+                        className={`p-2 hover:bg-gray-100 rounded-lg transition-colors ${TAILWIND_COLORS.SECONDARY}`}
                         title="Edit member"
                       >
                         <LuPencil size={16} />
                       </button>
                       <button
                         onClick={() => handleDeleteMember(member.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className={`p-2 hover:bg-red-50 rounded-lg transition-colors ${TAILWIND_COLORS.ERROR}`}
                         title="Delete member"
                       >
                         <LuTrash2 size={16} />

@@ -1,5 +1,7 @@
 import React from 'react'
 import { LuX, LuMail, LuPhone, LuMapPin, LuCalendar, LuFileText, LuDownload } from 'react-icons/lu'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { Button, IconButton } from '../../../../shared/components/Button'
 
 const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
   if (!isOpen || !candidate) return null
@@ -19,9 +21,9 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
             
             {/* Name and Applied For */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{candidate.name}</h2>
+              <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>{candidate.name}</h2>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Applied for</span>
+                <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Applied for</span>
                 <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
                   {candidate.appliedFor}
                 </span>
@@ -31,14 +33,18 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-gray-600">
+            <div className={`flex items-center space-x-2 ${TAILWIND_COLORS.TEXT_MUTED}`}>
               <LuFileText className="w-4 h-4" />
               <span className="text-sm">CV.pdf</span>
             </div>
-            <div className="text-sm text-gray-600">STATUS</div>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>STATUS</div>
+            <Button 
+              variant="primary" 
+              size="sm"
+              className="text-sm font-medium"
+            >
               New Application
-            </button>
+            </Button>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -52,9 +58,9 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
         <div className="p-6">
           {/* Description */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Description</h3>
             <div className="bg-gray-100 rounded-lg p-4">
-              <p className="text-gray-700 leading-relaxed">
+              <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} leading-relaxed`}>
                 A dedicated ITI student specialized in [Electrical / Fitter / Mechanical], with a strong foundation in workshop tools, machine operations, and maintenance techniques. Quick learner, team-oriented, and eager to apply technical knowledge in real-world job environments.
               </p>
             </div>
@@ -64,40 +70,40 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
             {/* Personal Details */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Details</h3>
+              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Personal Details</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className="text-sm font-medium text-gray-600">FULL NAME</span>
-                  <span className="text-sm text-gray-900">{candidate.name}</span>
+                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>FULL NAME</span>
+                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.name}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className="text-sm font-medium text-gray-600">EMAIL</span>
+                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>EMAIL</span>
                   <div className="flex items-center space-x-2">
                     <LuMail className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-900">{candidate.email}</span>
+                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.email}</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className="text-sm font-medium text-gray-600">PHONE</span>
+                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>PHONE</span>
                   <div className="flex items-center space-x-2">
                     <LuPhone className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-900">{candidate.phone || '(123) 456-7890'}</span>
+                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.phone || '(123) 456-7890'}</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className="text-sm font-medium text-gray-600">LOCATION</span>
-                  <span className="text-sm text-gray-900">{candidate.location || 'Ward 07, Balaghat'}</span>
+                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>LOCATION</span>
+                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.location || 'Ward 07, Balaghat'}</span>
                 </div>
                 <div className="flex justify-between items-center py-2">
-                  <span className="text-sm font-medium text-gray-600">APPLIED</span>
-                  <span className="text-sm text-gray-900">{candidate.appliedDate || 'Aug, 22 2023'}</span>
+                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>APPLIED</span>
+                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.appliedDate || 'Aug, 22 2023'}</span>
                 </div>
               </div>
             </div>
 
             {/* Education Information */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Educations Information</h3>
+              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Educations Information</h3>
               <div className="space-y-4">
                 {/* Education Entry 1 */}
                 <div className="flex items-start space-x-3">
@@ -105,8 +111,8 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
                     <span className="text-xs font-semibold text-gray-600">1</span>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{candidate.qualification || 'Bachelor of Science in Computer Science'}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{candidate.university || 'UNIVERSITY OF TECHNOLOGY'}</p>
+                    <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.qualification || 'Bachelor of Science in Computer Science'}</h4>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>{candidate.university || 'UNIVERSITY OF TECHNOLOGY'}</p>
                     <div className="flex items-center space-x-1 mt-1">
                       <LuCalendar className="w-3 h-3 text-gray-400" />
                       <span className="text-xs text-gray-500">Graduated May 2017</span>
@@ -120,8 +126,8 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
                     <span className="text-xs font-semibold text-gray-600">2</span>
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">Certification in Full Stack Web Development</h4>
-                    <p className="text-sm text-gray-600 mt-1">CODING ACADEMY</p>
+                    <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Certification in Full Stack Web Development</h4>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>CODING ACADEMY</p>
                     <div className="flex items-center space-x-1 mt-1">
                       <LuCalendar className="w-3 h-3 text-gray-400" />
                       <span className="text-xs text-gray-500">Completed 2023</span>
@@ -134,31 +140,31 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
 
           {/* Skills Section */}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Skills</h3>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Skills</h3>
             <div className="flex flex-wrap gap-2">
               {candidate.skills ? candidate.skills.split(', ').map((skill, index) => (
                 <span
                   key={index}
-                  className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium"
+                  className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}
                 >
                   {skill}
                 </span>
               )) : (
                 <>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">JavaScript</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Python</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">HTML5</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">CSS3</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">React.js</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Node.js</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Express.js</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">MongoDB</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">MySQL</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Git</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Scrum</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">VS Code</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">JIRA</span>
-                  <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">Slack</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>JavaScript</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Python</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>HTML5</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>CSS3</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>React.js</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Node.js</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Express.js</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>MongoDB</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>MySQL</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Git</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Scrum</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>VS Code</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>JIRA</span>
+                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Slack</span>
                 </>
               )}
             </div>
