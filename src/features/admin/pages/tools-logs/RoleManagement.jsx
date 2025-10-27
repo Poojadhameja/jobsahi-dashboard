@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
 import Swal from 'sweetalert2'
+import { LuPencil, LuTrash2 } from 'react-icons/lu'
+import { Button } from '../../../../shared/components/Button'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
 export default function RoleManagement() {
   const [showCreateForm, setShowCreateForm] = useState(false)
@@ -146,10 +149,10 @@ export default function RoleManagement() {
       <div className="">
         <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-xl font-semibold text-primary mb-2">
+            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
               Manual Role Creation & Permission Control
             </h2>
-            <p className="text-gray-600">
+            <p className={TAILWIND_COLORS.TEXT_MUTED}>
               Create and manage user roles with granular permission control
             </p>
           </div>
@@ -164,7 +167,7 @@ export default function RoleManagement() {
 
       {/* Existing Roles Section */}
       <div className="bg-[var(--color-bg-primary)] rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
-        <h3 className="text-lg font-medium text-primary mb-4">Existing Roles</h3>
+        <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Existing Roles</h3>
         <div className="space-y-4">
           {existingRoles.map((role) => (
             <div key={role.id} className="flex items-center bg-white justify-between p-4 border border-[var(--color-primary)28] rounded-lg transition-colors">
@@ -175,8 +178,8 @@ export default function RoleManagement() {
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{role.name}</p>
-                  <p className="text-gray-600 text-sm">{role.userCount} users - created {role.createdDate}</p>
+                  <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{role.name}</p>
+                  <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>{role.userCount} users - created {role.createdDate}</p>
                   <div className="flex gap-2 mt-2">
                     {role.permissions.map((permission, index) => (
                       <span key={index} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
@@ -187,18 +190,24 @@ export default function RoleManagement() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button 
+                <Button
                   onClick={() => handleEditRole(role)}
-                  className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded hover:bg-green-200 transition-colors font-medium"
+                  variant="outline"
+                  size="sm"
+                  icon={<LuPencil size={16} />}
+                  className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
                 >
                   Edit
-                </button>
-                <button 
+                </Button>
+                <Button
                   onClick={() => handleDeleteRole(role)}
-                  className="px-3 py-1 bg-red-100 text-red-700 text-sm rounded hover:bg-red-200 transition-colors font-medium"
+                  variant="outline"
+                  size="sm"
+                  icon={<LuTrash2 size={16} />}
+                  className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
                 >
                   Delete
-                </button>
+                </Button>
               </div>
             </div>
           ))}
@@ -211,7 +220,7 @@ export default function RoleManagement() {
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">
+                <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                   {editingRole ? 'Edit Role' : 'Create New Role'}
                 </h3>
                 <button
@@ -229,7 +238,7 @@ export default function RoleManagement() {
               <div className="space-y-6">
                 {/* Role Name */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Role Name</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Role Name</label>
                   <input
                     type="text"
                     placeholder="Enter role name.."
@@ -241,7 +250,7 @@ export default function RoleManagement() {
 
                 {/* Description */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Description</label>
                   <textarea
                     placeholder="Describe the role and its responsibilities.."
                     value={newRole.description}
@@ -253,7 +262,7 @@ export default function RoleManagement() {
 
                 {/* Permissions */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Permissions</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>Permissions</label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {availablePermissions.map((permission) => (
                       <label key={permission} className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-gray-50">
@@ -263,7 +272,7 @@ export default function RoleManagement() {
                           onChange={() => handlePermissionToggle(permission)}
                           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
-                        <span className="text-gray-700 text-sm">{permission}</span>
+                        <span className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>{permission}</span>
                       </label>
                     ))}
                   </div>

@@ -183,10 +183,11 @@ export default function StaffManagement() {
           </div>
           <Button
             onClick={handleAddInstructor}
-            className={`${TAILWIND_COLORS.BTN_SECONDARY} flex items-center gap-2 px-4 py-2 rounded-md font-medium`}
+            variant="secondary"
+            size="md"
             icon={<LuPlus className="w-4 h-4" />}
           >
-             Add Instructor
+            Add Instructor
           </Button>
         </div>
       </div>
@@ -207,7 +208,7 @@ export default function StaffManagement() {
             </div>
             <Button
               variant="light"
-              className={`${TAILWIND_COLORS.BTN_LIGHT} flex items-center gap-2`}
+              size="md"
               icon={<LuFilter className="w-4 h-4" />}
             >
               Filter
@@ -281,10 +282,11 @@ export default function StaffManagement() {
               <div className="mt-6">
                 <Button
                   onClick={handleAddInstructor}
-                  className={`${TAILWIND_COLORS.BTN_SECONDARY}`}
+                  variant="secondary"
+                  size="md"
                   icon={<LuPlus className="w-4 h-4" />}
                 >
-                  + Add Instructor
+                  Add Instructor
                 </Button>
               </div>
             )}
@@ -366,13 +368,15 @@ export default function StaffManagement() {
             <div className="flex justify-end space-x-3 mt-6">
               <Button
                 onClick={handleCancelModal}
-                className={`${TAILWIND_COLORS.BTN_LIGHT} px-4 py-2 rounded-md`}
+                variant="light"
+                size="md"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveInstructor}
-                className={`${TAILWIND_COLORS.BTN_PRIMARY} px-4 py-2 rounded-md`}
+                variant="primary"
+                size="md"
               >
                 {editingInstructor ? 'Update' : 'Add'} Instructor
               </Button>
@@ -397,13 +401,15 @@ export default function StaffManagement() {
             <div className="flex justify-end space-x-3">
               <Button
                 onClick={handleCancelModal}
-                className={`${TAILWIND_COLORS.BTN_LIGHT} px-4 py-2 rounded-md`}
+                variant="light"
+                size="md"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleConfirmDelete}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md"
+                variant="danger"
+                size="md"
               >
                 Delete
               </Button>

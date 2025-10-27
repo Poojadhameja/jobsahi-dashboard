@@ -1,7 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { LuBell, LuChevronDown, LuSearch, LuSave, LuEye, LuPlus } from "react-icons/lu";
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
-import Button from "../../../../shared/components/Button.jsx";
+import { 
+  Button, 
+  LaunchCampaignButton, 
+  SaveDraftButton, 
+  PreviewButton, 
+  FilterButton, 
+  ViewCampaignButton 
+} from "../../../../shared/components/Button.jsx";
 import { PillNavigation } from "../../../../shared/components/navigation.jsx";
 
 // Constants
@@ -193,9 +200,7 @@ ${form.content}
             className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
           />
         </div>
-        <Button variant="outline" size="sm">
-          Filter
-        </Button>
+        <FilterButton />
       </div>
     </div>
   );
@@ -221,9 +226,7 @@ ${form.content}
           }`}>
             {status}
           </span>
-          <Button variant="outline" size="sm">
-            View
-          </Button>
+          <ViewCampaignButton />
         </div>
       </div>
     </div>
@@ -328,43 +331,19 @@ ${form.content}
 
       {/* Actions */}
       <div className="flex flex-wrap gap-3 pt-2">
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          disabled={!canLaunch}
-          className="h-12"
+        <LaunchCampaignButton
           onClick={onLaunch}
-          icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-            </svg>
-          }
-        >
-          Launch Campaign
-        </Button>
+          disabled={!canLaunch}
+          loading={isLaunching}
+        />
 
-        <Button
-          type="button"
-          variant="outline"
-          size="md"
-          className="h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
+        <SaveDraftButton
           onClick={onSaveDraft}
-          icon={<LuSave size={16} />}
-        >
-          Save Draft
-        </Button>
+        />
 
-        <Button
-          type="button"
-          variant="outline"
-          size="md"
-          className="h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
+        <PreviewButton
           onClick={onPreview}
-          icon={<LuEye size={16} />}
-        >
-          Preview
-        </Button>
+        />
       </div>
     </form>
   );

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { LuPlus, LuPencil, LuTrash2, LuCopy, LuEye, LuChevronDown, LuX } from "react-icons/lu";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
+import Button from "../../../../shared/components/Button";
 
 const Templates = () => {
   const [templates, setTemplates] = useState([
@@ -152,24 +154,25 @@ const Templates = () => {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Message Templates</h1>
-          <p className="text-gray-600">Create and manage reusable message templates for efficient communication</p>
+          <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Message Templates</h1>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Create and manage reusable message templates for efficient communication</p>
         </div>
         <div className="flex justify-center lg:justify-end">
-          <button
+          <Button
             onClick={handleCreateTemplate}
-            className="bg-[var(--color-primary)] text-white px-6 py-3 rounded-lg hover:bg-[var(--color-primary)] transition-colors font-medium"
+            variant="secondary"
+            size="lg"
+            icon={<LuPlus size={20} />}
           >
-            <LuPlus size={20} className="inline mr-2" />
             Create Template
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Categories */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Categories</h2>
+          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Categories</h2>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2">
           {categories.map((category) => (
@@ -178,8 +181,8 @@ const Templates = () => {
               onClick={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 selectedCategory === category
-                  ? 'bg-secondary-10 text-[var(--color-secondary)]'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? `${TAILWIND_COLORS.BADGE_INFO}`
+                  : `${TAILWIND_COLORS.BTN_LIGHT}`
               }`}
             >
               {category}
@@ -191,59 +194,67 @@ const Templates = () => {
       {/* Templates List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredTemplates.map((template) => (
-          <div key={template.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div key={template.id} className={`${TAILWIND_COLORS.CARD} p-6`}>
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-gray-900 mb-2">{template.name}</h3>
-              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium bg-secondary-10 text-[var(--color-secondary)] border border-[var(--color-secondary)]`}>
+              <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>{template.name}</h3>
+              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${TAILWIND_COLORS.BADGE_INFO}`}>
                 {template.category}
               </span>
             </div>
             
             <div className="space-y-3 mb-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Subject:</p>
-                <p className="text-sm text-gray-800 font-medium">{template.subject}</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Subject:</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}>{template.subject}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Message:</p>
-                <p className="text-sm text-gray-700 line-clamp-2">{template.content}</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Message:</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} line-clamp-2`}>{template.content}</p>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
-              <button className="bg-[var(--color-secondary)] text-white px-4 py-2 rounded-lg hover:bg-[var(--color-secondary)] transition-colors text-sm font-medium flex items-center gap-2">
+              <Button 
+                variant="primary"
+                size="sm"
+                iconRight={<LuChevronDown size={16} />}
+                className="whitespace-nowrap"
+              >
                 Use Template
-                <LuChevronDown size={16} />
-              </button>
+              </Button>
               <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleViewTemplate(template)}
-                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
-                      title="View template"
-                    >
-                      <LuEye size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleCopyTemplate(template)}
-                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
-                      title="Copy template"
-                    >
-                      <LuCopy size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleEditTemplate(template)}
-                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded transition-colors"
-                      title="Edit template"
-                    >
-                      <LuPencil size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(template)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                      title="Delete template"
-                    >
-                      <LuTrash2 size={16} />
-                    </button>
+                <button
+                  onClick={() => handleViewTemplate(template)}
+                  className={`p-2 text-gray-400 hover:${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-200 rounded transition-colors`}
+                  title="View template"
+                  aria-label="View template"
+                >
+                  <LuEye size={16} />
+                </button>
+                <button
+                  onClick={() => handleCopyTemplate(template)}
+                  className={`p-2 text-gray-400 hover:${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-200 rounded transition-colors`}
+                  title="Copy template"
+                  aria-label="Copy template"
+                >
+                  <LuCopy size={16} />
+                </button>
+                <button
+                  onClick={() => handleEditTemplate(template)}
+                  className={`p-2 text-gray-400 hover:${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-200 rounded transition-colors`}
+                  title="Edit template"
+                  aria-label="Edit template"
+                >
+                  <LuPencil size={16} />
+                </button>
+                <button
+                  onClick={() => handleDeleteClick(template)}
+                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                  title="Delete template"
+                  aria-label="Delete template"
+                >
+                  <LuTrash2 size={16} />
+                </button>
               </div>
             </div>
           </div>
@@ -255,8 +266,8 @@ const Templates = () => {
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <LuPencil size={32} className="text-gray-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No templates found</h3>
-          <p className="text-gray-500">Create your first template to get started</p>
+          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>No templates found</h3>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>Create your first template to get started</p>
         </div>
       )}
 
@@ -265,12 +276,12 @@ const Templates = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
                 {editingTemplate ? 'Edit Template' : 'Create Template'}
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Template Name</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Template Name</label>
                   <input
                     type="text"
                     value={templateForm.name}
@@ -280,7 +291,7 @@ const Templates = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Category</label>
                   <select
                     value={templateForm.category}
                     onChange={(e) => setTemplateForm(prev => ({ ...prev, category: e.target.value }))}
@@ -295,7 +306,7 @@ const Templates = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Subject</label>
                   <input
                     type="text"
                     value={templateForm.subject}
@@ -305,7 +316,7 @@ const Templates = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Content</label>
                   <textarea
                     value={templateForm.content}
                     onChange={(e) => setTemplateForm(prev => ({ ...prev, content: e.target.value }))}
@@ -313,24 +324,24 @@ const Templates = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent resize-none"
                     placeholder="Enter template content. Use {`{{variableName}}`} for placeholders."
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
                     Use placeholders like {`{{candidateName}}`}, {`{{jobTitle}}`}, {`{{interviewDate}}`} etc.
                   </p>
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button
+                <Button
                   onClick={() => setShowTemplateModal(false)}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  variant="neutral"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleSaveTemplate}
-                  className="px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors"
+                  variant="primary"
                 >
                   {editingTemplate ? 'Update Template' : 'Create Template'}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -343,10 +354,12 @@ const Templates = () => {
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">Template Details</h2>
+                <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Template Details</h2>
                 <button
                   onClick={() => setShowViewModal(false)}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
+                  className={`p-2 text-gray-400 hover:${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100 rounded-lg transition-colors`}
+                  aria-label="Close"
+                  title="Close"
                 >
                   <LuX size={20} />
                 </button>
@@ -354,45 +367,45 @@ const Templates = () => {
               
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{viewingTemplate.name}</h3>
+                  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>{viewingTemplate.name}</h3>
                   <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(viewingTemplate.category)}`}>
                     {viewingTemplate.category}
                   </span>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subject:</label>
-                  <p className="text-sm text-gray-800 bg-gray-50 p-3 rounded-lg">{viewingTemplate.subject}</p>
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Subject:</label>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} bg-gray-50 p-3 rounded-lg`}>{viewingTemplate.subject}</p>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Content:</label>
-                  <div className="text-sm text-gray-800 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap max-h-60 overflow-y-auto">
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Content:</label>
+                  <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} bg-gray-50 p-3 rounded-lg whitespace-pre-wrap max-h-60 overflow-y-auto`}>
                     {viewingTemplate.content}
                   </div>
                 </div>
                 
-                <div className="text-xs text-gray-500">
+                <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   Created: {new Date(viewingTemplate.createdAt).toLocaleDateString()}
                 </div>
               </div>
               
               <div className="flex justify-end gap-3 mt-6">
-                <button
+                <Button
                   onClick={() => setShowViewModal(false)}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  variant="neutral"
                 >
                   Close
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => {
                     setShowViewModal(false);
                     handleEditTemplate(viewingTemplate);
                   }}
-                  className="px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors"
+                  variant="primary"
                 >
                   Edit Template
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -409,33 +422,33 @@ const Templates = () => {
                   <LuTrash2 size={20} className="text-red-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900">Delete Template</h2>
-                  <p className="text-sm text-gray-500">This action cannot be undone</p>
+                  <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Delete Template</h2>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>This action cannot be undone</p>
                 </div>
               </div>
               
               <div className="mb-6">
-                <p className="text-gray-700 mb-2">
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   Are you sure you want to delete the template <strong>"{templateToDelete.name}"</strong>?
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   This template will be permanently removed from your templates list.
                 </p>
               </div>
               
               <div className="flex justify-end gap-3">
-                <button
+                <Button
                   onClick={cancelDelete}
-                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  variant="neutral"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={confirmDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  variant="danger"
                 >
                   Delete Template
-                </button>
+                </Button>
               </div>
             </div>
           </div>

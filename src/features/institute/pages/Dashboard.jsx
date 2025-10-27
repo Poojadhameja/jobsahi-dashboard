@@ -17,6 +17,7 @@ import {
 } from 'react-icons/lu'
 import { Horizontal4Cards } from '../../../shared/components/metricCard'
 import ProgressChart from '../../../shared/components/charts/ProgressChart'
+import { TAILWIND_COLORS } from '../../../shared/WebConstant'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -126,7 +127,7 @@ export default function Dashboard() {
 
       {/* Greeting Section */}
       <div className="mb-5">
-        <h1 className="text-2xl font-semibold text-[#0B537D]">Hi! Brightorial</h1>
+        <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Hi! Brightorial</h1>
       </div>
 
       {/* Quick Actions and Recent Activities */}
@@ -135,9 +136,9 @@ export default function Dashboard() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
           <div className="flex items-center mb-4">
             <LuStar className="w-6 h-6 text-yellow-500 mr-2" />
-            <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
+            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Quick Actions</h2>
           </div>
-          <p className="text-gray-600 mb-5">Frequently used actions for quick access.</p>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-5`}>Frequently used actions for quick access.</p>
           
           <div className="grid grid-cols-2 gap-4">
             <button 
@@ -178,17 +179,17 @@ export default function Dashboard() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
           <div className="flex items-center mb-5">
             <LuClock className="w-6 h-6 text-blue-500 mr-2" />
-            <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
+            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Recent Activities</h2>
           </div>
-          <p className="text-gray-600 mb-5">Latest updates and activities in your institute.</p>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-5`}>Latest updates and activities in your institute.</p>
           
           <div className="space-y-4">
             {recentActivities.map((activity) => (
               <div key={activity.id} className="flex items-start space-x-3">
                 <div className={`w-3 h-3 rounded-full ${activity.color} mt-2 flex-shrink-0`}></div>
                 <div className="flex-1">
-                  <p className="text-gray-900 text-sm">{activity.text}</p>
-                  <p className="text-gray-500 text-xs">{activity.time}</p>
+                  <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>{activity.text}</p>
+                  <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs`}>{activity.time}</p>
                 </div>
               </div>
             ))}
@@ -199,7 +200,7 @@ export default function Dashboard() {
       {/* Performance Overview */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center mb-5">
-          <h2 className="text-xl font-semibold text-gray-900">Performance Overview</h2>
+          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Performance Overview</h2>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

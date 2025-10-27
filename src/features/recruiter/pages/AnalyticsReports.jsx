@@ -4,6 +4,8 @@ import BarChart from '../../../shared/components/charts/BarChart'
 import TradePieChart from '../../../shared/components/charts/TradePieChart'
 import { getChartColors } from '../../../shared/utils/chartColors'
 import { Horizontal4Cards, MatrixCard } from '../../../shared/components/metricCard'
+import { Button } from '../../../shared/components/Button'
+import DynamicButton from '../../../shared/components/DynamicButton'
 
 const AnalyticsReports = () => {
   const [timeFilter, setTimeFilter] = useState('Last 30 days')
@@ -205,27 +207,39 @@ ${reportData.keyMetrics.map(metric =>
         </div>
 
         <div className="flex items-center gap-3">
-          <button
+          <Button
             onClick={handleCreateReport}
-            className="flex items-center gap-2 px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors text-sm font-medium"
+            variant="primary"
+            size="md"
+            icon={<LuFileText className="w-4 h-4" />}
+            className="font-medium"
           >
-            <LuFileText className="w-4 h-4" />
             + Create Report
-          </button>
-          <button
+          </Button>
+          <DynamicButton
             onClick={handleCSVDownload}
-            className="flex items-center gap-2 px-4 py-2 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors text-sm font-medium"
+            backgroundColor="transparent"
+            textColor="var(--color-secondary)"
+            border="2px solid var(--color-secondary)"
+            hoverBackgroundColor="var(--color-secondary)"
+            hoverTextColor="white"
+            icon={<LuFileSpreadsheet className="w-4 h-4" />}
+            className="font-medium"
           >
-            <LuFileSpreadsheet className="w-4 h-4" />
             CSV
-          </button>
-          <button
+          </DynamicButton>
+          <DynamicButton
             onClick={handlePDFDownload}
-            className="flex items-center gap-2 px-4 py-2 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors text-sm font-medium"
+            backgroundColor="transparent"
+            textColor="var(--color-secondary)"
+            border="2px solid var(--color-secondary)"
+            hoverBackgroundColor="var(--color-secondary)"
+            hoverTextColor="white"
+            icon={<LuFileText className="w-4 h-4" />}
+            className="font-medium"
           >
-            <LuFileText className="w-4 h-4" />
             PDF
-          </button>
+          </DynamicButton>
         </div>
       </div>
 

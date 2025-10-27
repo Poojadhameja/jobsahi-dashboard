@@ -13,6 +13,7 @@ import {
 } from 'react-icons/lu'
 import { HiDotsVertical } from 'react-icons/hi'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
+import { Button } from '../../../../../shared/components/Button.jsx'
 
 // Job Posting Analytics Component
 function JobPostingAnalytics() {
@@ -181,7 +182,7 @@ function JobPostingAnalytics() {
               onClick={onClose}
               className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors duration-200`}
             >
-              <span className="text-2xl">&times;</span>
+              <span className={`text-2xl ${TAILWIND_COLORS.TEXT_PRIMARY}`}>&times;</span>
             </button>
           </div>
           
@@ -208,7 +209,7 @@ function JobPostingAnalytics() {
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Website</label>
                   <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
-                    <a href={`https://${company.company.toLowerCase()}.com`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    <a href={`https://${company.company.toLowerCase()}.com`} target="_blank" rel="noopener noreferrer" className={`${TAILWIND_COLORS.TEXT_PRIMARY} hover:underline`}>
                       {company.company.toLowerCase()}.com
                     </a>
                   </p>
@@ -231,7 +232,7 @@ function JobPostingAnalytics() {
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Email Address</label>
                   <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
                     <LuMail size={16} className={TAILWIND_COLORS.TEXT_MUTED} />
-                    <a href={`mailto:${company.contactPerson.toLowerCase().replace(' ', '.')}@${company.company.toLowerCase()}.com`} className="text-blue-600 hover:underline">
+                    <a href={`mailto:${company.contactPerson.toLowerCase().replace(' ', '.')}@${company.company.toLowerCase()}.com`} className={`${TAILWIND_COLORS.TEXT_PRIMARY} hover:underline`}>
                       {company.contactPerson.toLowerCase().replace(' ', '.')}@{company.company.toLowerCase()}.com
                     </a>
                   </p>
@@ -240,7 +241,7 @@ function JobPostingAnalytics() {
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Phone Number</label>
                   <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
                     <LuPhone size={16} className={TAILWIND_COLORS.TEXT_MUTED} />
-                    <a href="tel:+919876543210" className="text-blue-600 hover:underline">
+                    <a href="tel:+919876543210" className={`${TAILWIND_COLORS.TEXT_PRIMARY} hover:underline`}>
                       +91 9876543210
                     </a>
                   </p>
@@ -332,12 +333,13 @@ function JobPostingAnalytics() {
           </div>
           
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-            <button
+            <Button
               onClick={onClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+              variant="neutral"
+              size="md"
             >
               Close
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -363,14 +365,14 @@ function JobPostingAnalytics() {
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
-            className="appearance-none bg-green-50 text-green-800 px-4 py-2 pr-8 rounded-full text-sm font-medium border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className={`appearance-none bg-green-50 ${TAILWIND_COLORS.TEXT_PRIMARY} px-4 py-2 pr-8 rounded-full text-sm font-medium border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-500`}
           >
             {timeFilterOptions.map((option) => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-            <span className="text-green-600">▼</span>
+            <span className={TAILWIND_COLORS.TEXT_PRIMARY}>▼</span>
           </div>
         </div>
       </div>

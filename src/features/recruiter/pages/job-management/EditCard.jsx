@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { LuUpload, LuCalendar, LuX } from 'react-icons/lu'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { Button } from '../../../../shared/components/Button'
 
 const EditCard = ({ isOpen, onClose, job, onSave }) => {
   const [formData, setFormData] = useState({
@@ -146,12 +148,12 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
       <div className="bg-white rounded-xl max-w-6xl w-full max-h-[95vh] flex flex-col shadow-2xl">
         {/* Fixed Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-2xl font-semibold text-[var(--color-primary)]">Edit Job Post</h2>
+          <h2 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Job Post</h2>
           <button
             onClick={handleCancel}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <LuX size={24} className="text-gray-500" />
+            <LuX size={24} className={`${TAILWIND_COLORS.TEXT_MUTED}`} />
           </button>
         </div>
 
@@ -159,7 +161,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
         <div className="flex-1 overflow-y-auto">
           {/* Warning Message */}
           {showWarning && (
-            <div className="mx-6 mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center">
+            <div className="mx-6 mt-4 bg-red-100 border border-red-400 text-error px-4 py-3 rounded-lg flex items-center">
               <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
               </svg>
@@ -170,16 +172,16 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
           <form onSubmit={handleSubmit} className="p-6 space-y-8">
           {/* Basic Information Form */}
           <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-            <h2 className="text-xl font-bold text-gray-900 mb-8">Basic Information</h2>
+            <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>Basic Information</h2>
             
             <div className="space-y-8">
               {/* Job Title */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    JOB TITLE<span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    JOB TITLE<span className="text-error">*</span>
                   </label>
-                  <p className="text-sm text-gray-500">Add position name</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Add position name</p>
                 </div>
                 <div className="lg:col-span-2">
                   <input
@@ -194,7 +196,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     required
                   />
                   {errors.jobTitle && (
-                    <p className="text-red-500 text-sm mt-1">{errors.jobTitle}</p>
+                    <p className="text-error text-sm mt-1">{errors.jobTitle}</p>
                   )}
                 </div>
               </div>
@@ -202,10 +204,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               {/* Job Sector */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    JOB SECTOR<span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    JOB SECTOR<span className="text-error">*</span>
                   </label>
-                  <p className="text-sm text-gray-500">Choose category</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose category</p>
                 </div>
                 <div className="lg:col-span-2">
                   <select
@@ -226,7 +228,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     <option value="electrical">Electrical</option>
                   </select>
                   {errors.jobSector && (
-                    <p className="text-red-500 text-sm mt-1">{errors.jobSector}</p>
+                    <p className="text-error text-sm mt-1">{errors.jobSector}</p>
                   )}
                 </div>
               </div>
@@ -234,10 +236,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               {/* Job Description */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    JOB DESCRIPTION<span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    JOB DESCRIPTION<span className="text-error">*</span>
                   </label>
-                  <p className="text-sm text-gray-500">For effective candidate selection, enhance the job description with</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>For effective candidate selection, enhance the job description with</p>
                 </div>
                 <div className="lg:col-span-2">
                   <textarea
@@ -252,7 +254,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     required
                   />
                   {errors.jobDescription && (
-                    <p className="text-red-500 text-sm mt-1">{errors.jobDescription}</p>
+                    <p className="text-error text-sm mt-1">{errors.jobDescription}</p>
                   )}
                 </div>
               </div>
@@ -260,10 +262,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               {/* Salary */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    SALARY<span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    SALARY<span className="text-error">*</span>
                   </label>
-                  <p className="text-sm text-gray-500">Choose category</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose category</p>
                 </div>
                 <div className="lg:col-span-2">
                   <div className="flex gap-4">
@@ -282,7 +284,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                       <option value="Hourly">Hourly</option>
                     </select>
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-500">₹</span>
+                      <span className={`${TAILWIND_COLORS.TEXT_MUTED}`}>₹</span>
                       <input
                         type="text"
                         name="minSalary"
@@ -296,7 +298,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                       />
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-500">₹</span>
+                      <span className={`${TAILWIND_COLORS.TEXT_MUTED}`}>₹</span>
                       <input
                         type="text"
                         name="maxSalary"
@@ -311,7 +313,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     </div>
                   </div>
                   {(errors.salaryType || errors.minSalary || errors.maxSalary) && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="text-error text-sm mt-1">
                       {errors.salaryType || errors.minSalary || errors.maxSalary}
                     </p>
                   )}
@@ -321,10 +323,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               {/* Job Type */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    JOB TYPE<span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    JOB TYPE<span className="text-error">*</span>
                   </label>
-                  <p className="text-sm text-gray-500">Choose job type</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job type</p>
                 </div>
                 <div className="lg:col-span-2">
                   <select
@@ -343,7 +345,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     <option value="internship">Internship</option>
                   </select>
                   {errors.jobType && (
-                    <p className="text-red-500 text-sm mt-1">{errors.jobType}</p>
+                    <p className="text-error text-sm mt-1">{errors.jobType}</p>
                   )}
                 </div>
               </div>
@@ -351,10 +353,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               {/* Required Skills */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     REQUIRED SKILLS
                   </label>
-                  <p className="text-sm text-gray-500">List needed skills</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>List needed skills</p>
                 </div>
                 <div className="lg:col-span-2">
                   <input
@@ -371,10 +373,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               {/* Experience */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     EXPERIENCE
                   </label>
-                  <p className="text-sm text-gray-500">Choose required experience</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose required experience</p>
                 </div>
                 <div className="lg:col-span-2">
                   <select
@@ -395,17 +397,17 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               {/* File Attachment */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    FILE ATTACHMENT<span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    FILE ATTACHMENT<span className="text-error">*</span>
                   </label>
-                  <p className="text-sm text-gray-500">Upload related documents.</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Upload related documents.</p>
                 </div>
                 <div className="lg:col-span-2">
                   <div className="space-y-4">
                     <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-[var(--color-secondary)] rounded-lg cursor-pointer bg-secondary-10 hover:bg-secondary-10 transition-colors">
                       <div className="flex flex-col items-center">
-                        <LuUpload className="text-[var(--color-secondary)] mb-2" size={24} />
-                        <span className="text-[var(--color-secondary)] font-medium">↑ Upload Files</span>
+                        <LuUpload className="text-secondary mb-2" size={24} />
+                        <span className="text-secondary font-medium">↑ Upload Files</span>
                       </div>
                       <input
                         type="file"
@@ -420,14 +422,16 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                       <div className="space-y-2">
                         {formData.uploadedFiles.map((file, index) => (
                           <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                            <span className="text-sm text-gray-700">{file.name}</span>
-                            <button
+                            <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{file.name}</span>
+                            <Button
                               type="button"
                               onClick={() => removeFile(index)}
-                              className="text-red-500 hover:text-red-700"
+                              variant="unstyled"
+                              size="sm"
+                              className="text-error hover:text-error p-1"
                             >
                               ×
-                            </button>
+                            </Button>
                           </div>
                         ))}
                       </div>
@@ -440,16 +444,16 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
 
           {/* Address / Location Form */}
           <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-            <h2 className="text-xl font-bold text-gray-900 mb-8">Address / Location</h2>
+            <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>Address / Location</h2>
             
             <div className="space-y-8">
               {/* Country */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    COUNTRY<span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    COUNTRY<span className="text-error">*</span>
                   </label>
-                  <p className="text-sm text-gray-500">Select job location country</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select job location country</p>
                 </div>
                 <div className="lg:col-span-2">
                   <select
@@ -468,7 +472,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     <option value="canada">Canada</option>
                   </select>
                   {errors.country && (
-                    <p className="text-red-500 text-sm mt-1">{errors.country}</p>
+                    <p className="text-error text-sm mt-1">{errors.country}</p>
                   )}
                 </div>
               </div>
@@ -476,10 +480,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               {/* City */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    CITY<span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    CITY<span className="text-error">*</span>
                   </label>
-                  <p className="text-sm text-gray-500">Choose job city</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job city</p>
                 </div>
                 <div className="lg:col-span-2">
                   <select
@@ -498,7 +502,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     <option value="delhi">Delhi</option>
                   </select>
                   {errors.city && (
-                    <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+                    <p className="text-error text-sm mt-1">{errors.city}</p>
                   )}
                 </div>
               </div>
@@ -506,10 +510,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               {/* State */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    STATE<span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    STATE<span className="text-error">*</span>
                   </label>
-                  <p className="text-sm text-gray-500">Choose job state</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job state</p>
                 </div>
                 <div className="lg:col-span-2">
                   <select
@@ -528,7 +532,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     <option value="karnataka">Karnataka</option>
                   </select>
                   {errors.state && (
-                    <p className="text-red-500 text-sm mt-1">{errors.state}</p>
+                    <p className="text-error text-sm mt-1">{errors.state}</p>
                   )}
                 </div>
               </div>
@@ -536,10 +540,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               {/* Full Address */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    FULL ADDRESS<span className="text-red-500">*</span>
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    FULL ADDRESS<span className="text-error">*</span>
                   </label>
-                  <p className="text-sm text-gray-500">Enter complete location</p>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter complete location</p>
                 </div>
                 <div className="lg:col-span-2">
                   <input
@@ -554,7 +558,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                     required
                   />
                   {errors.fullAddress && (
-                    <p className="text-red-500 text-sm mt-1">{errors.fullAddress}</p>
+                    <p className="text-error text-sm mt-1">{errors.fullAddress}</p>
                   )}
                 </div>
               </div>
@@ -565,16 +569,16 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Contact Information Form */}
             <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-              <h2 className="text-xl font-bold text-gray-900 mb-8">Contact information</h2>
+              <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>Contact information</h2>
               
               <div className="space-y-8">
                 {/* Person */}
                 <div className="grid grid-cols-1 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                       PERSON
                     </label>
-                    <p className="text-sm text-gray-500">Enter contact person's name</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter contact person's name</p>
                   </div>
                   <div>
                     <input
@@ -591,10 +595,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                 {/* Phone */}
                 <div className="grid grid-cols-1 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                       PHONE
                     </label>
-                    <p className="text-sm text-gray-500">Add contact number</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Add contact number</p>
                   </div>
                   <div>
                     <input
@@ -611,10 +615,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                 {/* Additional Contact */}
                 <div className="grid grid-cols-1 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                       ADDITIONAL CONTACT
                     </label>
-                    <p className="text-sm text-gray-500">Add alternate contact</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Add alternate contact</p>
                   </div>
                   <div>
                     <input
@@ -632,16 +636,16 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
 
             {/* Dates and Status Form */}
             <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-              <h2 className="text-xl font-bold text-gray-900 mb-8">Dates and Status</h2>
+              <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>Dates and Status</h2>
               
               <div className="space-y-8">
                 {/* Vacancy Status */}
                 <div className="grid grid-cols-1 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      VACANCY STATUS<span className="text-red-500">*</span>
+                    <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                      VACANCY STATUS<span className="text-error">*</span>
                     </label>
-                    <p className="text-sm text-gray-500">Select hiring status</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select hiring status</p>
                   </div>
                   <div>
                     <select
@@ -659,7 +663,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                       <option value="Draft">Draft</option>
                     </select>
                     {errors.vacancyStatus && (
-                      <p className="text-red-500 text-sm mt-1">{errors.vacancyStatus}</p>
+                      <p className="text-error text-sm mt-1">{errors.vacancyStatus}</p>
                     )}
                   </div>
                 </div>
@@ -667,10 +671,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                 {/* Opening Date */}
                 <div className="grid grid-cols-1 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      OPENING<span className="text-red-500">*</span>
+                    <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                      OPENING<span className="text-error">*</span>
                     </label>
-                    <p className="text-sm text-gray-500">Choose job post start</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job post start</p>
                   </div>
                   <div>
                     <div className="relative">
@@ -684,10 +688,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                         }`}
                         required
                       />
-                      <LuCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+
                     </div>
                     {errors.openingDate && (
-                      <p className="text-red-500 text-sm mt-1">{errors.openingDate}</p>
+                      <p className="text-error text-sm mt-1">{errors.openingDate}</p>
                     )}
                   </div>
                 </div>
@@ -695,10 +699,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                 {/* Closing Date */}
                 <div className="grid grid-cols-1 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">
-                      CLOSING<span className="text-red-500">*</span>
+                    <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                      CLOSING<span className="text-error">*</span>
                     </label>
-                    <p className="text-sm text-gray-500">Choose job post end</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job post end</p>
                   </div>
                   <div>
                     <div className="relative">
@@ -712,10 +716,10 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                         }`}
                         required
                       />
-                      <LuCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+
                     </div>
                     {errors.closingDate && (
-                      <p className="text-red-500 text-sm mt-1">{errors.closingDate}</p>
+                      <p className="text-error text-sm mt-1">{errors.closingDate}</p>
                     )}
                   </div>
                 </div>
@@ -725,19 +729,21 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
 
           {/* Footer Buttons */}
           <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
-            <button
+            <Button
               type="button"
               onClick={handleCancel}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              variant="neutral"
+              size="lg"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-6 py-3 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors font-medium"
+              variant="primary"
+              size="lg"
             >
               Update Job
-            </button>
+            </Button>
           </div>
           </form>
         </div>

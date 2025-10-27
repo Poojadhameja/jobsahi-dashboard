@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { LuUpload, LuCalendar } from 'react-icons/lu'
 import RichTextEditor from '@shared/components/RichTextEditor'
+import { TAILWIND_COLORS } from '@shared/WebConstant'
+import { Button } from '@shared/components/Button'
 
 const PostJob = ({ onJobSubmit }) => {
   const [formData, setFormData] = useState({
@@ -181,46 +183,52 @@ const PostJob = ({ onJobSubmit }) => {
 
       {/* Header */}
       <div className="flex flex-col gap-5 sm:flex-row sm:justify-between items-center mb-8">
-        <h1 className="text-3xl font-semibold text-[var(--color-primary)]">
+        <h1 className={`text-3xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
           Create Job Posts
         </h1>
         
         {/* Action Buttons */}
         <div className="flex space-x-2">
-          <button
+          <Button
             onClick={handleCancel}
-            className="px-5 py-2 bg-secondary-10 text-[var(--color-secondary)] rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
+            variant="outline"
+            size="md"
+            className="rounded-full font-bold"
           >
-            <span>Cancel</span>
-          </button>
-          <button
+            Cancel
+          </Button>
+          <Button
             onClick={handleDraft}
-            className="px-5 py-2 bg-secondary-10 text-[var(--color-secondary)] rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
+            variant="outline"
+            size="md"
+            className="rounded-full font-bold"
           >
-            <span>Draft</span>
-          </button>
-          <button
+            Draft
+          </Button>
+          <Button
             onClick={handleSubmit}
-            className="px-5 py-2 bg-[var(--color-secondary)] text-white rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
+            variant="primary"
+            size="md"
+            className="rounded-full font-bold"
           >
-            <span>Save</span>
-          </button>
+            Save
+          </Button>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Information Form */}
         <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-          <h2 className="text-xl font-bold text-gray-900 mb-8">Basic Information</h2>
+          <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>Basic Information</h2>
           
           <div className="space-y-8">
             {/* Job Title */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   JOB TITLE<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Add position name</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Add position name</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -243,10 +251,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Job Sector */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   JOB SECTOR<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Choose category</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose category</p>
               </div>
               <div className="lg:col-span-2">
                 <select
@@ -274,10 +282,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Job Description */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   JOB DESCRIPTION<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">For effective candidate selection, enhance the job description with</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>For effective candidate selection, enhance the job description with</p>
               </div>
               <div className="lg:col-span-2">
                 <RichTextEditor
@@ -292,10 +300,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Salary */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   SALARY<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Choose category</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose category</p>
               </div>
               <div className="lg:col-span-2">
                 <div className="flex gap-4">
@@ -342,10 +350,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Job Type */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   JOB TYPE<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Choose job type</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job type</p>
               </div>
               <div className="lg:col-span-2">
                 <select
@@ -367,10 +375,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Required Skills */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   REQUIRED SKILLS
                 </label>
-                <p className="text-sm text-gray-500">List needed skills</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>List needed skills</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -387,10 +395,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Experience */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   EXPERIENCE
                 </label>
-                <p className="text-sm text-gray-500">Choose required experience</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose required experience</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -407,10 +415,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* File Attachment */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   FILE ATTACHMENT<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Upload related documents.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Upload related documents.</p>
               </div>
               <div className="">
                 <div className="space-y-4 ">
@@ -432,7 +440,7 @@ const PostJob = ({ onJobSubmit }) => {
                     <div className="space-y-2">
                       {formData.uploadedFiles.map((file, index) => (
                         <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                          <span className="text-sm text-gray-700">{file.name}</span>
+                          <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{file.name}</span>
                           <button
                             type="button"
                             onClick={() => removeFile(index)}
@@ -455,16 +463,16 @@ const PostJob = ({ onJobSubmit }) => {
 
         {/* Address / Location Form */}
         <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-          <h2 className="text-xl font-bold text-gray-900 mb-8">Address / Location</h2>
+          <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>Address / Location</h2>
           
           <div className="space-y-8">
             {/* Country */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   COUNTRY<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Select job location country</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select job location country</p>
               </div>
               <div className="lg:col-span-2">
                 <select
@@ -486,10 +494,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* City */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   CITY<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Choose job city</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job city</p>
               </div>
               <div className="lg:col-span-2">
                 <select
@@ -511,10 +519,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* State */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   STATE<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Choose job state</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job state</p>
               </div>
               <div className="lg:col-span-2">
                 <select
@@ -536,10 +544,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Full Address */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   FULL ADDRESS<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Enter complete location</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter complete location</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -559,16 +567,16 @@ const PostJob = ({ onJobSubmit }) => {
        <div className="flex flex-col lg:flex-row gap-4">
          {/* Contact Information Form */}
          <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
-          <h2 className="text-xl font-bold text-gray-900 mb-8">Contact information</h2>
+          <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>Contact information</h2>
           
           <div className="space-y-8">
             {/* Person */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   PERSON
                 </label>
-                <p className="text-sm text-gray-500">Enter contact person's name</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter contact person's name</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -585,10 +593,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Phone */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   PHONE
                 </label>
-                <p className="text-sm text-gray-500">Add contact number</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Add contact number</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -611,10 +619,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Additional Contact */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   ADDITIONAL CONTACT
                 </label>
-                <p className="text-sm text-gray-500">Add alternate contact</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Add alternate contact</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -632,16 +640,16 @@ const PostJob = ({ onJobSubmit }) => {
 
         {/* Dates and Status Form */}
         <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
-          <h2 className="text-xl font-bold text-gray-900 mb-8">Dates and Status</h2>
+          <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>Dates and Status</h2>
           
           <div className="space-y-8">
             {/* Vacancy Status */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   VACANCY STATUS<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Select hiring status</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select hiring status</p>
               </div>
               <div className="lg:col-span-2">
                 <select
@@ -662,10 +670,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Opening Date */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   OPENING<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Choose job post start</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job post start</p>
               </div>
               <div className="lg:col-span-2">
                 <div className="relative">
@@ -677,7 +685,7 @@ const PostJob = ({ onJobSubmit }) => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none pr-10"
                     required
                   />
-                  <LuCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+                  
                 </div>
               </div>
             </div>
@@ -685,10 +693,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* Closing Date */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   CLOSING<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Choose job post end</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job post end</p>
               </div>
               <div className="lg:col-span-2">
                 <div className="relative">
@@ -700,7 +708,7 @@ const PostJob = ({ onJobSubmit }) => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none pr-10"
                     required
                   />
-                  <LuCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+
                 </div>
               </div>
             </div>

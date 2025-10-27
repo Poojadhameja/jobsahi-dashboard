@@ -104,7 +104,7 @@ const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) =>
         <div className="pt-4">
           <PrimaryButton 
             onClick={handleSubmit}
-            fullWidth
+            fullWidth={true}
             size="lg"
             className="h-12"
           >

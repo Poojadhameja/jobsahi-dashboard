@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { LuEye } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Button from '../../../../shared/components/Button'
+import DetailedProgressModal from './DetailedProgressModal'
 
 const TrackProgress = () => {
+  const [selectedStudent, setSelectedStudent] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
   // Mock student progress data
   const studentProgressData = [
     {
@@ -87,10 +91,14 @@ const TrackProgress = () => {
     return 'bg-red-500'
   }
 
-  const handleViewDetailedProgress = (studentId) => {
-    console.log('View detailed progress for student:', studentId)
-    // Here you would typically navigate to a detailed progress page or open a modal
-    alert(`Viewing detailed progress for student ID: ${studentId}`)
+  const handleViewDetailedProgress = (student) => {
+    setSelectedStudent(student)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedStudent(null)
   }
 
   return (
@@ -166,7 +174,7 @@ const TrackProgress = () => {
 
             {/* Action Button */}
             <Button
-              onClick={() => handleViewDetailedProgress(student.id)}
+              onClick={() => handleViewDetailedProgress(student)}
               variant="primary"
               icon={<LuEye className="w-4 h-4" />}
               fullWidth
@@ -219,6 +227,13 @@ const TrackProgress = () => {
           </div>
         </div>
       </div>
+
+      {/* Detailed Progress Modal */}
+      <DetailedProgressModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        studentData={selectedStudent}
+      />
     </div>
   )
 }

@@ -16,6 +16,8 @@ import {
 import DeleteConfirmModal from './DeleteConfirmModal'
 import EditCard from './EditCard'
 import ViewJobModal from './ViewJobModal'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { Button, IconButton } from '../../../../shared/components/Button'
 
 const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -138,7 +140,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
     <div className="min-h-screen bg-[var(--color-bg-primary)] p-2">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-semibold text-[var(--color-primary)] mb-2">All Jobs</h1>
+        <h1 className={`text-3xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>All Jobs</h1>
         
         {/* Search and Filters */}
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
@@ -150,7 +152,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               placeholder="Search by job title, name, position"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
+              className={`w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${TAILWIND_COLORS.TEXT_PRIMARY}`}
             />
           </div>
 
@@ -161,7 +163,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[120px]"
+                className={`appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[120px] ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               >
                 <option value="">Status</option>
                 <option value="open">Open</option>
@@ -176,7 +178,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               <select
                 value={departmentFilter}
                 onChange={(e) => setDepartmentFilter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[120px]"
+                className={`appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[120px] ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               >
                 <option value="">Department</option>
                 <option value="technical">Technical</option>
@@ -192,7 +194,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               <select
                 value={locationFilter}
                 onChange={(e) => setLocationFilter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[120px]"
+                className={`appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[120px] ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               >
                 <option value="">Location</option>
                 <option value="madhya-pradesh">Madhya Pradesh</option>
@@ -208,7 +210,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               <select
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[140px]"
+                className={`appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[140px] ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               >
                 <option value="">Posted Date</option>
                 <option value="today">Today</option>
@@ -232,10 +234,10 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
                   <span className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-secondary)] text-white">
                     {job.status}
                   </span>
-                  <span className="text-sm text-gray-500">{job.company}</span>
+                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{job.company}</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{job.title}</h3>
-                <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+                <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>{job.title}</h3>
+                <div className={`flex items-center gap-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>
                   <div className="flex items-center gap-1">
                     <LuEye size={16} />
                     <span>{job.views}</span>
@@ -244,7 +246,7 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
                 </div>
               </div>
               <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                <span className="text-xs text-gray-500">Logo</span>
+                <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Logo</span>
               </div>
             </div>
 
@@ -253,19 +255,19 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
               <span className="px-3 py-1 rounded-full text-xs font-medium bg-secondary-10 text-[var(--color-secondary)]">
                 {job.openingDate}
               </span>
-              <span className="text-gray-400">to</span>
+              <span className={TAILWIND_COLORS.TEXT_MUTED}>to</span>
               <span className="px-3 py-1 rounded-full text-xs font-medium bg-secondary-10 text-[var(--color-secondary)]">
                 {job.closingDate}
               </span>
             </div>
 
             {/* Description */}
-            <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm mb-4 line-clamp-3`}>
               {job.description}
             </p>
 
             {/* Location */}
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+            <div className={`flex items-center gap-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-4`}>
               <LuMapPin size={16} className='text-error' />
               <span>{job.location}</span>
             </div>
@@ -313,56 +315,54 @@ const ManageJob = ({ jobs = [], onEditJob, onDeleteJob }) => {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
         {/* Showing data info */}
-        <div className="text-sm text-gray-600">
+        <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
           Showing {startItem} from {totalItems} data
         </div>
 
         {/* Pagination Controls */}
         <div className="flex items-center gap-2">
           {/* Previous Button */}
-          <button
+          <Button
             onClick={handlePrevious}
             disabled={currentPage === 1}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              currentPage === 1
-                ? 'text-[var(--color-primary)] cursor-not-allowed'
-                : 'text-[var(--color-primary)] hover:bg-[var(--color-primary)1A]'
-            }`}
+            variant="light"
+            size="sm"
+            className="flex items-center gap-2"
+            icon={<LuChevronLeft size={16} />}
           >
-            <LuChevronLeft size={16} />
-            <span>Previous</span>
-          </button>
+            Previous
+          </Button>
 
           {/* Page Numbers */}
           <div className="flex items-center gap-1 bg-[var(--color-primary)1A] rounded-full p-1 md:px-4">
             {getPageNumbers().map((pageNum) => (
-              <button
+              <Button
                 key={pageNum}
                 onClick={() => handlePageChange(pageNum)}
-                className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                variant={pageNum === currentPage ? "primary" : "unstyled"}
+                size="sm"
+                className={`w-8 h-8 rounded-full text-sm font-medium ${
                   pageNum === currentPage
                     ? 'bg-[var(--color-primary)] text-white'
-                    : 'text-[var(--color-primary)] hover:bg-[var(--color-primary)1A]'
+                    : `${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-[var(--color-primary)1A]`
                 }`}
               >
                 {pageNum}
-              </button>
+              </Button>
             ))}
           </div>
 
           {/* Next Button */}
-          <button
+          <Button
             onClick={handleNext}
             disabled={currentPage === totalPages}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              currentPage === totalPages
-                ? 'text-[var(--color-primary)] cursor-not-allowed'
-                : 'text-[var(--color-primary)] hover:bg-[var(--color-primary)1A]'
-            }`}
+            variant="light"
+            size="sm"
+            className="flex items-center gap-2"
+            iconRight={<LuChevronRight size={16} />}
           >
-            <span>Next</span>
-            <LuChevronRight size={16} />
-          </button>
+            Next
+          </Button>
         </div>
       </div>
 

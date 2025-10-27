@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { LuPlus, LuSettings } from 'react-icons/lu'
 import { PillNavigation } from '../../../../shared/components/navigation'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import PostJob from './PostJob'
 import ManageJob from './ManageJob'
 
@@ -105,7 +106,7 @@ const JobManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)]">
+    <div className={`min-h-screen ${TAILWIND_COLORS.BG_PRIMARY}`}>
       {/* Green Navigation Pills */}
       <div className="mb-4">
         <PillNavigation 
