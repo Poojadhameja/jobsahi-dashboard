@@ -1,14 +1,17 @@
 import React, { useState } from 'react'
-import { LuArrowLeft, LuEye } from 'react-icons/lu'
+import { LuArrowLeft, LuEye, LuPencil } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import CentralizedDataTable from '../../../../shared/components/CentralizedDataTable'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import BatchDetail from './BatchDetail'
+import EditBatchModal from './EditBatchModal'
 
 export default function CourseDetail({ courseData, onBack, onViewBatch }) {
   const [currentView, setCurrentView] = useState('course') // 'course' or 'batch'
   const [selectedBatch, setSelectedBatch] = useState(null)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [selectedBatchForEdit, setSelectedBatchForEdit] = useState(null)
 
   if (!courseData) {
     return (
@@ -36,6 +39,25 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
   const handleBackFromBatch = () => {
     setCurrentView('course')
     setSelectedBatch(null)
+  }
+
+  // Handle opening edit modal
+  const handleOpenEditModal = (batch) => {
+    setSelectedBatchForEdit(batch)
+    setIsEditModalOpen(true)
+  }
+
+  // Handle closing edit modal
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false)
+    setSelectedBatchForEdit(null)
+  }
+
+  // Handle updating batch data
+  const handleUpdateBatch = (updatedData) => {
+    console.log('Updated batch data:', updatedData)
+    // Add your update logic here
+    // For example, call an API to update the batch
   }
 
   // Get status color for batch status
@@ -90,6 +112,15 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
         console.log('Batch ID:', batch.id)
         // Use the new handleViewBatch function
         handleViewBatch(courseData.id, batch.id)
+      },
+      variant: 'outline',
+      size: 'sm'
+    },
+    {
+      label: 'Edit',
+      icon: <LuPencil className="w-4 h-4" />,
+      onClick: (batch) => {
+        handleOpenEditModal(batch)
       },
       variant: 'outline',
       size: 'sm'
@@ -356,6 +387,14 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
           </div>
         </div>
       </div>
+
+      {/* Edit Batch Modal */}
+      <EditBatchModal
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        batchData={selectedBatchForEdit}
+        onUpdate={handleUpdateBatch}
+      />
     </div>
   )
 }

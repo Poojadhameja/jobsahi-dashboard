@@ -6,7 +6,7 @@ import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import ViewStudents from './ViewStudents'
 import AddStudents from './AddStudents'
 import AssignCourse from './AssignCourse'
-import TrackProgress from './TrackProgress'
+// import TrackProgress from './TrackProgress'
 import SendMessages from './SendMessages'
 
 export default function StudentManagementSystem() {
@@ -29,11 +29,11 @@ export default function StudentManagementSystem() {
       label: 'Assign Course/Batch',
       icon: LuBookOpen
     },
-    {
-      id: 'track-progress',
-      label: 'Track Progress',
-      icon: LuTrendingUp
-    },
+    // {
+    //   id: 'track-progress',
+    //   label: 'Track Progress',
+    //   icon: LuTrendingUp
+    // },
     {
       id: 'send-messages',
       label: 'Send Messages',
@@ -71,8 +71,8 @@ export default function StudentManagementSystem() {
         {activeTab === 0 && <ViewStudents />}
         {activeTab === 1 && <AddStudents />}
         {activeTab === 2 && <AssignCourse />}
-        {activeTab === 3 && <TrackProgress />}
-        {activeTab === 4 && <SendMessages />}
+        {/* {activeTab === 3 && <TrackProgress />} */}
+        {activeTab === 3 && <SendMessages />}
         {/* Add other tab components here as needed */}
       </div>
     </div>

@@ -24,6 +24,7 @@ export default function BatchManagement() {
       instructor: "Rajendra Prashad",
       totalBatches: 5,
       activeBatches: 3,
+      progress: 75,
       batches: [
         {
           time: "9:00 AM - 12:00 PM",
@@ -48,6 +49,7 @@ export default function BatchManagement() {
       instructor: "Priya Sharma",
       totalBatches: 4,
       activeBatches: 2,
+      progress: 65,
       batches: [
         {
           time: "10:00 AM - 1:00 PM",
@@ -67,6 +69,7 @@ export default function BatchManagement() {
       instructor: "Rajendra Prashad",
       totalBatches: 4,
       activeBatches: 1,
+      progress: 45,
       batches: []
     },
     {
@@ -75,6 +78,7 @@ export default function BatchManagement() {
       instructor: "Nitin Soni",
       totalBatches: 4,
       activeBatches: 3,
+      progress: 80,
       batches: []
     },
     {
@@ -83,6 +87,7 @@ export default function BatchManagement() {
       instructor: "Rajendra Prashad",
       totalBatches: 4,
       activeBatches: 1,
+      progress: 55,
       batches: []
     },
     {
@@ -91,6 +96,7 @@ export default function BatchManagement() {
       instructor: "Neha Rajput",
       totalBatches: 4,
       activeBatches: 2,
+      progress: 70,
       batches: []
     }
   ]
@@ -199,6 +205,20 @@ export default function BatchManagement() {
                 <div className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-xs font-medium`}>Active Batches</div>
               </div>
             </div>
+
+            {/* Progress Bar */}
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm font-medium`}>Overall Progress</span>
+                <span className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm font-semibold`}>{course.progress}%</span>
+              </div>
+              <div className={`w-full bg-gray-200 rounded-full h-2.5`}>
+                <div 
+                  className="bg-blue-900 h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${course.progress}%` }}
+                ></div>
+              </div>
+            </div>
            
             {/* Action Buttons */}
             <div className="flex gap-2">
@@ -210,7 +230,7 @@ export default function BatchManagement() {
                 icon={<LuEye className="w-4 h-4" />}
                 className={`${TAILWIND_COLORS.BTN_LIGHT}`}
               >
-                View Course
+                View 
               </Button>
               <Button 
                 onClick={() => handleAddBatch(course.id)}
