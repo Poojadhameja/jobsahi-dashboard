@@ -148,13 +148,6 @@ const ViewStudents = () => {
     }
   }
 
-  const getProgressColor = (progress) => {
-    if (progress >= 80) return 'bg-green-500'
-    if (progress >= 60) return 'bg-orange-500'
-    if (progress >= 40) return 'bg-yellow-500'
-    return 'bg-red-500'
-  }
-
   // Calculate summary statistics
   const totalStudents = students.length
   const activeStudents = students.filter(s => s.status === 'Active').length
@@ -320,7 +313,6 @@ const ViewStudents = () => {
                 </th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student</th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course & Batch</th>
-                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Progress</th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Actions</th>
               </tr>
@@ -350,17 +342,6 @@ const ViewStudents = () => {
                     <div>
                       <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.course}</div>
                       <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.batch}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                        <div
-                          className={`h-2 rounded-full ${getProgressColor(student.progress)}`}
-                          style={{ width: `${student.progress}%` }}
-                        ></div>
-                      </div>
-                      <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.progress}%</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -440,7 +421,6 @@ const ViewStudents = () => {
                   <p><span className="font-medium">Batch:</span> {selectedStudent.batch}</p>
                   <p><span className="font-medium">Qualification:</span> {selectedStudent.qualification}</p>
                   <p><span className="font-medium">Experience:</span> {selectedStudent.experience}</p>
-                  <p><span className="font-medium">Progress:</span> {selectedStudent.progress}%</p>
                 </div>
               </div>
 
@@ -531,7 +511,6 @@ const ViewStudents = () => {
                 phone: formData.get('phone'),
                 course: formData.get('course'),
                 batch: formData.get('batch'),
-                progress: parseInt(formData.get('progress')),
                 status: formData.get('status'),
                 address: formData.get('address'),
                 qualification: formData.get('qualification'),
@@ -588,19 +567,6 @@ const ViewStudents = () => {
                     defaultValue={selectedStudent.batch}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
-                  />
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Progress (%)</label>
-                  <input
-                    type="number"
-                    name="progress"
-                    min="0"
-                    max="100"
-                    defaultValue={selectedStudent.progress}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
-                    disabled
-                    readOnly
                   />
                 </div>
                 <div>

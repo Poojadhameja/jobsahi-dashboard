@@ -71,7 +71,7 @@ export default function Dashboard() {
   }
 
   const handleAddNewCourse = () => {
-    navigate('/institute/course-management')
+    navigate('/institute/course-management/create')
   }
 
   const handleGenerateReports = () => {

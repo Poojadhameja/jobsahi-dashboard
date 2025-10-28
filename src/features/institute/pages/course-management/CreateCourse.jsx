@@ -34,12 +34,7 @@ export default function CreateCourse() {
   const [validationErrors, setValidationErrors] = useState({})
   
   // ✅ Dynamic categories state
-  const [categories, setCategories] = useState([
-    'Technical',
-    'Non-Technical', 
-    'Vocational',
-    'Professional'
-  ])
+  const [categories, setCategories] = useState([ ])
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
   const [newCategory, setNewCategory] = useState('')
 
@@ -255,6 +250,15 @@ const handleSave = async () => {
   return (
     <div className="">
         {/* Header with Action Buttons */}
+        <div className={`flex items-center mb-6`}>
+          <button
+            onClick={handleBack}
+            className={`flex items-center gap-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors`}
+          >
+            <LuArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-medium">Back to Course Management</span>
+          </button>
+        </div>
        
         {/* Basic Information Section */}
         <div className={`mb-8 ${TAILWIND_COLORS.CARD} p-6`}>
