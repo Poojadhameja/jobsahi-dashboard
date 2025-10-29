@@ -14,6 +14,8 @@ const FindJob = ({ onClose }) => {
   const [salaryRange, setSalaryRange] = useState([1000, 6000])
   const [showJobPopup, setShowJobPopup] = useState(false)
   const [selectedJob, setSelectedJob] = useState(null)
+  const [email, setEmail] = useState('')
+  const [isSubscribed, setIsSubscribed] = useState(false)
 
   const employmentTypes = [
     { name: 'Part Time', count: 120, selected: selectedEmployment.includes('Part Time') },
@@ -346,6 +348,16 @@ const FindJob = ({ onClose }) => {
   const handleApplyJob = (e) => {
     e.stopPropagation() // Prevent job card click
     window.location.href = '/login'
+  }
+
+  const handleSubscribe = (subscriberEmail) => {
+    console.log('Subscribing email:', subscriberEmail)
+    setIsSubscribed(true)
+    setEmail('')
+    // You can add API call here to save the subscription
+    setTimeout(() => {
+      setIsSubscribed(false)
+    }, 5000)
   }
 
   // Prevent body scroll when popup is open
@@ -706,7 +718,15 @@ const FindJob = ({ onClose }) => {
       </div>
       
               {/* Subscribe Section */}
-              <NewsletterSubscription />
+              <NewsletterSubscription 
+                headerContent={{
+                  title: "New Things Will Always Update Regularly"
+                }}
+                email={email}
+                setEmail={setEmail}
+                onSubscribe={handleSubscribe}
+                isSubscribed={isSubscribed}
+              />
        
        {/* Footer */}
        <Footer />
