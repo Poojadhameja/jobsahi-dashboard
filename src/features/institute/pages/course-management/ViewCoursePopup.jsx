@@ -193,7 +193,7 @@ const ViewCoursePopup = ({ course, onClose }) => {
               </div>
               <div className="flex-1">
                 <p className="text-2xl font-bold text-[#1A569A]">
-                  ₹{course.fee?.toLocaleString('en-IN') || 'Not specified'}
+                  ₹{course.price?.toLocaleString('en-IN') || 'Not specified'}
                 </p>
               </div>
             </div>

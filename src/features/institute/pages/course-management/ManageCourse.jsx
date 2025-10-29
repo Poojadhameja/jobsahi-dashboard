@@ -8,7 +8,7 @@ import EditCoursePopup from './EditCoursePopup'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
 
-export default function ManageCourse() {
+export default function ManageCourse({ onNavigateToCreateCourse }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { deleteCourse, updateCourse } = useCourseContext()
@@ -54,7 +54,7 @@ export default function ManageCourse() {
       const apiUrl = `${apiService.getCourses}${queryParams}`
       
       const res = await getMethod({ apiUrl })
-      console.log('📥 API Response:', res)
+      console.log('📥fetch data API Response:', res)
 
       if (res?.status && Array.isArray(res.courses)) {
         // Transform backend data to frontend format
@@ -192,11 +192,11 @@ export default function ManageCourse() {
         title: updatedCourse.title,
         description: updatedCourse.description,
         duration: parseInt(updatedCourse.duration),
-        fee: parseFloat(updatedCourse.price),
+        fee: parseFloat(updatedCourse.price),        
         category_id: updatedCourse.categoryId,
         tagged_skills: Array.isArray(updatedCourse.skills) 
-          ? updatedCourse.skills.join(',') 
-          : updatedCourse.skills,
+        ? updatedCourse.skills.join(',') 
+        : updatedCourse.skills,
         batch_limit: updatedCourse.batchLimit,
         status: updatedCourse.status,
         instructor_name: updatedCourse.instructorName,
@@ -206,6 +206,7 @@ export default function ManageCourse() {
         module_description: updatedCourse.moduleDescription,
         media: updatedCourse.media
       }
+      console.log(updatedCourse.price );
 
       // Update in backend - uncomment when update API is ready
       // const res = await putMethod({ 
@@ -409,7 +410,7 @@ export default function ManageCourse() {
               Start by creating your first course to get started.
             </p>
             <button
-              onClick={() => navigate('/institute/create-course')}
+              onClick={onNavigateToCreateCourse}
               className={`${TAILWIND_COLORS.BTN_PRIMARY} px-6 py-2 rounded-lg text-sm font-medium`}
             >
               Create Course

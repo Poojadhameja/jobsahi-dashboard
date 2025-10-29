@@ -57,7 +57,7 @@ export default function CourseManagement() {
 
         {/* Content Area */}
         {activeTabIndex === 0 ? (
-          <ManageCourse />
+          <ManageCourse onNavigateToCreateCourse={() => setActiveTabIndex(1)} />
         ) : (
           <CreateCourse />
         )}
