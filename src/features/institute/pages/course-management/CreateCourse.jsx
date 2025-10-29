@@ -25,7 +25,7 @@ export default function CreateCourse() {
     courseStatus: 'Active',
     instructorName: '',
     mode: '',
-    price: '',
+    fee: '',
     certificationAllowed: true
   })
   const [modules, setModules] = useState([])
@@ -106,7 +106,7 @@ const handleSave = async () => {
     { field: 'batchLimits', label: 'Batch Limits' },
     { field: 'instructorName', label: 'Instructor Name' },
     { field: 'mode', label: 'Mode' },
-    { field: 'price', label: 'Price' }
+    { field: 'fee', label: 'fee' }
   ]
 
   const missingFields = requiredFields.filter(field => !formData[field.field] || formData[field.field].toString().trim() === '')
@@ -153,7 +153,7 @@ const handleSave = async () => {
     title: formData.courseTitle.trim(),
     description: formData.description.trim(),
     duration: formData.duration.trim(),
-    fee: parseFloat(formData.price),
+    fee: parseFloat(formData.fee),
     category_id: categoryIdMap[formData.category] || null,
     tagged_skills: formData.taggedSkills.trim(),
     batch_limit: parseInt(formData.batchLimits),
@@ -185,7 +185,7 @@ const handleSave = async () => {
         courseStatus: 'Active',
         instructorName: '',
         mode: '',
-        price: '',
+        fee: '',
         certificationAllowed: true
       })
       setModules([])
@@ -503,24 +503,24 @@ const handleSave = async () => {
             </div>
 
 
-            {/* Price */}
+            {/* fee */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
                 <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  PRICE <span className="text-red-500">*</span>
+                  fee <span className="text-red-500">*</span>
                 </label>
                 <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter the course fee in Indian Rupees.</p>
               </div>
               <div className="flex-1">
                 <input 
                   type="text" 
-                  value={formData.price}
-                  onChange={(e) => handleInputChange('price', e.target.value)}
-                  className={getInputClassName('price')}
+                  value={formData.fee}
+                  onChange={(e) => handleInputChange('fee', e.target.value)}
+                  className={getInputClassName('fee')}
                   placeholder="ex. 15,000"
                 />
-                {validationErrors.price && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.price}</p>
+                {validationErrors.fee && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.fee}</p>
                 )}
               </div>
             </div>

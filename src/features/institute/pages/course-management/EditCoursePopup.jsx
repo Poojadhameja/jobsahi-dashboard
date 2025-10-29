@@ -16,7 +16,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
     courseStatus: 'Active',
     instructorName: '',
     mode: '',
-    price: '',
+    fee: '',
     certificationAllowed: true,
     moduleTitle: '',
     moduleDescription: ''
@@ -50,7 +50,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
           courseStatus: course.status || 'Active',
           instructorName: course.instructorName || '',
           mode: course.mode || '',
-          price: course.fee || '',
+          fee: course.fee || '',
           certificationAllowed: !!course.certificationAllowed,
           moduleTitle: course.moduleTitle || '',
           moduleDescription: course.moduleDescription || ''
@@ -101,7 +101,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
       'batchLimit',
       'instructorName',
       'mode',
-      'price'
+      'fee'
     ]
     const errors = {}
     required.forEach(f => {
@@ -118,7 +118,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
       title: formData.courseTitle,
       description: formData.description,
       duration: parseInt(formData.duration),
-      fee: parseFloat(formData.price),
+      fee: parseFloat(formData.fee),
       category_id:
         formData.category.toLowerCase() === 'technical'
           ? 1
@@ -150,7 +150,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
         payload
       })
       if (res?.status) {
-        alert('✅ Course updated successfully!')
+        // alert('✅ Course updated successfully!')
         onSave(payload)
         onClose()
       } else {
@@ -299,16 +299,16 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               </select>
             </div>
 
-            {/* Price */}
+            {/* fee */}
             <div className="mb-5">
               <label className="block text-sm font-semibold text-gray-700 mb-1">
-                PRICE <span className="text-red-500">*</span>
+                fee <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                value={formData.price}
-                onChange={e => handleInputChange('price', e.target.value)}
-                className={getInputClass('price')}
+                value={formData.fee}
+                onChange={e => handleInputChange('fee', e.target.value)}
+                className={getInputClass('fee')}
                 placeholder="e.g. 15000"
               />
             </div>

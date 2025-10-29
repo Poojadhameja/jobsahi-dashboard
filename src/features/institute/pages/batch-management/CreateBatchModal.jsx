@@ -61,7 +61,7 @@ useEffect(() => {
   const [newInstructorData, setNewInstructorData] = useState({
     name: '',
     email: '',
-    contact: ''
+    phone: ''
   })
 
   // Instructors data from database
@@ -153,7 +153,7 @@ useEffect(() => {
   }
 
   const handleCreateInstructor = async () => {
-    if (!newInstructorData.name.trim() || !newInstructorData.email.trim() || !newInstructorData.contact.trim()) {
+    if (!newInstructorData.name.trim() || !newInstructorData.email.trim() || !newInstructorData.phone.trim()) {
       setErrorMsg('Please fill all fields');
       return;
     }
@@ -162,7 +162,7 @@ useEffect(() => {
       const payload = {
         name: newInstructorData.name.trim(),
         email: newInstructorData.email.trim(),
-        contact: newInstructorData.contact.trim()
+        phone: newInstructorData.phone.trim()
       };
       
       console.log('Creating faculty with payload:', payload);
@@ -179,7 +179,7 @@ useEffect(() => {
         await fetchInstructors();
         setFormData(prev => ({ ...prev, instructor: response.data.name }));
         setShowCreateInstructorModal(false);
-        setNewInstructorData({ name: '', email: '', contact: '' });
+        setNewInstructorData({ name: '', email: '', phone: '' });
         setSuccessMsg('Instructor created successfully');
       } else {
         setErrorMsg(response.message || 'Failed to create instructor');
@@ -192,7 +192,7 @@ useEffect(() => {
   
   const handleCloseCreateInstructorModal = () => {
     setShowCreateInstructorModal(false)
-    setNewInstructorData({ name: '', email: '', contact: '' })
+    setNewInstructorData({ name: '', email: '', phone: '' })
   }
 
   const handleInstructorDataChange = (field, value) => {
@@ -457,109 +457,7 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* Manage Students */}
-            <div>
-              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Manage Students</h3>
-
-              <div className="flex gap-2 mb-4">
-                <div className="flex-1 relative">
-                  <input
-                    type="text"
-                    value={searchStudent}
-                    onChange={(e) => setSearchStudent(e.target.value)}
-                    placeholder="Search or select student name"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    list="students-datalist"
-                  />
-                  <datalist id="students-datalist">
-                    {availableStudents.map((s, i) => <option key={i} value={s} />)}
-                  </datalist>
-                  <LuSearch className={`absolute right-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`} />
-                </div>
-                <Button type="button" onClick={handleAddStudent} variant="primary" size="sm" icon={<LuPlus className="w-4 h-4" />}>
-                  Add
-                </Button>
-              </div>
-
-              {formData.students.length > 0 && (
-                <div className="mb-4">
-                  <h4 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    ENROLLED STUDENTS ({formData.students.length})
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.students.map((student, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center gap-2 ${TAILWIND_COLORS.BADGE_SUCCESS} px-3 py-1 rounded-full text-sm`}
-                      >
-                        <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{student}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveStudent(student)}
-                          className="text-success hover:text-success transition-opacity hover:opacity-80"
-                        >
-                          <LuX className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* CSV Upload */}
-              <div
-                className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors duration-200 ${
-                  dragActiveCsv ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-green-400'
-                }`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
-              >
-                {csvFile ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-center">
-                      <LuFileImage className="w-10 h-10 text-green-600" />
-                    </div>
-                    <div>
-                      <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                        {csvFile.name}
-                      </p>
-                      <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                        {(csvFile.size / 1024).toFixed(2)} KB
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={removeCsvFile}
-                      className="text-red-500 hover:text-red-700 transition-colors"
-                    >
-                      <LuX className="w-5 h-5 mx-auto" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <LuUpload className={`w-8 h-8 ${TAILWIND_COLORS.TEXT_MUTED} mx-auto`} />
-                    <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>
-                      Drag and drop or click to upload CSV file with student details
-                    </p>
-                    <input
-                      type="file"
-                      accept=".csv"
-                      onChange={handleCsvUpload}
-                      className="hidden"
-                      id="csv-upload"
-                    />
-                    <label
-                      htmlFor="csv-upload"
-                      className={`inline-block bg-gray-100 hover:bg-gray-200 ${TAILWIND_COLORS.TEXT_MUTED} px-4 py-2 rounded text-sm transition-colors duration-200 cursor-pointer`}
-                    >
-                      Choose File
-                    </label>
-                  </div>
-                )}
-              </div>
-            </div>
+           
           </div>
 
           {/* Footer */}
@@ -606,30 +504,58 @@ useEffect(() => {
               </div>
               
               <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  EMAIL ADDRESS
-                </label>
-                <input
-                  type="email"
-                  value={newInstructorData.email}
-                  onChange={(e) => handleInstructorDataChange('email', e.target.value)}
-                  placeholder="Enter email address"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-              </div>
+  <label
+    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+  >
+    EMAIL ADDRESS
+  </label>
+  <input
+    type="email"
+    value={newInstructorData.email}
+    onChange={(e) => {
+      const value = e.target.value;
+      handleInstructorDataChange('email', value);
+    }}
+    placeholder="Enter email address"
+    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:border-transparent ${
+      newInstructorData.email && !/^[\w.%+-]+@gmail\.com$/.test(newInstructorData.email)
+        ? 'border-red-500 focus:ring-red-500'
+        : 'border-gray-300 focus:ring-green-500'
+    }`}
+  />
+  {newInstructorData.email &&
+    !/^[\w.%+-]+@gmail\.com$/.test(newInstructorData.email) && (
+      <p className="text-red-500 text-sm mt-1">
+        Please enter a valid Gmail address (e.g., example@gmail.com)
+      </p>
+    )}
+</div>
+
               
               <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  CONTACT NUMBER
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                 PHONE NUMBER
                 </label>
-                <input
-                  type="tel"
-                  value={newInstructorData.contact}
-                  onChange={(e) => handleInstructorDataChange('contact', e.target.value)}
-                  placeholder="Enter contact number"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
-              </div>
+  <input
+    type="tel"
+    value={newInstructorData.phone}
+    onChange={(e) => {
+      const value = e.target.value;
+      // Allow only numbers and up to 10 digits
+      if (/^\d{0,10}$/.test(value)) {
+        handleInstructorDataChange('phone', value);
+      }
+    }}
+    placeholder="Enter phone number"
+    maxLength={10}
+    pattern="\d{10}"
+    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+  />
+  {newInstructorData.phone.length > 0 && newInstructorData.phone.length < 10 && (
+    <p className="text-red-500 text-sm mt-1">Phone number must be 10 digits.</p>
+  )}
+</div>
+
             </div>
 
             {/* Footer */}
@@ -647,7 +573,7 @@ useEffect(() => {
                 onClick={handleCreateInstructor} 
                 variant="primary" 
                 size="md"
-                disabled={!newInstructorData.name.trim() || !newInstructorData.email.trim() || !newInstructorData.contact.trim()}
+                disabled={!newInstructorData.name.trim() || !newInstructorData.email.trim() || !newInstructorData.phone.trim()}
               >
                 Create
               </Button>

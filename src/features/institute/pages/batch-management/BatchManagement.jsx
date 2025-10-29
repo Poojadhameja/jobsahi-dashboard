@@ -9,6 +9,9 @@ import BatchDetail from './BatchDetail'
 import CourseDetail from './CourseDetail'
 import CreateBatchModal from './CreateBatchModal'
 
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl.js'
+
 export default function BatchManagement() {
   const navigate = useNavigate()
   const [selectedBatch, setSelectedBatch] = useState(null)
@@ -16,6 +19,7 @@ export default function BatchManagement() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [selectedCourseForBatch, setSelectedCourseForBatch] = useState(null)
 
+  
   // Sample course data - in real app, this would come from API
   const courses = [
     {

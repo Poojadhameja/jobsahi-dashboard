@@ -66,7 +66,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
           duration: parseInt(course.duration) || 0,
           categoryId: course.category_id,
           category: getCategoryName(course.category_id),
-          price: parseFloat(course.fee) || 0,
+          fee: parseFloat(course.fee) || 0,
           status: course.status || 'Active',
           instructorName: course.instructor_name || '',
           mode: course.mode || '',
@@ -192,7 +192,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         title: updatedCourse.title,
         description: updatedCourse.description,
         duration: parseInt(updatedCourse.duration),
-        fee: parseFloat(updatedCourse.price),        
+        fee: parseFloat(updatedCourse.fee),        
         category_id: updatedCourse.categoryId,
         tagged_skills: Array.isArray(updatedCourse.skills) 
         ? updatedCourse.skills.join(',') 
@@ -206,7 +206,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         module_description: updatedCourse.moduleDescription,
         media: updatedCourse.media
       }
-      console.log(updatedCourse.price );
+      console.log(updatedCourse.fee );
 
       // Update in backend - uncomment when update API is ready
       // const res = await putMethod({ 
@@ -503,10 +503,10 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
                   </p>
                 )}
 
-                {/* Price and Actions */}
+                {/* fee and Actions */}
                 <div className="flex items-center justify-between">
                   <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                    ₹{course.price?.toLocaleString('en-IN') || '0'}
+                    ₹{course.fee?.toLocaleString('en-IN') || '0'}
                   </div>
                   <div className="flex items-center gap-2">
                     <button
