@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { LuArrowLeft, LuEye, LuPencil } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { MatrixCard } from '../../../../shared/components/metricCard'
@@ -6,14 +6,69 @@ import CentralizedDataTable from '../../../../shared/components/CentralizedDataT
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import BatchDetail from './BatchDetail'
 import EditBatchModal from './EditBatchModal'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl.js'
 
 export default function CourseDetail({ courseData, onBack, onViewBatch }) {
-  const [currentView, setCurrentView] = useState('course') // 'course' or 'batch'
+  const [currentView, setCurrentView] = useState('course')
   const [selectedBatch, setSelectedBatch] = useState(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedBatchForEdit, setSelectedBatchForEdit] = useState(null)
+  const [liveCourse, setLiveCourse] = useState(courseData)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  if (!courseData) {
+  // ✅ Fetch course details dynamically (with batches via get_batch API)
+const fetchCourseDetail = async () => {
+  try {
+    setLoading(true)
+    setError(null)
+
+    // 1️⃣ Fetch course + faculty + batch data from unified API
+    const response = await getMethod({
+      apiUrl: apiService.courseByBatch,
+      params: { course_id: courseData?.id },
+    })
+
+    if (response.status && response.course) {
+      const updatedCourse = {
+        ...courseData,
+        id: response.course.course_id,
+        title: response.course.course_title,
+        description: response.course.description,
+        duration: response.course.duration,
+        instructor: response.course.instructor_name,
+        fee: response.course.fee || '15000',
+        admin_action: response.course.admin_action,
+        batches: response.batches || [],
+      }
+
+      setLiveCourse(updatedCourse)
+    } else {
+      setError('Course not found')
+    }
+  } catch (err) {
+    console.error('Error fetching course details:', err)
+    setError('Failed to load course details')
+  } finally {
+    setLoading(false)
+  }
+}
+
+
+  useEffect(() => {
+    fetchCourseDetail()
+  }, [courseData?.id])
+
+  if (loading) {
+    return <div className="p-4 text-center text-gray-500">Loading course details...</div>
+  }
+
+  if (error) {
+    return <div className="p-4 text-center text-red-500">{error}</div>
+  }
+
+  if (!liveCourse) {
     return (
       <div className={`p-2 ${TAILWIND_COLORS.BG_PRIMARY} min-h-screen`}>
         <div className={`text-center ${TAILWIND_COLORS.TEXT_MUTED}`}>No course data available</div>
@@ -21,46 +76,36 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
     )
   }
 
-  // Handle viewing a specific batch
-  const handleViewBatch = (courseId, batchId) => {
-    const batch = courseData.batches?.[batchId]
-    if (batch) {
-      setSelectedBatch({
-        batch: batch,
-        courseTitle: courseData.title,
-        courseId: courseId,
-        batchId: batchId
-      })
-      setCurrentView('batch')
-    }
+  const handleViewBatch = (courseId, batch) => {
+    setSelectedBatch({
+      batch,
+      courseTitle: liveCourse.title,
+      courseId,
+      batchId: batch.batch_id,
+    })
+    setCurrentView('batch')
   }
+  
 
-  // Handle going back from batch detail to course detail
   const handleBackFromBatch = () => {
     setCurrentView('course')
     setSelectedBatch(null)
   }
 
-  // Handle opening edit modal
   const handleOpenEditModal = (batch) => {
     setSelectedBatchForEdit(batch)
     setIsEditModalOpen(true)
   }
 
-  // Handle closing edit modal
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false)
     setSelectedBatchForEdit(null)
   }
 
-  // Handle updating batch data
   const handleUpdateBatch = (updatedData) => {
     console.log('Updated batch data:', updatedData)
-    // Add your update logic here
-    // For example, call an API to update the batch
   }
 
-  // Get status color for batch status
   const getStatusColor = (status) => {
     switch (status) {
       case 'Active':
@@ -72,24 +117,11 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
     }
   }
 
-  // Configure table columns for batches
   const batchColumns = [
-    {
-      key: 'batchName',
-      header: 'Batch Name'
-    },
-    {
-      key: 'schedule',
-      header: 'Time Schedule'
-    },
-    {
-      key: 'totalStudents',
-      header: 'Total Students'
-    },
-    {
-      key: 'enrolledStudents',
-      header: 'Enrolled Students'
-    },
+    { key: 'batchName', header: 'Batch Name' },
+    { key: 'schedule', header: 'Time Schedule' },
+    { key: 'totalStudents', header: 'Total Students' },
+    { key: 'enrolledStudents', header: 'Enrolled Students' },
     {
       key: 'status',
       header: 'Status',
@@ -97,63 +129,45 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(status)}`}>
           {status}
         </span>
-      )
-    }
+      ),
+    },
   ]
 
-  // Configure table actions for batches
   const batchActions = [
     {
-      label: 'View',
-      icon: <LuEye className="w-4 h-4" />,
-      onClick: (batch) => {
-        console.log('View batch clicked:', batch)
-        console.log('Course ID:', courseData.id)
-        console.log('Batch ID:', batch.id)
-        // Use the new handleViewBatch function
-        handleViewBatch(courseData.id, batch.id)
-      },
-      variant: 'outline',
-      size: 'sm'
-    },
+  label: 'View',
+  icon: <LuEye className="w-4 h-4" />,
+  onClick: (batch) => handleViewBatch(liveCourse.id, batch),
+  variant: 'outline',
+  size: 'sm',
+},
+
     {
       label: 'Edit',
       icon: <LuPencil className="w-4 h-4" />,
-      onClick: (batch) => {
-        handleOpenEditModal(batch)
-      },
+      onClick: (batch) => handleOpenEditModal(batch),
       variant: 'outline',
-      size: 'sm'
-    }
+      size: 'sm',
+    },
   ]
 
-  // Transform batch data to include proper batch names and formatted data
-  const batchData = courseData.batches?.map((batch, index) => {
-    const batchName = `Batch ${String.fromCharCode(65 + index)}` // A, B, C, etc.
-    const [enrolled, total] = batch.students ? batch.students.split('/').map(Number) : [0, 0]
-    
-    return {
-      id: index,
-      batchName: batchName,
-      schedule: batch.time || '9:00 AM - 12:00 PM',
-      totalStudents: total || 30,
-      enrolledStudents: enrolled || 0,
-      status: batch.status || 'Active',
-      ...batch
-    }
-  }) || []
+  // ✅ Build batch table rows from live API
+const batchData =
+liveCourse.batches?.map((batch, index) => ({
+  id: batch.batch_id || index,
+  batchName: batch.batch_name || `Batch ${String.fromCharCode(65 + index)}`,
+  schedule: batch.batch_time_slot || '9:00 AM - 12:00 PM',
+  totalStudents: 30, // static or from backend in future
+  enrolledStudents: batch.enrolled_students || (batch.students?.length ?? 0),
+  status: batch.status || batch.admin_action || 'Active',
+  ...batch,
+})) || []
 
-  // If viewing batch detail, render BatchDetail component
+
   if (currentView === 'batch' && selectedBatch) {
-    return (
-      <BatchDetail 
-        batchData={selectedBatch} 
-        onBack={handleBackFromBatch}
-      />
-    )
+    return <BatchDetail batchData={selectedBatch} onBack={handleBackFromBatch} />
   }
 
-  // Default course detail view
   return (
     <div className={`p-2 ${TAILWIND_COLORS.BG_PRIMARY} min-h-screen`}>
       {/* Header Section */}
@@ -169,155 +183,122 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
             Back
           </Button>
         </div>
-        <MatrixCard 
-          title={courseData.title} 
-          subtitle={courseData.description}
-          className="mb-4"
-        />
+        <MatrixCard title={liveCourse.title} subtitle={liveCourse.description} className="mb-4" />
       </div>
 
-      {/* Course Information & Details Card */}
+      {/* Course Information & Details */}
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 mb-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course Information & Details</h2>
-          {/* Course Status - Right Corner */}
-          <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${TAILWIND_COLORS.BADGE_SUCCESS}`}>
-            Active
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+              liveCourse.admin_action === 'approved'
+                ? TAILWIND_COLORS.BADGE_SUCCESS
+                : TAILWIND_COLORS.BADGE_WARN
+            }`}
+          >
+            {liveCourse.admin_action === 'approved' ? 'Active' : 'Pending'}
           </span>
         </div>
-        
-        {/* Basic Information Section */}
-       
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Course Title */}
-            <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Title</h4>
-              <p className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{courseData.title}</p>
-            </div>
 
-            {/* Instructor */}
-            <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Instructor</h4>
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{courseData.instructor}</p>
-            </div>
-
-            {/* Total Batches */}
-            <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Total Batches</h4>
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{courseData.totalBatches}</p>
-            </div>
-
-            {/* Active Batches */}
-            <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Active Batches</h4>
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{courseData.activeBatches}</p>
-            </div>
-
-            {/* Course Fee */}
-            <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Fee</h4>
-              <p className="text-1xl font-medium text-success">₹15,000</p>
-            </div>
+        {/* Course Info Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div>
+            <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Title</h4>
+            <p className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{liveCourse.title}</p>
           </div>
-
-        {/* Course Details Section */}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-5">
-            {/* Course Duration */}
-            <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Duration</h4>
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>3 Months</p>
-            </div>
-
-            {/* Course Type */}
-            {/* <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Type</h4>
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Practical Training</p>
-            </div> */}
-
-            {/* Certification */}
-            <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Certification</h4>
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Industry recognized certificate</p>
-            </div>
-
-            {/* Language */}
-            <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Language</h4>
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>English</p>
-            </div>
-
-            {/* Start Date */}
-            <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Start Date</h4>
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>January 15, 2024</p>
-            </div>
-
-            {/* End Date */}
-            <div className="space-y-2">
-              <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>End Date</h4>
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>April 15, 2024</p>
-            </div>
+          <div>
+            <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Instructor</h4>
+            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{liveCourse.instructor || 'Rajeev Kumar'}</p>
           </div>
-        
+          <div>
+            <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Total Batches</h4>
+            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{liveCourse.totalBatches || batchData.length}</p>
+          </div>
+          <div>
+            <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Active Batches</h4>
+            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
+              {batchData.filter((b) => b.status === 'Active').length}
+            </p>
+          </div>
+          <div>
+            <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Fee</h4>
+            <p className="text-1xl font-medium text-success">₹{liveCourse.fee}</p>
+          </div>
+        </div>
 
-        {/* Course Description Section */}
+        {/* Course Duration + Other Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-5">
+          <div>
+            <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Course Duration</h4>
+            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{liveCourse.duration}</p>
+          </div>
+          <div>
+            <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Certification</h4>
+            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Industry recognized certificate</p>
+          </div>
+          <div>
+            <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>Language</h4>
+            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>English</p>
+          </div>
+        </div>
+
+        {/* Description */}
         <div className="pt-6">
           <h3 className={`text-lg font-semibold mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course Description</h3>
           <div className="bg-blue-50 rounded-lg p-6">
             <h4 className={`text-md font-semibold mb-3 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Overview</h4>
             <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} leading-relaxed`}>
-              Comprehensive electrical wiring training covering all aspects of electrical systems, safety protocols, 
-              and practical applications in residential and commercial settings. This course provides hands-on 
-              experience with modern electrical tools and techniques, ensuring students gain real-world skills 
-              that are immediately applicable in the field.
+              {liveCourse.description ||
+                'Comprehensive electrical wiring training covering all aspects of electrical systems, safety protocols, and practical applications in residential and commercial settings.'}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Course Statistics */}
+      {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
           <div className="text-center">
-            <div className="text-2xl font-bold" style={{ color: 'var(--color-primary)' }}>{courseData.totalBatches}</div>
-            <div className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Total Batches</div>
+            <div className="text-2xl font-bold text-blue-700">{liveCourse.totalBatches || 5}</div>
+            <div className="text-sm text-gray-500">Total Batches</div>
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
           <div className="text-center">
-            <div className="text-2xl font-bold" style={{ color: 'var(--color-secondary)' }}>{courseData.activeBatches}</div>
-            <div className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Active Batches</div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-          <div className="text-center">
-            <div className="text-2xl font-bold" style={{ color: 'var(--color-warning)' }}>
-              {batchData.reduce((total, batch) => total + batch.enrolledStudents, 0)}
+            <div className="text-2xl font-bold text-green-700">
+              {batchData.filter((b) => b.status === 'Active').length}
             </div>
-            <div className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Enrolled Students</div>
+            <div className="text-sm text-gray-500">Active Batches</div>
           </div>
         </div>
         <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
           <div className="text-center">
-            <div className="text-2xl font-bold" style={{ color: 'var(--color-info)' }}>
-              {batchData.reduce((total, batch) => total + batch.totalStudents, 0)}
+            <div className="text-2xl font-bold text-yellow-600">
+              {batchData.reduce((t, b) => t + b.enrolledStudents, 0)}
             </div>
-            <div className="text-sm" style={{ color: 'var(--color-text-muted)' }}>Max Capacity</div>
+            <div className="text-sm text-gray-500">Enrolled Students</div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-indigo-600">
+              {batchData.reduce((t, b) => t + b.totalStudents, 0)}
+            </div>
+            <div className="text-sm text-gray-500">Max Capacity</div>
           </div>
         </div>
       </div>
 
-    
-      {/* Batches Table Section */}
+      {/* Batches Table */}
       <div className="mb-6">
         <CentralizedDataTable
           title="Course Batches"
-          subtitle={`Manage and view all batches for ${courseData.title}`}
+          subtitle={`Manage and view all batches for ${liveCourse.title}`}
           data={batchData}
           columns={batchColumns}
           actions={batchActions}
-          searchable={true}
+          searchable
           selectable={false}
           showAutoScrollToggle={false}
           searchPlaceholder="Search batches..."
@@ -325,28 +306,47 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
         />
       </div>
 
-
-      {/* Available Courses Section */}
+      {/* Available Courses (Preserved Section) */}
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
         <h2 className={`text-xl font-bold mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Available Courses</h2>
-        <p className={`text-sm mb-6 ${TAILWIND_COLORS.TEXT_MUTED}`}>Other courses available in our institute</p>
-        
+        <p className={`text-sm mb-6 ${TAILWIND_COLORS.TEXT_MUTED}`}>
+          Other courses available in our institute
+        </p>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Advanced Electrical Systems */}
           <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <svg
+                  className="w-5 h-5 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
                 </svg>
               </div>
-              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">Available</span>
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                Available
+              </span>
             </div>
-            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Advanced Electrical Systems</h3>
-            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>Advanced course covering complex electrical systems and industrial applications</p>
+            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Advanced Electrical Systems
+            </h3>
+            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
+              Advanced course covering complex electrical systems and industrial applications
+            </p>
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold text-blue-600">₹25,000</span>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">View Details →</button>
+              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                View Details →
+              </button>
             </div>
           </div>
 
@@ -354,17 +354,35 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
           <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-green-300">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                <svg
+                  className="w-5 h-5 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
                 </svg>
               </div>
-              <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">Available</span>
+              <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                Available
+              </span>
             </div>
-            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Solar Panel Installation</h3>
-            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>Complete solar panel installation, maintenance, and troubleshooting</p>
+            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Solar Panel Installation
+            </h3>
+            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
+              Complete solar panel installation, maintenance, and troubleshooting
+            </p>
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold text-green-600">₹20,000</span>
-              <button className="text-green-600 hover:text-green-800 text-sm font-medium">View Details →</button>
+              <button className="text-green-600 hover:text-green-800 text-sm font-medium">
+                View Details →
+              </button>
             </div>
           </div>
 
@@ -372,23 +390,40 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
           <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-orange-300">
             <div className="flex items-center justify-between mb-4">
               <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <svg
+                  className="w-5 h-5 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
                 </svg>
               </div>
-              <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-semibold rounded-full">Coming Soon</span>
+              <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-semibold rounded-full">
+                Coming Soon
+              </span>
             </div>
-            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Industrial Automation</h3>
-            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>PLC programming, HMI design, and industrial automation systems</p>
+            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Industrial Automation
+            </h3>
+            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
+              PLC programming, HMI design, and industrial automation systems
+            </p>
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold text-orange-600">₹30,000</span>
-              <button className="text-orange-600 hover:text-orange-800 text-sm font-medium">Notify Me →</button>
+              <button className="text-orange-600 hover:text-orange-800 text-sm font-medium">
+                Notify Me →
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Edit Batch Modal */}
       <EditBatchModal
         isOpen={isEditModalOpen}
         onClose={handleCloseEditModal}

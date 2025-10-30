@@ -24,11 +24,21 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
 
   // ✅ Fetch courses and instructors when modal opens
   useEffect(() => {
-    if (isOpen) {
-      fetchCourses()
-      fetchInstructors()
+    if (!isOpen) {
+      setFormData({
+        batchName: '',
+        course: '',
+        startDate: '',
+        endDate: '',
+        timeSlot: '10:00 AM - 12:00 PM',
+        instructor: '',
+        students: [],
+        newStudentEmail: '',
+        uploadedFile: ''
+      })
     }
   }, [isOpen])
+  
 
   const fetchCourses = async () => {
     try {
@@ -86,40 +96,47 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
     }
   }
 
-  // ✅ Handle Update Batch API
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+ // ✅ Handle Update Batch API Integration
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  setLoading(true)
 
-    try {
-      const payload = {
-        course_id: Number(formData.course),
-        name: formData.batchName.trim(),
-        batch_time_slot: formData.timeSlot,
-        start_date: formData.startDate,
-        end_date: formData.endDate,
-        instructor_id: Number(formData.instructor)
-      }
+  try {
+    const payload = {
+      course_id: Number(formData.course),
+      name: formData.batchName.trim(),
+      batch_time_slot: formData.timeSlot,
+      start_date: formData.startDate,
+      end_date: formData.endDate,
+      instructor_id: Number(formData.instructor)
+    }
 
-      const res = await putMethod({
-        apiUrl: `${apiService.updateBatch}?batch_id=${batchData.id || batchData.batch_id}`,
-        payload
+    const res = await putMethod({
+      apiUrl: `${apiService.updateBatch}?batch_id=${batchData?.id || batchData?.batch_id}`,
+      payload
+    })
+
+    if (res.status) {
+      alert('✅ Batch updated successfully!')
+      
+      // 🔄 Auto-refresh parent view
+      onUpdate && onUpdate({
+        ...batchData,
+        ...payload
       })
 
-      if (res.status) {
-        alert('✅ Batch updated successfully!')
-        onUpdate && onUpdate(payload)
-        onClose()
-      } else {
-        alert(`❌ ${res.message || 'Failed to update batch'}`)
-      }
-    } catch (err) {
-      console.error('Update Batch Error:', err)
-      alert('Something went wrong while updating the batch.')
-    } finally {
-      setLoading(false)
+      onClose()
+    } else {
+      alert(`❌ ${res.message || 'Failed to update batch.'}`)
     }
+  } catch (err) {
+    console.error('Update Batch Error:', err)
+    alert('⚠️ Something went wrong while updating the batch.')
+  } finally {
+    setLoading(false)
   }
+}
+
 
   if (!isOpen) return null
 
