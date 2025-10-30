@@ -23,21 +23,14 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
   const [loading, setLoading] = useState(false)
 
   // ✅ Fetch courses and instructors when modal opens
-  useEffect(() => {
-    if (!isOpen) {
-      setFormData({
-        batchName: '',
-        course: '',
-        startDate: '',
-        endDate: '',
-        timeSlot: '10:00 AM - 12:00 PM',
-        instructor: '',
-        students: [],
-        newStudentEmail: '',
-        uploadedFile: ''
-      })
-    }
-  }, [isOpen])
+ // ✅ Fetch courses & instructors when modal opens
+useEffect(() => {
+  if (isOpen) {
+    fetchCourses();
+    fetchInstructors();
+  }
+}, [isOpen]);
+
   
 
   const fetchCourses = async () => {

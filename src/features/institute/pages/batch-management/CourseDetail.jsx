@@ -6,6 +6,7 @@ import CentralizedDataTable from '../../../../shared/components/CentralizedDataT
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import BatchDetail from './BatchDetail'
 import EditBatchModal from './EditBatchModal'
+import ViewCoursePopup from '../course-management/ViewCoursePopup'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl.js'
 
@@ -17,6 +18,8 @@ export default function CourseDetail({ courseData, onBack, onViewBatch }) {
   const [liveCourse, setLiveCourse] = useState(courseData)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [isCoursePopupOpen, setIsCoursePopupOpen] = useState(false)
+  const [selectedCourseForView, setSelectedCourseForView] = useState(null)
 
   // ✅ Fetch course details dynamically (with batches via get_batch API)
 const fetchCourseDetail = async () => {
@@ -54,6 +57,21 @@ const fetchCourseDetail = async () => {
     setLoading(false)
   }
 }
+const [availableCourses, setAvailableCourses] = useState([])
+
+useEffect(() => {
+  const fetchAvailableCourses = async () => {
+    try {
+      const res = await getMethod({ apiUrl: apiService.getCourses })
+      if (res.status && res.courses) {
+        setAvailableCourses(res.courses)
+      }
+    } catch (err) {
+      console.error('Error fetching available courses:', err)
+    }
+  }
+  fetchAvailableCourses()
+}, [])
 
 
   useEffect(() => {
@@ -104,6 +122,16 @@ const fetchCourseDetail = async () => {
 
   const handleUpdateBatch = (updatedData) => {
     console.log('Updated batch data:', updatedData)
+  }
+
+  const handleOpenCoursePopup = (course) => {
+    setSelectedCourseForView(course)
+    setIsCoursePopupOpen(true)
+  }
+
+  const handleCloseCoursePopup = () => {
+    setIsCoursePopupOpen(false)
+    setSelectedCourseForView(null)
   }
 
   const getStatusColor = (status) => {
@@ -314,114 +342,35 @@ liveCourse.batches?.map((batch, index) => ({
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Advanced Electrical Systems */}
-          <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <svg
-                  className="w-5 h-5 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              </div>
-              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-                Available
-              </span>
-            </div>
-            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              Advanced Electrical Systems
-            </h3>
-            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
-              Advanced course covering complex electrical systems and industrial applications
-            </p>
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-bold text-blue-600">₹25,000</span>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                View Details →
-              </button>
-            </div>
-          </div>
-
-          {/* Solar Panel Installation */}
-          <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-green-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <svg
-                  className="w-5 h-5 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
-                </svg>
-              </div>
-              <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                Available
-              </span>
-            </div>
-            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              Solar Panel Installation
-            </h3>
-            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
-              Complete solar panel installation, maintenance, and troubleshooting
-            </p>
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-bold text-green-600">₹20,000</span>
-              <button className="text-green-600 hover:text-green-800 text-sm font-medium">
-                View Details →
-              </button>
-            </div>
-          </div>
-
-          {/* Industrial Automation */}
-          <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-orange-300">
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <svg
-                  className="w-5 h-5 text-orange-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <span className="px-3 py-1 bg-orange-100 text-orange-800 text-xs font-semibold rounded-full">
-                Coming Soon
-              </span>
-            </div>
-            <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              Industrial Automation
-            </h3>
-            <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
-              PLC programming, HMI design, and industrial automation systems
-            </p>
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-bold text-orange-600">₹30,000</span>
-              <button className="text-orange-600 hover:text-orange-800 text-sm font-medium">
-                Notify Me →
-              </button>
-            </div>
-          </div>
+  {availableCourses.map((course) => (
+    <div
+      key={course.id}
+      className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+          <LuEye className="w-5 h-5 text-blue-600" />
         </div>
+        <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+          {course.admin_action === 'approved' ? 'Available' : 'Pending'}
+        </span>
+      </div>
+      <h3 className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+        {course.title}
+      </h3>
+      <p className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
+        {course.description?.slice(0, 100) || 'No description available'}
+      </p>
+      <div className="flex justify-between items-center">
+        <span className="text-lg font-bold  ">₹{course.fee || 0}</span>
+        <button className={`${TAILWIND_COLORS.BADGE_SUCCESS} hover:text-blue-800 text-sm font-medium`} onClick={() => handleOpenCoursePopup(course)}>
+          View Details →
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+
       </div>
 
       <EditBatchModal
@@ -430,6 +379,12 @@ liveCourse.batches?.map((batch, index) => ({
         batchData={selectedBatchForEdit}
         onUpdate={handleUpdateBatch}
       />
+      {isCoursePopupOpen && (
+        <ViewCoursePopup
+          course={selectedCourseForView}
+          onClose={handleCloseCoursePopup}
+        />
+      )}
     </div>
   )
 }

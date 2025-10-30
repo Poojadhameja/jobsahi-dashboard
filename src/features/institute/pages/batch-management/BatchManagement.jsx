@@ -35,6 +35,7 @@ export default function BatchManagement() {
           totalBatches: c.total_batches,
           activeBatches: c.active_batches,
           progress: c.overall_progress || 0,
+          admin_action: c.admin_action,
         }))
         setCourses(mapped)
       } else {
@@ -68,6 +69,7 @@ export default function BatchManagement() {
               totalBatches: c.total_batches,
               activeBatches: c.active_batches,
               progress: c.overall_progress || 0,
+              admin_action: c.admin_action,
             }))
             setCourses(mapped)
           } else {
@@ -195,9 +197,20 @@ export default function BatchManagement() {
             key={course.id}
             className={`${TAILWIND_COLORS.CARD} p-5 hover:shadow-md transition-shadow`}
           >
-            <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3 leading-tight`}>
-              {course.title}
-            </h3>
+            <div className="flex items-start justify-between mb-3">
+              <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} leading-tight`}>
+                {course.title}
+              </h3>
+              <span
+                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                  course.admin_action === 'approved'
+                    ? TAILWIND_COLORS.BADGE_SUCCESS
+                    : TAILWIND_COLORS.BADGE_WARN
+                }`}
+              >
+                {course.admin_action === 'approved' ? 'Approved' : 'Pending'}
+              </span>
+            </div>
 
             <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm mb-4`}>
               <span className="font-semibold">Instructor:</span> {course.instructor || 'N/A'}
