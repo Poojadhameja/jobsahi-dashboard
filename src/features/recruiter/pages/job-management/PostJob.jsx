@@ -163,9 +163,7 @@ const PostJob = ({ onJobSubmit }) => {
     console.log('Form cancelled')
   }
 
-  const handleDraft = () => {
-    console.log('Save as draft:', formData)
-  }
+  
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] p-2">
@@ -193,12 +191,7 @@ const PostJob = ({ onJobSubmit }) => {
           >
             <span>Cancel</span>
           </button>
-          <button
-            onClick={handleDraft}
-            className="px-5 py-2 bg-secondary-10 text-[var(--color-secondary)] rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
-          >
-            <span>Draft</span>
-          </button>
+          
           <button
             onClick={handleSubmit}
             className="px-5 py-2 bg-[var(--color-secondary)] text-white rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
@@ -249,22 +242,30 @@ const PostJob = ({ onJobSubmit }) => {
                 <p className="text-sm text-gray-500">Choose category</p>
               </div>
               <div className="lg:col-span-2">
-                <select
-                  name="jobSector"
-                  value={formData.jobSector}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
-                    errors.jobSector ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  required
-                >
-                  <option value="">Choose Category</option>
-                  <option value="manufacturing">Manufacturing</option>
-                  <option value="technology">Technology</option>
-                  <option value="healthcare">Healthcare</option>
-                  <option value="finance">Finance</option>
-                  <option value="education">Education</option>
-                </select>
+                <div className="flex gap-2">
+                  <select
+                    name="jobSector"
+                    value={formData.jobSector}
+                    onChange={handleInputChange}
+                    className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
+                      errors.jobSector ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    required
+                  >
+                    <option value="">Choose Category</option>
+                    <option value="manufacturing">Manufacturing</option>
+                    <option value="technology">Technology</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="finance">Finance</option>
+                    <option value="education">Education</option>
+                  </select>
+                  <button
+                    type="button"
+                    className="px-4 py-3 bg-[var(--color-secondary)] text-white rounded-lg font-medium hover:opacity-90 transition-opacity whitespace-nowrap"
+                  >
+                    Add Job Sector
+                  </button>
+                </div>
                 {errors.jobSector && (
                   <p className="text-red-500 text-sm mt-1">{errors.jobSector}</p>
                 )}

@@ -3,7 +3,7 @@ import { LuBuilding2, LuUsers, LuSettings } from "react-icons/lu";
 import { MatrixCard } from "@shared/components/metricCard";
 import { PillNavigation } from "@shared/components/navigation";
 import CompanyInfo from "./CompanyInformation";
-import TeamManagement from "./TeamManagement";
+
 import Preferences from "./Preferences";
 
 const CompanyProfile = () => {
@@ -15,12 +15,6 @@ const CompanyProfile = () => {
       label: "Company Info",
       icon: LuBuilding2,
       component: <CompanyInfo />
-    },
-    {
-      id: "team-management",
-      label: "Team Management",
-      icon: LuUsers,
-      component: <TeamManagement />
     },
     {
       id: "preferences",
