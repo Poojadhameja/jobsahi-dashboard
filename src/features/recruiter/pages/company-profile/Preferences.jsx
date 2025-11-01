@@ -1,188 +1,175 @@
-// src/pages/company/preferences/Preferences.jsx
 import React, { useState } from "react";
-import {
-  OutlineButton,
-  SaveButton,
-} from "../../../../shared/components/Button"; // ← adjust path if needed
-import { COLORS, TAILWIND_COLORS } from "../../../../shared/WebConstant";
+import { LuSettings, LuNetwork, LuChevronDown } from "react-icons/lu";
+import { COLORS } from "@shared/WebConstant";
 
-export default function Preferences() {
-  // form state
-  const [emailFrequency, setEmailFrequency] = useState("daily");
-  const [autoReplies, setAutoReplies] = useState(true);
-  const [timezone, setTimezone] = useState("Asia/Kolkata");
-  const [teamMembers] = useState(3);
-  const [saving, setSaving] = useState(false);
+const Preferences = () => {
+  const [emailPreferences, setEmailPreferences] = useState({
+    frequency: "Daily Digest",
+    autoReplies: true
+  });
 
-  const emailFrequencies = [
-    { value: "daily", label: "Daily Digest" },
-    { value: "weekly", label: "Weekly Summary" },
-    { value: "monthly", label: "Monthly Report" },
-    { value: "never", label: "Never" },
+  const [systemPreferences, setSystemPreferences] = useState({
+    timezone: "Asia/Kolkata (IST)"
+  });
+
+  const emailFrequencyOptions = [
+    "Daily Digest",
+    "Weekly Summary", 
+    "Real-time",
+    "Never"
   ];
 
-  const timezones = [
-    { value: "Asia/Kolkata", label: "Asia/Kolkata (IST)" },
-    { value: "America/New_York", label: "America/New_York (EST)" },
-    { value: "Europe/London", label: "Europe/London (GMT)" },
-    { value: "Asia/Tokyo", label: "Asia/Tokyo (JST)" },
-    { value: "Australia/Sydney", label: "Australia/Sydney (AEST)" },
+  const timezoneOptions = [
+    "Asia/Kolkata (IST)",
+    "America/New_York (EST)",
+    "Europe/London (GMT)",
+    "Asia/Tokyo (JST)",
+    "Australia/Sydney (AEST)"
   ];
 
-  const labelOf = (arr, v) => (arr.find((x) => x.value === v) || arr[0]).label;
-
-  const summary = [
-    `Email notifications: ${emailFrequency}`,
-    `Auto-replies: ${autoReplies ? "Enabled" : "Disabled"}`,
-    `Timezone: ${labelOf(timezones, timezone)}`,
-    `Team members: ${teamMembers}`,
-  ];
-
-  const onReset = () => {
-    setEmailFrequency("daily");
-    setAutoReplies(true);
-    setTimezone("Asia/Kolkata");
+  const handleEmailChange = (field, value) => {
+    setEmailPreferences(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
-  const onSave = async () => {
-    setSaving(true);
-    // TODO: call your API here
-    await new Promise((r) => setTimeout(r, 900));
-    setSaving(false);
+  const handleSystemChange = (field, value) => {
+    setSystemPreferences(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
+
+  const handleToggle = (field) => {
+    setEmailPreferences(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
+  // Calculate team members count (this would come from props or context in real app)
+  const teamMembersCount = 3;
 
   return (
-    <div className="pb-14">
-      {/* two cards side-by-side like the screenshot */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Email Preferences */}
-        <section className={`rounded-2xl border ${TAILWIND_COLORS.BORDER} bg-white p-6`}>
-          <header className="mb-5 flex items-start gap-2">
-            <span className={`mt-1 inline-grid h-6 w-6 place-items-center rounded-full`} style={{ backgroundColor: COLORS.GREEN_PRIMARY }}>
-              {/* mail icon */}
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="#fff">
-                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-              </svg>
-            </span>
-            <div>
-              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                Email Preferences
-              </h3>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                Configure your email notification settings
-              </p>
-            </div>
-          </header>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Left Section - Email Preferences */}
+      <div className="bg-white rounded-2xl p-6" style={{ border: `1px solid ${COLORS.GRAY_200}` }}>
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-2">
+          <LuNetwork style={{ color: COLORS.GREEN_PRIMARY }} size={20} />
+          <h3 className="font-semibold text-lg" style={{ color: COLORS.PRIMARY }}>
+            Email Preferences
+          </h3>
+        </div>
+        <p className="text-sm mb-6" style={{ color: COLORS.GRAY_800 }}>
+          Configure your email notification settings.
+        </p>
 
-          {/* Email Frequency */}
-          <label className={`mb-2 block text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+        {/* Email Frequency */}
+        <div className="mb-6">
+          <label className="text-sm font-medium mb-2 block" style={{ color: COLORS.PRIMARY }}>
             Email Frequency
           </label>
           <div className="relative">
             <select
-              value={emailFrequency}
-              onChange={(e) => setEmailFrequency(e.target.value)}
-              className={`h-10 w-full appearance-none rounded-lg border ${TAILWIND_COLORS.BORDER} bg-white px-3 pr-9 text-sm focus:outline-none focus:ring-2`}
-              style={{ '--tw-ring-color': COLORS.GREEN_PRIMARY }}
+              value={emailPreferences.frequency}
+              onChange={(e) => handleEmailChange("frequency", e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 appearance-none bg-white"
             >
-              {emailFrequencies.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
+              {emailFrequencyOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
                 </option>
               ))}
             </select>
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-              ▾
-            </span>
+            <LuChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
           </div>
+        </div>
 
-          {/* Auto replies toggle */}
-          <div className="mt-6">
-            <p className={`mb-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Auto-replies</p>
-            <p className={`mb-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-              Automatically respond to candidate applications
-            </p>
-            <button
-              type="button"
-              onClick={() => setAutoReplies((v) => !v)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                autoReplies ? "bg-green-600" : "bg-gray-300"
-              }`}
-              style={{ backgroundColor: autoReplies ? COLORS.GREEN_PRIMARY : COLORS.GRAY_300 }}
-              aria-pressed={autoReplies}
-              aria-label="Toggle auto replies"
-            >
-              <span
-                className={`h-4 w-4 transform rounded-full bg-white transition ${
-                  autoReplies ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
+        {/* Auto-replies */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="">
+          <label className="text-sm font-medium mb-2 block" style={{ color: COLORS.PRIMARY }}>
+            Auto-replies
+          </label>
+          <p className="text-xs mb-3" style={{ color: COLORS.GRAY_600 }}>
+            Automatically respond to candidate applications
+          </p>
           </div>
-        </section>
-
-        {/* System Preferences */}
-        <section className={`rounded-2xl border ${TAILWIND_COLORS.BORDER} bg-white p-6`}>
-          <header className="mb-5 flex items-start gap-2">
-            <span className={`mt-1 inline-grid h-6 w-6 place-items-center rounded-full`} style={{ backgroundColor: COLORS.PRIMARY }}>
-              {/* cog icon */}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#fff">
-                <path d="M12 8a4 4 0 100 8 4 4 0 000-8z" />
-                <path d="M4 13a8 8 0 011-3l-2-3 3-3 3 2a8 8 0 013-1l1-3h4l1 3a8 8 0 013 1l3-2 3 3-2 3a8 8 0 011 3l3 1v4l-3 1a8 8 0 01-1 3l2 3-3 3-3-2a8 8 0 01-3 1l-1 3h-4l-1-3a8 8 0 01-3-1l-3 2-3-3 2-3a8 8 0 01-1-3L1 18v-4l3-1z" />
-              </svg>
-            </span>
-            <div>
-              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                System Preferences
-              </h3>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                Configure your system and regional settings
-              </p>
-            </div>
-          </header>
-
-          {/* Timezone */}
-          <label className={`mb-2 block text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Timezone</label>
-          <div className="relative">
-            <select
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-              className={`h-10 w-full appearance-none rounded-lg border ${TAILWIND_COLORS.BORDER} bg-white px-3 pr-9 text-sm focus:outline-none focus:ring-2`}
-              style={{ '--tw-ring-color': COLORS.PRIMARY }}
-            >
-              {timezones.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-              ▾
-            </span>
-          </div>
-
-          {/* Summary box */}
-          <div className={`mt-6 rounded-xl border ${TAILWIND_COLORS.BORDER} bg-white p-4`}>
-            <h4 className={`mb-2 text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              Current Settings Summary
-            </h4>
-            <ul className={`list-disc space-y-1 pl-5 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-              {summary.map((s, i) => (
-                <li key={i}>{s}</li>
-              ))}
-            </ul>
-          </div>
-        </section>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={emailPreferences.autoReplies}
+              onChange={() => handleToggle("autoReplies")}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-secondary-10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--color-secondary)]"></div>
+          </label>
+        </div>
       </div>
 
-      {/* actions */}
-      <div className="mt-8 flex justify-end gap-3">
-        <OutlineButton onClick={onReset}>Reset to Default</OutlineButton>
-        <SaveButton onClick={onSave} loading={saving}>
-          {saving ? "Saving..." : "Save Preferences"}
-        </SaveButton>
+      {/* Right Section - System Preferences */}
+      <div className="bg-white rounded-2xl p-6" style={{ border: `1px solid ${COLORS.GRAY_200}` }}>
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-2">
+          <LuNetwork style={{ color: COLORS.GREEN_PRIMARY }} size={20} />
+          <h3 className="font-semibold text-lg" style={{ color: COLORS.PRIMARY }}>
+            System Preferences
+          </h3>
+        </div>
+        <p className="text-sm mb-6" style={{ color: COLORS.GRAY_600 }}>
+          Configure your system and regional settings.
+        </p>
+
+        {/* Timezone */}
+        <div className="mb-6">
+          <label className="text-sm font-medium mb-2 block" style={{ color: COLORS.PRIMARY }}>
+            Timezone
+          </label>
+          <div className="relative">
+            <select
+              value={systemPreferences.timezone}
+              onChange={(e) => handleSystemChange("timezone", e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 appearance-none bg-white"
+            >
+              {timezoneOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+            <LuChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+          </div>
+        </div>
+
+        {/* Current Settings Summary */}
+        <div className="bg-white rounded-lg p-4" style={{ border: `1px solid ${COLORS.GRAY_200}` }}>
+          <h4 className="font-semibold text-sm mb-3" style={{ color: COLORS.PRIMARY }}>
+            Current Settings Summary
+          </h4>
+          <ul className="space-y-2 text-sm" style={{ color: COLORS.GRAY_800 }}>
+            <li className="flex items-center">
+              <span className="w-2 h-2 bg-gray-500 rounded-full mr-3"></span>
+              Email notifications: {emailPreferences.frequency.toLowerCase()}
+            </li>
+            <li className="flex items-center">
+              <span className="w-2 h-2 bg-gray-500 rounded-full mr-3"></span>
+              Auto-replies: {emailPreferences.autoReplies ? "Enabled" : "Disabled"}
+            </li>
+            <li className="flex items-center">
+              <span className="w-2 h-2 bg-gray-500 rounded-full mr-3"></span>
+              Timezone: {systemPreferences.timezone}
+            </li>
+            <li className="flex items-center">
+              <span className="w-2 h-2 bg-gray-500 rounded-full mr-3"></span>
+              Team members: {teamMembersCount}
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default Preferences;

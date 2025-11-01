@@ -4,8 +4,9 @@ import {
   LuCheck,
   LuCircleDot,
 } from 'react-icons/lu';
-import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant';
-import { PrimaryButton } from '../../../../shared/components/Button';
+import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js';
+import { PrimaryButton, SaveButton, BackToOverviewButton } from '../../../../shared/components/Button';
+import DynamicButton from '../../../../shared/components/DynamicButton';
 
 const CMSEditor = () => {
   // State for each page
@@ -70,7 +71,7 @@ const CMSEditor = () => {
     pageData, 
     pageType 
   }) => (
-    <div className="bg-white border border-[#0b537d2c] rounded-lg shadow-sm p-6 h-fit">
+    <div className="bg-white border border-[var(--color-primary)2c] rounded-lg shadow-sm p-6 h-fit">
       {/* Card Header */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
@@ -94,7 +95,7 @@ const CMSEditor = () => {
               setter(prev => ({ ...prev, title: e.target.value }));
             }}
             placeholder={titlePlaceholder}
-            className="w-full h-12 px-4 py-3 border border-[#0b537d2c] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+            className={`w-full h-12 px-4 py-3 border border-[var(--color-primary)2c] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
           />
         </div>
 
@@ -110,23 +111,20 @@ const CMSEditor = () => {
               setter(prev => ({ ...prev, content: e.target.value }));
             }}
             placeholder={contentPlaceholder}
-            className="w-full h-32 px-4 py-3 border border-[#0b537d2c] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none"
+            className={`w-full h-32 px-4 py-3 border border-[var(--color-primary)2c] rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm resize-none ${TAILWIND_COLORS.TEXT_PRIMARY}`}
           />
         </div>
 
         {/* Save Button */}
         <div className="pt-2">
-          <PrimaryButton
+          <SaveButton
             onClick={() => handleSave(pageType, { title: pageData.title, content: pageData.content })}
+            loading={pageData.isSaving}
+            savedTick={pageData.savedTick}
             disabled={pageData.isSaving}
-            className="w-full h-12 bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg text-sm font-medium"
           >
-            {pageData.isSaving ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              'Save'
-            )}
-          </PrimaryButton>
+            Save
+          </SaveButton>
         </div>
       </div>
     </div>
@@ -135,7 +133,7 @@ const CMSEditor = () => {
   return (
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-0">
       {/* Header Section */}
-      <div className="flex items-start bg-white p-4 border border-[#0b537d2c] rounded-lg justify-between gap-4">
+      <div className="flex items-start bg-white p-4 border border-[var(--color-primary)2c] rounded-lg justify-between gap-4">
         <div className="flex items-start gap-3">
           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-100">
             <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -149,13 +147,9 @@ const CMSEditor = () => {
         </div>
 
         {/* Back to overview button */}
-        <PrimaryButton
+        <BackToOverviewButton
           onClick={() => window.history.back()}
-          className="h-10 px-4 border-2 border-[#5B9821] text-[#5B9821] hover:bg-[#5B9821] hover:text-white rounded-lg text-sm font-medium"
-          icon={<LuArrowLeft className="w-4 h-4" />}
-        >
-          Back to overview
-        </PrimaryButton>
+        />
       </div>
 
       {/* Cards Grid */}

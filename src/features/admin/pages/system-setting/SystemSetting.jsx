@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js'
-// <<<<<<< HEAD:src/features/admin/pages/system-setting/SystemSetting.jsx
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import { MatrixCard } from '../../../../shared/components/metricCard.jsx'
 import CMSEditor from './CmsEditor'
@@ -70,6 +69,8 @@ export default function SystemSetting() {
       <MatrixCard 
         title="System Settings & Configuration"
         subtitle="Manage your job portal system settings and integration"
+        titleColor={TAILWIND_COLORS.TEXT_PRIMARY}
+        subtitleColor={TAILWIND_COLORS.TEXT_MUTED}
       />
 
       {/* Navigation Tabs */}

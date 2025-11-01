@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx';
-import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant';
+import Button from '../../../../shared/components/Button.jsx';
+import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 
 // Toggle Switch Component
 const Toggle = ({ checked, onChange, label }) => (
   <label className="flex items-center gap-3 cursor-pointer select-none">
     <span
       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-        checked ? 'bg-[#5C9A24]' : 'bg-gray-300'
+        checked ? 'bg-[var(--color-secondary)]' : 'bg-gray-300'
       }`}
       role="switch"
       aria-checked={checked}
@@ -19,7 +19,7 @@ const Toggle = ({ checked, onChange, label }) => (
         }`}
       />
     </span>
-    <span className="text-sm text-gray-600">{label}</span>
+    <span className="text-sm text-text-muted">{label}</span>
   </label>
 )
 
@@ -41,20 +41,20 @@ const CourseDeadlineSettings = ({ settings, onSettingsChange, onUpdateSettings }
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
-        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-[#5b9a242d]">
-          <svg className="w-3 h-3 text-[#5C9A24]" fill="currentColor" viewBox="0 0 20 20">
+        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary-10">
+          <svg className="w-3 h-3 text-[var(--color-secondary)]" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
           </svg>
         </div>
-        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course Deadline Settings</h2>
+        <h2 className="text-lg font-semibold text-text-primary">Course Deadline Settings</h2>
       </div>
-      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Automatic alerts for course deadlines</p>
+      <p className="text-sm text-text-muted mb-6">Automatic alerts for course deadlines</p>
       
       {/* Form Content */}
       <div className="space-y-6 flex-1">
         {/* Alert Schedule Dropdown */}
         <div className="space-y-2">
-          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+          <label className="block text-sm font-medium text-text-primary">
             Alert Schedule
           </label>
           <div className="relative">
@@ -94,7 +94,7 @@ const CourseDeadlineSettings = ({ settings, onSettingsChange, onUpdateSettings }
 
         {/* Message Template */}
         <div className="space-y-2">
-          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+          <label className="block text-sm font-medium text-text-primary">
             Message Template
           </label>
           <input
@@ -108,12 +108,15 @@ const CourseDeadlineSettings = ({ settings, onSettingsChange, onUpdateSettings }
 
         {/* Save Button */}
         <div className="pt-4">
-          <PrimaryButton 
+          <Button 
             onClick={handleSubmit}
-            className="w-full h-12 bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg text-sm font-medium"
+            variant="primary"
+            size="md"
+            fullWidth
+            className="font-medium"
           >
             Save Alert Settings
-          </PrimaryButton>
+          </Button>
         </div>
       </div>
     </div>
@@ -126,14 +129,14 @@ const UpcomingDeadlines = ({ deadlines }) => {
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
-        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-[#5b9a242d]">
-          <svg className="w-3 h-3 text-[#5C9A24]" fill="currentColor" viewBox="0 0 20 20">
+        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary-10">
+          <svg className="w-3 h-3 text-[var(--color-secondary)]" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
           </svg>
         </div>
-        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Upcoming Deadlines</h2>
+        <h2 className="text-lg font-semibold text-text-primary">Upcoming Deadlines</h2>
       </div>
-      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Courses with approaching deadlines</p>
+      <p className="text-sm text-text-muted mb-6">Courses with approaching deadlines</p>
 
       {/* Deadlines List */}
       <div className="space-y-3 flex-1">
@@ -144,11 +147,11 @@ const UpcomingDeadlines = ({ deadlines }) => {
           >
             {/* Content */}
             <div className="flex-1 min-w-0">
-              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              <h3 className="text-sm font-medium text-text-primary mb-1">
                 {deadline.courseName}
               </h3>
-              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                {deadline.studentCount} students - Deadlines in {deadline.deadline}
+              <p className="text-xs text-text-muted">
+                {deadline.studentCount} students - Deadline in {deadline.deadline}
               </p>
             </div>
 
@@ -156,8 +159,8 @@ const UpcomingDeadlines = ({ deadlines }) => {
             <span
               className={`px-3 py-1 text-sm font-medium rounded-md whitespace-nowrap ${
                 deadline.status === 'alert sent' 
-                  ? 'bg-[#5B9821] text-white' 
-                  : 'bg-[#5b9a242d] text-[#5C9A24] border border-green-200'
+                  ? 'bg-[var(--color-secondary)] text-white' 
+                  : 'bg-secondary-10 text-[var(--color-secondary)] border border-green-200'
               }`}
             >
               {deadline.status}

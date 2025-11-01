@@ -135,10 +135,10 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-900">Edit Candidate</h2>
+      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
+        {/* Fixed Header */}
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
+          <h2 className="text-2xl font-semibold text-[var(--color-primary)]">Edit Candidate</h2>
           <button
             onClick={handleCancel}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -147,8 +147,9 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-6">
           {/* Basic Information */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* Name */}
@@ -445,7 +446,8 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
               Save Changes
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   )

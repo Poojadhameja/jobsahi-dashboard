@@ -13,7 +13,7 @@ const MetricCard = ({
 }) => {
   return (
     <div
-      className={`bg-white p-3 rounded-lg shadow-sm border border-[#0b537d34]   ${className}`}
+      className={`bg-white p-3 rounded-lg shadow-sm border border-primary-30   ${className}`}
     >
       <div className="flex flex-col items-center text-center gap-2 my-2">
         <div
@@ -49,11 +49,11 @@ export const MetricPillButton = ({
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 bg-white border-2 border-[#5B9821] transition-colors text-[#5B9821] ${
-        active ? "ring-2 ring-[#5B9821]/30" : ""
+      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 bg-white border-2 border-secondary transition-colors text-secondary ${
+        active ? "ring-2 ring-secondary-30" : ""
       } ${className}`}
     >
-      <span className="w-6 h-6 rounded-full grid place-items-center bg-[rgba(92,154,36,0.15)] text-[#5B9821]">
+      <span className="w-6 h-6 rounded-full grid place-items-center bg-secondary-10 text-secondary">
         {icon}
       </span>
       <span className="text-sm font-bold whitespace-nowrap">{label}</span>
@@ -79,12 +79,12 @@ export const MatrixCard = ({
   title,
   subtitle,
   className = "",
-  titleColor = "text-[#1A569A]",
-  subtitleColor = "text-[#1A569A]",
+  titleColor = "text-primary",
+  subtitleColor = "text-primary",
 }) => {
   return (
     <div
-      className={`bg-white rounded-lg border border-[#0b537d28] shadow-sm p-6 text-center ${className}`}
+      className={`bg-white rounded-lg border border-primary-30 shadow-sm p-6 text-center ${className}`}
     >
       <h2 className={`text-xl md:text-2xl font-bold ${titleColor} mb-2`}>
         {title}
@@ -117,7 +117,7 @@ export const Horizontal4Cards = ({
       {data.map((card, index) => (
         <div
           key={index}
-          className={`bg-white rounded-lg border border-[#0b537d3c] shadow-sm p-6 ${cardClassName}`}
+          className={`bg-white rounded-lg border border-primary-30 shadow-sm p-6 ${cardClassName}`}
         >
           <div className="flex items-center justify-between mb-4">
             <div className="">
@@ -126,7 +126,7 @@ export const Horizontal4Cards = ({
               </h3>
               <p className="text-2xl font-bold text-gray-900">{card.value}</p>
             </div>
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center border border-[#0b537d3c]">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center border border-primary-30">
               <span className="w-5 h-5 text-blue-600">{card.icon}</span>
             </div>
           </div>

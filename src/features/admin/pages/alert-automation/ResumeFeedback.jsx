@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { COLORS, TAILWIND_COLORS } from "../../../../shared/WebConstant";
-import { PrimaryButton } from "../../../../shared/components/Button.jsx";
+import Button from "../../../../shared/components/Button.jsx";
 
 // ========= Toggle (kept as a separate component) =========
 const Toggle = ({ checked, onChange, label }) => (
   <label className="flex items-center justify-between gap-3 select-none">
-    {label ? <span className={`${TAILWIND_COLORS.TEXT_MUTED}`}>{label}</span> : null}
+    {label ? <span className="text-text-muted">{label}</span> : null}
     <button
       type="button"
       role="switch"
@@ -13,7 +13,7 @@ const Toggle = ({ checked, onChange, label }) => (
       onClick={() => onChange(!checked)}
       className={[
         "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-        checked ? "bg-[#5C9A24]" : "bg-slate-300",
+        checked ? "bg-[var(--color-secondary)]" : "bg-slate-300",
         "focus:outline-none focus:ring-4 focus:ring-sky-100",
       ].join(" ")}
     >
@@ -44,19 +44,19 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
       {/* Header */}
       <div className="flex items-center gap-2 mb-1">
         <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-100">
-          <svg className="w-3 h-3 text-[#5C9A24]" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-3 h-3 text-[var(--color-secondary)]" fill="currentColor" viewBox="0 0 20 20">
             <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
           </svg>
         </div>
-        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>AI Resume Feedback (Future Integration)</h2>
+        <h2 className="text-lg font-semibold text-text-primary">AI Resume Feedback (Future Integration)</h2>
       </div>
-      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Configure LLM-powered resume analysis and feedback system</p>
+      <p className="text-sm text-text-muted mb-6">Configure LLM-powered resume analysis and feedback system</p>
       
       {/* Coming soon banner */}
       <div className="mb-6 rounded-lg bg-green-50 border border-green-200 p-4">
-        <p className="font-bold text-[#5C9A24]">Coming soon</p>
-        <p className="text-sm text-[#5C9A24] mt-1">
-          this feature will integrate with large language models to provide automated resume feedback and suggestions to job seekers.
+        <p className="font-bold text-[var(--color-secondary)]">Coming soon</p>
+        <p className="text-sm text-[var(--color-secondary)] mt-1">
+          This feature will integrate with large language models to provide automated resume feedback and suggestions to job seekers.
         </p>
       </div>
 
@@ -64,7 +64,7 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
       <div className="space-y-6 flex-1">
         {/* Feedback Categories */}
         <div className="md:w-[50%] lg:md:w-[40%]">
-          <h3 className={`font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Feedback Categories</h3>
+          <h3 className="font-bold text-text-primary mb-4">Feedback Categories</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-3">
               <Toggle
@@ -103,15 +103,15 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
 
         {/* Response time */}
         <div className="md:w-[50%] lg:md:w-[40%]">
-          <h3 className={`font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Responsive time target</h3>
+          <h3 className="font-bold text-text-primary mb-4">Response Time Target</h3>
           <div className="relative">
             <select
               value={settings.responseTime}
               onChange={(e) =>
                 onSettingsChange({ ...settings, responseTime: e.target.value })
               }
-              className="w-full h-12 px-4 py-3 border border-[#5C9A24] rounded-lg focus:outline-none appearance-none bg-white pr-9 text-sm"
-              style={{ color: settings.responseTime ? '#5C9A24' : '#5C9A24' }}
+              className="w-full h-12 px-4 py-3 border border-[var(--color-secondary)] rounded-lg focus:outline-none appearance-none bg-white pr-9 text-sm"
+              style={{ color: settings.responseTime ? 'var(--color-secondary)' : 'var(--color-secondary)' }}
             >
               {responseOptions.map((o) => (
                 <option key={o.value} value={o.value} disabled={o.value === ""}>
@@ -120,7 +120,7 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
               ))}
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <svg className="w-4 h-4 text-[#5C9A24]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-[var(--color-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </div>
@@ -129,12 +129,20 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
 
         {/* Configure Button */}
         <div className="">
-          <PrimaryButton
+          <Button
             onClick={handleSubmit}
-            className="  bg-[#5B9821] hover:bg-[#4B7F19] text-white rounded-lg text-sm font-medium"
+            variant="primary"
+            size="md"
+            className="font-medium"
+            icon={
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            }
           >
             Configure LLM Integration
-          </PrimaryButton>
+          </Button>
         </div>
       </div>
     </div>

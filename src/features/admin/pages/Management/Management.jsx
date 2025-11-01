@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { PillNavigation, MANAGEMENT_TABS } from '../../../../shared/components/navigation.jsx'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
 import StudentManagement from './StudentManagement'
 import EmployerManagement from './employer-management/EmployerManagement'
 import InstituteManagement from './institute-management/InstituteManagement'
@@ -25,12 +26,19 @@ export default function Management() {
     setActiveTab(tabIndex)
   }
 
+  // Debug: Check authentication status
+  React.useEffect(() => {
+    const token = localStorage.getItem("authToken")
+    console.log('🔐 Auth Token Status:', token ? 'Present' : 'Missing')
+    console.log('🔐 Token Value:', token ? `${token.substring(0, 20)}...` : 'No token')
+  }, [])
+
   return (
     <div className="space-y-6">
       {/* Header */}
       {/* <div className="mb-6">
-        <h1 className="text-3xl font-bold text-blue-600 mb-2">Management Dashboard</h1>
-        <p className="text-gray-600">Manage students, employers, and institutes from one place.</p>
+        <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Management Dashboard</h1>
+        <p className={TAILWIND_COLORS.TEXT_MUTED}>Manage students, employers, and institutes from one place.</p>
       </div> */}
 
       {/* Navigation using shared component */}

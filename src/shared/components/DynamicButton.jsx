@@ -8,8 +8,8 @@ const DynamicButton = ({
   loading = false,
   className = '',
   // Dynamic styling props
-  backgroundColor = '#5B9821',
-  textColor = '#ffffff',
+  backgroundColor = 'var(--color-secondary)',
+  textColor = 'white',
   width = 'auto',
   height = '44px',
   borderRadius = '8px',

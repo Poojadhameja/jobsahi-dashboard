@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import MetricCard, { MatrixCard, Horizontal4Cards } from '../../../../shared/components/metricCard.jsx'
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
-import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
 import ExpiryReminder from './ExpiryReminder.jsx'
 import AutoFlagging from './AutoFlagging.jsx'
 import ResumeFeedback from './ResumeFeedback.jsx'
@@ -26,18 +26,19 @@ const navigationTabs = [
 
 const Toggle = ({ checked, onChange, label }) => (
   <label className="flex items-center gap-3 cursor-pointer select-none">
-    <span
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200`}
+    <button
+      type="button"
       role="switch"
       aria-checked={checked}
       onClick={() => onChange(!checked)}
-      style={{ backgroundColor: checked ? COLORS.GREEN_PRIMARY : COLORS.GRAY_300 }}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-30`}
+      style={{ backgroundColor: checked ? COLORS.GREEN_PRIMARY : '#D1D5DB' }}
     >
       <span
         className={`h-5 w-5 bg-white rounded-full shadow transform transition-transform duration-200 ${checked ? 'translate-x-5' : 'translate-x-1'}`}
       />
-    </span>
-    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{label}</span>
+    </button>
+    <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{label}</span>
   </label>
 )
 

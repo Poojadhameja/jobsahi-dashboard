@@ -67,7 +67,7 @@ const DataTable = ({
 }) => {
   const [openDropdown, setOpenDropdown] = useState(null)
   return (
-    <div className={`bg-white rounded-lg border border-[#0B537D3C] ${className}`}>
+    <div className={`bg-white rounded-lg border border-primary-30 ${className}`}>
       {showHeader && (
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center">
@@ -122,9 +122,9 @@ const DataTable = ({
                           onClick={() => action.onClick && action.onClick(row, rowIndex)}
                           className={`px-3 md:px-4 py-1 md:py-2 rounded-full text-xs font-medium transition-colors duration-200 ${
                             action.variant === 'success'
-                              ? 'bg-[#5C9A24] text-[#fff] hover:bg-[#3b6418]'
+                              ? 'bg-secondary text-white hover:bg-secondary-dark'
                               : action.variant === 'danger'
-                              ? 'bg-[#ff0000] text-[#fff] hover:bg-[#c03030]'
+                              ? 'bg-error text-white hover:bg-red-700'
                               : action.variant === 'primary'
                               ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
                               : 'bg-gray-100 text-gray-800 hover:bg-gray-200'

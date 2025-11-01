@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { LuBell, LuChevronDown, LuSearch } from "react-icons/lu";
-import { TAILWIND_COLORS } from "../../../../shared/WebConstant.js";
+import { LuBell, LuChevronDown, LuSearch, LuSave, LuEye, LuPlus } from "react-icons/lu";
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from "../../../../shared/components/Button.jsx";
 import { PillNavigation } from "../../../../shared/components/navigation.jsx";
 
@@ -68,8 +68,8 @@ export default function EmailSmsCampaignsManager() {
 
   // Navigation tabs for the component
   const navigationTabs = [
-    { id: 'create', label: 'Create Campaign' },
-    { id: 'manage', label: 'Manage Campaign' }
+    { id: 'create', label: 'Create Campaign', icon: LuPlus },
+    { id: 'manage', label: 'Manage Campaign', icon: LuBell }
   ];
 
   const onChange = (e) => {
@@ -197,9 +197,6 @@ ${form.content}
           Filter
         </Button>
       </div>
-      <Button variant="primary" size="sm" onClick={() => setActiveTab(0)}>
-        New Campaign
-      </Button>
     </div>
   );
 
@@ -212,8 +209,8 @@ ${form.content}
             <LuBell className={`h-5 w-5 ${iconColor}`} />
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">{title}</h3>
-            <p className="text-sm text-gray-500">{channel} • {recipients} recipients</p>
+            <h3 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{title}</h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{channel} • {recipients} recipients</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -273,7 +270,7 @@ ${form.content}
             value={form.name}
             onChange={onChange}
             placeholder="Enter campaign name"
-            className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+            className={`h-12 w-full rounded-lg border border-gray-300 bg-white px-4 ${TAILWIND_COLORS.TEXT_PRIMARY} placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200`}
           />
         </div>
 
@@ -286,7 +283,7 @@ ${form.content}
               name="channel"
               value={form.channel}
               onChange={onChange}
-              className="h-12 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 pr-9 text-gray-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+              className={`h-12 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 pr-9 ${TAILWIND_COLORS.TEXT_PRIMARY} focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200`}
             >
               {CHANNELS.map((channel) => (
                 <option key={channel.value} value={channel.value}>
@@ -310,7 +307,7 @@ ${form.content}
           value={form.subject}
           onChange={onChange}
           placeholder="Enter email subject or SMS preview"
-          className="h-12 w-full rounded-lg border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200"
+          className={`h-12 w-full rounded-lg border border-gray-300 bg-white px-4 ${TAILWIND_COLORS.TEXT_PRIMARY} placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200`}
         />
       </div>
 
@@ -325,7 +322,7 @@ ${form.content}
           onChange={onChange}
           rows={4}
           placeholder="Enter your campaign message"
-          className="w-full h-24 rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200 resize-none"
+          className={`w-full h-24 rounded-lg border border-gray-300 bg-white px-4 py-3 ${TAILWIND_COLORS.TEXT_PRIMARY} placeholder:text-gray-400 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-200 resize-none`}
         />
       </div>
 
@@ -351,18 +348,20 @@ ${form.content}
           type="button"
           variant="outline"
           size="md"
-          className="h-12 border-2 border-[#5B9821] text-[#5B9821]"
+          className="h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
           onClick={onSaveDraft}
+          icon={<LuSave size={16} />}
         >
-          Save draft
+          Save Draft
         </Button>
 
         <Button
           type="button"
           variant="outline"
           size="md"
-          className="h-12 border-2 border-[#5B9821] text-[#5B9821]"
+          className="h-12 border-2 border-[var(--color-secondary)] text-[var(--color-secondary)]"
           onClick={onPreview}
+          icon={<LuEye size={16} />}
         >
           Preview
         </Button>
