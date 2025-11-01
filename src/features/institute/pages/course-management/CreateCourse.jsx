@@ -49,14 +49,6 @@ export default function CreateCourse() {
     }))
   }
 
-  const handleAddModule = () => {
-    if (newModule.title.trim() && newModule.description.trim()) {
-      setModules(prev => [...prev, { ...newModule, id: Date.now() }])
-      setNewModule({ title: '', description: '' })
-    } else {
-      alert('Please fill both Module Title and Description before adding.')
-    }
-  }
 
   // ✅ Category management handlers
   const handleAddCategoryClick = () => {
@@ -382,14 +374,6 @@ const handleSave = async () => {
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C9A24]"
                     placeholder="e.g. Wiring, Safety Measures"
                   />
-                  {/* Using Button with icon from Button.jsx */}
-                  <Button 
-                    type="button"
-                    variant="primary"
-                    size="sm"
-                    icon={<LuPlus />}
-                    className="!w-10 !h-10 !p-0 rounded-full"
-                  />
                 </div>
               </div>
             </div> 
@@ -574,7 +558,7 @@ const handleSave = async () => {
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
                 <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  MODULE 1 TITLE <span className="text-orange-500">*</span>
+                  MODULE TITLE <span className="text-orange-500">*</span>
                 </label>
                 <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter the name of the module.</p>
               </div>
@@ -601,13 +585,6 @@ const handleSave = async () => {
                     }`}
                     placeholder="e.g. intro to HTML"
                   />
-                  <button 
-                    type="button"
-                    onClick={handleAddModule}
-                    className="w-10 h-10 bg-[#5C9A24] text-white rounded-full hover:bg-[#3f6c17] flex items-center justify-center"
-                  >
-                    <LuPlus className="w-4 h-4" />
-                  </button>
                 </div>
                 {validationErrors.moduleTitle && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.moduleTitle}</p>

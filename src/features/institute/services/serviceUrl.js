@@ -26,6 +26,10 @@ const apiService = {
 //   getInstructors: '/faculty/get_faculty_users.php'
 
 getFaculty: '/faculty/get_faculty_users.php',
+
+courseByBatch: '/institute/course_by_batch.php',
+
+
 }
 
 export default apiService
