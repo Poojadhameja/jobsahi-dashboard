@@ -25,6 +25,44 @@ const PostJob = ({ onJobSubmit }) => {
     openingDate: '',
     closingDate: ''
   })
+  
+  // job category
+  // ✅ Category management states (for Job Sector dynamic addition)
+const [categories, setCategories] = useState([
+  'Manufacturing', 'Technology', 'Healthcare', 'Finance', 'Education'
+])
+const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
+const [newCategory, setNewCategory] = useState('')
+
+// ✅ Handlers for Add Category feature
+const handleAddCategoryClick = () => {
+  setShowAddCategoryModal(true)
+  setNewCategory('')
+}
+
+const handleAddCategory = () => {
+  if (newCategory.trim()) {
+    const categoryName = newCategory.trim()
+    // prevent duplicates
+    if (categories.includes(categoryName)) {
+      alert('This category already exists!')
+      return
+    }
+    setCategories(prev => [...prev, categoryName])
+    setFormData(prev => ({ ...prev, jobSector: categoryName }))
+    setShowAddCategoryModal(false)
+    setNewCategory('')
+    alert(`✅ Category "${categoryName}" added successfully!`)
+  } else {
+    alert('Please enter a category name.')
+  }
+}
+
+const handleCancelAddCategory = () => {
+  setShowAddCategoryModal(false)
+  setNewCategory('')
+}
+
 
   const [errors, setErrors] = useState({})
   const [showWarning, setShowWarning] = useState(false)
@@ -241,35 +279,42 @@ const PostJob = ({ onJobSubmit }) => {
             </div>
 
             {/* Job Sector */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  JOB SECTOR<span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-500">Choose category</p>
-              </div>
-              <div className="lg:col-span-2">
-                <select
-                  name="jobSector"
-                  value={formData.jobSector}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
-                    errors.jobSector ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  required
-                >
-                  <option value="">Choose Category</option>
-                  <option value="manufacturing">Manufacturing</option>
-                  <option value="technology">Technology</option>
-                  <option value="healthcare">Healthcare</option>
-                  <option value="finance">Finance</option>
-                  <option value="education">Education</option>
-                </select>
-                {errors.jobSector && (
-                  <p className="text-red-500 text-sm mt-1">{errors.jobSector}</p>
-                )}
-              </div>
-            </div>
+            {/* Job Sector */}
+<div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+  <div className="lg:col-span-1">
+    <label className="block text-sm font-semibold text-gray-900 mb-2">
+      JOB SECTOR<span className="text-red-500">*</span>
+    </label>
+    <p className="text-sm text-gray-500">Choose category</p>
+  </div>
+  <div className="lg:col-span-2 flex gap-3">
+    <select
+      name="jobSector"
+      value={formData.jobSector}
+      onChange={handleInputChange}
+      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
+        errors.jobSector ? 'border-red-500' : 'border-gray-300'
+      }`}
+      required
+    >
+      <option value="">Choose Category</option>
+      {categories.map((category, index) => (
+        <option key={index} value={category.toLowerCase()}>
+          {category}
+        </option>
+      ))}
+    </select>
+
+    <button
+      type="button"
+      onClick={handleAddCategoryClick}
+      className="bg-[var(--color-secondary)] text-white font-semibold px-4 py-2 rounded-md hover:bg-[var(--color-secondary-dark)] transition-colors"
+    >
+      + Add Category
+    </button>
+  </div>
+</div>
+
 
             {/* Job Description */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -708,6 +753,59 @@ const PostJob = ({ onJobSubmit }) => {
         </div>
        </div>
       </form>
+      {/* ✅ Add Category Modal */}
+{showAddCategoryModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+      <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900">Add New Category</h3>
+        <button
+          onClick={handleCancelAddCategory}
+          className="text-gray-500 hover:text-[var(--color-secondary)] transition-colors"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="p-6">
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            CATEGORY NAME <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+            placeholder="e.g. Automotive, Retail, Hospitality"
+            autoFocus
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Enter a unique category name for your job sector.
+          </p>
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={handleCancelAddCategory}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleAddCategory}
+            className="px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors"
+          >
+            Add Category
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   )
 }
