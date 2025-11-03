@@ -827,6 +827,59 @@ const PostJob = ({ onJobSubmit }) => {
           </div>
         </div>
       </form>
+      {/* ✅ Add Category Modal */}
+{showAddCategoryModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+      <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900">Add New Category</h3>
+        <button
+          onClick={handleCancelAddCategory}
+          className="text-gray-500 hover:text-[var(--color-secondary)] transition-colors"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="p-6">
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-gray-900 mb-2">
+            CATEGORY NAME <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+            placeholder="e.g. Automotive, Retail, Hospitality"
+            autoFocus
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Enter a unique category name for your job sector.
+          </p>
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <button
+            type="button"
+            onClick={handleCancelAddCategory}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleAddCategory}
+            className="px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors"
+          >
+            Add Category
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
