@@ -56,32 +56,31 @@ const Dashboard = () => {
   //     isMounted = false;
   //   };
   // }, []);
-useEffect(() => {
-  const fetchData = async () => {
-    await fetchDashboardData();
-    await fetchInterviewDetails(); // ✅ make sure this is included
-  };
-  fetchData();
-}, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchDashboardData();
+      await fetchInterviewDetails(); // ✅ make sure this is included
+    };
+    fetchData();
+  }, []);
 
   const [interviewDetails, setInterviewDetails] = useState([]);
 
   // 🔹 Fetch current-month interview details API call
- const fetchInterviewDetails = async () => {
-  try {
-    const res = await getMethod({ apiUrl: service.getInterviewDetails });
-    // console.log("API Response:", res); // 👈 add this temporarily
-    if (res?.status && Array.isArray(res.current_month_interviews)) {
-      setInterviewDetails(res.current_month_interviews);
-    } else {
+  const fetchInterviewDetails = async () => {
+    try {
+      const res = await getMethod({ apiUrl: service.getInterviewDetails });
+      // console.log("API Response:", res); // 👈 add this temporarily
+      if (res?.status && Array.isArray(res.current_month_interviews)) {
+        setInterviewDetails(res.current_month_interviews);
+      } else {
+        setInterviewDetails([]);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching interview details:", error);
       setInterviewDetails([]);
     }
-  } catch (error) {
-    console.error("❌ Error fetching interview details:", error);
-    setInterviewDetails([]);
-  }
-};
-
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -241,104 +240,126 @@ useEffect(() => {
   ];
 
   // Recent applicants table data
-  const recentApplicants = [
-    {
-      id: 1,
-      name: "Aarti Nathani",
-      jobTitle: "Electrician Apprentice",
-      datePosted: "12-05-25",
-      avatar: "AN",
-      email: "aarti.nathani@email.com",
-      phone: "+91 98765 43210",
-      location: "Mumbai, Maharashtra",
-      experience: "2 years",
-      education: "Diploma in Electrical Engineering",
-      skills: [
-        "Electrical Wiring",
-        "Circuit Analysis",
-        "Safety Protocols",
-        "Maintenance",
-      ],
-      summary:
-        "Experienced electrician with 2 years of hands-on experience in residential and commercial electrical work. Proficient in electrical wiring, circuit analysis, and safety protocols.",
-      previousCompany: "ABC Electrical Services",
-      expectedSalary: "₹25,000 - ₹30,000",
-      availability: "Immediate",
-      languages: ["Hindi", "English", "Marathi"],
-    },
-    {
-      id: 2,
-      name: "Pooja Dhameja",
-      jobTitle: "Electrician Apprentice",
-      datePosted: "12-05-25",
-      avatar: "PD",
-      email: "pooja.dhameja@email.com",
-      phone: "+91 98765 43211",
-      location: "Delhi, NCR",
-      experience: "1.5 years",
-      education: "ITI in Electrical",
-      skills: [
-        "Electrical Installation",
-        "Troubleshooting",
-        "Safety Standards",
-        "Team Work",
-      ],
-      summary:
-        "Skilled electrician apprentice with 1.5 years of experience in electrical installations and troubleshooting. Strong knowledge of safety standards and excellent team collaboration skills.",
-      previousCompany: "XYZ Electrical Works",
-      expectedSalary: "₹20,000 - ₹25,000",
-      availability: "2 weeks notice",
-      languages: ["Hindi", "English"],
-    },
-    {
-      id: 3,
-      name: "Yuvraj Basine",
-      jobTitle: "Electrician Apprentice",
-      datePosted: "12-05-25",
-      avatar: "YB",
-      email: "yuvraj.basine@email.com",
-      phone: "+91 98765 43212",
-      location: "Pune, Maharashtra",
-      experience: "3 years",
-      education: "B.Tech in Electrical Engineering",
-      skills: [
-        "Industrial Electrical",
-        "PLC Programming",
-        "Motor Control",
-        "Project Management",
-      ],
-      summary:
-        "Experienced electrical engineer with 3 years in industrial electrical systems. Expertise in PLC programming, motor control, and project management.",
-      previousCompany: "DEF Industrial Solutions",
-      expectedSalary: "₹35,000 - ₹40,000",
-      availability: "1 month notice",
-      languages: ["Hindi", "English", "Marathi"],
-    },
-    {
-      id: 4,
-      name: "Himanshu Shrirang",
-      jobTitle: "Electrician Apprentice",
-      datePosted: "12-05-25",
-      avatar: "HS",
-      email: "himanshu.shrirang@email.com",
-      phone: "+91 98765 43213",
-      location: "Bangalore, Karnataka",
-      experience: "2.5 years",
-      education: "Diploma in Electrical and Electronics",
-      skills: [
-        "HVAC Electrical",
-        "Solar Installation",
-        "Energy Management",
-        "Customer Service",
-      ],
-      summary:
-        "Versatile electrician with 2.5 years of experience in HVAC electrical systems and solar installations. Strong focus on energy management and customer satisfaction.",
-      previousCompany: "GHI Green Energy",
-      expectedSalary: "₹28,000 - ₹32,000",
-      availability: "Immediate",
-      languages: ["Hindi", "English", "Kannada"],
-    },
-  ];
+  // const recentApplicants = [
+  //   {
+  //     id: 1,
+  //     name: "Aarti Nathani",
+  //     jobTitle: "Electrician Apprentice",
+  //     datePosted: "12-05-25",
+  //     avatar: "AN",
+  //     email: "aarti.nathani@email.com",
+  //     phone: "+91 98765 43210",
+  //     location: "Mumbai, Maharashtra",
+  //     experience: "2 years",
+  //     education: "Diploma in Electrical Engineering",
+  //     skills: [
+  //       "Electrical Wiring",
+  //       "Circuit Analysis",
+  //       "Safety Protocols",
+  //       "Maintenance",
+  //     ],
+  //     summary:
+  //       "Experienced electrician with 2 years of hands-on experience in residential and commercial electrical work. Proficient in electrical wiring, circuit analysis, and safety protocols.",
+  //     previousCompany: "ABC Electrical Services",
+  //     expectedSalary: "₹25,000 - ₹30,000",
+  //     availability: "Immediate",
+  //     languages: ["Hindi", "English", "Marathi"],
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Pooja Dhameja",
+  //     jobTitle: "Electrician Apprentice",
+  //     datePosted: "12-05-25",
+  //     avatar: "PD",
+  //     email: "pooja.dhameja@email.com",
+  //     phone: "+91 98765 43211",
+  //     location: "Delhi, NCR",
+  //     experience: "1.5 years",
+  //     education: "ITI in Electrical",
+  //     skills: [
+  //       "Electrical Installation",
+  //       "Troubleshooting",
+  //       "Safety Standards",
+  //       "Team Work",
+  //     ],
+  //     summary:
+  //       "Skilled electrician apprentice with 1.5 years of experience in electrical installations and troubleshooting. Strong knowledge of safety standards and excellent team collaboration skills.",
+  //     previousCompany: "XYZ Electrical Works",
+  //     expectedSalary: "₹20,000 - ₹25,000",
+  //     availability: "2 weeks notice",
+  //     languages: ["Hindi", "English"],
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Yuvraj Basine",
+  //     jobTitle: "Electrician Apprentice",
+  //     datePosted: "12-05-25",
+  //     avatar: "YB",
+  //     email: "yuvraj.basine@email.com",
+  //     phone: "+91 98765 43212",
+  //     location: "Pune, Maharashtra",
+  //     experience: "3 years",
+  //     education: "B.Tech in Electrical Engineering",
+  //     skills: [
+  //       "Industrial Electrical",
+  //       "PLC Programming",
+  //       "Motor Control",
+  //       "Project Management",
+  //     ],
+  //     summary:
+  //       "Experienced electrical engineer with 3 years in industrial electrical systems. Expertise in PLC programming, motor control, and project management.",
+  //     previousCompany: "DEF Industrial Solutions",
+  //     expectedSalary: "₹35,000 - ₹40,000",
+  //     availability: "1 month notice",
+  //     languages: ["Hindi", "English", "Marathi"],
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "Himanshu Shrirang",
+  //     jobTitle: "Electrician Apprentice",
+  //     datePosted: "12-05-25",
+  //     avatar: "HS",
+  //     email: "himanshu.shrirang@email.com",
+  //     phone: "+91 98765 43213",
+  //     location: "Bangalore, Karnataka",
+  //     experience: "2.5 years",
+  //     education: "Diploma in Electrical and Electronics",
+  //     skills: [
+  //       "HVAC Electrical",
+  //       "Solar Installation",
+  //       "Energy Management",
+  //       "Customer Service",
+  //     ],
+  //     summary:
+  //       "Versatile electrician with 2.5 years of experience in HVAC electrical systems and solar installations. Strong focus on energy management and customer satisfaction.",
+  //     previousCompany: "GHI Green Energy",
+  //     expectedSalary: "₹28,000 - ₹32,000",
+  //     availability: "Immediate",
+  //     languages: ["Hindi", "English", "Kannada"],
+  //   },
+  // ];
+  const [recentApplicants, setRecentApplicants] = useState([]);
+
+// recent applicants API call
+useEffect(() => {
+  const fetchRecentApplicants = async () => {
+    try {
+      const res = await getMethod({
+        apiUrl: `${service.getRecentApplications}`,
+      });
+      if (res?.success || res?.status) {
+        setRecentApplicants(res.data || []);
+      } else {
+        setRecentApplicants([]);
+        console.warn('No data found:', res?.message);
+      }
+    } catch (err) {
+      console.error('Error fetching recent applicants:', err);
+    }
+  };
+
+  fetchRecentApplicants();
+}, []);
 
   // Table configuration
   const tableColumns = [
@@ -472,7 +493,6 @@ useEffect(() => {
             onDateSelect={setSelectedDate}
             interviewDates={[10, 17, 25]}
           />
-
           {/* Candidate Interview Details */}
           {/* Candidate Interview Details */}
           <div className="">
@@ -576,75 +596,7 @@ useEffect(() => {
                 </div>
               )}
             </div>
-          </div>
-
-          {/* <div className="">
-            <div className="px-5 py-2 ">
-              <h3 className="text-lg font-bold text-[var(--color-primary)]">Candidate Interview Details</h3>
-            </div>
-            <div className="flex flex-col h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-white-300 scrollbar-track-white-100">
-            <div className="p-2 md:p-4 border border-[var(--color-primary)3C] m-4 rounded-lg ">
-              {interviewDetailsData[selectedDate] ? (
-                <div className="space-y-4 ">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Name:</span>
-                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].name}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Job Title:</span>
-                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].jobTitle}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Mode of Interview:</span>
-                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].mode}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Time:</span>
-                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].time}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="text-gray-400 mb-3">
-                    <FaCalendarAlt className="text-4xl mx-auto" />
-              </div>
-                  <p className="text-gray-500 text-sm font-medium">No interview scheduled for August {selectedDate}</p>
-                  <p className="text-gray-400 text-xs mt-2">Click on a date with a blue indicator to view interview details</p>
-              </div>
-              )}
-            </div>
-            <div className="p-2 md:p-4 border border-[var(--color-primary)3C] m-4 rounded-lg ">
-              {interviewDetailsData[selectedDate] ? (
-                <div className="space-y-4 ">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Name:</span>
-                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].name}</span>
-          </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Job Title:</span>
-                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].jobTitle}</span>
-      </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Mode of Interview:</span>
-                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].mode}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-600">Time:</span>
-                    <span className="text-sm font-semibold text-gray-900">{interviewDetailsData[selectedDate].time}</span>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="text-gray-400 mb-3">
-                    <FaCalendarAlt className="text-4xl mx-auto" />
-                  </div>
-                  <p className="text-gray-500 text-sm font-medium">No interview scheduled for August {selectedDate}</p>
-                  <p className="text-gray-400 text-xs mt-2">Click on a date with a blue indicator to view interview details</p>
-                </div>
-              )}
-            </div>
-            </div>
-          </div> */}
+          </div>{" "}
         </div>
 
         {/* Right Column - Trades Chart */}
@@ -707,13 +659,14 @@ useEffect(() => {
 
       {/* Recent Applicants Table */}
       <DataTable
-        title="Recent Applicants"
-        columns={tableColumns}
-        data={recentApplicants}
-        actions={tableActions}
-        onViewDetails={handleViewDetails}
-        onDownloadCV={handleDownloadCV}
-      />
+  title="Recent Applicants"
+  columns={tableColumns}
+  data={recentApplicants}
+  actions={tableActions}
+  onViewDetails={(row) => handleViewDetails(row)}
+  onDownloadCV={handleDownloadCV}
+/>
+
       {/* </div> */}
 
       {/* Applicant Details Modal */}

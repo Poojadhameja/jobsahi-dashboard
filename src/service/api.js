@@ -57,7 +57,11 @@ export const getMethod = async (data) => {
  */
 export const postMethod = async (data) => {
   try {
-    const headers = getHeaders(!data.apiUrl.includes('signup') && !data.apiUrl.includes('create_user'));
+    // const headers = getHeaders(!data.apiUrl.includes('signup') && !data.apiUrl.includes('create_user'));
+    const headers = getHeaders(
+  data?.apiUrl && !data.apiUrl.includes('signup') && !data.apiUrl.includes('create_user')
+);
+
 
     console.log('🌐 POST Request:', {
       url: backendHost + data.apiUrl,
