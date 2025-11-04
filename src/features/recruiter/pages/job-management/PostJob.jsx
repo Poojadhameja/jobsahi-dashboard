@@ -17,7 +17,6 @@ const PostJob = ({ onJobSubmit }) => {
     requiredSkills: "",
     experience: "",
     uploadedFiles: [],
-    country: "",
     city: "",
     state: "",
     fullAddress: "",
@@ -32,13 +31,15 @@ const PostJob = ({ onJobSubmit }) => {
 
   const [errors, setErrors] = useState({});
   const [showWarning, setShowWarning] = useState(false);
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // Special handling for phone number - only allow numbers and limit to 10 digits
+    // ✅ Phone number: only allow digits (max 10)
     if (name === "phone") {
-      const numericValue = value.replace(/\D/g, ""); // Remove all non-numeric characters
+      const numericValue = value.replace(/\D/g, "");
       if (numericValue.length <= 10) {
         setFormData((prev) => ({
           ...prev,
@@ -79,7 +80,7 @@ const PostJob = ({ onJobSubmit }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Required fields validation
+    // ✅ Required fields validation
     if (!formData.jobTitle.trim()) newErrors.jobTitle = "Job title is required";
     if (!formData.jobSector) newErrors.jobSector = "Job sector is required";
     if (!formData.jobDescription.trim())
@@ -92,7 +93,6 @@ const PostJob = ({ onJobSubmit }) => {
     if (!formData.jobType) newErrors.jobType = "Job type is required";
     if (formData.uploadedFiles.length === 0)
       newErrors.uploadedFiles = "At least one file is required";
-    if (!formData.country) newErrors.country = "Country is required";
     if (!formData.city) newErrors.city = "City is required";
     if (!formData.state) newErrors.state = "State is required";
     if (!formData.fullAddress.trim())
@@ -104,12 +104,12 @@ const PostJob = ({ onJobSubmit }) => {
     if (!formData.closingDate)
       newErrors.closingDate = "Closing date is required";
 
-    // Phone number validation
+    // ✅ Phone validation
     if (formData.phone && formData.phone.length !== 10) {
       newErrors.phone = "Phone number must be exactly 10 digits";
     }
 
-    // Date validation
+    // ✅ Date validation
     if (formData.openingDate && formData.closingDate) {
       const openingDate = new Date(formData.openingDate);
       const closingDate = new Date(formData.closingDate);
@@ -118,7 +118,7 @@ const PostJob = ({ onJobSubmit }) => {
       }
     }
 
-    // Salary validation
+    // ✅ Salary validation
     if (formData.minSalary && formData.maxSalary) {
       const minSalary = parseFloat(formData.minSalary);
       const maxSalary = parseFloat(formData.maxSalary);
@@ -131,6 +131,7 @@ const PostJob = ({ onJobSubmit }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -140,11 +141,12 @@ const PostJob = ({ onJobSubmit }) => {
       return;
     }
 
+    // ✅ Payload creation
     const payload = {
       title: formData.jobTitle,
       description: formData.jobDescription.replace(/<[^>]+>/g, "").trim(),
       category_name: formData.jobSector,
-      location: `${formData.city}, ${formData.state}, ${formData.country}`,
+      location: `${formData.fullAddress}, ${formData.city}, ${formData.state}`,
       skills_required: formData.requiredSkills,
       salary_min: parseInt(formData.minSalary),
       salary_max: parseInt(formData.maxSalary),
@@ -167,15 +169,13 @@ const PostJob = ({ onJobSubmit }) => {
       console.log("📦 service.createJob value =>", service.createJob);
 
       if (response.status === true || response.success === true) {
-        // toast?.success("✅ Job created successfully!");
-        console.log("Job Created:", response.data || response);
+        console.log("✅ Job Created:", response.data || response);
 
-        // 🔔 Notify parent if onJobSubmit prop exists
         if (onJobSubmit) {
           onJobSubmit(response.data || formData);
         }
 
-        // Reset form
+        // ✅ Reset form
         setFormData({
           jobTitle: "",
           jobSector: "",
@@ -187,7 +187,6 @@ const PostJob = ({ onJobSubmit }) => {
           requiredSkills: "",
           experience: "",
           uploadedFiles: [],
-          country: "",
           city: "",
           state: "",
           fullAddress: "",
@@ -201,12 +200,10 @@ const PostJob = ({ onJobSubmit }) => {
         });
         setErrors({});
       } else {
-        // toast?.error(response.message || "❌ Failed to create job");
         console.error("API Error:", response);
       }
     } catch (err) {
-      // toast?.error("❌ Network error while creating job");
-      console.error("Network error:", err);
+      console.error("❌ Network error:", err);
     }
   };
 
@@ -218,7 +215,15 @@ const PostJob = ({ onJobSubmit }) => {
     console.log("Save as draft:", formData);
   };
 
-  return (
+  const handleAddCategory = () => {
+    console.log("New category:", newCategory);
+    setShowAddCategoryModal(false);
+    setNewCategory("");
+  };
+
+  const handleCancelAddCategory = () => setShowAddCategoryModal(false);
+
+    return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] p-2">
       {/* Warning Message */}
       {showWarning && (
@@ -540,30 +545,24 @@ const PostJob = ({ onJobSubmit }) => {
           </h2>
 
           <div className="space-y-8">
-            {/* Country */}
+            {/* Full Address */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-1">
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  COUNTRY<span className="text-red-500">*</span>
+                  FULL ADDRESS<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">
-                  Select job location country
-                </p>
+                <p className="text-sm text-gray-500">Enter complete location</p>
               </div>
               <div className="lg:col-span-2">
-                <select
-                  name="country"
-                  value={formData.country}
+                <input
+                  type="text"
+                  name="fullAddress"
+                  value={formData.fullAddress}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
+                  placeholder="Enter complete address with street, area, landmark"
                   required
-                >
-                  <option value="">Select country</option>
-                  <option value="india">India</option>
-                  <option value="usa">United States</option>
-                  <option value="uk">United Kingdom</option>
-                  <option value="canada">Canada</option>
-                </select>
+                />
               </div>
             </div>
 
@@ -616,35 +615,15 @@ const PostJob = ({ onJobSubmit }) => {
                 </select>
               </div>
             </div>
-
-            {/* Full Address */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  FULL ADDRESS<span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-500">Enter complete location</p>
-              </div>
-              <div className="lg:col-span-2">
-                <input
-                  type="text"
-                  name="fullAddress"
-                  value={formData.fullAddress}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
-                  placeholder="Enter complete address with street, area, landmark"
-                  required
-                />
-              </div>
-            </div>
           </div>
         </div>
 
+        {/* Contact Info + Dates Section */}
         <div className="flex flex-col lg:flex-row gap-4">
-          {/* Contact Information Form */}
+          {/* Contact Info */}
           <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
             <h2 className="text-xl font-bold text-gray-900 mb-8">
-              Contact information
+              Contact Information
             </h2>
 
             <div className="space-y-8">
@@ -718,7 +697,7 @@ const PostJob = ({ onJobSubmit }) => {
             </div>
           </div>
 
-          {/* Dates and Status Form */}
+          {/* Dates and Status */}
           <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
             <h2 className="text-xl font-bold text-gray-900 mb-8">
               Dates and Status
@@ -749,7 +728,7 @@ const PostJob = ({ onJobSubmit }) => {
                 </div>
               </div>
 
-              {/* Number of Vacancies */}
+              {/* No. of Vacancies */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -827,61 +806,64 @@ const PostJob = ({ onJobSubmit }) => {
           </div>
         </div>
       </form>
-      {/* ✅ Add Category Modal */}
-{showAddCategoryModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-      <div className="flex items-center justify-between p-6 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900">Add New Category</h3>
-        <button
-          onClick={handleCancelAddCategory}
-          className="text-gray-500 hover:text-[var(--color-secondary)] transition-colors"
-        >
-          ×
-        </button>
-      </div>
 
-      <div className="p-6">
-        <div className="mb-4">
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            CATEGORY NAME <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
-            placeholder="e.g. Automotive, Retail, Hospitality"
-            autoFocus
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Enter a unique category name for your job sector.
-          </p>
+      {/* Add Category Modal */}
+      {showAddCategoryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Add New Category
+              </h3>
+              <button
+                onClick={handleCancelAddCategory}
+                className="text-gray-500 hover:text-[var(--color-secondary)] transition-colors"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-4">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  CATEGORY NAME <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]"
+                  placeholder="e.g. Automotive, Retail, Hospitality"
+                  autoFocus
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Enter a unique category name for your job sector.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={handleCancelAddCategory}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddCategory}
+                  className="px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors"
+                >
+                  Add Category
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={handleCancelAddCategory}
-            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleAddCategory}
-            className="px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors"
-          >
-            Add Category
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
+
 };
 
 export default PostJob;
