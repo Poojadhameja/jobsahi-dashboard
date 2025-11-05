@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { LuUpload, LuCalendar, LuX } from "react-icons/lu";
+import { getMethod } from "../../../../service/api";
+import service from "../../services/serviceUrl";
+
 
 const EditCard = ({ isOpen, onClose, job, onSave }) => {
   const [formData, setFormData] = useState({
@@ -29,30 +32,48 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
 
   // Populate form data when job prop changes
   useEffect(() => {
-    if (job) {
-      setFormData({
-        jobTitle: job.title || "",
-        jobSector: job.jobSector || "",
-        jobDescription: job.description || "",
-        salaryType: job.salaryType || "",
-        minSalary: job.minSalary || "",
-        maxSalary: job.maxSalary || "",
-        jobType: job.jobType || "",
-        requiredSkills: job.requiredSkills || "",
-        experience: job.experience || "",
-        uploadedFiles: job.uploadedFiles || [],
-        city: job.city || "",
-        state: job.state || "",
-        fullAddress: job.fullAddress || "",
-        contactPerson: job.contactPerson || "",
-        phone: job.phone || "",
-        additionalContact: job.additionalContact || "",
-        vacancyStatus: job.status || "",
-        openingDate: job.openingDate || "",
-        closingDate: job.closingDate || "",
+  if (!isOpen || !job?.id) return; // call only when modal is open and id exists
+
+  (async () => {
+    try {
+      const res = await getMethod({
+        apiUrl: `${service.getJobs}?id=${job.id}`,
       });
+
+      if (res?.status && res?.data) {
+        const d = res.data;
+
+        setFormData({
+          jobTitle: d.title || "",
+          jobSector: d.job_sector || "",
+          jobDescription: d.description || "",
+          jobType: d.job_type || "",
+          requiredSkills: d.skills_required || "",
+          experience: d.experience_required || "",
+          minSalary: d.salary_min || "",
+          maxSalary: d.salary_max || "",
+          city: extractCity(d.location) || "",
+          state: extractState(d.location) || "",
+          fullAddress: extractAddress(d.location) || "",
+         contactPerson: d.person_name || "",
+          phone: d.phone || "",
+          additionalContact: d.additional_contact || "",
+          vacancyStatus: d.status || "",
+          openingDate: d.created_at?.split(" ")[0] || "",
+          closingDate: d.application_deadline?.split(" ")[0] || "",
+          uploadedFiles: Array.isArray(d.uploadedFiles) ? d.uploadedFiles : [],
+
+        });
+      } else {
+        console.warn("Job not found or failed:", res);
+      }
+    } catch (err) {
+      console.error("Error fetching job details:", err);
     }
-  }, [job]);
+  })();
+}, [isOpen, job]);
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -145,6 +166,24 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
   };
 
   if (!isOpen) return null;
+  function extractCity(location) {
+  if (!location) return "";
+  const parts = location.split(",").map(p => p.trim());
+  return parts[0] || "";
+}
+
+function extractState(location) {
+  if (!location) return "";
+  const parts = location.split(",").map(p => p.trim());
+  return parts[1] || "";
+}
+
+function extractAddress(location) {
+  if (!location) return "";
+  const parts = location.split(",").map(p => p.trim());
+  return parts.slice(0, -2).join(", ") || parts[0];
+}
+
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -447,7 +486,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                       </label>
 
                       {/* Display uploaded files */}
-                      {formData.uploadedFiles.length > 0 && (
+                     {formData.uploadedFiles?.length > 0 && (
                         <div className="space-y-2">
                           {formData.uploadedFiles.map((file, index) => (
                             <div
