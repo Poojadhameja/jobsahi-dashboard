@@ -6,7 +6,7 @@ const service = {
     recruiterProfile: '/employer/profile.php',
     recruiterReports: '/employer/recruiter_reports.php',
     fetchEmployerJobs: '/employer/fetch_employer_jobs.php',
-    getRecentApplications: '/employer/get_recent_applications.php',
+    getRecentApplications: '/employer/get_recent_applicants.php',
 
     //job management
     createJob: '/jobs/create_job.php',

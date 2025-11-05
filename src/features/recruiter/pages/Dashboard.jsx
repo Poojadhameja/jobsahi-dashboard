@@ -40,26 +40,11 @@ const Dashboard = () => {
     interview_job: 0,
     interview_completed: 0,
   });
-  // useEffect(() => {
-  //   let isMounted = true;
-
-  //   const fetchData = async () => {
-  //     if (isMounted) {
-  //       console.log("🔄 Dashboard component mounted, fetching data...");
-  //       await fetchDashboardData();
-  //     }
-  //   };
-
-  //   fetchData();
-
-  //   return () => {
-  //     isMounted = false;
-  //   };
-  // }, []);
   useEffect(() => {
     const fetchData = async () => {
       await fetchDashboardData();
       await fetchInterviewDetails(); // ✅ make sure this is included
+      await fetchRecentApplicants();
     };
     fetchData();
   }, []);
@@ -117,6 +102,28 @@ const Dashboard = () => {
       });
     }
   };
+
+  const fetchRecentApplicants = async () => {
+  try {
+    const res = await getMethod({ apiUrl: service.getRecentApplications });
+    if (res?.status && Array.isArray(res.recent_applicants)) {
+      // ✅ Match table keys for DataTable component
+      const formatted = res.recent_applicants.map((r, i) => ({
+        id: i + 1,
+        name: r.candidate_name || "-",
+        jobTitle: r.job_title || "-",
+        datePosted: r.applied_date || "-",
+        status: r.status || "-",
+      }));
+      setRecentApplicants(formatted);
+    } else {
+      setRecentApplicants([]);
+    }
+  } catch (err) {
+    console.error("Recent applicants fetch error:", err);
+    setRecentApplicants([]);
+  }
+};
 
   const metricCardsData = [
     {
