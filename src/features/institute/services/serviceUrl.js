@@ -26,6 +26,8 @@ const apiService = {
 //   getInstructors: '/faculty/get_faculty_users.php'
 
 getFaculty: '/faculty/get_faculty_users.php',
+getCourseCategories: '/courses/get_course_category.php',
+
 
 courseByBatch: '/institute/course_by_batch.php',
 

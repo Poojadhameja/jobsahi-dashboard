@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LuArrowLeft, LuPlus, LuUpload, LuX } from 'react-icons/lu'
 import Button, { PrimaryButton, OutlineButton, IconButton } from '../../../../shared/components/Button.jsx'
@@ -6,12 +6,30 @@ import DynamicButton from '../../../../shared/components/DynamicButton.jsx'
 import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
 import { useCourseContext } from '../../context/CourseContext'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-
-
-import { postMethod } from '../../../../service/api'
+import { getMethod, postMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl.js'
 
+
 export default function CreateCourse() {
+  
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getMethod({ apiUrl: apiService.getCourseCategories })
+        if (res?.status && Array.isArray(res.categories)) {
+          // ✅ Backend se aayi categories set kar dena
+          setCategories(res.categories)
+        } else {
+          console.warn('⚠️ No categories found or invalid response:', res)
+        }
+      } catch (error) {
+        console.error('❌ Error fetching categories:', error)
+      }
+    }
+  
+    fetchCategories()
+  }, [])
+  
   
   const navigate = useNavigate()
   const { addCourse } = useCourseContext()
@@ -318,12 +336,15 @@ const handleSave = async () => {
                 <select 
                   value={formData.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
-                  className={getInputClassName('category')}
+                  className={getInputClassName('category') }
                 >
                   <option value="">Select category</option>
-                  {categories.map((category, index) => (
-                    <option key={index} value={category}>{category}</option>
-                  ))}
+                  {categories.map(category => (
+  <option key={category.id} value={category.category_name}>
+    {category.category_name}
+  </option>
+))}
+
                 </select>
                 {validationErrors.category && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.category}</p>

@@ -1,209 +1,222 @@
-import React, { useState } from 'react'
-import { LuUpload, LuCalendar } from 'react-icons/lu'
-import RichTextEditor from '@shared/components/RichTextEditor'
+import React, { useState } from "react";
+import { LuUpload, LuCalendar } from "react-icons/lu";
+import RichTextEditor from "@shared/components/RichTextEditor";
+import { postMethod } from "../../../../service/api";
+import service from "../../services/serviceUrl";
+// import { toast } from "react-toastify"; // optional toast
 
 const PostJob = ({ onJobSubmit }) => {
   const [formData, setFormData] = useState({
-    jobTitle: '',
-    jobSector: '',
-    jobDescription: '',
-    salaryType: '',
-    minSalary: '',
-    maxSalary: '',
-    jobType: '',
-    requiredSkills: '',
-    experience: '',
+    jobTitle: "",
+    jobSector: "",
+    jobDescription: "",
+    salaryType: "",
+    minSalary: "",
+    maxSalary: "",
+    jobType: "",
+    requiredSkills: "",
+    experience: "",
     uploadedFiles: [],
-    country: '',
-    city: '',
-    state: '',
-    fullAddress: '',
-    contactPerson: '',
-    phone: '',
-    additionalContact: '',
-    vacancyStatus: '',
-    openingDate: '',
-    closingDate: ''
-  })
-  
-  // job category
-  // ✅ Category management states (for Job Sector dynamic addition)
-const [categories, setCategories] = useState([
-  'Manufacturing', 'Technology', 'Healthcare', 'Finance', 'Education'
-])
-const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
-const [newCategory, setNewCategory] = useState('')
+    country: "",
+    city: "",
+    state: "",
+    fullAddress: "",
+    contactPerson: "",
+    phone: "",
+    additionalContact: "",
+    vacancyStatus: "",
+    no_of_vacancies: "",
+    openingDate: "",
+    closingDate: "",
+  });
 
-// ✅ Handlers for Add Category feature
-const handleAddCategoryClick = () => {
-  setShowAddCategoryModal(true)
-  setNewCategory('')
-}
-
-const handleAddCategory = () => {
-  if (newCategory.trim()) {
-    const categoryName = newCategory.trim()
-    // prevent duplicates
-    if (categories.includes(categoryName)) {
-      alert('This category already exists!')
-      return
-    }
-    setCategories(prev => [...prev, categoryName])
-    setFormData(prev => ({ ...prev, jobSector: categoryName }))
-    setShowAddCategoryModal(false)
-    setNewCategory('')
-    alert(`✅ Category "${categoryName}" added successfully!`)
-  } else {
-    alert('Please enter a category name.')
-  }
-}
-
-const handleCancelAddCategory = () => {
-  setShowAddCategoryModal(false)
-  setNewCategory('')
-}
-
-
-  const [errors, setErrors] = useState({})
-  const [showWarning, setShowWarning] = useState(false)
+  const [errors, setErrors] = useState({});
+  const [showWarning, setShowWarning] = useState(false);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    
+    const { name, value } = e.target;
+
     // Special handling for phone number - only allow numbers and limit to 10 digits
-    if (name === 'phone') {
-      const numericValue = value.replace(/\D/g, '') // Remove all non-numeric characters
+    if (name === "phone") {
+      const numericValue = value.replace(/\D/g, ""); // Remove all non-numeric characters
       if (numericValue.length <= 10) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          [name]: numericValue
-        }))
+          [name]: numericValue,
+        }));
       }
-      return
+      return;
     }
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }))
-  }
+      [name]: value,
+    }));
+  };
 
   const handleRichTextChange = (value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      jobDescription: value
-    }))
-  }
+      jobDescription: value,
+    }));
+  };
 
   const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files)
-    setFormData(prev => ({
+    const files = Array.from(e.target.files);
+    setFormData((prev) => ({
       ...prev,
-      uploadedFiles: [...prev.uploadedFiles, ...files]
-    }))
-  }
+      uploadedFiles: [...prev.uploadedFiles, ...files],
+    }));
+  };
 
   const removeFile = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      uploadedFiles: prev.uploadedFiles.filter((_, i) => i !== index)
-    }))
-  }
+      uploadedFiles: prev.uploadedFiles.filter((_, i) => i !== index),
+    }));
+  };
 
   const validateForm = () => {
-    const newErrors = {}
-    
+    const newErrors = {};
+
     // Required fields validation
-    if (!formData.jobTitle.trim()) newErrors.jobTitle = 'Job title is required'
-    if (!formData.jobSector) newErrors.jobSector = 'Job sector is required'
-    if (!formData.jobDescription.trim()) newErrors.jobDescription = 'Job description is required'
-    if (!formData.salaryType) newErrors.salaryType = 'Salary type is required'
-    if (!formData.minSalary.trim()) newErrors.minSalary = 'Minimum salary is required'
-    if (!formData.maxSalary.trim()) newErrors.maxSalary = 'Maximum salary is required'
-    if (!formData.jobType) newErrors.jobType = 'Job type is required'
-    if (formData.uploadedFiles.length === 0) newErrors.uploadedFiles = 'At least one file is required'
-    if (!formData.country) newErrors.country = 'Country is required'
-    if (!formData.city) newErrors.city = 'City is required'
-    if (!formData.state) newErrors.state = 'State is required'
-    if (!formData.fullAddress.trim()) newErrors.fullAddress = 'Full address is required'
-    if (!formData.vacancyStatus) newErrors.vacancyStatus = 'Vacancy status is required'
-    if (!formData.openingDate) newErrors.openingDate = 'Opening date is required'
-    if (!formData.closingDate) newErrors.closingDate = 'Closing date is required'
-    
+    if (!formData.jobTitle.trim()) newErrors.jobTitle = "Job title is required";
+    if (!formData.jobSector) newErrors.jobSector = "Job sector is required";
+    if (!formData.jobDescription.trim())
+      newErrors.jobDescription = "Job description is required";
+    if (!formData.salaryType) newErrors.salaryType = "Salary type is required";
+    if (!formData.minSalary.trim())
+      newErrors.minSalary = "Minimum salary is required";
+    if (!formData.maxSalary.trim())
+      newErrors.maxSalary = "Maximum salary is required";
+    if (!formData.jobType) newErrors.jobType = "Job type is required";
+    if (formData.uploadedFiles.length === 0)
+      newErrors.uploadedFiles = "At least one file is required";
+    if (!formData.country) newErrors.country = "Country is required";
+    if (!formData.city) newErrors.city = "City is required";
+    if (!formData.state) newErrors.state = "State is required";
+    if (!formData.fullAddress.trim())
+      newErrors.fullAddress = "Full address is required";
+    if (!formData.vacancyStatus)
+      newErrors.vacancyStatus = "Vacancy status is required";
+    if (!formData.openingDate)
+      newErrors.openingDate = "Opening date is required";
+    if (!formData.closingDate)
+      newErrors.closingDate = "Closing date is required";
+
     // Phone number validation
     if (formData.phone && formData.phone.length !== 10) {
-      newErrors.phone = 'Phone number must be exactly 10 digits'
+      newErrors.phone = "Phone number must be exactly 10 digits";
     }
-    
+
     // Date validation
     if (formData.openingDate && formData.closingDate) {
-      const openingDate = new Date(formData.openingDate)
-      const closingDate = new Date(formData.closingDate)
+      const openingDate = new Date(formData.openingDate);
+      const closingDate = new Date(formData.closingDate);
       if (openingDate >= closingDate) {
-        newErrors.closingDate = 'Closing date must be after opening date'
+        newErrors.closingDate = "Closing date must be after opening date";
       }
     }
-    
+
     // Salary validation
     if (formData.minSalary && formData.maxSalary) {
-      const minSalary = parseFloat(formData.minSalary)
-      const maxSalary = parseFloat(formData.maxSalary)
+      const minSalary = parseFloat(formData.minSalary);
+      const maxSalary = parseFloat(formData.maxSalary);
       if (minSalary >= maxSalary) {
-        newErrors.maxSalary = 'Maximum salary must be greater than minimum salary'
+        newErrors.maxSalary =
+          "Maximum salary must be greater than minimum salary";
       }
     }
-    
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     if (!validateForm()) {
-      setShowWarning(true)
-      setTimeout(() => setShowWarning(false), 5000) // Hide warning after 5 seconds
-      return
+      setShowWarning(true);
+      setTimeout(() => setShowWarning(false), 5000);
+      return;
     }
-    
-    if (onJobSubmit) {
-      onJobSubmit(formData)
+
+    const payload = {
+      title: formData.jobTitle,
+      description: formData.jobDescription.replace(/<[^>]+>/g, "").trim(),
+      category_name: formData.jobSector,
+      location: `${formData.city}, ${formData.state}, ${formData.country}`,
+      skills_required: formData.requiredSkills,
+      salary_min: parseInt(formData.minSalary),
+      salary_max: parseInt(formData.maxSalary),
+      job_type: formData.jobType,
+      experience_required: formData.experience,
+      application_deadline: formData.closingDate,
+      person_name: formData.contactPerson,
+      phone: formData.phone,
+      additional_contact: formData.additionalContact,
+      is_remote: 0,
+      no_of_vacancies: parseInt(formData.no_of_vacancies || 1),
+      vacancyStatus: formData.vacancyStatus.toLowerCase(),
+    };
+
+    try {
+      const response = await postMethod({
+        apiUrl: service.createJob,
+        payload,
+      });
+      console.log("📦 service.createJob value =>", service.createJob);
+
+      if (response.status === true || response.success === true) {
+        // toast?.success("✅ Job created successfully!");
+        console.log("Job Created:", response.data || response);
+
+        // 🔔 Notify parent if onJobSubmit prop exists
+        if (onJobSubmit) {
+          onJobSubmit(response.data || formData);
+        }
+
+        // Reset form
+        setFormData({
+          jobTitle: "",
+          jobSector: "",
+          jobDescription: "",
+          salaryType: "",
+          minSalary: "",
+          maxSalary: "",
+          jobType: "",
+          requiredSkills: "",
+          experience: "",
+          uploadedFiles: [],
+          country: "",
+          city: "",
+          state: "",
+          fullAddress: "",
+          contactPerson: "",
+          phone: "",
+          additionalContact: "",
+          vacancyStatus: "",
+          no_of_vacancies: "",
+          openingDate: "",
+          closingDate: "",
+        });
+        setErrors({});
+      } else {
+        // toast?.error(response.message || "❌ Failed to create job");
+        console.error("API Error:", response);
+      }
+    } catch (err) {
+      // toast?.error("❌ Network error while creating job");
+      console.error("Network error:", err);
     }
-    console.log('Job created successfully:', formData)
-    
-    // Reset form after successful submission
-    setFormData({
-      jobTitle: '',
-      jobSector: '',
-      jobDescription: '',
-      salaryType: '',
-      minSalary: '',
-      maxSalary: '',
-      jobType: '',
-      requiredSkills: '',
-      experience: '',
-      uploadedFiles: [],
-      country: '',
-      city: '',
-      state: '',
-      fullAddress: '',
-      contactPerson: '',
-      phone: '',
-      additionalContact: '',
-      vacancyStatus: '',
-      openingDate: '',
-      closingDate: ''
-    })
-    setErrors({})
-  }
+  };
 
   const handleCancel = () => {
-    console.log('Form cancelled')
-  }
+    console.log("Form cancelled");
+  };
 
   const handleDraft = () => {
-    console.log('Save as draft:', formData)
-  }
+    console.log("Save as draft:", formData);
+  };
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] p-2">
@@ -211,9 +224,15 @@ const handleCancelAddCategory = () => {
       {showWarning && (
         <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg flex items-center">
           <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <path
+              fillRule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clipRule="evenodd"
+            />
           </svg>
-          <span className="font-medium">Please fill in all required fields before saving!</span>
+          <span className="font-medium">
+            Please fill in all required fields before saving!
+          </span>
         </div>
       )}
 
@@ -222,7 +241,7 @@ const handleCancelAddCategory = () => {
         <h1 className="text-3xl font-semibold text-[var(--color-primary)]">
           Create Job Posts
         </h1>
-        
+
         {/* Action Buttons */}
         <div className="flex space-x-2">
           <button
@@ -249,8 +268,10 @@ const handleCancelAddCategory = () => {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Information Form */}
         <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-          <h2 className="text-xl font-bold text-gray-900 mb-8">Basic Information</h2>
-          
+          <h2 className="text-xl font-bold text-gray-900 mb-8">
+            Basic Information
+          </h2>
+
           <div className="space-y-8">
             {/* Job Title */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -267,7 +288,7 @@ const handleCancelAddCategory = () => {
                   value={formData.jobTitle}
                   onChange={handleInputChange}
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
-                    errors.jobTitle ? 'border-red-500' : 'border-gray-300'
+                    errors.jobTitle ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter job title"
                   required
@@ -279,42 +300,37 @@ const handleCancelAddCategory = () => {
             </div>
 
             {/* Job Sector */}
-            {/* Job Sector */}
-<div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
-  <div className="lg:col-span-1">
-    <label className="block text-sm font-semibold text-gray-900 mb-2">
-      JOB SECTOR<span className="text-red-500">*</span>
-    </label>
-    <p className="text-sm text-gray-500">Choose category</p>
-  </div>
-  <div className="lg:col-span-2 flex gap-3">
-    <select
-      name="jobSector"
-      value={formData.jobSector}
-      onChange={handleInputChange}
-      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
-        errors.jobSector ? 'border-red-500' : 'border-gray-300'
-      }`}
-      required
-    >
-      <option value="">Choose Category</option>
-      {categories.map((category, index) => (
-        <option key={index} value={category.toLowerCase()}>
-          {category}
-        </option>
-      ))}
-    </select>
-
-    <button
-      type="button"
-      onClick={handleAddCategoryClick}
-      className="bg-[var(--color-secondary)] text-white font-semibold px-4 py-2 rounded-md hover:bg-[var(--color-secondary-dark)] transition-colors"
-    >
-      + Add Category
-    </button>
-  </div>
-</div>
-
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-1">
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  JOB SECTOR<span className="text-red-500">*</span>
+                </label>
+                <p className="text-sm text-gray-500">Choose category</p>
+              </div>
+              <div className="lg:col-span-2">
+                <select
+                  name="jobSector"
+                  value={formData.jobSector}
+                  onChange={handleInputChange}
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
+                    errors.jobSector ? "border-red-500" : "border-gray-300"
+                  }`}
+                  required
+                >
+                  <option value="">Choose Category</option>
+                  <option value="manufacturing">Manufacturing</option>
+                  <option value="technology">Technology</option>
+                  <option value="healthcare">Healthcare</option>
+                  <option value="finance">Finance</option>
+                  <option value="education">Education</option>
+                </select>
+                {errors.jobSector && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.jobSector}
+                  </p>
+                )}
+              </div>
+            </div>
 
             {/* Job Description */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -322,7 +338,10 @@ const handleCancelAddCategory = () => {
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   JOB DESCRIPTION<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">For effective candidate selection, enhance the job description with</p>
+                <p className="text-sm text-gray-500">
+                  For effective candidate selection, enhance the job description
+                  with
+                </p>
               </div>
               <div className="lg:col-span-2">
                 <RichTextEditor
@@ -401,8 +420,8 @@ const handleCancelAddCategory = () => {
                   required
                 >
                   <option value="">Choose job type</option>
-                  <option value="full-time">Full-time</option>
-                  <option value="part-time">Part-time</option>
+                  <option value="full_time">Full-time</option>
+                  <option value="part_time">Part-time</option>
                   <option value="contract">Contract</option>
                   <option value="internship">Internship</option>
                 </select>
@@ -435,7 +454,9 @@ const handleCancelAddCategory = () => {
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   EXPERIENCE
                 </label>
-                <p className="text-sm text-gray-500">Choose required experience</p>
+                <p className="text-sm text-gray-500">
+                  Choose required experience
+                </p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -455,14 +476,21 @@ const handleCancelAddCategory = () => {
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   FILE ATTACHMENT<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Upload related documents.</p>
+                <p className="text-sm text-gray-500">
+                  Upload related documents.
+                </p>
               </div>
               <div className="">
                 <div className="space-y-4 ">
                   <label className="flex items-center justify-center border-2 border-dashed border-[var(--color-secondary)] rounded-lg cursor-pointer bg-secondary-10 hover:bg-secondary-10 transition-colors">
                     <div className="py-2 flex flex-col items-center">
-                      <LuUpload className="text-[var(--color-secondary)] mb-2" size={24} />
-                      <span className="text-[var(--color-secondary)] font-medium">↑ Upload Files</span>
+                      <LuUpload
+                        className="text-[var(--color-secondary)] mb-2"
+                        size={24}
+                      />
+                      <span className="text-[var(--color-secondary)] font-medium">
+                        ↑ Upload Files
+                      </span>
                     </div>
                     <input
                       type="file"
@@ -471,13 +499,18 @@ const handleCancelAddCategory = () => {
                       className="hidden"
                     />
                   </label>
-                  
+
                   {/* Display uploaded files */}
                   {formData.uploadedFiles.length > 0 && (
                     <div className="space-y-2">
                       {formData.uploadedFiles.map((file, index) => (
-                        <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                          <span className="text-sm text-gray-700">{file.name}</span>
+                        <div
+                          key={index}
+                          className="flex items-center justify-between bg-gray-50 p-2 rounded"
+                        >
+                          <span className="text-sm text-gray-700">
+                            {file.name}
+                          </span>
                           <button
                             type="button"
                             onClick={() => removeFile(index)}
@@ -490,7 +523,9 @@ const handleCancelAddCategory = () => {
                     </div>
                   )}
                   {errors.uploadedFiles && (
-                    <p className="text-red-500 text-sm mt-1">{errors.uploadedFiles}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.uploadedFiles}
+                    </p>
                   )}
                 </div>
               </div>
@@ -500,8 +535,10 @@ const handleCancelAddCategory = () => {
 
         {/* Address / Location Form */}
         <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-          <h2 className="text-xl font-bold text-gray-900 mb-8">Address / Location</h2>
-          
+          <h2 className="text-xl font-bold text-gray-900 mb-8">
+            Address / Location
+          </h2>
+
           <div className="space-y-8">
             {/* Country */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -509,7 +546,9 @@ const handleCancelAddCategory = () => {
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
                   COUNTRY<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Select job location country</p>
+                <p className="text-sm text-gray-500">
+                  Select job location country
+                </p>
               </div>
               <div className="lg:col-span-2">
                 <select
@@ -601,157 +640,192 @@ const handleCancelAddCategory = () => {
           </div>
         </div>
 
-       <div className="flex flex-col lg:flex-row gap-4">
-         {/* Contact Information Form */}
-         <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
-          <h2 className="text-xl font-bold text-gray-900 mb-8">Contact information</h2>
-          
-          <div className="space-y-8">
-            {/* Person */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  PERSON
-                </label>
-                <p className="text-sm text-gray-500">Enter contact person's name</p>
-              </div>
-              <div className="lg:col-span-2">
-                <input
-                  type="text"
-                  name="contactPerson"
-                  value={formData.contactPerson}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
-                  placeholder="Enter contact person's full name"
-                />
-              </div>
-            </div>
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Contact Information Form */}
+          <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
+            <h2 className="text-xl font-bold text-gray-900 mb-8">
+              Contact information
+            </h2>
 
-            {/* Phone */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  PHONE
-                </label>
-                <p className="text-sm text-gray-500">Add contact number</p>
-              </div>
-              <div className="lg:col-span-2">
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
-                    errors.phone ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter 10-digit mobile number"
-                  maxLength={10}
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Additional Contact */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  ADDITIONAL CONTACT
-                </label>
-                <p className="text-sm text-gray-500">Add alternate contact</p>
-              </div>
-              <div className="lg:col-span-2">
-                <input
-                  type="email"
-                  name="additionalContact"
-                  value={formData.additionalContact}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
-                  placeholder="Enter email address"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Dates and Status Form */}
-        <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
-          <h2 className="text-xl font-bold text-gray-900 mb-8">Dates and Status</h2>
-          
-          <div className="space-y-8">
-            {/* Vacancy Status */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  VACANCY STATUS<span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-500">Select hiring status</p>
-              </div>
-              <div className="lg:col-span-2">
-                <select
-                  name="vacancyStatus"
-                  value={formData.vacancyStatus}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
-                  required
-                >
-                  <option value="">Select hiring status</option>
-                  <option value="Open">Open</option>
-                  <option value="Closed">Closed</option>
-                  <option value="Draft">Draft</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Opening Date */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  OPENING<span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-500">Choose job post start</p>
-              </div>
-              <div className="lg:col-span-2">
-                <div className="relative">
+            <div className="space-y-8">
+              {/* Person */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    PERSON
+                  </label>
+                  <p className="text-sm text-gray-500">
+                    Enter contact person's name
+                  </p>
+                </div>
+                <div className="lg:col-span-2">
                   <input
-                    type="date"
-                    name="openingDate"
-                    value={formData.openingDate}
+                    type="text"
+                    name="contactPerson"
+                    value={formData.contactPerson}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none pr-10"
-                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
+                    placeholder="Enter contact person's full name"
                   />
-                  <LuCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
                 </div>
               </div>
-            </div>
 
-            {/* Closing Date */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  CLOSING<span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-500">Choose job post end</p>
-              </div>
-              <div className="lg:col-span-2">
-                <div className="relative">
+              {/* Phone */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    PHONE
+                  </label>
+                  <p className="text-sm text-gray-500">Add contact number</p>
+                </div>
+                <div className="lg:col-span-2">
                   <input
-                    type="date"
-                    name="closingDate"
-                    value={formData.closingDate}
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none pr-10"
-                    required
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
+                      errors.phone ? "border-red-500" : "border-gray-300"
+                    }`}
+                    placeholder="Enter 10-digit mobile number"
+                    maxLength={10}
                   />
-                  <LuCalendar className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+                  {errors.phone && (
+                    <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Additional Contact */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    ADDITIONAL CONTACT
+                  </label>
+                  <p className="text-sm text-gray-500">Add alternate contact</p>
+                </div>
+                <div className="lg:col-span-2">
+                  <input
+                    type="email"
+                    name="additionalContact"
+                    value={formData.additionalContact}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
+                    placeholder="Enter email address"
+                  />
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Dates and Status Form */}
+          <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
+            <h2 className="text-xl font-bold text-gray-900 mb-8">
+              Dates and Status
+            </h2>
+
+            <div className="space-y-8">
+              {/* Vacancy Status */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    VACANCY STATUS<span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-sm text-gray-500">Select hiring status</p>
+                </div>
+                <div className="lg:col-span-2">
+                  <select
+                    name="vacancyStatus"
+                    value={formData.vacancyStatus}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
+                    required
+                  >
+                    <option value="">Select hiring status</option>
+                    <option value="Open">Open</option>
+                    <option value="Closed">Closed</option>
+                    <option value="Draft">Draft</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Number of Vacancies */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    NUMBER OF VACANCIES<span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-sm text-gray-500">
+                    Enter total openings for this job
+                  </p>
+                </div>
+                <div className="lg:col-span-2">
+                  <input
+                    type="number"
+                    name="no_of_vacancies"
+                    value={formData.no_of_vacancies || ""}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
+                    placeholder="e.g., 2"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Opening Date */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    OPENING<span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-sm text-gray-500">Choose job post start</p>
+                </div>
+                <div className="lg:col-span-2">
+                  <div className="relative">
+                    <input
+                      type="date"
+                      name="openingDate"
+                      value={formData.openingDate}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none pr-10"
+                      required
+                    />
+                    <LuCalendar
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                      size={20}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Closing Date */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1">
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    CLOSING<span className="text-red-500">*</span>
+                  </label>
+                  <p className="text-sm text-gray-500">Choose job post end</p>
+                </div>
+                <div className="lg:col-span-2">
+                  <div className="relative">
+                    <input
+                      type="date"
+                      name="closingDate"
+                      value={formData.closingDate}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none pr-10"
+                      required
+                    />
+                    <LuCalendar
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                      size={20}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-       </div>
       </form>
       {/* ✅ Add Category Modal */}
 {showAddCategoryModal && (
@@ -807,7 +881,7 @@ const handleCancelAddCategory = () => {
 )}
 
     </div>
-  )
-}
+  );
+};
 
-export default PostJob
+export default PostJob;
