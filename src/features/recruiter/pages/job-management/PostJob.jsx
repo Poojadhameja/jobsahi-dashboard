@@ -475,66 +475,7 @@ const PostJob = ({ onJobSubmit }) => {
               </div>
             </div>
 
-            {/* File Attachment */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  FILE ATTACHMENT<span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-500">
-                  Upload related documents.
-                </p>
-              </div>
-              <div className="">
-                <div className="space-y-4 ">
-                  <label className="flex items-center justify-center border-2 border-dashed border-[var(--color-secondary)] rounded-lg cursor-pointer bg-secondary-10 hover:bg-secondary-10 transition-colors">
-                    <div className="py-2 flex flex-col items-center">
-                      <LuUpload
-                        className="text-[var(--color-secondary)] mb-2"
-                        size={24}
-                      />
-                      <span className="text-[var(--color-secondary)] font-medium">
-                        ↑ Upload Files
-                      </span>
-                    </div>
-                    <input
-                      type="file"
-                      multiple
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-
-                  {/* Display uploaded files */}
-                  {formData.uploadedFiles.length > 0 && (
-                    <div className="space-y-2">
-                      {formData.uploadedFiles.map((file, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between bg-gray-50 p-2 rounded"
-                        >
-                          <span className="text-sm text-gray-700">
-                            {file.name}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removeFile(index)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {errors.uploadedFiles && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.uploadedFiles}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
+        
           </div>
         </div>
 
