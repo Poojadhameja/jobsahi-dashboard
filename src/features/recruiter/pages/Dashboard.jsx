@@ -318,9 +318,15 @@ const fetchWeeklyApplicants = async () => {
 // 4️⃣ FETCH RECENT APPLICANTS (with cache)
 const fetchRecentApplicants = async () => {
   const cached = localStorage.getItem("recent_applicants");
+  const cachedFull = localStorage.getItem("recent_applicants_full");
   const cachedTime = localStorage.getItem("recent_applicants_time");
 
-  if (cached && cachedTime && Date.now() - cachedTime < CACHE_DURATION) {
+  if (
+    cached &&
+    cachedFull &&
+    cachedTime &&
+    Date.now() - cachedTime < CACHE_DURATION
+  ) {
     setRecentApplicants(JSON.parse(cached));
     console.log("✅ Loaded recent applicants from cache");
     return;
@@ -328,17 +334,50 @@ const fetchRecentApplicants = async () => {
 
   try {
     const res = await getMethod({ apiUrl: service.getRecentApplications });
-    if (res?.status && Array.isArray(res.recent_applicants)) {
-      const formatted = res.recent_applicants.map((r, i) => ({
+
+    if (res?.status) {
+      // 🔹 1️⃣ Table data (simple version)
+      const formatted = (res.recent_applicants || []).map((r, i) => ({
         id: i + 1,
         name: r.candidate_name || "-",
         jobTitle: r.job_title || "-",
         datePosted: r.applied_date || "-",
+        status: r.status || "-",
       }));
+
+      // 🔹 2️⃣ Full details (modal version)
+      const detailed =
+        Array.isArray(res.all_applicants?.data) &&
+        res.all_applicants.data.map((a) => ({
+          id: a.application_id,
+          name: a.name,
+          email: a.email,
+          education: a.education,
+          applied_for: a.applied_for,
+          status: a.status,
+          verified: a.verified,
+          location: a.location,
+          job_type: a.job_type,
+          skills: Array.isArray(a.skills) ? a.skills : [],
+          experience: (() => {
+            try {
+              return JSON.parse(a.experience || "[]");
+            } catch {
+              return [];
+            }
+          })(),
+        }));
+
+      // 🔹 3️⃣ Update States
       setRecentApplicants(formatted);
+
+      // 🔹 4️⃣ Save to Cache
       localStorage.setItem("recent_applicants", JSON.stringify(formatted));
+      localStorage.setItem("recent_applicants_full", JSON.stringify(detailed));
       localStorage.setItem("recent_applicants_time", Date.now());
-      console.log("📡 Fetched recent applicants from API");
+      console.log("📡 Fetched recent applicants from API and cached");
+    } else {
+      setRecentApplicants([]);
     }
   } catch (error) {
     console.error("Error fetching recent applicants:", error);
@@ -353,10 +392,28 @@ const fetchRecentApplicants = async () => {
     { key: "datePosted", header: "Date of posted" },
   ];
 
-  const tableActions = [
-    { label: "Accept", variant: "success", onClick: (row) => console.log(row) },
-    { label: "Decline", variant: "danger", onClick: (row) => console.log(row) },
-  ];
+ const tableActions = [
+  {
+    label: "View",
+    variant: "info",
+    onClick: (row) => {
+      // Find detailed info for this candidate
+      const fullData = JSON.parse(localStorage.getItem("recent_applicants_full") || "[]");
+      const match = fullData.find(
+        (a) => a.name === row.name && a.applied_for === row.jobTitle
+      );
+      if (match) {
+        setSelectedApplicant(match);
+        setShowApplicantModal(true);
+      } else {
+        alert("Detailed data not found for this applicant!");
+      }
+    },
+  },
+  { label: "Accept", variant: "success", onClick: (row) => console.log(row) },
+  { label: "Decline", variant: "danger", onClick: (row) => console.log(row) },
+];
+
 
   // ---------- DOWNLOAD CV ----------
   const handleDownloadCV = (row) => {

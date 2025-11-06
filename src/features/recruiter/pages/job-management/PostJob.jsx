@@ -211,9 +211,9 @@ const PostJob = ({ onJobSubmit }) => {
     console.log("Form cancelled");
   };
 
-  const handleDraft = () => {
-    console.log("Save as draft:", formData);
-  };
+  // const handleDraft = () => {
+  //   console.log("Save as draft:", formData);
+  // };
 
   const handleAddCategory = () => {
     console.log("New category:", newCategory);
@@ -255,12 +255,12 @@ const PostJob = ({ onJobSubmit }) => {
           >
             <span>Cancel</span>
           </button>
-          <button
+          {/* <button
             onClick={handleDraft}
             className="px-5 py-2 bg-secondary-10 text-[var(--color-secondary)] rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
           >
             <span>Draft</span>
-          </button>
+          </button> */}
           <button
             onClick={handleSubmit}
             className="px-5 py-2 bg-[var(--color-secondary)] text-white rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
