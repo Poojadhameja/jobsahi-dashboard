@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   LuSearch, 
   LuFilter, 
@@ -8,6 +8,9 @@ import {
 } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import CertificateDetailsModal from './CertificateDetailsModal'
+import { getMethod } from "../../../../service/api";
+import apiService from "../../services/serviceUrl";
+
 
 function IssuanceLogs() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -15,63 +18,38 @@ function IssuanceLogs() {
   const [selectedCertificate, setSelectedCertificate] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const logs = [
-    {
-      id: 1,
-      studentName: 'Rahul Kumar',
-      email: 'rahul@gmail.com',
-      phone: '+91 8123456789',
-      course: 'Electrician',
-      batch: 'ELE-2025-M1',
-      issuedDate: '2025-01-17',
-      status: 'issued',
-      certificateId: 'CERT-2025-001'
-    },
-    {
-      id: 2,
-      studentName: 'Arun Patle',
-      email: 'arun@gmail.com',
-      phone: '+91 8123456789',
-      course: 'Fitter',
-      batch: 'FIT-2025-M1',
-      issuedDate: '2025-05-25',
-      status: 'issued',
-      certificateId: 'CERT-2025-002'
-    },
-    {
-      id: 3,
-      studentName: 'Vishal Soni',
-      email: 'vishal@gmail.com',
-      phone: '+91 8123456789',
-      course: 'Welder',
-      batch: 'WEL-2025-M1',
-      issuedDate: '',
-      status: 'pending',
-      certificateId: 'CERT-2025-003'
-    },
-    {
-      id: 4,
-      studentName: 'Prashant Bisen',
-      email: 'prashant@gmail.com',
-      phone: '+91 8123456789',
-      course: 'Electrician',
-      batch: 'ELE-2025-M1',
-      issuedDate: '2025-06-15',
-      status: 'issued',
-      certificateId: 'CERT-2025-004'
-    },
-    {
-      id: 5,
-      studentName: 'Aakash Soni',
-      email: 'aakash@gmail.com',
-      phone: '+91 8123456789',
-      course: 'Electrician',
-      batch: 'ELE-2025-M1',
-      issuedDate: '2025-04-02',
-      status: 'issued',
-      certificateId: 'CERT-2025-005'
+  const [logs, setLogs] = useState([]);
+const [loading, setLoading] = useState(false);
+
+// ✅ Fetch all issuance logs from API
+// ✅ Fetch all issuance logs from API
+useEffect(() => {
+  const fetchLogs = async () => {
+    setLoading(true);
+    try {
+      const response = await getMethod({
+        apiUrl: `${apiService.getCertificateById}?id=all`, // ✅ get all logs via same API
+      });
+
+      if (response?.status && Array.isArray(response.data)) {
+        setLogs(response.data);
+      } else {
+        console.warn("No certificate logs found:", response?.message);
+        setLogs([]);
+      }
+    } catch (error) {
+      console.error("Error fetching issuance logs:", error);
+      setLogs([]);
+    } finally {
+      setLoading(false);
     }
-  ]
+  };
+
+  fetchLogs();
+}, []);
+
+
+
 
 
   const filteredLogs = logs.filter(log => {
@@ -83,10 +61,25 @@ function IssuanceLogs() {
     return matchesSearch && matchesStatus
   })
 
-  const handleViewCertificate = (certificate) => {
-    setSelectedCertificate(certificate)
-    setIsModalOpen(true)
-  }
+  const handleViewCertificate = async (certificate) => {
+    try {
+      const response = await getMethod({
+        apiUrl: `${apiService.getCertificateById}?id=${certificate.certificate_id || certificate.id}`,
+      });
+  
+      if (response?.status && response.data) {
+        setSelectedCertificate(response.data);
+        setIsModalOpen(true);
+      } else {
+        alert(response?.message || "Failed to fetch certificate details.");
+      }
+    } catch (error) {
+      console.error("Error fetching certificate:", error);
+      alert("Something went wrong while fetching certificate details.");
+    }
+  };
+  
+  
 
   const handleCloseModal = () => {
     setIsModalOpen(false)

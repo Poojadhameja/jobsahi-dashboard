@@ -31,6 +31,13 @@ getCourseCategories: '/courses/get_course_category.php',
 
 courseByBatch: '/institute/course_by_batch.php',
 
+  CourseBatchStudents: "/courses/course_batch_students.php",  // ✅ your new API
+  generateCertificate: "/certificates/certificates.php",  // ✅ POST
+  getCertificateById: "/certificates/get_certificate.php", // ✅ GET
+
+
+  certificateTemplatesList: "/certificate_templates/certificate_templates.php",        // GET
+  createCertificateTemplate: "/certificate_templates/create_certificate_template.php", // POST 
 
 }
 
