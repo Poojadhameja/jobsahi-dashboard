@@ -107,10 +107,10 @@ const ManageJob = () => {
 
   const handleEditCancel = () => setShowEditModal(false);
 
-  const handleViewClick = (job) => {
-    setJobToView(job);
-    setShowViewModal(true);
-  };
+  // const handleViewClick = (job) => {
+  //   setJobToView(job);
+  //   setShowViewModal(true);
+  // };
 
   const handleViewClose = () => setShowViewModal(false);
 
@@ -316,12 +316,12 @@ const ManageJob = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <button
+                  {/* <button
                     onClick={() => handleViewClick(job)}
                     className="p-2 text-gray-400 hover:text-[var(--color-secondary)] hover:bg-secondary-10 rounded-lg transition-colors"
                   >
                     <LuFileText size={18} />
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => handleEditClick(job)}
                     className="p-2 text-gray-400 hover:text-[var(--color-secondary)] hover:bg-secondary-10 rounded-lg transition-colors"

@@ -12,7 +12,9 @@ const service = {
     //job management
     createJob: '/jobs/create_job.php',
     getJobs: "/jobs/jobs.php",
-
+getJobCategory: "/jobs/get_job_category.php",
+getJobDetail: "/jobs/job-detail.php",          // for fetching single job by id
+  updateJob: "/jobs/update_job.php", 
 
 
 
