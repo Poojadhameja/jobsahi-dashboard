@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { LuCheck, LuEye } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import Button from '../../../../shared/components/Button'
+import { Button, PrimaryButton, OutlineButton } from '../../../../shared/components/Button'
 
 const AssignCourse = () => {
   const [selectedStudents, setSelectedStudents] = useState([])
@@ -307,22 +307,20 @@ const AssignCourse = () => {
 
             {/* Action Buttons */}
             <div className="flex space-x-3 pt-4">
-              <Button
+              <PrimaryButton
                 onClick={handleAssignSelected}
-                variant="primary"
                 icon={<LuCheck className="w-4 h-4" />}
                 fullWidth
               >
                 Assign Selected
-              </Button>
-              <Button
+              </PrimaryButton>
+              <OutlineButton
                 onClick={handlePreviewChanges}
-                variant="outline"
                 icon={<LuEye className="w-4 h-4" />}
                 fullWidth
               >
                 Preview Changes
-              </Button>
+              </OutlineButton>
             </div>
           </div>
 

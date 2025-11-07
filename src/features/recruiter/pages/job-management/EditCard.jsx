@@ -4,6 +4,7 @@ import { getMethod, putMethod } from "../../../../service/api";
 import service from "../../services/serviceUrl";
 import { toast } from "react-toastify";
 import RichTextEditor from "@shared/components/RichTextEditor";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 
 const EditCard = ({ isOpen, onClose, job, onSave }) => {
   const [formData, setFormData] = useState({
@@ -22,7 +23,6 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
     additionalContact: "",
     vacancyStatus: "",
     no_of_vacancies: "",
-    openingDate: "",
     closingDate: "",
   });
 
@@ -61,15 +61,17 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
           const d = res.data.job_info;
           setFormData({
             jobTitle: d.title || "",
-            jobSector: d.category_name || "",
+            jobSector: d.category_id?.toString() || "",
+            jobSectorName: d.category_name || "",
+
             jobDescription: d.description || "",
-             salaryType: d.salary_type
-      ? d.salary_type.charAt(0).toUpperCase() + d.salary_type.slice(1).toLowerCase()
-      : "",
+            salaryType: d.salary_type
+              ? d.salary_type.charAt(0).toUpperCase() +
+                d.salary_type.slice(1).toLowerCase()
+              : "",
             minSalary: d.salary_min || "",
             maxSalary: d.salary_max || "",
-           jobType:
-      d.job_type?.toLowerCase().replace(" ", "_") || "",
+            jobType: d.job_type?.toLowerCase().replace(" ", "_") || "",
             requiredSkills: Array.isArray(d.skills_required)
               ? d.skills_required.join(", ")
               : d.skills_required || "",
@@ -80,7 +82,6 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
             additionalContact: d.additional_contact || "",
             vacancyStatus: d.status || "",
             no_of_vacancies: d.no_of_vacancies || "",
-            openingDate: d.created_at?.split(" ")[0] || "",
             closingDate: d.application_deadline?.split(" ")[0] || "",
           });
         }
@@ -109,22 +110,23 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
     const newErrors = {};
     if (!formData.jobTitle.trim()) newErrors.jobTitle = "Job title is required";
     if (!formData.jobSector) newErrors.jobSector = "Job sector is required";
-if (!formData.jobDescription || formData.jobDescription.replace(/<[^>]+>/g, '').trim() === "")
-  newErrors.jobDescription = "Job description is required";
+    if (
+      !formData.jobDescription ||
+      formData.jobDescription.replace(/<[^>]+>/g, "").trim() === ""
+    )
+      newErrors.jobDescription = "Job description is required";
 
-    if (!formData.salaryType) newErrors.salaryType = "Salary type is required";
     if (!formData.minSalary) newErrors.minSalary = "Min salary required";
     if (!formData.maxSalary) newErrors.maxSalary = "Max salary required";
     if (!formData.jobType) newErrors.jobType = "Job type is required";
-    if (!formData.location.trim())
-      newErrors.location = "Location is required";
+    if (!formData.location.trim()) newErrors.location = "Location is required";
     if (!formData.vacancyStatus)
       newErrors.vacancyStatus = "Vacancy status is required";
     if (!formData.no_of_vacancies)
       newErrors.no_of_vacancies = "No. of vacancies required";
     if (!formData.closingDate)
       newErrors.closingDate = "Closing date is required";
-console.log(newErrors);
+    console.log(newErrors);
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -164,7 +166,6 @@ console.log(newErrors);
   //       payload,
   //     });
   //     console.log(res);
-      
 
   //     if (res?.status) {
   //       toast.success("🎉 Job updated successfully!", {
@@ -183,70 +184,96 @@ console.log(newErrors);
   //   }
   // };
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log("🟢 [EditCard] ➜ Update Job button clicked");
+    e.preventDefault();
+    console.log("🟢 [EditCard] ➜ Update Job button clicked");
 
-  if (!validateForm()) {
-    console.warn("⚠️ Validation failed:", formData);
-    setShowWarning(true);
-    setTimeout(() => setShowWarning(false), 3000);
-    return;
-  }
-
-  const payload = {
-    title: formData.jobTitle,
-    category_name: formData.jobSector,
-    description: formData.jobDescription.replace(/<[^>]+>/g, "").trim(),
-    salary_type: formData.salaryType,
-    salary_min: formData.minSalary,
-    salary_max: formData.maxSalary,
-    job_type: formData.jobType,
-    skills_required: formData.requiredSkills,
-    experience_required: formData.experience,
-    location: formData.location,
-    person_name: formData.contactPerson,
-    phone: formData.phone,
-    additional_contact: formData.additionalContact,
-    status: formData.vacancyStatus,
-    no_of_vacancies: formData.no_of_vacancies,
-    application_deadline: formData.closingDate,
-  };
-
-  console.log("📦 [EditCard] ➜ Payload ready:", payload);
-
-  try {
-    console.log("⏳ [EditCard] ➜ Sending PUT request to:", `${service.updateJob}?id=${job.id}`);
-    const res = await putMethod({
-      apiUrl: `${service.updateJob}?id=${job.id}`,
-      payload,
-    });
-    console.log("✅ [EditCard] ➜ API Response:", res);
-
-    if (res?.status) {
-      toast.success("🎉 Job updated successfully!", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: true,
-      });
-      console.log("🎯 [EditCard] ➜ Job updated successfully");
-      if (onSave) onSave();
-      onClose();
-    } else {
-      console.error("❌ [EditCard] ➜ Job update failed:", res);
-      toast.error("❌ Failed to update job!");
+    if (!validateForm()) {
+      console.warn("⚠️ Validation failed:", formData);
+      setShowWarning(true);
+      setTimeout(() => setShowWarning(false), 3000);
+      return;
     }
-  } catch (err) {
-    console.error("🚨 [EditCard] ➜ Network or API error:", err);
-    toast.error("⚠️ Network or API error!");
-  }
-};
 
+    const payload = {
+      title: formData.jobTitle,
+      category_id: formData.jobSector,
+      category_name: formData.jobSectorName,
+      description: formData.jobDescription.replace(/<[^>]+>/g, "").trim(),
+      salary_type: formData.salaryType,
+      salary_min: formData.minSalary,
+      salary_max: formData.maxSalary,
+      job_type: formData.jobType,
+      skills_required: formData.requiredSkills,
+      experience_required: formData.experience,
+      location: formData.location,
+      person_name: formData.contactPerson,
+      phone: formData.phone,
+      additional_contact: formData.additionalContact,
+      status: formData.vacancyStatus,
+      no_of_vacancies: formData.no_of_vacancies,
+      application_deadline: formData.closingDate,
+    };
+
+    console.log("📦 [EditCard] ➜ Payload ready:", payload);
+
+    try {
+      const res = await putMethod({
+        apiUrl: `${service.updateJob}?id=${job.id}`,
+        payload,
+      });
+      console.log("✅ [EditCard] ➜ API Response:", res);
+
+      if (res?.status) {
+        toast.success("✅ Job Updated Successfully!", {
+          position: "top-center",
+          autoClose: 2500,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+          style: {
+            background: "linear-gradient(90deg, #00b09b, #96c93d)",
+            color: "#fff",
+            fontWeight: "600",
+            fontSize: "16px",
+            borderRadius: "10px",
+          },
+        });
+
+        setTimeout(() => {
+          if (onSave) onSave();
+          onClose();
+        }, 1800);
+      } else {
+        toast.error("⚠️ Failed to update job!", {
+          position: "top-center",
+          autoClose: 2500,
+          theme: "colored",
+          style: {
+            background: "linear-gradient(90deg, #ff5f6d, #ffc371)",
+            color: "#fff",
+            fontWeight: "600",
+            fontSize: "16px",
+            borderRadius: "10px",
+          },
+        });
+      }
+    } catch (err) {
+      console.error("🚨 [EditCard] ➜ Network or API error:", err);
+      toast.error("⚠️ Network or API error!");
+    }
+  };
 
   if (!isOpen) return null;
 
   return (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40" onClick={(e) => e.target === e.currentTarget && onClose()}>
-  <div className="relative z-[9999] bg-white rounded-xl max-w-6xl w-full max-h-[95vh] flex flex-col shadow-2xl overflow-hidden">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="relative z-[9999] bg-white rounded-xl max-w-6xl w-full max-h-[95vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-2xl font-semibold text-[var(--color-primary)]">
@@ -256,7 +283,7 @@ console.log(newErrors);
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <LuX size={24} className="text-gray-500" />
+            <LuX size={24} className={`${TAILWIND_COLORS.TEXT_MUTED}`} />
           </button>
         </div>
 
@@ -286,20 +313,29 @@ console.log(newErrors);
             />
 
             {/* Job Sector */}
-           <select
-  name="jobSector"
-  value={formData.jobSector}
-  onChange={handleInputChange}
-  className="w-full px-4 py-3 mb-6 border rounded-lg"
->
-  <option value="">Choose Category</option>
-  {jobCategories.map((cat) => (
-    <option key={cat.id} value={cat.id}>
-      {cat.category_name}
-    </option>
-  ))}
-</select>
-
+            <select
+              name="jobSector"
+              value={formData.jobSectorName} // ✅ use the category name instead of ID
+              onChange={(e) => {
+                const selectedName = e.target.value; // selected category name
+                const selectedCategory = jobCategories.find(
+                  (cat) => cat.category_name === selectedName
+                );
+                setFormData((prev) => ({
+                  ...prev,
+                  jobSector: selectedCategory?.id || "", // keep id internally
+                  jobSectorName: selectedName, // store name for payload
+                }));
+              }}
+              className="w-full px-4 py-3 mb-6 border rounded-lg"
+            >
+              <option value="">Choose Category</option>
+              {jobCategories.map((cat) => (
+                <option key={cat.id} value={cat.category_name}>
+                  {cat.category_name}
+                </option>
+              ))}
+            </select>
 
             {/* Job Description */}
             <RichTextEditor
@@ -311,17 +347,11 @@ console.log(newErrors);
 
             {/* Salary Section */}
             <div className="flex gap-4 mt-6">
-              <select
-                name="salaryType"
-                value={formData.salaryType}
-                onChange={handleInputChange}
-                className="w-1/3 border px-4 py-3 rounded-lg"
-              >
-                <option value="">Salary Type</option>
-                <option value="Monthly">Monthly</option>
-                <option value="Yearly">Yearly</option>
-                <option value="Hourly">Hourly</option>
-              </select>
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  MONTHLY SALARY <span className="text-red-500">*</span>
+                </label>
+              </div>
               <input
                 type="number"
                 name="minSalary"

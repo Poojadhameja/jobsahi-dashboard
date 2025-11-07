@@ -1,10 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { LuEye } from 'react-icons/lu'
 import Swal from 'sweetalert2'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Button from '../../../../shared/components/Button'
+import DetailedProgressModal from './DetailedProgressModal'
 
 const TrackProgress = () => {
+  const [selectedStudent, setSelectedStudent] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
   // Mock student progress data
   const studentProgressData = [
     {
@@ -179,7 +183,7 @@ const TrackProgress = () => {
 
             {/* Action Button */}
             <Button
-              onClick={() => handleViewDetailedProgress(student.id)}
+              onClick={() => handleViewDetailedProgress(student)}
               variant="primary"
               icon={<LuEye className="w-4 h-4" />}
               fullWidth
@@ -232,6 +236,13 @@ const TrackProgress = () => {
           </div>
         </div> */}
       </div>
+
+      {/* Detailed Progress Modal */}
+      <DetailedProgressModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        studentData={selectedStudent}
+      />
     </div>
   )
 }

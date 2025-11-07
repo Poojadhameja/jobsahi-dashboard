@@ -479,6 +479,7 @@ const ViewStudents = () => {
               <Button
                 onClick={handleClosePopups}
                 variant="neutral"
+                className={TAILWIND_COLORS.TEXT_PRIMARY}
               >
                 Close
               </Button>
@@ -616,6 +617,7 @@ const ViewStudents = () => {
                   type="button"
                   onClick={handleClosePopups}
                   variant="neutral"
+                  className={TAILWIND_COLORS.TEXT_PRIMARY}
                 >
                   Cancel
                 </Button>
@@ -656,6 +658,7 @@ const ViewStudents = () => {
               <Button
                 onClick={handleClosePopups}
                 variant="neutral"
+                className={TAILWIND_COLORS.TEXT_PRIMARY}
               >
                 Cancel
               </Button>

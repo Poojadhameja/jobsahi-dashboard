@@ -10,6 +10,42 @@ const JobPosting = () => {
   const [promotionJobId, setPromotionJobId] = useState('');
   const [topRibbonEnabled, setTopRibbonEnabled] = useState(false);
   const [priorityListingEnabled, setPriorityListingEnabled] = useState(false);
+  const [showFlaggedModal, setShowFlaggedModal] = useState(false);
+  const [selectedFlaggedPost, setSelectedFlaggedPost] = useState(null);
+  const [actionMessage, setActionMessage] = useState('');
+  const [flaggedPosts, setFlaggedPosts] = useState([
+    { 
+      id: 1, 
+      title: 'Product Manager', 
+      company: 'Novatech', 
+      reports: 3,
+      description: 'We are looking for a skilled Product Manager to join our team and drive product strategy.',
+      location: 'New York, NY',
+      salary: '$80,000 - $120,000',
+      postedBy: 'John Smith',
+      postedDate: '2025-01-15',
+      reportReasons: [
+        { reason: 'Misleading job description', reporter: 'User123', date: '2025-01-16' },
+        { reason: 'Fake company information', reporter: 'User456', date: '2025-01-16' },
+        { reason: 'Spam content', reporter: 'User789', date: '2025-01-17' }
+      ]
+    },
+    { 
+      id: 2, 
+      title: 'Software Engineer', 
+      company: 'TechCorp', 
+      reports: 2,
+      description: 'Join our dynamic team as a Software Engineer and work on cutting-edge projects.',
+      location: 'San Francisco, CA',
+      salary: '$90,000 - $130,000',
+      postedBy: 'Jane Doe',
+      postedDate: '2025-01-14',
+      reportReasons: [
+        { reason: 'Suspicious company', reporter: 'User456', date: '2025-01-15' },
+        { reason: 'Unrealistic salary range', reporter: 'User789', date: '2025-01-15' }
+      ]
+    }
+  ]);
 
   // ====== DATA CONFIGURATION ======
   const jobPostings = [
@@ -20,7 +56,6 @@ const JobPosting = () => {
     { id: 5, title: 'Electrician', company: 'NovaTech', posted: '2025-08-08', status: 'Flagged' }
   ];
 
-  const flaggedPosts = [{ id: 1, title: 'Product Manager', company: 'Novatech', reports: 3 }];
 
   // ====== COMPUTED VALUES ======
   const filteredJobs = jobPostings.filter(job => {
@@ -58,8 +93,56 @@ const JobPosting = () => {
     setPromotionJobId('');
   };
 
+  // Flagged post handlers
+  const handleViewFlaggedPost = (post) => {
+    setSelectedFlaggedPost(post);
+    setShowFlaggedModal(true);
+  };
+
+  const handleCloseFlaggedModal = () => {
+    setShowFlaggedModal(false);
+    setSelectedFlaggedPost(null);
+  };
+
+  const handleApproveFlaggedPost = (postId) => {
+    console.log('Approving flagged post:', postId);
+    // Update the flagged posts array to remove the approved post
+    setFlaggedPosts(prev => prev.filter(post => post.id !== postId));
+    setActionMessage('Post approved successfully!');
+    // Here you would typically update the post status in your backend
+    // Example API call:
+    // await approveFlaggedPost(postId);
+    handleCloseFlaggedModal();
+    // Clear message after 3 seconds
+    setTimeout(() => setActionMessage(''), 3000);
+  };
+
+  const handleRejectFlaggedPost = (postId) => {
+    console.log('Rejecting flagged post:', postId);
+    // Update the flagged posts array to remove the rejected post
+    setFlaggedPosts(prev => prev.filter(post => post.id !== postId));
+    setActionMessage('Post rejected successfully!');
+    // Here you would typically remove or hide the post from your backend
+    // Example API call:
+    // await rejectFlaggedPost(postId);
+    handleCloseFlaggedModal();
+    // Clear message after 3 seconds
+    setTimeout(() => setActionMessage(''), 3000);
+  };
+
   return (
     <div className="job-posting-section space-y-6">
+      {/* Success Message */}
+      {actionMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            {actionMessage}
+          </div>
+        </div>
+      )}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6" data-section="job-posting-management">
         {/* Toolbar */}
         <div className="flex items-center space-x-3 mb-6">
@@ -70,7 +153,7 @@ const JobPosting = () => {
           </div>
           <div>
             <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Posting Management</h2>
-            <p className="text-gray-600 text-sm">View / Manage all jobs, approve flagged posts, and promote jobs manually.</p>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>View / Manage all jobs, approve flagged posts, and promote jobs manually.</p>
           </div>
         </div>
 
@@ -115,10 +198,10 @@ const JobPosting = () => {
         {/* Table */}
         <div className="overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full table-fixed">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left">
+                  <th className="w-12 px-4 py-3 text-center">
                     <input
                       type="checkbox"
                       checked={filteredJobs.length > 0 && selectedJobs.length === filteredJobs.length}
@@ -127,17 +210,17 @@ const JobPosting = () => {
                       style={{ accentColor: COLORS.GREEN_PRIMARY }}
                     />
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Title</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Company</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Posted</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Status</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-900">Actions</th>
+                  <th className={`w-1/4 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Title</th>
+                  <th className={`w-1/5 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Company</th>
+                  <th className={`w-1/6 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Posted</th>
+                  <th className={`w-1/6 px-4 py-3 text-center text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
+                  <th className={`w-1/5 px-4 py-3 text-center text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredJobs.map((job) => (
                   <tr key={job.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
+                    <td className="w-12 px-4 py-4 text-center">
                       <input
                         type="checkbox"
                         checked={selectedJobs.includes(job.id)}
@@ -146,10 +229,10 @@ const JobPosting = () => {
                         style={{ accentColor: COLORS.GREEN_PRIMARY }}
                       />
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{job.title}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{job.company}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{job.posted}</td>
-                    <td className="px-6 py-4">
+                    <td className={`w-1/4 px-4 py-4 text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`} title={job.title}>{job.title}</td>
+                    <td className={`w-1/5 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED} truncate`} title={job.company}>{job.company}</td>
+                    <td className={`w-1/6 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{job.posted}</td>
+                    <td className="w-1/6 px-4 py-4 text-center">
                       <span
                         data-status={job.status.toLowerCase()}
                         className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
@@ -165,8 +248,8 @@ const JobPosting = () => {
                         {job.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex space-x-2">
+                    <td className="w-1/5 px-4 py-4 text-center">
+                      <div className="flex justify-center space-x-2">
                         <Button onClick={() => handleApproveJob(job.id)} className={`px-3 py-1 text-xs rounded transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve</Button>
                         <Button onClick={() => handlePromoteJob(job.id)} className={`px-3 py-1 text-xs rounded border-secondary text-secondary bg-bg-white hover:bg-gray-100`} variant="unstyled">Promote</Button>
                       </div>
@@ -184,30 +267,41 @@ const JobPosting = () => {
         {/* Flagged posts */}
         <div className={`${TAILWIND_COLORS.CARD} p-6`} data-section="flagged-posts">
           <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Flagged posts review</h3>
-          <p className="text-sm text-gray-600 mt-1">Quickly handle reports from users.</p>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Quickly handle reports from users.</p>
           <div className="mt-4 space-y-3">
-            {flaggedPosts.map((post) => (
-              <div key={post.id} className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
-                <div>
-                  <div className="text-sm font-medium text-gray-900">{post.title}</div>
-                  <div className="text-sm text-gray-600">{post.company} - {post.reports} reports</div>
+            {flaggedPosts.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="text-gray-400 mb-2">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Button onClick={() => handleApproveJob(post.id)} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve</Button>
-                  <Button onClick={() => console.log('Viewing flagged job', post.id)} className={`px-4 py-2 rounded-lg border-secondary text-secondary bg-bg-white hover:bg-gray-100`} variant="unstyled">View</Button>
-            </div>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No flagged posts to review</p>
               </div>
-            ))}
+            ) : (
+              flaggedPosts.map((post) => (
+                <div key={post.id} className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
+                  <div>
+                    <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{post.title}</div>
+                    <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{post.company} - {post.reports} reports</div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button onClick={() => handleApproveJob(post.id)} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve</Button>
+                    <Button onClick={() => handleViewFlaggedPost(post)} className={`px-4 py-2 rounded-lg border-secondary text-secondary bg-bg-white hover:bg-gray-100`} variant="unstyled">View</Button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
         {/* Manual promotion */}
         <div className={`${TAILWIND_COLORS.CARD} p-6`} data-section="manual-promotion">
           <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Manual promotion</h3>
-          <p className="text-sm text-gray-600 mt-1">Boost visibility for selected jobs.</p>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Boost visibility for selected jobs.</p>
 
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Job ID</label>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Job ID</label>
               <input
               type="text"
               placeholder="e.g. J-103"
@@ -218,11 +312,11 @@ const JobPosting = () => {
             </div>
 
           <div className="mt-5">
-            <div className="text-sm font-medium text-gray-700 mb-3">Promotion Options</div>
+            <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Promotion Options</div>
 
             {/* Top Ribbon Toggle */}
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-gray-800">Top Ribbon</span>
+              <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Top Ribbon</span>
               <button
                 type="button"
                 onClick={() => setTopRibbonEnabled(!topRibbonEnabled)}
@@ -244,7 +338,7 @@ const JobPosting = () => {
 
             {/* Priority Listing Toggle */}
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-gray-800">Priority Listing</span>
+              <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Priority Listing</span>
               <button
                 type="button"
                 onClick={() => setPriorityListingEnabled(!priorityListingEnabled)}
@@ -270,6 +364,115 @@ const JobPosting = () => {
           </div>
         </div>
       </div>
+
+      {/* Flagged Post Details Modal */}
+      {showFlaggedModal && selectedFlaggedPost && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center space-x-3">
+                <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: COLORS.GREEN_PRIMARY }}>
+                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Flagged Post Details</h3>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Review reported content and take action</p>
+                </div>
+              </div>
+              <button
+                onClick={handleCloseFlaggedModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Job Information */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className={`text-md font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Job Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Title</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.title}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Company</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.company}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Location</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.location}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Salary Range</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.salary}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Posted By</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.postedBy}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Posted Date</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.postedDate}</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Description</label>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedFlaggedPost.description}</p>
+                </div>
+              </div>
+
+              {/* Report Information */}
+              <div className="bg-red-50 rounded-lg p-4">
+                <h4 className={`text-md font-semibold text-red-800 mb-3`}>Report Details</h4>
+                <div className="mb-3">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    {selectedFlaggedPost.reports} Reports
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {selectedFlaggedPost.reportReasons.map((report, index) => (
+                    <div key={index} className="bg-white rounded border border-red-200 p-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{report.reason}</p>
+                          <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Reported by: {report.reporter}</p>
+                        </div>
+                        <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{report.date}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <Button
+                  onClick={() => handleRejectFlaggedPost(selectedFlaggedPost.id)}
+                  className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_LIGHT}`}
+                  variant="unstyled"
+                >
+                  Reject Post
+                </Button>
+                <Button
+                  onClick={() => handleApproveFlaggedPost(selectedFlaggedPost.id)}
+                  className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}
+                  variant="unstyled"
+                >
+                  Approve Post
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

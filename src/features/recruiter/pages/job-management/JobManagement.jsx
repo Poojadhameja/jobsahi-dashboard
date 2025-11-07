@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { LuPlus, LuSettings } from 'react-icons/lu'
 import { PillNavigation } from '../../../../shared/components/navigation'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import PostJob from './PostJob'
 import ManageJob from './ManageJob'
 
@@ -89,14 +90,14 @@ const JobManagement = () => {
 
   const tabs = [
     {
-      id: 'post',
-      label: 'Post Job',
-      icon: LuPlus
-    },
-    {
       id: 'manage',
       label: 'Manage Job',
       icon: LuSettings
+    },
+    {
+      id: 'post',
+      label: 'Post Job',
+      icon: LuPlus
     }
   ]
 
@@ -105,7 +106,7 @@ const JobManagement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)]">
+    <div className={`min-h-screen ${TAILWIND_COLORS.BG_PRIMARY}`}>
       {/* Green Navigation Pills */}
       <div className="mb-4">
         <PillNavigation 
@@ -117,16 +118,16 @@ const JobManagement = () => {
       </div>
 
       {/* Conditional Rendering based on active tab */}
-      {activeTab === 0 && (
-        <PostJob onJobSubmit={addJob} />
-      )}
       
-      {activeTab === 1 && (
+      {activeTab === 0 && (
         <ManageJob 
           jobs={jobs} 
           onEditJob={editJob} 
           onDeleteJob={deleteJob} 
         />
+      )}
+      {activeTab === 1 && (
+        <PostJob onJobSubmit={addJob} />
       )}
     </div>
   )

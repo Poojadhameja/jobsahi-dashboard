@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { LuX, LuMail, LuPhone, LuMapPin, LuGraduationCap, LuBriefcase, LuCalendar, LuFileText, LuDownload } from 'react-icons/lu'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { Button, IconButton } from '../../../../shared/components/Button'
 
+  
 const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -138,12 +141,12 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] flex flex-col">
         {/* Fixed Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-2xl font-semibold text-[var(--color-primary)]">Edit Candidate</h2>
+          <h2 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Candidate</h2>
           <button
             onClick={handleCancel}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <LuX size={24} className="text-gray-500" />
+            <LuX size={24} className={TAILWIND_COLORS.TEXT_MUTED} />
           </button>
         </div>
 
@@ -154,7 +157,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Full Name *
               </label>
               <input
@@ -174,7 +177,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Email Address *
               </label>
               <input
@@ -194,7 +197,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
 
             {/* Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Phone Number
               </label>
               <input
@@ -209,7 +212,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
 
             {/* Location */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Location
               </label>
               <input
@@ -226,7 +229,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
           {/* Education */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Qualification *
               </label>
               <input
@@ -245,7 +248,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 University
               </label>
               <input
@@ -259,7 +262,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Graduation Year
               </label>
               <input
@@ -276,7 +279,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
           {/* Experience */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Current Position
               </label>
               <input
@@ -290,7 +293,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Company
               </label>
               <input
@@ -304,7 +307,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Experience
               </label>
               <input
@@ -321,7 +324,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
           {/* Skills and Application */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Skills *
               </label>
               <input
@@ -340,7 +343,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Applied For *
               </label>
               <input
@@ -362,7 +365,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
           {/* Additional Information */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Expected Salary
               </label>
               <input
@@ -376,7 +379,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Notice Period
               </label>
               <input
@@ -390,7 +393,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Availability
               </label>
               <select
@@ -407,7 +410,7 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Status *
               </label>
               <select
@@ -432,19 +435,21 @@ const EditCandidateModal = ({ isOpen, onClose, candidate, onSave }) => {
 
           {/* Action Buttons */}
           <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-            <button
+            <Button
               type="button"
               onClick={handleCancel}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              variant="neutral"
+              size="md"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              variant="primary"
+              size="md"
             >
               Save Changes
-            </button>
+            </Button>
           </div>
           </form>
         </div>

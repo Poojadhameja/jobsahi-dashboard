@@ -10,14 +10,14 @@ const CandidateManagement = () => {
 
   const tabs = [
     {
-      id: 'instamatch',
-      label: 'InstaMatch',
-      icon: LuZap
-    },
-    {
       id: 'view-applicants',
       label: 'View Applicants',
       icon: LuUsers
+    },
+    {
+      id: 'instamatch',
+      label: 'InstaMatch',
+      icon: LuZap
     }
   ]
 
@@ -38,8 +38,9 @@ const CandidateManagement = () => {
       </div>
 
       {/* Conditional Rendering based on active tab */}
-      {activeTab === 0 && <InstaMatch />}
-      {activeTab === 1 && <ViewApplicants />}
+       {activeTab === 0 && <ViewApplicants />}
+      {activeTab === 1 && <InstaMatch />}
+     
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { LuArrowLeft, LuPhone, LuSettings, LuSearch, LuSend, LuPaperclip, LuSmile, LuTrash2, LuCheck, LuMessageSquare } from "react-icons/lu";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 
 const Message = () => {
   const [selectedMessage, setSelectedMessage] = useState(null);
@@ -193,11 +194,11 @@ const Message = () => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900 truncate text-sm sm:text-base">{conversation.name}</h3>
-                    <span className="text-xs sm:text-sm text-gray-500">{conversation.timestamp}</span>
+                    <h3 className={`font-semibold truncate text-sm sm:text-base ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{conversation.name}</h3>
+                    <span className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{conversation.timestamp}</span>
                   </div>
                   <p className="text-xs sm:text-sm text-[var(--color-primary)] font-medium truncate">{conversation.role}</p>
-                  <p className="text-xs sm:text-sm text-gray-600 truncate">{conversation.lastMessage}</p>
+                  <p className={`text-xs sm:text-sm truncate ${TAILWIND_COLORS.TEXT_MUTED}`}>{conversation.lastMessage}</p>
                 </div>
               </div>
             </div>
@@ -219,7 +220,7 @@ const Message = () => {
                 {currentConversation.avatar}
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{currentConversation.name}</h3>
+                <h3 className={`font-semibold text-sm sm:text-base truncate ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{currentConversation.name}</h3>
                 <p className="text-xs sm:text-sm text-[var(--color-primary)] truncate">{currentConversation.role}</p>
               </div>
             </div>
@@ -276,7 +277,7 @@ const Message = () => {
             <>
               {/* Date Separator */}
               <div className="text-center">
-                <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Today</span>
+                <span className={`text-sm bg-gray-100 px-3 py-1 rounded-full ${TAILWIND_COLORS.TEXT_MUTED}`}>Today</span>
               </div>
 
               {/* Messages */}
@@ -320,7 +321,7 @@ const Message = () => {
                   >
                     <p className="text-xs sm:text-sm break-words">{message.content}</p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1 px-2">
+                  <p className={`text-xs mt-1 px-2 ${TAILWIND_COLORS.TEXT_MUTED}`}>
                     {message.time}
                   </p>
                 </div>
@@ -340,8 +341,8 @@ const Message = () => {
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <LuMessageSquare size={32} className="text-gray-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a conversation</h3>
-                <p className="text-gray-500">Choose a conversation from the list to start messaging</p>
+                <h3 className={`text-lg font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Select a conversation</h3>
+                <p className={TAILWIND_COLORS.TEXT_MUTED}>Choose a conversation from the list to start messaging</p>
               </div>
             </div>
           )}
