@@ -20,8 +20,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
   const [filters, setFilters] = useState({
     status: '',
     fields: '',
-    skills: '',
-    launchingDate: ''
+    skills: ''
   })
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [showViewPopup, setShowViewPopup] = useState(false)
@@ -275,8 +274,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
     setFilters({
       status: '',
       fields: '',
-      skills: '',
-      launchingDate: ''
+      skills: ''
     })
     fetchCourses()
   }
@@ -373,17 +371,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
               <LuChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             </div>
 
-            {/* Launching Date Filter */}
-            <div className="relative">
-              <input
-                type="date"
-                value={filters.launchingDate}
-                onChange={(e) => handleFilterChange('launchingDate', e.target.value)}
-                className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[140px]"
-                placeholder="Launching Date"
-              />
-              <LuCalendar className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-            </div>
+            
           </div>
         </div>
       </div>

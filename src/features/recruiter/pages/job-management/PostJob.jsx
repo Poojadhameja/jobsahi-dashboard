@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { LuUpload, LuCalendar } from "react-icons/lu";
 import RichTextEditor from "@shared/components/RichTextEditor";
-import { postMethod } from "../../../../service/api";
+import { postMethod, getMethod } from "../../../../service/api";
 import service from "../../services/serviceUrl";
-// import { toast } from "react-toastify"; // optional toast
+import { toast } from "react-toastify"; // optional toast
 
 const PostJob = ({ onJobSubmit }) => {
   const [formData, setFormData] = useState({
@@ -16,16 +16,17 @@ const PostJob = ({ onJobSubmit }) => {
     jobType: "",
     requiredSkills: "",
     experience: "",
-    uploadedFiles: [],
-    city: "",
-    state: "",
-    fullAddress: "",
+    // uploadedFiles: [],
+    // city: "",
+    // state: "",
+    // fullAddress: "",
+    location: "",
     contactPerson: "",
     phone: "",
     additionalContact: "",
     vacancyStatus: "",
     no_of_vacancies: "",
-    openingDate: "",
+    // openingDate: "",
     closingDate: "",
   });
 
@@ -33,6 +34,7 @@ const PostJob = ({ onJobSubmit }) => {
   const [showWarning, setShowWarning] = useState(false);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  const [jobCategories, setJobCategories] = useState([]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -54,6 +56,21 @@ const PostJob = ({ onJobSubmit }) => {
       [name]: value,
     }));
   };
+  useEffect(() => {
+    const fetchJobCategories = async () => {
+      try {
+        const res = await getMethod({ apiUrl: service.getJobCategory });
+        if (res?.status && Array.isArray(res.categories)) {
+          setJobCategories(res.categories);
+        } else {
+          console.error("Failed to load job categories:", res);
+        }
+      } catch (err) {
+        console.error("❌ Error fetching job categories:", err);
+      }
+    };
+    fetchJobCategories();
+  }, []);
 
   const handleRichTextChange = (value) => {
     setFormData((prev) => ({
@@ -62,20 +79,20 @@ const PostJob = ({ onJobSubmit }) => {
     }));
   };
 
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setFormData((prev) => ({
-      ...prev,
-      uploadedFiles: [...prev.uploadedFiles, ...files],
-    }));
-  };
+  // const handleFileUpload = (e) => {
+  //   const files = Array.from(e.target.files);
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     uploadedFiles: [...prev.uploadedFiles, ...files],
+  //   }));
+  // };
 
-  const removeFile = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      uploadedFiles: prev.uploadedFiles.filter((_, i) => i !== index),
-    }));
-  };
+  // const removeFile = (index) => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     uploadedFiles: prev.uploadedFiles.filter((_, i) => i !== index),
+  //   }));
+  // };
 
   const validateForm = () => {
     const newErrors = {};
@@ -91,16 +108,16 @@ const PostJob = ({ onJobSubmit }) => {
     if (!formData.maxSalary.trim())
       newErrors.maxSalary = "Maximum salary is required";
     if (!formData.jobType) newErrors.jobType = "Job type is required";
-    if (formData.uploadedFiles.length === 0)
-      newErrors.uploadedFiles = "At least one file is required";
-    if (!formData.city) newErrors.city = "City is required";
-    if (!formData.state) newErrors.state = "State is required";
-    if (!formData.fullAddress.trim())
-      newErrors.fullAddress = "Full address is required";
+    // if (formData.uploadedFiles.length === 0)
+    //   newErrors.uploadedFiles = "At least one file is required";
+    // if (!formData.city) newErrors.city = "City is required";
+    // if (!formData.state) newErrors.state = "State is required";
+    // if (!formData.fullAddress.trim())
+    //   newErrors.fullAddress = "Full address is required";
     if (!formData.vacancyStatus)
       newErrors.vacancyStatus = "Vacancy status is required";
-    if (!formData.openingDate)
-      newErrors.openingDate = "Opening date is required";
+    // if (!formData.openingDate)
+    //   newErrors.openingDate = "Opening date is required";
     if (!formData.closingDate)
       newErrors.closingDate = "Closing date is required";
 
@@ -110,13 +127,13 @@ const PostJob = ({ onJobSubmit }) => {
     }
 
     // ✅ Date validation
-    if (formData.openingDate && formData.closingDate) {
-      const openingDate = new Date(formData.openingDate);
-      const closingDate = new Date(formData.closingDate);
-      if (openingDate >= closingDate) {
-        newErrors.closingDate = "Closing date must be after opening date";
-      }
-    }
+    // if (formData.openingDate && formData.closingDate) {
+    //   const openingDate = new Date(formData.openingDate);
+    //   const closingDate = new Date(formData.closingDate);
+    //   if (openingDate >= closingDate) {
+    //     newErrors.closingDate = "Closing date must be after opening date";
+    //   }
+    // }
 
     // ✅ Salary validation
     if (formData.minSalary && formData.maxSalary) {
@@ -146,7 +163,7 @@ const PostJob = ({ onJobSubmit }) => {
       title: formData.jobTitle,
       description: formData.jobDescription.replace(/<[^>]+>/g, "").trim(),
       category_name: formData.jobSector,
-      location: `${formData.fullAddress}, ${formData.city}, ${formData.state}`,
+      location: formData.location,
       skills_required: formData.requiredSkills,
       salary_min: parseInt(formData.minSalary),
       salary_max: parseInt(formData.maxSalary),
@@ -170,6 +187,18 @@ const PostJob = ({ onJobSubmit }) => {
 
       if (response.status === true || response.success === true) {
         console.log("✅ Job Created:", response.data || response);
+        // if (response.status === true || response.success === true) {
+        toast.success("🎉 Job created successfully!", {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: true,
+        });
+
+        // ... existing reset code here
+        // }
 
         if (onJobSubmit) {
           onJobSubmit(response.data || formData);
@@ -186,16 +215,17 @@ const PostJob = ({ onJobSubmit }) => {
           jobType: "",
           requiredSkills: "",
           experience: "",
-          uploadedFiles: [],
-          city: "",
-          state: "",
-          fullAddress: "",
+          // uploadedFiles: [],
+          // city: "",
+          // state: "",
+          // fullAddress: "",
+          location: "",
           contactPerson: "",
           phone: "",
           additionalContact: "",
           vacancyStatus: "",
           no_of_vacancies: "",
-          openingDate: "",
+          // openingDate: "",
           closingDate: "",
         });
         setErrors({});
@@ -211,10 +241,6 @@ const PostJob = ({ onJobSubmit }) => {
     console.log("Form cancelled");
   };
 
-  const handleDraft = () => {
-    console.log("Save as draft:", formData);
-  };
-
   const handleAddCategory = () => {
     console.log("New category:", newCategory);
     setShowAddCategoryModal(false);
@@ -223,7 +249,7 @@ const PostJob = ({ onJobSubmit }) => {
 
   const handleCancelAddCategory = () => setShowAddCategoryModal(false);
 
-    return (
+  return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] p-2">
       {/* Warning Message */}
       {showWarning && (
@@ -255,12 +281,12 @@ const PostJob = ({ onJobSubmit }) => {
           >
             <span>Cancel</span>
           </button>
-          <button
+          {/* <button
             onClick={handleDraft}
             className="px-5 py-2 bg-secondary-10 text-[var(--color-secondary)] rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
           >
             <span>Draft</span>
-          </button>
+          </button> */}
           <button
             onClick={handleSubmit}
             className="px-5 py-2 bg-[var(--color-secondary)] text-white rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition-colors duration-200 flex items-center justify-center space-x-2"
@@ -292,7 +318,7 @@ const PostJob = ({ onJobSubmit }) => {
                   name="jobTitle"
                   value={formData.jobTitle}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent uppercase outline-none ${
                     errors.jobTitle ? "border-red-500" : "border-gray-300"
                   }`}
                   placeholder="Enter job title"
@@ -323,12 +349,13 @@ const PostJob = ({ onJobSubmit }) => {
                   required
                 >
                   <option value="">Choose Category</option>
-                  <option value="manufacturing">Manufacturing</option>
-                  <option value="technology">Technology</option>
-                  <option value="healthcare">Healthcare</option>
-                  <option value="finance">Finance</option>
-                  <option value="education">Education</option>
+                  {jobCategories.map((cat) => (
+                    <option key={cat.id} value={cat.category_name}>
+                      {cat.category_name}
+                    </option>
+                  ))}
                 </select>
+
                 {errors.jobSector && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.jobSector}
@@ -474,67 +501,6 @@ const PostJob = ({ onJobSubmit }) => {
                 />
               </div>
             </div>
-
-            {/* File Attachment */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  FILE ATTACHMENT<span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-500">
-                  Upload related documents.
-                </p>
-              </div>
-              <div className="">
-                <div className="space-y-4 ">
-                  <label className="flex items-center justify-center border-2 border-dashed border-[var(--color-secondary)] rounded-lg cursor-pointer bg-secondary-10 hover:bg-secondary-10 transition-colors">
-                    <div className="py-2 flex flex-col items-center">
-                      <LuUpload
-                        className="text-[var(--color-secondary)] mb-2"
-                        size={24}
-                      />
-                      <span className="text-[var(--color-secondary)] font-medium">
-                        ↑ Upload Files
-                      </span>
-                    </div>
-                    <input
-                      type="file"
-                      multiple
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-
-                  {/* Display uploaded files */}
-                  {formData.uploadedFiles.length > 0 && (
-                    <div className="space-y-2">
-                      {formData.uploadedFiles.map((file, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between bg-gray-50 p-2 rounded"
-                        >
-                          <span className="text-sm text-gray-700">
-                            {file.name}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removeFile(index)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {errors.uploadedFiles && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.uploadedFiles}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -556,63 +522,13 @@ const PostJob = ({ onJobSubmit }) => {
               <div className="lg:col-span-2">
                 <input
                   type="text"
-                  name="fullAddress"
-                  value={formData.fullAddress}
+                  name="location"
+                  value={formData.location}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
-                  placeholder="Enter complete address with street, area, landmark"
+                  placeholder="Enter complete address with street, area, landmark, city, state"
                   required
                 />
-              </div>
-            </div>
-
-            {/* City */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  CITY<span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-500">Choose job city</p>
-              </div>
-              <div className="lg:col-span-2">
-                <select
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
-                  required
-                >
-                  <option value="">Select city</option>
-                  <option value="indore">Indore</option>
-                  <option value="bhopal">Bhopal</option>
-                  <option value="mumbai">Mumbai</option>
-                  <option value="delhi">Delhi</option>
-                </select>
-              </div>
-            </div>
-
-            {/* State */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-1">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  STATE<span className="text-red-500">*</span>
-                </label>
-                <p className="text-sm text-gray-500">Choose job state</p>
-              </div>
-              <div className="lg:col-span-2">
-                <select
-                  name="state"
-                  value={formData.state}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
-                  required
-                >
-                  <option value="">Select state</option>
-                  <option value="madhya-pradesh">Madhya Pradesh</option>
-                  <option value="maharashtra">Maharashtra</option>
-                  <option value="delhi">Delhi</option>
-                  <option value="karnataka">Karnataka</option>
-                </select>
               </div>
             </div>
           </div>
@@ -752,7 +668,7 @@ const PostJob = ({ onJobSubmit }) => {
               </div>
 
               {/* Opening Date */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
                     OPENING<span className="text-red-500">*</span>
@@ -775,7 +691,7 @@ const PostJob = ({ onJobSubmit }) => {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Closing Date */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -863,7 +779,6 @@ const PostJob = ({ onJobSubmit }) => {
       )}
     </div>
   );
-
 };
 
 export default PostJob;

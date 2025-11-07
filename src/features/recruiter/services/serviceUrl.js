@@ -7,11 +7,14 @@ const service = {
     recruiterReports: '/employer/recruiter_reports.php',
     fetchEmployerJobs: '/employer/fetch_employer_jobs.php',
     getRecentApplications: '/employer/get_recent_applicants.php',
+    getWeeklyApplicants: '/employer/get_recruiter_weekly_stats.php',
 
     //job management
     createJob: '/jobs/create_job.php',
     getJobs: "/jobs/jobs.php",
-
+getJobCategory: "/jobs/get_job_category.php",
+getJobDetail: "/jobs/job-detail.php",          // for fetching single job by id
+  updateJob: "/jobs/update_job.php", 
 
 
 

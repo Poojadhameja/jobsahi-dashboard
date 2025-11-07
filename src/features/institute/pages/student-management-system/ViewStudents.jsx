@@ -1,8 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { LuUsers, LuCheck, LuClock, LuDownload, LuSearch, LuEye, LuPencil, LuMessageSquare, LuTrash2, LuX } from 'react-icons/lu'
 import { Horizontal4Cards } from '../../../../shared/components/metricCard'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Button from '../../../../shared/components/Button'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
 
 const ViewStudents = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -13,113 +15,52 @@ const ViewStudents = () => {
   const [showEditPopup, setShowEditPopup] = useState(false)
   const [showDeletePopup, setShowDeletePopup] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState(null)
-  const [students, setStudents] = useState([
-    {
-      id: 1,
-      name: 'Rahul Kumar',
-      email: 'rahul@gmail.com',
-      phone: '+91 8123456789',
-      course: 'Electrician',
-      batch: 'ELE-2025-M1',
-      progress: 75,
-      status: 'Active',
-      // Additional details for resume
-      address: '123 Main Street, Mumbai, Maharashtra 400001',
-      dateOfBirth: '1995-06-15',
-      gender: 'Male',
-      qualification: 'Diploma in Electrical Engineering',
-      experience: '2 years',
-      skills: ['Electrical Wiring', 'Circuit Design', 'Safety Protocols', 'Team Management'],
-      achievements: ['Best Student Award 2023', 'Safety Excellence Certificate'],
-      projects: ['Smart Home Automation System', 'Industrial Electrical Panel Design'],
-      languages: ['Hindi', 'English', 'Marathi'],
-      joiningDate: '2024-01-15',
-      lastActive: '2024-12-15'
-    },
-    {
-      id: 2,
-      name: 'Priya Sharma',
-      email: 'priya@gmail.com',
-      phone: '+91 9876543210',
-      course: 'Fitter',
-      batch: 'FIT-2025-M1',
-      progress: 45,
-      status: 'Active',
-      address: '456 Park Avenue, Delhi, Delhi 110001',
-      dateOfBirth: '1998-03-22',
-      gender: 'Female',
-      qualification: 'ITI in Fitter Trade',
-      experience: '1 year',
-      skills: ['Metal Fabrication', 'Welding', 'Machine Operation', 'Quality Control'],
-      achievements: ['Excellence in Practical Work', 'Innovation Award'],
-      projects: ['Precision Component Manufacturing', 'Assembly Line Optimization'],
-      languages: ['Hindi', 'English', 'Punjabi'],
-      joiningDate: '2024-02-01',
-      lastActive: '2024-12-14'
-    },
-    {
-      id: 3,
-      name: 'Amit Singh',
-      email: 'amit@gmail.com',
-      phone: '+91 8765432109',
-      course: 'Welder',
-      batch: 'WEL-2025-M1',
-      progress: 100,
-      status: 'Completed',
-      address: '789 Industrial Area, Bangalore, Karnataka 560001',
-      dateOfBirth: '1993-11-08',
-      gender: 'Male',
-      qualification: 'Diploma in Mechanical Engineering',
-      experience: '4 years',
-      skills: ['Arc Welding', 'TIG Welding', 'MIG Welding', 'Quality Inspection'],
-      achievements: ['Master Welder Certification', 'Zero Defect Award'],
-      projects: ['Pipeline Welding Project', 'Structural Steel Fabrication'],
-      languages: ['Hindi', 'English', 'Kannada'],
-      joiningDate: '2023-08-15',
-      lastActive: '2024-12-10'
-    },
-    {
-      id: 4,
-      name: 'Sneha Patel',
-      email: 'sneha@gmail.com',
-      phone: '+91 7654321098',
-      course: 'Electrician',
-      batch: 'ELE-2025-M1',
-      progress: 75,
-      status: 'Active',
-      address: '321 Tech Park, Pune, Maharashtra 411001',
-      dateOfBirth: '1996-09-12',
-      gender: 'Female',
-      qualification: 'B.Tech in Electrical Engineering',
-      experience: '3 years',
-      skills: ['Power Systems', 'Control Systems', 'PLC Programming', 'Project Management'],
-      achievements: ['Outstanding Performance Award', 'Leadership Excellence'],
-      projects: ['Smart Grid Implementation', 'Renewable Energy Integration'],
-      languages: ['Hindi', 'English', 'Gujarati'],
-      joiningDate: '2024-01-20',
-      lastActive: '2024-12-13'
-    },
-    {
-      id: 5,
-      name: 'Vikram Kumar',
-      email: 'vikram@gmail.com',
-      phone: '+91 6543210987',
-      course: 'Electrician',
-      batch: 'ELE-2025-M1',
-      progress: 45,
-      status: 'On Hold',
-      address: '654 Residential Complex, Chennai, Tamil Nadu 600001',
-      dateOfBirth: '1997-04-18',
-      gender: 'Male',
-      qualification: 'ITI in Electrical',
-      experience: '1.5 years',
-      skills: ['Basic Electrical Work', 'Troubleshooting', 'Maintenance'],
-      projects: ['Residential Electrical Installation'],
-      languages: ['Hindi', 'English', 'Tamil'],
-      joiningDate: '2024-03-01',
-      lastActive: '2024-11-28'
+  
+  const [students, setStudents] = useState([])  // ✅ will come from API
+  const [summary, setSummary] = useState({
+    total_students: 0,
+    active_students: 0,
+    completed_students: 0,
+    total_courses: 0,
+  })
+  const [loading, setLoading] = useState(false)
+  
+  const fetchStudents = async () => {
+    try {
+      setLoading(true)
+  
+      const resp = await getMethod({
+        apiUrl: apiService.institute_view_students,  // ✅ ab defined
+      })
+  
+      console.log("ViewStudents API response:", resp)
+  
+      if (resp?.status) {
+        setStudents(resp.data || [])
+  
+        if (resp.summary) {
+          setSummary({
+            total_students: resp.summary.total_students || 0,
+            active_students: resp.summary.active_students || 0,
+            completed_students: resp.summary.completed_students || 0,
+            total_courses: resp.summary.total_courses || 0,
+          })
+        }
+      } else {
+        console.error("ViewStudents API error:", resp?.message)
+      }
+    } catch (error) {
+      console.error("ViewStudents API exception:", error)
+    } finally {
+      setLoading(false)
     }
-  ])
+  }
+  
+  
+  useEffect(() => {
+    fetchStudents()
+  }, [])
+  
 
   // Styling functions
   const getStatusColor = (status) => {
@@ -158,36 +99,45 @@ const ViewStudents = () => {
   const summaryCardsData = [
     {
       title: 'Total Students',
-      value: totalStudents.toString(),
-      icon: <LuUsers className="w-5 h-5" />
+      value: summary.total_students.toString(),
+      icon: <LuUsers className="w-5 h-5" />,
     },
     {
       title: 'Active Students',
-      value: activeStudents.toString(),
-      icon: <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+      value: summary.active_students.toString(),
+      icon: <div className="w-3 h-3 bg-green-500 rounded-full"></div>,
     },
     {
       title: 'Completed',
-      value: completedStudents.toString(),
-      icon: <LuCheck className="w-5 h-5" />
+      value: summary.completed_students.toString(),
+      icon: <LuCheck className="w-5 h-5" />,
     },
     {
-      title: 'Avg. Progress',
-      value: `${avgProgress}%`,
-      icon: <LuClock className="w-5 h-5" />
-    }
+      title: 'Total Courses',
+      value: summary.total_courses.toString(),
+      icon: <LuClock className="w-5 h-5" />,
+    },
   ]
+  
 
   // Filter students based on search and filters
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.phone.includes(searchTerm)
-    const matchesStatus = statusFilter === 'all' || student.status.toLowerCase() === statusFilter.toLowerCase()
-    const matchesCourse = courseFilter === 'all' || student.course.toLowerCase().includes(courseFilter.toLowerCase())
-    
+  const filteredStudents = students.filter((student) => {
+    const matchesSearch =
+      (student.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.phone || '').includes(searchTerm)
+  
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (student.status || '').toLowerCase() === statusFilter.toLowerCase()
+  
+    const matchesCourse =
+      courseFilter === 'all' ||
+      (student.course || '').toLowerCase().includes(courseFilter.toLowerCase())
+  
     return matchesSearch && matchesStatus && matchesCourse
   })
+  
 
   const handleSelectAll = (checked) => {
     if (checked) {
