@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import InstituteLayout from './components/InstituteLayout.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import CourseManagement from './pages/course-management/CourseManagement.jsx'
+import CreateCourse from './pages/course-management/CreateCourse.jsx'
 import StudentManagement from './pages/student-management-system/StudentManagementSystem.jsx'
 import BatchManagement from './pages/batch-management/BatchManagement.jsx'
 import CertificateCom from './pages/certificates-completion/CertificatesCompletion.jsx'
@@ -15,6 +16,7 @@ import InstituteProfile from './pages/profile-setting/InstituteProfile.jsx'
 import StaffManagement from './pages/profile-setting/StaffManagement.jsx'
 import NotificationPreferences from './pages/profile-setting/NotificationPreferences.jsx'
 import Message from './pages/batch-management/Message.jsx'
+import { CourseProvider } from './context/CourseContext'
 
 export default function InstituteRoutes() {
   return (
@@ -23,6 +25,7 @@ export default function InstituteRoutes() {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="course-management" element={<CourseManagement />} />
+        <Route path="course-management/create" element={<CourseProvider><CreateCourse /></CourseProvider>} />
         <Route path="student-management" element={<StudentManagement />} />
         <Route path="batch-management" element={<BatchManagement />} />
         <Route path="certificates-completion" element={<CertificateCom />} />

@@ -4,6 +4,9 @@ import { TAILWIND_COLORS } from "@shared/WebConstant";
 import { Button, SaveButton } from "@shared/components/Button";
 import DynamicButton from "@shared/components/DynamicButton";
 
+// ✅ Added ComingSoonPopup like TeamManagement.jsx
+import ComingSoonPopup from "../../../../shared/components/ComingSoon";
+
 const Preferences = () => {
   const [emailPreferences, setEmailPreferences] = useState({
     frequency: "Daily Digest",
@@ -56,7 +59,6 @@ const Preferences = () => {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 3000);
@@ -77,14 +79,12 @@ const Preferences = () => {
     });
   };
 
-  // Calculate team members count (this would come from props or context in real app)
   const teamMembersCount = 3;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Left Section - Email Preferences */}
       <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-        {/* Header */}
         <div className="flex items-center gap-3 mb-2">
           <LuNetwork className={`${TAILWIND_COLORS.SECONDARY}`} size={20} />
           <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
@@ -95,7 +95,6 @@ const Preferences = () => {
           Configure your email notification settings.
         </p>
 
-        {/* Email Frequency */}
         <div className="mb-6">
           <label className={`text-sm font-medium mb-2 block ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Email Frequency
@@ -112,19 +111,21 @@ const Preferences = () => {
                 </option>
               ))}
             </select>
-            <LuChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`} size={16} />
+            <LuChevronDown
+              className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`}
+              size={16}
+            />
           </div>
         </div>
 
-        {/* Auto-replies */}
         <div className="mb-6 flex items-center justify-between">
-          <div className="">
-          <label className={`text-sm font-medium mb-2 block ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-            Auto-replies
-          </label>
-          <p className={`text-xs mb-3 ${TAILWIND_COLORS.TEXT_MUTED}`}>
-            Automatically respond to candidate applications
-          </p>
+          <div>
+            <label className={`text-sm font-medium mb-2 block ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Auto-replies
+            </label>
+            <p className={`text-xs mb-3 ${TAILWIND_COLORS.TEXT_MUTED}`}>
+              Automatically respond to candidate applications
+            </p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
@@ -140,9 +141,8 @@ const Preferences = () => {
 
       {/* Right Section - System Preferences */}
       <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-        {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-              <LuSettings className={`${TAILWIND_COLORS.SECONDARY}`} size={20} />
+          <LuSettings className={`${TAILWIND_COLORS.SECONDARY}`} size={20} />
           <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             System Preferences
           </h3>
@@ -151,7 +151,6 @@ const Preferences = () => {
           Configure your system and regional settings.
         </p>
 
-        {/* Timezone */}
         <div className="mb-6">
           <label className={`text-sm font-medium mb-2 block ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Timezone
@@ -168,46 +167,31 @@ const Preferences = () => {
                 </option>
               ))}
             </select>
-            <LuChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`} size={16} />
+            <LuChevronDown
+              className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`}
+              size={16}
+            />
           </div>
         </div>
 
-        {/* Current Settings Summary */}
-          <div className={`${TAILWIND_COLORS.CARD} p-4`}>
+        <div className={`${TAILWIND_COLORS.CARD} p-4`}>
           <h4 className={`font-semibold text-sm mb-3 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Current Settings Summary
           </h4>
           <ul className={`space-y-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-            <li className="flex items-center">
-              <span className={`w-2 h-2 ${TAILWIND_COLORS.TEXT_MUTED} rounded-full mr-3`}></span>
-              Email notifications: {emailPreferences.frequency.toLowerCase()}
-            </li>
-            <li className="flex items-center">
-              <span className={`w-2 h-2 ${TAILWIND_COLORS.TEXT_MUTED} rounded-full mr-3`}></span>
-              Auto-replies: {emailPreferences.autoReplies ? "Enabled" : "Disabled"}
-            </li>
-            <li className="flex items-center">
-              <span className={`w-2 h-2 ${TAILWIND_COLORS.TEXT_MUTED} rounded-full mr-3`}></span>
-              Timezone: {systemPreferences.timezone}
-            </li>
-            <li className="flex items-center">
-              <span className={`w-2 h-2 ${TAILWIND_COLORS.TEXT_MUTED} rounded-full mr-3`}></span>
-              Team members: {teamMembersCount}
-            </li>
+            <li>Email notifications: {emailPreferences.frequency.toLowerCase()}</li>
+            <li>Auto-replies: {emailPreferences.autoReplies ? "Enabled" : "Disabled"}</li>
+            <li>Timezone: {systemPreferences.timezone}</li>
+            <li>Team members: {teamMembersCount}</li>
           </ul>
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="col-span-full flex flex-col sm:flex-row gap-4 justify-end mt-8">
-        <Button
-          variant="light"
-          onClick={handleReset}
-          className="order-2 sm:order-1"
-        >
+        <Button variant="light" onClick={handleReset} className="order-2 sm:order-1">
           Reset to Default
         </Button>
-        
+
         <SaveButton
           onClick={handleSave}
           loading={isLoading}
@@ -218,7 +202,6 @@ const Preferences = () => {
         </SaveButton>
       </div>
 
-      {/* Dynamic Button Example */}
       <div className="col-span-full mt-6">
         <div className={`${TAILWIND_COLORS.CARD} p-4`}>
           <h4 className={`font-semibold text-sm mb-3 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
@@ -233,7 +216,7 @@ const Preferences = () => {
             >
               Export Settings
             </DynamicButton>
-            
+
             <DynamicButton
               onClick={() => console.log('Import preferences')}
               backgroundColor="transparent"
@@ -246,6 +229,9 @@ const Preferences = () => {
           </div>
         </div>
       </div>
+
+      {/* ✅ Coming Soon Popup (like TeamManagement.jsx) */}
+      <ComingSoonPopup />
     </div>
   );
 };

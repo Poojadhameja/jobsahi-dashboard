@@ -22,7 +22,6 @@ const ViewStudents = () => {
       course: 'Electrician',
       batch: 'ELE-2025-M1',
       progress: 75,
-      attendance: 85,
       status: 'Active',
       // Additional details for resume
       address: '123 Main Street, Mumbai, Maharashtra 400001',
@@ -45,7 +44,6 @@ const ViewStudents = () => {
       course: 'Fitter',
       batch: 'FIT-2025-M1',
       progress: 45,
-      attendance: 90,
       status: 'Active',
       address: '456 Park Avenue, Delhi, Delhi 110001',
       dateOfBirth: '1998-03-22',
@@ -67,7 +65,6 @@ const ViewStudents = () => {
       course: 'Welder',
       batch: 'WEL-2025-M1',
       progress: 100,
-      attendance: 95,
       status: 'Completed',
       address: '789 Industrial Area, Bangalore, Karnataka 560001',
       dateOfBirth: '1993-11-08',
@@ -89,7 +86,6 @@ const ViewStudents = () => {
       course: 'Electrician',
       batch: 'ELE-2025-M1',
       progress: 75,
-      attendance: 80,
       status: 'Active',
       address: '321 Tech Park, Pune, Maharashtra 411001',
       dateOfBirth: '1996-09-12',
@@ -111,7 +107,6 @@ const ViewStudents = () => {
       course: 'Electrician',
       batch: 'ELE-2025-M1',
       progress: 45,
-      attendance: 70,
       status: 'On Hold',
       address: '654 Residential Complex, Chennai, Tamil Nadu 600001',
       dateOfBirth: '1997-04-18',
@@ -119,7 +114,6 @@ const ViewStudents = () => {
       qualification: 'ITI in Electrical',
       experience: '1.5 years',
       skills: ['Basic Electrical Work', 'Troubleshooting', 'Maintenance'],
-      achievements: ['Consistent Attendance Award'],
       projects: ['Residential Electrical Installation'],
       languages: ['Hindi', 'English', 'Tamil'],
       joiningDate: '2024-03-01',
@@ -152,13 +146,6 @@ const ViewStudents = () => {
       default:
         return 'bg-white'
     }
-  }
-
-  const getProgressColor = (progress) => {
-    if (progress >= 80) return 'bg-green-500'
-    if (progress >= 60) return 'bg-orange-500'
-    if (progress >= 40) return 'bg-yellow-500'
-    return 'bg-red-500'
   }
 
   // Calculate summary statistics
@@ -326,8 +313,6 @@ const ViewStudents = () => {
                 </th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student</th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course & Batch</th>
-                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Progress</th>
-                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Attendance</th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Actions</th>
               </tr>
@@ -359,18 +344,6 @@ const ViewStudents = () => {
                       <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.batch}</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center">
-                      <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                        <div
-                          className={`h-2 rounded-full ${getProgressColor(student.progress)}`}
-                          style={{ width: `${student.progress}%` }}
-                        ></div>
-                      </div>
-                      <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.progress}%</span>
-                    </div>
-                  </td>
-                  <td className={`px-6 py-4 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.attendance}%</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(student.status)}`}>
                       <div className={`w-2 h-2 rounded-full mr-2 ${getStatusDotColor(student.status)}`}></div>
@@ -448,8 +421,6 @@ const ViewStudents = () => {
                   <p><span className="font-medium">Batch:</span> {selectedStudent.batch}</p>
                   <p><span className="font-medium">Qualification:</span> {selectedStudent.qualification}</p>
                   <p><span className="font-medium">Experience:</span> {selectedStudent.experience}</p>
-                  <p><span className="font-medium">Progress:</span> {selectedStudent.progress}%</p>
-                  <p><span className="font-medium">Attendance:</span> {selectedStudent.attendance}%</p>
                 </div>
               </div>
 
@@ -541,8 +512,6 @@ const ViewStudents = () => {
                 phone: formData.get('phone'),
                 course: formData.get('course'),
                 batch: formData.get('batch'),
-                progress: parseInt(formData.get('progress')),
-                attendance: parseInt(formData.get('attendance')),
                 status: formData.get('status'),
                 address: formData.get('address'),
                 qualification: formData.get('qualification'),
@@ -597,30 +566,6 @@ const ViewStudents = () => {
                     type="text"
                     name="batch"
                     defaultValue={selectedStudent.batch}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Progress (%)</label>
-                  <input
-                    type="number"
-                    name="progress"
-                    min="0"
-                    max="100"
-                    defaultValue={selectedStudent.progress}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Attendance (%)</label>
-                  <input
-                    type="number"
-                    name="attendance"
-                    min="0"
-                    max="100"
-                    defaultValue={selectedStudent.attendance}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />

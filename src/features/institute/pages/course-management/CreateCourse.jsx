@@ -7,7 +7,12 @@ import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
 import { useCourseContext } from '../../context/CourseContext'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
+
+import { postMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl.js'
+
 export default function CreateCourse() {
+  
   const navigate = useNavigate()
   const { addCourse } = useCourseContext()
   const [formData, setFormData] = useState({
@@ -20,13 +25,18 @@ export default function CreateCourse() {
     courseStatus: 'Active',
     instructorName: '',
     mode: '',
-    price: '',
+    fee: '',
     certificationAllowed: true
   })
   const [modules, setModules] = useState([])
   const [newModule, setNewModule] = useState({ title: '', description: '' })
   const [selectedMedia, setSelectedMedia] = useState([])
   const [validationErrors, setValidationErrors] = useState({})
+  
+  // ✅ Dynamic categories state
+  const [categories, setCategories] = useState([ ])
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
+  const [newCategory, setNewCategory] = useState('')
 
   const handleBack = () => {
     navigate('/institute/course-management')
@@ -39,114 +49,153 @@ export default function CreateCourse() {
     }))
   }
 
-  const handleAddModule = () => {
-    if (newModule.title.trim() && newModule.description.trim()) {
-      setModules(prev => [...prev, { ...newModule, id: Date.now() }])
-      setNewModule({ title: '', description: '' })
-      // Clear module validation errors when successfully adding
-      setValidationErrors(prev => {
-        const newErrors = { ...prev }
-        delete newErrors.moduleTitle
-        delete newErrors.moduleDescription
-        return newErrors
-      })
-    }
+
+  // ✅ Category management handlers
+  const handleAddCategoryClick = () => {
+    setShowAddCategoryModal(true)
+    setNewCategory('')
   }
 
-  const handleSave = () => {
-    // Clear previous validation errors
-    setValidationErrors({})
-    
-    // Validate all required fields
-    const requiredFields = [
-      { field: 'courseTitle', label: 'Course Title' },
-      { field: 'duration', label: 'Duration' },
-      { field: 'category', label: 'Category' },
-      { field: 'description', label: 'Course Description' },
-      { field: 'batchLimits', label: 'Batch Limits' },
-      { field: 'instructorName', label: 'Instructor Name' },
-      { field: 'mode', label: 'Mode' },
-      { field: 'price', label: 'Price' }
-    ]
-
-    const missingFields = requiredFields.filter(field => !formData[field.field] || formData[field.field].toString().trim() === '')
-    
-    // Validate module fields if they have content
-    if (newModule.title.trim() || newModule.description.trim()) {
-      if (!newModule.title.trim()) {
-        missingFields.push({ field: 'moduleTitle', label: 'Module Title' })
-      }
-      if (!newModule.description.trim()) {
-        missingFields.push({ field: 'moduleDescription', label: 'Module Description' })
-      }
-    }
-    
-    if (missingFields.length > 0) {
-      const missingFieldNames = missingFields.map(field => field.label).join(', ')
-      
-      // Set validation errors for visual feedback
-      const errors = {}
-      missingFields.forEach(field => {
-        errors[field.field] = `${field.label} is required`
-      })
-      setValidationErrors(errors)
-      
-      alert(`Please fill in all required fields: ${missingFieldNames}`)
-      return
-    }
-
-    // Validate that if user started adding a module, both title and description must be filled
-    if ((newModule.title.trim() && !newModule.description.trim()) || 
-        (!newModule.title.trim() && newModule.description.trim())) {
-      setValidationErrors({
-        moduleTitle: 'Both Module Title and Description are required',
-        moduleDescription: 'Both Module Title and Description are required'
-      })
-      alert('Please fill both Module Title and Description, or clear both fields')
-      return
-    }
-
-    // Validate modules if any are added
-    if (modules.length === 0 && !newModule.title.trim() && !newModule.description.trim()) {
-      const addModules = window.confirm('No modules added. Do you want to continue without modules?')
-      if (!addModules) {
+  const handleAddCategory = () => {
+    if (newCategory.trim()) {
+      const categoryName = newCategory.trim()
+      // Check if category already exists
+      if (categories.includes(categoryName)) {
+        alert('This category already exists!')
         return
       }
+      // Add new category
+      setCategories(prev => [...prev, categoryName])
+      // Auto-select the new category
+      handleInputChange('category', categoryName)
+      // Close modal and reset
+      setShowAddCategoryModal(false)
+      setNewCategory('')
+      alert(`✅ Category "${categoryName}" added successfully!`)
+    } else {
+      alert('Please enter a category name.')
     }
-
-    // Add course to context with media
-    const courseDataWithMedia = {
-      ...formData,
-      media: selectedMedia.map(media => ({
-        name: media.name,
-        size: media.size,
-        type: media.type,
-        url: media.url
-      }))
-    }
-    addCourse(courseDataWithMedia)
-    
-    // Show success message
-    alert('Course created successfully!')
-    
-    // Reset form
-    setFormData({
-      courseTitle: '',
-      duration: '',
-      category: '',
-      description: '',
-      taggedSkills: '',
-      batchLimits: '',
-      courseStatus: 'Active',
-      instructorName: '',
-      mode: '',
-      price: '',
-      certificationAllowed: true
-    })
-    setModules([])
-    setNewModule({ title: '', description: '' })
-    setSelectedMedia([])
   }
+
+  const handleCancelAddCategory = () => {
+    setShowAddCategoryModal(false)
+    setNewCategory('')
+  }
+  
+
+  // ✅ Backend integration for Save button
+  // ✅ Backend integration for Save button
+// ✅ Save handler with API integration
+// ✅ Save handler with API integration (Updated with module + media support)
+const handleSave = async () => {
+  setValidationErrors({})
+
+  const requiredFields = [
+    { field: 'courseTitle', label: 'Course Title' },
+    { field: 'duration', label: 'Duration' },
+    { field: 'category', label: 'Category' },
+    { field: 'description', label: 'Course Description' },
+    { field: 'batchLimits', label: 'Batch Limits' },
+    { field: 'instructorName', label: 'Instructor Name' },
+    { field: 'mode', label: 'Mode' },
+    { field: 'fee', label: 'fee' }
+  ]
+
+  const missingFields = requiredFields.filter(field => !formData[field.field] || formData[field.field].toString().trim() === '')
+  if (missingFields.length > 0) {
+    const missingFieldNames = missingFields.map(field => field.label).join(', ')
+    const errors = {}
+    missingFields.forEach(field => { errors[field.field] = `${field.label} is required` })
+    setValidationErrors(errors)
+    alert(`Please fill in all required fields: ${missingFieldNames}`)
+    return
+  }
+
+  // ✅ Combine module titles and descriptions
+  let module_title = ''
+  let module_description = ''
+
+  if (modules.length > 0) {
+    // Agar user ne + button se multiple modules add kiye hain
+    module_title = modules.map(m => m.title.trim()).join(' | ')
+    module_description = modules.map(m => m.description.trim()).join(' || ')
+  } else if (newModule.title.trim() && newModule.description.trim()) {
+    // Agar user ne sirf ek hi module likha par + button nahi dabaya
+    module_title = newModule.title.trim()
+    module_description = newModule.description.trim()
+  } else {
+    // Agar kuch bhi module fill nahi kiya
+    module_title = ''
+    module_description = ''
+  }
+
+  // ✅ Prepare media filenames
+  const mediaNames = selectedMedia.map(file => file.name).join(', ')
+
+  // ✅ Category ID map karna (from dropdown)
+  const categoryIdMap = {
+    'Technical': 1,
+    'Non-Technical': 2,
+    'Vocational': 3,
+    'Professional': 4
+  }
+
+  // ✅ Payload ready for backend
+  const payload = {
+    title: formData.courseTitle.trim(),
+    description: formData.description.trim(),
+    duration: formData.duration.trim(),
+    fee: parseFloat(formData.fee),
+    category_id: categoryIdMap[formData.category] || null,
+    tagged_skills: formData.taggedSkills.trim(),
+    batch_limit: parseInt(formData.batchLimits),
+    status: formData.courseStatus,
+    instructor_name: formData.instructorName.trim(),
+    mode: formData.mode,
+    certification_allowed: formData.certificationAllowed,
+    module_title: module_title,
+    module_description: module_description,
+    media: mediaNames
+  }
+
+  console.log('🔍 Final Payload:', payload)
+
+  try {
+    const res = await postMethod({ apiUrl: apiService.createCourse, payload })
+    if (res?.status) {
+      alert('✅ Course created successfully!')
+      navigate('/institute/course-management')
+
+      // Reset form
+      setFormData({
+        courseTitle: '',
+        duration: '',
+        category: '',
+        description: '',
+        taggedSkills: '',
+        batchLimits: '',
+        courseStatus: 'Active',
+        instructorName: '',
+        mode: '',
+        fee: '',
+        certificationAllowed: true
+      })
+      setModules([])
+      setNewModule({ title: '', description: '' })
+      setSelectedMedia([])
+
+    } else {
+      alert(`❌ ${res?.message || 'Failed to create course'}`)
+    }
+  } catch (err) {
+    console.error('Create Course Error:', err)
+    alert('Something went wrong while creating the course.')
+  }
+}
+
+
+
+
 
   const handleCancel = () => {
     navigate('/institute/course-management')
@@ -168,9 +217,7 @@ export default function CreateCourse() {
   const handleRemoveMedia = (mediaId) => {
     setSelectedMedia(prev => {
       const mediaToRemove = prev.find(media => media.id === mediaId)
-      if (mediaToRemove) {
-        URL.revokeObjectURL(mediaToRemove.url)
-      }
+      if (mediaToRemove) URL.revokeObjectURL(mediaToRemove.url)
       return prev.filter(media => media.id !== mediaId)
     })
   }
@@ -191,9 +238,19 @@ export default function CreateCourse() {
     return `${baseClass} ${errorClass}`
   }
 
+
   return (
     <div className="">
         {/* Header with Action Buttons */}
+        <div className={`flex items-center mb-6`}>
+          <button
+            onClick={handleBack}
+            className={`flex items-center gap-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors`}
+          >
+            <LuArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-medium">Back to Course Management</span>
+          </button>
+        </div>
        
         {/* Basic Information Section */}
         <div className={`mb-8 ${TAILWIND_COLORS.CARD} p-6`}>
@@ -236,17 +293,12 @@ export default function CreateCourse() {
               <div className="flex-1">
                 <div className="relative">
                   <input 
-                    type="number" 
+                    type="text" 
                     value={formData.duration}
                     onChange={(e) => handleInputChange('duration', e.target.value)}
                     className={getInputClassName('duration')}
                     placeholder="e.g. 12"
                   />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
                 </div>
                 {validationErrors.duration && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.duration}</p>
@@ -269,15 +321,21 @@ export default function CreateCourse() {
                   className={getInputClassName('category')}
                 >
                   <option value="">Select category</option>
-                  <option value="Technical">Technical</option>
-                  <option value="Non-Technical">Non-Technical</option>
-                  <option value="Vocational">Vocational</option>
-                  <option value="Professional">Professional</option>
+                  {categories.map((category, index) => (
+                    <option key={index} value={category}>{category}</option>
+                  ))}
                 </select>
                 {validationErrors.category && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.category}</p>
                 )}
               </div>
+              <button 
+                type="button"
+                onClick={handleAddCategoryClick}
+                className="bg-[#5C9A24] hover:bg-[#3f6c17] text-white font-semibold px-4 py-2 rounded-md transition-colors"
+              >
+                + Add Category
+              </button>
             </div>
 
             {/* Course Description */}
@@ -294,6 +352,7 @@ export default function CreateCourse() {
                   onChange={(value) => handleInputChange('description', value)}
                   placeholder="Enter course description"
                   height="150px"
+                  returnPlainText={true}
                 />
               </div>
             </div>
@@ -314,14 +373,6 @@ export default function CreateCourse() {
                     onChange={(e) => handleInputChange('taggedSkills', e.target.value)}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C9A24]"
                     placeholder="e.g. Wiring, Safety Measures"
-                  />
-                  {/* Using Button with icon from Button.jsx */}
-                  <Button 
-                    type="button"
-                    variant="primary"
-                    size="sm"
-                    icon={<LuPlus />}
-                    className="!w-10 !h-10 !p-0 rounded-full"
                   />
                 </div>
               </div>
@@ -436,24 +487,24 @@ export default function CreateCourse() {
             </div>
 
 
-            {/* Price */}
+            {/* fee */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
                 <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  PRICE <span className="text-red-500">*</span>
+                  fee <span className="text-red-500">*</span>
                 </label>
                 <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter the course fee in Indian Rupees.</p>
               </div>
               <div className="flex-1">
                 <input 
                   type="text" 
-                  value={formData.price}
-                  onChange={(e) => handleInputChange('price', e.target.value)}
-                  className={getInputClassName('price')}
+                  value={formData.fee}
+                  onChange={(e) => handleInputChange('fee', e.target.value)}
+                  className={getInputClassName('fee')}
                   placeholder="ex. 15,000"
                 />
-                {validationErrors.price && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.price}</p>
+                {validationErrors.fee && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.fee}</p>
                 )}
               </div>
             </div>
@@ -507,7 +558,7 @@ export default function CreateCourse() {
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
               <div className="w-full lg:w-1/3 lg:min-w-[200px]">
                 <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  MODULE 1 TITLE <span className="text-orange-500">*</span>
+                  MODULE TITLE <span className="text-orange-500">*</span>
                 </label>
                 <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter the name of the module.</p>
               </div>
@@ -534,13 +585,6 @@ export default function CreateCourse() {
                     }`}
                     placeholder="e.g. intro to HTML"
                   />
-                  <button 
-                    type="button"
-                    onClick={handleAddModule}
-                    className="w-10 h-10 bg-[#5C9A24] text-white rounded-full hover:bg-[#3f6c17] flex items-center justify-center"
-                  >
-                    <LuPlus className="w-4 h-4" />
-                  </button>
                 </div>
                 {validationErrors.moduleTitle && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.moduleTitle}</p>
@@ -722,6 +766,64 @@ export default function CreateCourse() {
               Save
             </DynamicButton>
           </div>
+
+        {/* ✅ Add Category Modal */}
+        {showAddCategoryModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                  Add New Category
+                </h3>
+                <button
+                  onClick={handleCancelAddCategory}
+                  className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors`}
+                >
+                  <LuX className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Content */}
+              <div className="p-6">
+                <div className="mb-4">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                    CATEGORY NAME <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C9A24]"
+                    placeholder="e.g. Healthcare, Finance, Marketing"
+                    autoFocus
+                  />
+                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
+                    Enter a unique category name for your course.
+                  </p>
+                </div>
+
+                {/* Modal Actions */}
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={handleCancelAddCategory}
+                    className={`px-4 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddCategory}
+                    className="px-4 py-2 bg-[#5C9A24] text-white rounded-lg hover:bg-[#3f6c17] transition-colors"
+                  >
+                    Add Category
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   )
 }

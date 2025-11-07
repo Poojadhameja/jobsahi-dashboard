@@ -4,6 +4,8 @@ import { FaSearch, FaMapMarkerAlt, FaBriefcase, FaFilter } from 'react-icons/fa'
 import NewsletterSubscription from '../../components/NewsletterSubscription'
 import Footer from '../../components/Footer'
 import JobDetails from './JobDetails'
+import textunderline from "../../assets/website_text_underline.png";
+import Navbar from '../../components/Navbar'
 
 const FindJob = ({ onClose }) => {
   const [selectedEmployment, setSelectedEmployment] = useState(['Part Time'])
@@ -12,6 +14,8 @@ const FindJob = ({ onClose }) => {
   const [salaryRange, setSalaryRange] = useState([1000, 6000])
   const [showJobPopup, setShowJobPopup] = useState(false)
   const [selectedJob, setSelectedJob] = useState(null)
+  const [email, setEmail] = useState('')
+  const [isSubscribed, setIsSubscribed] = useState(false)
 
   const employmentTypes = [
     { name: 'Part Time', count: 120, selected: selectedEmployment.includes('Part Time') },
@@ -50,7 +54,7 @@ const FindJob = ({ onClose }) => {
       capacity: 70,
       skills: ['App', 'Figma', 'PSD'],
       logo: 'L',
-      logoColor: 'var(--color-primary)',
+      logoColor: colors.Darkblue.dblue,
       experience: 'Entry Level',
       postedOn: 'May, 10 2024',
       applyBefore: 'June, 10 2024',
@@ -164,7 +168,7 @@ const FindJob = ({ onClose }) => {
       capacity: 25,
       skills: ['Figma', 'Sketch', 'Prototyping'],
       logo: 'B',
-      logoColor: 'var(--color-primary)',
+      logoColor: colors.Darkblue.dblue,
       experience: 'Mid Level',
       postedOn: 'May, 18 2024',
       applyBefore: 'June, 18 2024',
@@ -278,7 +282,7 @@ const FindJob = ({ onClose }) => {
       capacity: 70,
       skills: ['Product Design', 'User Research', 'Prototyping'],
       logo: 'I',
-      logoColor: 'var(--color-primary)',
+      logoColor: colors.Darkblue.dblue,
       experience: 'Senior Level',
       postedOn: 'May, 25 2024',
       applyBefore: 'June, 25 2024',
@@ -346,6 +350,16 @@ const FindJob = ({ onClose }) => {
     window.location.href = '/login'
   }
 
+  const handleSubscribe = (subscriberEmail) => {
+    console.log('Subscribing email:', subscriberEmail)
+    setIsSubscribed(true)
+    setEmail('')
+    // You can add API call here to save the subscription
+    setTimeout(() => {
+      setIsSubscribed(false)
+    }, 5000)
+  }
+
   // Prevent body scroll when popup is open
   useEffect(() => {
     if (showJobPopup) {
@@ -362,36 +376,24 @@ const FindJob = ({ onClose }) => {
 
  
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-primary)' }}>
-        <div className="min-h-screen rounded-3xl" style={{ backgroundColor: 'var(--color-bg-white)' }}>
+    <div className=" min-h-screen" style={{ backgroundColor: colors.Darkblue.dblue }}>
+      <Navbar />
+        <div className="">
       {/* Hero Section */}
-      <div className="py-16 px-6 rounded-md" style={{ background: 'linear-gradient(to right, var(--color-primary-10), var(--color-secondary-10))' }}>
-        <div className="max-w-4xl mx-auto text-center">
+      <div className="py-16 rounded-[50px] bg-[#EAF5FB]  mx-4  my-8">
+        <div className="max-w-4xl mx-auto text-center ">
           {/* Badge */}
           <div className="inline-block rounded-full px-4 py-2 mb-6" style={{ backgroundColor: 'var(--color-secondary-10)', border: '1px solid var(--color-secondary)' }}>
             <span className="font-semibold text-sm" style={{ color: 'var(--color-secondary-dark)' }}>#1 PORTAL JOB PLATFORM</span>
           </div>
           
                   {/* Main Heading */}
-                  <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                    <span style={{ color: 'var(--color-primary)' }}>Find Your</span>{' '}
-                    <span className="relative" style={{ color: 'var(--color-secondary)' }}>
-                      Dream Job
-                      <svg 
-                        className="absolute -bottom-1 left-0 w-full h-2" 
-                        viewBox="0 0 200 20" 
-                        fill="none"
-                      >
-                        <path 
-                          d="M5 15C60 5, 120 10, 195 8" 
-                          stroke="var(--color-secondary-light)" 
-                          strokeWidth="3" 
-                          fill="none"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    </span>
-                  </h1>
+                  <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-12 ">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 text-[#0B537D] leading-tight">
+              Find Your Dream Job
+              </h1>
+              <img src={textunderline} alt="" className="w-[30%] h-[15px] md:h-[25px] -mt-10" />
+            </div>
           
           {/* Subtitle */}
           <p className="text-lg mb-8 max-w-2xl mx-auto" style={{ color: 'var(--color-text-muted)' }}>
@@ -438,13 +440,16 @@ const FindJob = ({ onClose }) => {
         </div>
       </div>
       
-      <div className="flex mt-8 mx-12 mb-20">
+      <div className="flex md:gap-10 py-10 px-5 md:px-16 mb-20 bg-white">
         {/* Left Panel - Filters */}
-        <div className="w-1/3 p-6 min-h-screen rounded-l-lg" style={{ backgroundColor: 'var(--color-primary)' }}>
-          <h3 className="text-xl font-semibold mb-6" style={{ color: 'var(--color-bg-white)' }}>Filter By</h3>
+         <div className="">
+        <div className="  min-h-screen rounded-l-lg" >
+         <h3 className="text-xl font-semibold mb-6" style={{ color: colors.Darkblue.dblue }}>Filter By</h3>
           
-          {/* Type of Employment */}
-          <div className="mb-8">
+         <div className="p-4 md:p-8 rounded-xl "style={{ backgroundColor:colors.Darkblue.dblue }}>
+
+           {/* Type of Employment */}
+           <div className="mb-8">
             <h4 className="text-lg font-medium mb-4" style={{ color: 'var(--color-bg-white)' }}>Type Of Employment</h4>
             <div className="space-y-3">
               {employmentTypes.map((type) => (
@@ -520,10 +525,10 @@ const FindJob = ({ onClose }) => {
 
           {/* Salary Range */}
           <div className="mb-8">
-            <h4 className="text-lg font-medium mb-4" style={{ color: 'var(--color-bg-white)' }}>Salary Range</h4>
+            <h4 className="text-lg font-medium mb-4" style={{ color: colors.text.white }}>Salary Range</h4>
             <div className="space-y-4">
-              <div className="flex justify-between text-sm" style={{ color: 'var(--color-bg-white)' }}>
-                <span>${salaryRange[0].toLocaleString()}</span>
+                <div className="flex justify-between text-sm" style={{ color: 'var(--color-bg-white)' }}>
+                  <span>${salaryRange[0].toLocaleString()}</span>
                 <span>${salaryRange[1].toLocaleString()}</span>
               </div>
               <input
@@ -551,13 +556,15 @@ const FindJob = ({ onClose }) => {
           >
             Apply Filter
           </button>
+         </div>
         </div>
+         </div>
 
         {/* Right Panel - Job Listings */}
         <div className="flex-1 p-6 rounded-r-lg" style={{ backgroundColor: 'var(--color-bg-white)' }}>
           {/* Header */}
           <div className="flex justify-between items-center mb-6 mx-2">
-            <h2 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>All 28 Jobs Found</h2>
+            <h2 className="text-2xl font-bold" style={{ color: colors.Darkblue.dblue }}>All 28 Jobs Found</h2>
             <div className="flex items-center space-x-2">
               <span style={{ color: 'var(--color-text-muted)' }}>Short by:</span>
               <select 
@@ -565,7 +572,7 @@ const FindJob = ({ onClose }) => {
                 style={{ 
                   borderColor: 'var(--color-gray-300)',
                   backgroundColor: 'var(--color-bg-white)',
-                  color: 'var(--color-text-primary)'
+                  color: colors.Darkblue.dblue
                 }}
               >
                 <option>Newest Upward</option>
@@ -597,7 +604,7 @@ const FindJob = ({ onClose }) => {
                     
                     {/* Job Details */}
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--color-text-primary)' }}>{job.title}</h3>
+                      <h3 className="text-xl font-bold mb-1" style={{ color: colors.Darkblue.dblue }}>{job.title}</h3>
                       <p className="mb-3" style={{ color: 'var(--color-text-muted)' }}>{job.company} • {job.location}</p>
                       
                       {/* Job Details with Icons */}
@@ -637,7 +644,7 @@ const FindJob = ({ onClose }) => {
                             className="h-2 rounded-full" 
                             style={{ 
                               width: `${(job.applied / job.capacity) * 100}%`,
-                              backgroundColor: 'var(--color-primary)'
+                              backgroundColor: colors.Darkblue.dblue
                             }}
                           ></div>
                         </div>
@@ -671,7 +678,7 @@ const FindJob = ({ onClose }) => {
               <button 
                 className="px-3 py-2 transition-colors"
                 style={{ color: 'var(--color-text-muted)' }}
-                onMouseEnter={(e) => e.target.style.color = 'var(--color-text-primary)'}
+                onMouseEnter={(e) => e.target.style.color = colors.Darkblue.dblue}
                 onMouseLeave={(e) => e.target.style.color = 'var(--color-text-muted)'}
               >‹</button>
                 <button 
@@ -684,25 +691,25 @@ const FindJob = ({ onClose }) => {
               <button 
                 className="px-3 py-2 transition-colors"
                 style={{ color: 'var(--color-text-muted)' }}
-                onMouseEnter={(e) => e.target.style.color = 'var(--color-text-primary)'}
+                onMouseEnter={(e) => e.target.style.color = colors.Darkblue.dblue}
                 onMouseLeave={(e) => e.target.style.color = 'var(--color-text-muted)'}
               >2</button>
               <button 
                 className="px-3 py-2 transition-colors"
                 style={{ color: 'var(--color-text-muted)' }}
-                onMouseEnter={(e) => e.target.style.color = 'var(--color-text-primary)'}
+                onMouseEnter={(e) => e.target.style.color = colors.Darkblue.dblue}
                 onMouseLeave={(e) => e.target.style.color = 'var(--color-text-muted)'}
               >3</button>
               <button 
                 className="px-3 py-2 transition-colors"
                 style={{ color: 'var(--color-text-muted)' }}
-                onMouseEnter={(e) => e.target.style.color = 'var(--color-text-primary)'}
+                onMouseEnter={(e) => e.target.style.color = colors.Darkblue.dblue}
                 onMouseLeave={(e) => e.target.style.color = 'var(--color-text-muted)'}
               >4</button>
               <button 
                 className="px-3 py-2 transition-colors"
                 style={{ color: 'var(--color-text-muted)' }}
-                onMouseEnter={(e) => e.target.style.color = 'var(--color-text-primary)'}
+                onMouseEnter={(e) => e.target.style.color = colors.Darkblue.dblue}
                 onMouseLeave={(e) => e.target.style.color = 'var(--color-text-muted)'}
               >›</button>
             </div>
@@ -711,7 +718,15 @@ const FindJob = ({ onClose }) => {
       </div>
       
               {/* Subscribe Section */}
-              <NewsletterSubscription />
+              <NewsletterSubscription 
+                headerContent={{
+                  title: "New Things Will Always Update Regularly"
+                }}
+                email={email}
+                setEmail={setEmail}
+                onSubscribe={handleSubscribe}
+                isSubscribed={isSubscribed}
+              />
        
        {/* Footer */}
        <Footer />

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { LuX, LuPlus, LuUpload } from 'react-icons/lu'
+import { LuX, LuPlus } from 'react-icons/lu'
 import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { putMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
 
 const EditCoursePopup = ({ course, onSave, onClose }) => {
   const [formData, setFormData] = useState({
@@ -10,155 +12,154 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
     category: '',
     description: '',
     taggedSkills: '',
-    batchLimits: '',
+    batchLimit: '',
     courseStatus: 'Active',
     instructorName: '',
     mode: '',
-    difficultyLevel: '',
-    price: '',
-    certificationAllowed: true
+    fee: '',
+    certificationAllowed: true,
+    moduleTitle: '',
+    moduleDescription: ''
   })
-  const [modules, setModules] = useState([])
-  const [newModule, setNewModule] = useState({ title: '', description: '' })
+
   const [selectedMedia, setSelectedMedia] = useState([])
   const [validationErrors, setValidationErrors] = useState({})
 
   useEffect(() => {
     if (course) {
-      setFormData({
-        courseTitle: course.title || '',
-        duration: course.duration || '',
-        category: course.category || '',
-        description: course.description || '',
-        taggedSkills: course.skills ? course.skills.join(', ') : '',
-        batchLimits: course.batchLimits || '',
-        courseStatus: course.status || 'Active',
-        instructorName: course.instructorName || '',
-        mode: course.mode || '',
-        difficultyLevel: course.difficultyLevel || '',
-        price: course.price || '',
-        certificationAllowed: course.certificationAllowed !== false
-      })
-      setModules(course.modules || [])
-      setSelectedMedia(course.media || [])
+      // Parse media
+      let parsedMedia = []
+      try {
+        if (typeof course.media === 'string' && course.media.trim() !== '') {
+          parsedMedia = JSON.parse(course.media)
+          if (!Array.isArray(parsedMedia)) parsedMedia = course.media.split(',').map(m => m.trim())
+        } else if (Array.isArray(course.media)) {
+          parsedMedia = course.media
+        }
+      } catch {
+        parsedMedia = course.media ? course.media.split(',').map(m => m.trim()) : []
+      }
+
+        setFormData({
+          courseTitle: course.title || '',
+          duration: course.duration || '',
+          category: course.category || '',
+          description: course.description || '',
+          taggedSkills: course.skills ? course.skills.join(', ') : '',
+          batchLimit: course.batchLimit || '',
+          courseStatus: course.status || 'Active',
+          instructorName: course.instructorName || '',
+          mode: course.mode || '',
+          fee: course.fee || '',
+          certificationAllowed: !!course.certificationAllowed,
+          moduleTitle: course.moduleTitle || '',
+          moduleDescription: course.moduleDescription || ''
+        })
+      setSelectedMedia(parsedMedia)
     }
   }, [course])
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-    
-    // Clear validation error when user starts typing
+    setFormData(prev => ({ ...prev, [field]: value }))
     if (validationErrors[field]) {
       setValidationErrors(prev => {
-        const newErrors = { ...prev }
-        delete newErrors[field]
-        return newErrors
+        const updated = { ...prev }
+        delete updated[field]
+        return updated
       })
     }
   }
 
-  const handleAddModule = () => {
-    if (newModule.title && newModule.description) {
-      setModules(prev => [...prev, { ...newModule, id: Date.now() }])
-      setNewModule({ title: '', description: '' })
-    }
-  }
-
-  const handleMediaSelect = (e) => {
+  const handleMediaSelect = e => {
     const files = Array.from(e.target.files)
     const newMedia = files.map(file => ({
       id: Date.now() + Math.random(),
-      file: file,
       name: file.name,
-      size: file.size,
-      type: file.type,
-      url: URL.createObjectURL(file)
+      url: URL.createObjectURL(file),
+      type: file.type
     }))
     setSelectedMedia(prev => [...prev, ...newMedia])
   }
 
-  const handleRemoveMedia = (mediaId) => {
-    setSelectedMedia(prev => {
-      const mediaToRemove = prev.find(media => media.id === mediaId)
-      if (mediaToRemove) {
-        URL.revokeObjectURL(mediaToRemove.url)
-      }
-      return prev.filter(media => media.id !== mediaId)
-    })
+  const handleRemoveMedia = id => {
+    setSelectedMedia(prev => prev.filter(m => m.id !== id))
   }
 
-  const getInputClassName = (fieldName) => {
-    const baseClass = "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2"
-    const errorClass = validationErrors[fieldName] 
-      ? "border-red-500 focus:ring-red-500" 
-      : `${TAILWIND_COLORS.BORDER} focus:ring-[#5C9A24]`
-    return `${baseClass} ${errorClass}`
-  }
+  const getInputClass = field =>
+    `w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+      validationErrors[field]
+        ? 'border-red-500 focus:ring-red-500'
+        : `${TAILWIND_COLORS.BORDER} focus:ring-[#5C9A24]`
+    }`
 
-  const handleSave = () => {
-    // Clear previous validation errors
-    setValidationErrors({})
-    
-    // Validate all required fields
-    const requiredFields = [
-      { field: 'courseTitle', label: 'Course Title' },
-      { field: 'duration', label: 'Duration' },
-      { field: 'category', label: 'Category' },
-      { field: 'description', label: 'Course Description' },
-      { field: 'batchLimits', label: 'Batch Limits' },
-      { field: 'instructorName', label: 'Instructor Name' },
-      { field: 'mode', label: 'Mode' },
-      { field: 'difficultyLevel', label: 'Difficulty Level' },
-      { field: 'price', label: 'Price' }
+  const handleSave = async () => {
+    const required = [
+      'courseTitle',
+      'duration',
+      'category',
+      'description',
+      'batchLimit',
+      'instructorName',
+      'mode',
+      'fee'
     ]
-
-    const missingFields = requiredFields.filter(field => !formData[field.field] || formData[field.field].toString().trim() === '')
-    
-    if (missingFields.length > 0) {
-      const missingFieldNames = missingFields.map(field => field.label).join(', ')
-      
-      // Set validation errors for visual feedback
-      const errors = {}
-      missingFields.forEach(field => {
-        errors[field.field] = `${field.label} is required`
-      })
+    const errors = {}
+    required.forEach(f => {
+      if (!formData[f] || formData[f].toString().trim() === '')
+        errors[f] = 'This field is required'
+    })
+    if (Object.keys(errors).length) {
       setValidationErrors(errors)
-      
-      alert(`Please fill in all required fields: ${missingFieldNames}`)
+      alert('Please fill all required fields.')
       return
     }
 
-    // Prepare updated course data with proper field mapping
-    const updatedCourse = {
+    const payload = {
       title: formData.courseTitle,
-      category: formData.category?.toUpperCase() || course.category,
-      skills: formData.taggedSkills ? formData.taggedSkills.split(',').map(skill => skill.trim()) : course.skills || [],
       description: formData.description,
-      price: formData.price,
+      duration: parseInt(formData.duration),
+      fee: parseFloat(formData.fee),
+      category_id:
+        formData.category.toLowerCase() === 'technical'
+          ? 1
+          : formData.category.toLowerCase() === 'non-technical'
+          ? 2
+          : formData.category.toLowerCase() === 'vocational'
+          ? 3
+          : formData.category.toLowerCase() === 'professional'
+          ? 4
+          : 0,
+      tagged_skills: formData.taggedSkills,
+      batch_limit: parseInt(formData.batchLimit),
       status: formData.courseStatus,
-      duration: formData.duration,
-      batchLimits: formData.batchLimits,
-      instructorName: formData.instructorName,
+      instructor_name: formData.instructorName,
       mode: formData.mode,
-      difficultyLevel: formData.difficultyLevel,
-      certificationAllowed: formData.certificationAllowed,
-      modules: modules,
-      media: selectedMedia.map(media => ({
-        name: media.name,
-        size: media.size,
-        type: media.type,
-        url: media.url
-      }))
+      certification_allowed: formData.certificationAllowed ? 1 : 0,
+      module_title: formData.moduleTitle || '',
+      module_description: formData.moduleDescription || '',
+      media:
+        selectedMedia && selectedMedia.length > 0
+          ? selectedMedia.map(m => m.name).join(', ')
+          : '',
+      admin_action: 'approved'
     }
 
-    // Call the onSave function with updated course data
-    onSave(updatedCourse)
-    
-    // Show success message
-    alert('Course updated successfully!')
+    try {
+      const res = await putMethod({
+        apiUrl: `${apiService.updateCourse}?id=${course.id}`,
+        payload
+      })
+      if (res?.status) {
+        // alert('✅ Course updated successfully!')
+        onSave(payload)
+        onClose()
+      } else {
+        alert(`❌ Update failed: ${res?.message || 'Unknown error'}`)
+      }
+    } catch (err) {
+      console.error('Update Error:', err)
+      alert('Something went wrong while updating the course.')
+    }
   }
 
   if (!course) return null
@@ -166,12 +167,14 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] flex flex-col">
-        {/* Header - Fixed */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Course</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+            Edit Course
+          </h2>
           <button
             onClick={onClose}
-            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary transition-colors`}
+            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-[#1A569A]`}
           >
             <LuX className="w-6 h-6" />
           </button>
@@ -179,293 +182,201 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
 
         {/* Scrollable Content */}
         <div className="p-6 space-y-6 overflow-y-auto flex-1">
-          {/* Basic Information Section */}
+          {/* Basic Information */}
           <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Basic Information</h3>
-            
-            <div className="space-y-6">
-              {/* Course Title */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  COURSE TITLE <span className="text-red-500">*</span>
-                </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>The name of the course or job role.</p>
-                </div>
-                <div className="flex-1">
-                <input 
-                  type="text" 
-                  value={formData.courseTitle}
-                  onChange={(e) => handleInputChange('courseTitle', e.target.value)}
-                  className={getInputClassName('courseTitle')}
-                  placeholder="e.g. Assistant Electrician"
-                />
-                {validationErrors.courseTitle && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.courseTitle}</p>
-                )}
-                </div>
-              </div>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>
+              Basic Information
+            </h3>
 
-              {/* Duration */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  DURATION (WEEKS) <span className="text-red-500">*</span>
-                </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Duration of the course in weeks.</p>
-                </div>
-                <div className="flex-1">
-                  <div className="relative">
-                <input 
-                  type="number" 
-                  value={formData.duration}
-                  onChange={(e) => handleInputChange('duration', e.target.value)}
-                  className={getInputClassName('duration')}
-                  placeholder="e.g. 12"
-                />
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
-                {validationErrors.duration && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.duration}</p>
-                )}
-              </div>
-              </div>
+            {/* Course Title */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                COURSE TITLE <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.courseTitle}
+                onChange={e => handleInputChange('courseTitle', e.target.value)}
+                className={getInputClass('courseTitle')}
+                placeholder="e.g. Assistant Electrician"
+              />
+            </div>
 
-              {/* Course Description */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    COURSE DESCRIPTION <span className="text-red-500">*</span>
-                  </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>For effective candidate selection, enhance the job description.</p>
-                </div>
-                <div className="flex-1">
-                  <RichTextEditor
-                    value={formData.description}
-                    onChange={(value) => handleInputChange('description', value)}
-                    placeholder="Enter course description"
-                    height="150px"
-                  />
-                  {validationErrors.description && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>
-                  )}
-                </div>
-              </div>
+            {/* Duration */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                DURATION (WEEKS) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                value={formData.duration}
+                onChange={e => handleInputChange('duration', e.target.value)}
+                className={getInputClass('duration')}
+                placeholder="e.g. 12"
+              />
+            </div>
 
-              {/* Tagged Skills */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    TAGGED SKILLS
-                  </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>List needed skills.</p>
-                </div>
-                <div className="flex-1">
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      value={formData.taggedSkills}
-                      onChange={(e) => handleInputChange('taggedSkills', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C9A24]"
-                      placeholder="e.g. Wiring, Safety Measures"
-                    />
-                    <button 
-                      type="button"
-                      className="w-10 h-10 bg-[#5C9A24] text-white rounded-full hover:bg-[#3f6c17] flex items-center justify-center"
-                    >
-                      <LuPlus className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+            {/* Description */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                COURSE DESCRIPTION <span className="text-red-500">*</span>
+              </label>
+              <RichTextEditor
+                value={formData.description}
+                onChange={v => handleInputChange('description', v)}
+                placeholder="Enter course description"
+                height="150px"
+                returnPlainText={true}
+              />
+            </div>
 
-              {/* Batch Limits */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    BATCH LIMITS <span className="text-red-500">*</span>
-                  </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose required experience.</p>
-                </div>
-                <div className="flex-1">
-                  <div className="relative">
-                    <input 
-                      type="number" 
-                      value={formData.batchLimits}
-                      onChange={(e) => handleInputChange('batchLimits', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C9A24]"
-                      placeholder="e.g. 30 students"
-                    />
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex flex-col">
-                      <button type="button" className="text-gray-400 hover:text-gray-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                        </svg>
-                      </button>
-                      <button type="button" className="text-gray-400 hover:text-gray-600">
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            {/* Skills */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                TAGGED SKILLS
+              </label>
+              <input
+                type="text"
+                value={formData.taggedSkills}
+                onChange={e => handleInputChange('taggedSkills', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#5C9A24]"
+                placeholder="e.g. Wiring, Safety Measures"
+              />
+            </div>
 
-              {/* Course Status */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    COURSE STATUS
-                  </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job type.</p>
-                </div>
-                <div className="flex-1">
-                  <select 
-                    value={formData.courseStatus}
-                    onChange={(e) => handleInputChange('courseStatus', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C9A24]"
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="Draft">Draft</option>
-                  </select>
-                </div>
-              </div>
+            {/* Batch Limit */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                BATCH LIMIT <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                value={formData.batchLimit}
+                onChange={e => handleInputChange('batchLimit', e.target.value)}
+                className={getInputClass('batchLimit')}
+                placeholder="e.g. 30"
+              />
+            </div>
+
+            {/* Status */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                COURSE STATUS
+              </label>
+              <select
+                value={formData.courseStatus}
+                onChange={e => handleInputChange('courseStatus', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Draft">Draft</option>
+              </select>
             </div>
           </div>
 
-          {/* Additional Settings Section */}
+          {/* Additional Settings */}
           <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Additional Settings</h3>
-            
-            <div className="space-y-6">
-              {/* Category */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  CATEGORY <span className="text-red-500">*</span>
-                </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose category of course.</p>
-                </div>
-                <div className="flex-1">
-                <select 
-                  value={formData.category}
-                  onChange={(e) => handleInputChange('category', e.target.value)}
-                  className={getInputClassName('category')}
-                >
-                  <option value="">Select category</option>
-                  <option value="Technical">Technical</option>
-                  <option value="Non-Technical">Non-Technical</option>
-                  <option value="Vocational">Vocational</option>
-                  <option value="Professional">Professional</option>
-                </select>
-                {validationErrors.category && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.category}</p>
-                )}
-                </div>
-              </div>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>
+              Additional Settings
+            </h3>
 
-              {/* Price */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  PRICE <span className="text-red-500">*</span>
-                </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose course price.</p>
-                </div>
-                <div className="flex-1">
-                <input 
-                  type="text" 
-                  value={formData.price}
-                  onChange={(e) => handleInputChange('price', e.target.value)}
-                  className={getInputClassName('price')}
-                  placeholder="ex. 15,000"
-                />
-                {validationErrors.price && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.price}</p>
-                )}
-                </div>
-              </div>
-
-              {/* Instructor Name */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    INSTRUCTOR NAME <span className="text-red-500">*</span>
-                </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Name of instructor.</p>
-                </div>
-                <div className="flex-1">
-                  <input 
-                    type="text" 
-                    value={formData.instructorName}
-                    onChange={(e) => handleInputChange('instructorName', e.target.value)}
-                    className={getInputClassName('instructorName')}
-                    placeholder="e.g. Rajeev Kumar"
-                  />
-                  {validationErrors.instructorName && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.instructorName}</p>
-                )}
-              </div>
+            {/* Category */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                CATEGORY <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.category}
+                onChange={e => handleInputChange('category', e.target.value)}
+                className={getInputClass('category')}
+              >
+                <option value="">Select category</option>
+                <option value="Technical">Technical</option>
+                <option value="Non-Technical">Non-Technical</option>
+                <option value="Vocational">Vocational</option>
+                <option value="Professional">Professional</option>
+              </select>
             </div>
-          </div>
-        </div>
 
-          {/* Course Modules Section */}
-          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Course Modules</h3>
-            
-            <div className="space-y-6">
-              {/* Module Title */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    MODULE 1 TITLE <span className="text-orange-500">*</span>
-                  </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Name of instructor.</p>
-                </div>
-                <div className="flex-1">
-                  <input 
-                    type="text" 
-                    value={newModule.title}
-                    onChange={(e) => setNewModule(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C9A24]"
-                    placeholder="e.g. intro to HTML"
-                  />
-                </div>
-              </div>
+            {/* fee */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                fee <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.fee}
+                onChange={e => handleInputChange('fee', e.target.value)}
+                className={getInputClass('fee')}
+                placeholder="e.g. 15000"
+              />
+            </div>
 
-              {/* Module Description */}
-              <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-                <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    MODULE DESCRIPTION <span className="text-orange-500">*</span>
-                  </label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Add module description.</p>
-                </div>
-                <div className="flex-1">
-                  <textarea 
-                    value={newModule.description}
-                    onChange={(e) => setNewModule(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5C9A24]"
-                    rows="4"
-                    placeholder="Add module description"
-                  />
-                </div>
-              </div>
+            {/* Instructor */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                INSTRUCTOR NAME <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.instructorName}
+                onChange={e => handleInputChange('instructorName', e.target.value)}
+                className={getInputClass('instructorName')}
+                placeholder="e.g. Rajeev Kumar"
+              />
+            </div>
 
-              
+            {/* Mode */}
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                MODE <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.mode}
+                onChange={e => handleInputChange('mode', e.target.value)}
+                className={getInputClass('mode')}
+                placeholder="Online / Offline"
+              />
             </div>
           </div>
 
-          {/* Drag and Drop Section */}
+          {/* Module */}
           <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-[#5C9A24] transition-colors cursor-pointer">
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>
+              Course Module
+            </h3>
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                MODULE TITLE
+              </label>
+              <input
+                type="text"
+                value={formData.moduleTitle}
+                onChange={e => handleInputChange('moduleTitle', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="e.g. Introduction to Basics"
+              />
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                MODULE DESCRIPTION
+              </label>
+              <textarea
+                rows="4"
+                value={formData.moduleDescription}
+                onChange={e => handleInputChange('moduleDescription', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                placeholder="Enter module description"
+              ></textarea>
+            </div>
+          </div>
+
+          {/* Media Upload */}
+          <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#5C9A24] transition">
               <input
                 type="file"
                 multiple
@@ -478,31 +389,29 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
                 <div className="w-12 h-12 bg-gray-100 rounded-md mx-auto mb-4 flex items-center justify-center">
                   <LuPlus className="w-6 h-6 text-gray-400" />
                 </div>
-                <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Drag and Drop files here</p>
+                <p className="text-gray-500">Click or drag files to upload</p>
               </label>
-              
-              {/* Selected Files List */}
-              {selectedMedia.length > 0 && (
+
+              {Array.isArray(selectedMedia) && selectedMedia.length > 0 && (
                 <div className="mt-6 text-left">
-                  <h4 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Selected Files:</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">
+                    Selected Files:
+                  </h4>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {selectedMedia.map((media, index) => (
-                      <div key={media.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-[#5C9A24] rounded flex items-center justify-center">
-                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                          </div>
-                          <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{media.name}</span>
-                        </div>
-          <button
+                    {selectedMedia.map(media => (
+                      <div
+                        key={media.id || media.name}
+                        className="flex items-center justify-between bg-gray-50 rounded-lg p-2"
+                      >
+                        <span className="text-sm text-gray-700 truncate">
+                          {media.name || media}
+                        </span>
+                        <button
                           onClick={() => handleRemoveMedia(media.id)}
-                          className="text-red-500 hover:text-red-700 p-1"
-                          title="Remove file"
+                          className="text-red-500 hover:text-red-700"
                         >
-                          <LuX className="w-3 h-3" />
-          </button>
+                          <LuX className="w-4 h-4" />
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -512,19 +421,17 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
           </div>
         </div>
 
-        {/* Action Buttons - Fixed */}
-        <div className="flex justify-end gap-3 p-6 border-t border-gray-200 flex-shrink-0">
+        {/* Footer */}
+        <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
           <button
-            type="button"
             onClick={onClose}
-            className={`px-6 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors hover:opacity-80`}
+            className={`px-6 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg`}
           >
             Discard
           </button>
           <button
-            type="button"
             onClick={handleSave}
-            className={`px-6 py-2 ${TAILWIND_COLORS.BTN_PRIMARY} rounded-lg transition-colors hover:opacity-90`}
+            className={`px-6 py-2 ${TAILWIND_COLORS.BTN_PRIMARY} rounded-lg`}
           >
             Update
           </button>

@@ -1,6 +1,12 @@
 // Website Color Palette
 export const colors = {
   // Primary Colors
+
+
+  Darkblue: {
+    dblue: '#00395B' // dark blue color
+  },
+
   primary: {
     darkBlue: '#1e3a8a', // Main background color
     lightBlue: '#3b82f6',

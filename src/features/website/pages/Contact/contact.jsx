@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { FaEnvelope, FaPhone, FaGlobe } from 'react-icons/fa'
 import Navbar from '../../components/Navbar'
+import NewsletterSubscription from '../../components/NewsletterSubscription'
 import Footer from '../../components/Footer'
 import textunderline from '../../assets/website_text_underline.png'
 
@@ -12,6 +13,7 @@ const Contact = () => {
     message: ''
   })
   const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [isSubscribed, setIsSubscribed] = useState(false)
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -27,18 +29,22 @@ const Contact = () => {
     setFormData({ name: '', email: '', phone: '', message: '' })
   }
 
-  const handleNewsletterSubscribe = (e) => {
-    e.preventDefault()
-    console.log('Subscribed with:', newsletterEmail)
+  const handleNewsletterSubscribe = (subscriberEmail) => {
+    console.log('Subscribing email:', subscriberEmail)
+    setIsSubscribed(true)
     setNewsletterEmail('')
+    // You can add API call here to save the subscription
+    setTimeout(() => {
+      setIsSubscribed(false)
+    }, 5000)
   }
 
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-[#00395B] min-h-screen">
       <Navbar />
 
       {/* Header Section */}
-      <section className="bg-[#00395B] py-16">
+      <section className=" py-16">
         <div className="bg-[#EAF5FB] max-w-5xl mx-auto rounded-3xl p-12 text-center">
           <div className="inline-block border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-2 rounded-full text-sm font-semibold mb-6">
             #1 PORTAL JOB PLATFORM
@@ -135,18 +141,15 @@ const Contact = () => {
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-12 bg-[#00395B] text-white">
-        <div className="max-w-3xl mx-auto flex flex-col md:flex-row items-center justify-between px-6 space-y-6 md:space-y-0">
-          <h3 className="text-xl font-semibold">New Things Will Always Update Regularly</h3>
-          <form onSubmit={handleNewsletterSubscribe} className="flex items-center bg-white rounded-full overflow-hidden w-full md:w-auto">
-            <input type="email" value={newsletterEmail} onChange={(e) => setNewsletterEmail(e.target.value)}
-              placeholder="Enter Your Email Here..." className="px-4 py-3 flex-grow text-gray-700 outline-none" required />
-            <button type="submit" className="bg-[#5C9A24] text-white px-6 py-3">
-              Subscribe
-            </button>
-          </form>
-        </div>
-      </section>
+      <NewsletterSubscription 
+        headerContent={{
+          title: "New Things Will Always Update Regularly"
+        }}
+        email={newsletterEmail}
+        setEmail={setNewsletterEmail}
+        onSubscribe={handleNewsletterSubscribe}
+        isSubscribed={isSubscribed}
+      />
 
       <Footer />
     </div>

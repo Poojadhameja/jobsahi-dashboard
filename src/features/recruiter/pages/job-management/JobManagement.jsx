@@ -90,14 +90,14 @@ const JobManagement = () => {
 
   const tabs = [
     {
-      id: 'post',
-      label: 'Post Job',
-      icon: LuPlus
-    },
-    {
       id: 'manage',
       label: 'Manage Job',
       icon: LuSettings
+    },
+    {
+      id: 'post',
+      label: 'Post Job',
+      icon: LuPlus
     }
   ]
 
@@ -118,16 +118,16 @@ const JobManagement = () => {
       </div>
 
       {/* Conditional Rendering based on active tab */}
-      {activeTab === 0 && (
-        <PostJob onJobSubmit={addJob} />
-      )}
       
-      {activeTab === 1 && (
+      {activeTab === 0 && (
         <ManageJob 
           jobs={jobs} 
           onEditJob={editJob} 
           onDeleteJob={deleteJob} 
         />
+      )}
+      {activeTab === 1 && (
+        <PostJob onJobSubmit={addJob} />
       )}
     </div>
   )

@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LuUsers, LuCalendar, LuClock, LuDownload, LuPencil, LuEllipsisVertical, LuTrash2, LuMail } from 'react-icons/lu'
+import { LuUsers, LuCalendar, LuClock, LuDownload, LuPencil, LuTrash2, LuMail } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
-import { MatrixCard } from '../../../../shared/components/metricCard'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import EditBatchModal from './EditBatchModal'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl.js'
 
 export default function BatchDetail({ batchData, onBack }) {
   const navigate = useNavigate()
@@ -12,90 +13,74 @@ export default function BatchDetail({ batchData, onBack }) {
   const [openDropdown, setOpenDropdown] = useState(null)
   const dropdownRef = useRef(null)
 
-  // Use actual batch data if available, otherwise fallback to sample data
-  const batchInfo = batchData?.batch ? {
-    name: batchData.batch.name || "Web Dev Batch A",
-    status: batchData.batch.status || "Active",
-    duration: "2/7/2025 - 8/10/2025", // This would come from actual batch data
-    timeSlot: batchData.batch.time || "9:00 PM - 12:00 PM",
-    description: `Batch for ${batchData.courseTitle || 'Course'} - Comprehensive training program.`,
-    totalStudents: batchData.batch.students ? parseInt(batchData.batch.students.split('/')[0]) : 5,
-    maxStudents: batchData.batch.students ? parseInt(batchData.batch.students.split('/')[1]) : 30,
-    activeStudents: batchData.batch.students ? parseInt(batchData.batch.students.split('/')[0]) : 4,
-    completionPercentage: 60
-  } : {
-    name: "Web Dev Batch A",
-    status: "Active",
-    duration: "2/7/2025 - 8/10/2025",
-    timeSlot: "9:00 PM - 12:00 PM",
-    description: "Comprehensive web development course covering frontend and backend technologies including React, Node.js, and databases.",
-    totalStudents: 5,
-    maxStudents: 30,
-    activeStudents: 4,
-    completionPercentage: 60
-  }
+  const [batchInfo, setBatchInfo] = useState(null)
+  const [students, setStudents] = useState([])
+  const [instructors, setInstructors] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const instructors = [
-    {
-      id: 1,
-      name: "Aryan Verma",
-      email: "aryanverma@gmail.com",
-      phone: "+918833938882",
-      avatar: null
-    },
-    {
-      id: 2,
-      name: "Riya Shah",
-      email: "riyashah@gmail.com",
-      phone: "+918833938882",
-      avatar: null
-    },
-    {
-      id: 3,
-      name: "Kunal Mehta",
-      email: "kunalmehta@gmail.com",
-      phone: "+918833938882",
-      avatar: null
-    }
-  ]
+  // ✅ Fetch Batch Details using course_id
+  useEffect(() => {
+    const fetchBatchDetail = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await getMethod({
+          apiUrl: apiService.courseByBatch,
+          params: { course_id: batchData.courseId },
+        })
 
-  const students = [
-    {
-      id: 1,
-      name: "Aisha Khan",
-      email: "aishakhan4@email.com",
-      joinDate: "2/15/2024",
-      status: "Active"
-    },
-    {
-      id: 2,
-      name: "Rajesh Patle",
-      email: "rajeshpatle34@email.com",
-      joinDate: "2/15/2024",
-      status: "Active"
-    },
-    {
-      id: 3,
-      name: "Maniya Soni",
-      email: "maniyasoni3@email.com",
-      joinDate: "2/15/2024",
-      status: "Active"
-    },
-    {
-      id: 4,
-      name: "Priya Sharma",
-      email: "priyasharma@email.com",
-      joinDate: "2/16/2024",
-      status: "Active"
-    },
-    {
-      id: 5,
-      name: "Amit Kumar",
-      email: "amitkumar@email.com",
-      joinDate: "2/17/2024",
-      status: "Inactive"
+        if (response.status && response.batches?.length > 0) {
+          const currentBatch = response.batches.find(
+            (b) => parseInt(b.batch_id) === parseInt(batchData.batch.batch_id)
+          )
+
+          if (currentBatch) {
+            setBatchInfo({
+              name: currentBatch.batch_name,
+              status: currentBatch.status || 'Active',
+              duration: `${currentBatch.start_date || 'N/A'} - ${currentBatch.end_date || 'N/A'}`,
+              timeSlot: currentBatch.batch_time_slot || 'N/A',
+              description: `${batchData.courseTitle} - Practical oriented training batch`,
+              totalStudents: currentBatch.enrolled_students || 0,
+              maxStudents: 30,
+              activeStudents:
+                currentBatch.students?.filter((s) => s.status === 'Active').length || 0,
+              completionPercentage: currentBatch.completion_percent || 0,
+            })
+
+            setStudents(
+              currentBatch.students?.map((s) => ({
+                id: s.student_id,
+                name: s.name,
+                email: s.email,
+                joinDate: s.join_date,
+                status: s.status,
+              })) || []
+            )
+          }
+
+          setInstructors(
+            response.faculty?.map((f) => ({
+              id: f.faculty_id,
+              name: f.name,
+              email: f.email,
+              phone: f.phone,
+            })) || []
+          )
+        } else {
+          setError('Batch details not found')
+        }
+      } catch (err) {
+        console.error('Error loading batch detail:', err)
+        setError('Failed to load batch details')
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
+
+    fetchBatchDetail()
+  }, [batchData?.batch?.batch_id])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -118,29 +103,8 @@ export default function BatchDetail({ batchData, onBack }) {
 
   const handleUpdateBatch = (updatedData) => {
     console.log('Batch updated:', updatedData)
-    // Here you would typically update the batch data in your state management or API
     setIsEditModalOpen(false)
   }
-
-  // Handle click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenDropdown(null)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
-  const handleStudentAction = (studentId, event) => {
-    event.stopPropagation()
-    setOpenDropdown(openDropdown === studentId ? null : studentId)
-  }
-
 
   const handleDeleteStudent = (studentId) => {
     console.log('Delete student:', studentId)
@@ -148,32 +112,51 @@ export default function BatchDetail({ batchData, onBack }) {
   }
 
   const handleSendMessageToAll = () => {
-    console.log('Send message to all students in batch:', batchInfo.name)
-    // Navigate to Message component with batch data for sending to all students
+    console.log('Send message to all students in batch:', batchInfo?.name)
     navigate('/institute/message', {
       state: {
         batchInfo: batchInfo,
         allStudents: students,
-        isBatchMessage: true
-      }
+        isBatchMessage: true,
+      },
     })
   }
 
   const handleSendMessageToStudent = (studentId) => {
-    console.log('Send message to student:', studentId)
-    // Find the student data
-    const student = students.find(s => s.id === studentId)
+    const student = students.find((s) => s.id === studentId)
     if (student) {
-      // Navigate to Message component with student and batch data
       navigate('/institute/message', {
         state: {
           selectedStudent: student,
           batchInfo: batchInfo,
-          isBatchMessage: false
-        }
+          isBatchMessage: false,
+        },
       })
     }
     setOpenDropdown(null)
+  }
+
+  // ✅ Handle click outside dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenDropdown(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  if (loading) {
+    return <div className="p-4 text-center text-gray-500">Loading batch details...</div>
+  }
+
+  if (error) {
+    return <div className="p-4 text-center text-red-500">{error}</div>
+  }
+
+  if (!batchInfo) {
+    return <div className="p-4 text-center text-gray-500">No batch data available.</div>
   }
 
   return (
@@ -182,7 +165,7 @@ export default function BatchDetail({ batchData, onBack }) {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button 
+            <Button
               onClick={onBack}
               variant="outline"
               size="sm"
@@ -191,14 +174,18 @@ export default function BatchDetail({ batchData, onBack }) {
               ← Back
             </Button>
             <div>
-              <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{batchInfo.name}</h1>
+              <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                {batchInfo.name}
+              </h1>
               {batchData?.courseTitle && (
-                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Course: {batchData.courseTitle}</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
+                  Course: {batchData.courseTitle}
+                </p>
               )}
             </div>
           </div>
           <div className="flex gap-2">
-            <Button 
+            <Button
               onClick={handleExportReport}
               variant="outline"
               size="sm"
@@ -207,7 +194,7 @@ export default function BatchDetail({ batchData, onBack }) {
             >
               Export Report
             </Button>
-            <Button 
+            <Button
               onClick={handleEditBatch}
               variant="primary"
               size="sm"
@@ -226,10 +213,16 @@ export default function BatchDetail({ batchData, onBack }) {
         <div className={`${TAILWIND_COLORS.CARD} p-6`}>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Total Students</h3>
-              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{batchInfo.totalStudents}/{batchInfo.maxStudents}</p>
+              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
+                Total Students
+              </h3>
+              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                {batchInfo.totalStudents}/{batchInfo.maxStudents}
+              </p>
             </div>
-            <div className={`w-12 h-12 ${TAILWIND_COLORS.BADGE_INFO} rounded-lg flex items-center justify-center`}>
+            <div
+              className={`w-12 h-12 ${TAILWIND_COLORS.BADGE_INFO} rounded-lg flex items-center justify-center`}
+            >
               <LuUsers className={`w-6 h-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`} />
             </div>
           </div>
@@ -239,12 +232,28 @@ export default function BatchDetail({ batchData, onBack }) {
         <div className={`${TAILWIND_COLORS.CARD} p-6`}>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Completion %</h3>
-              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{batchInfo.completionPercentage}%</p>
+              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
+                Completion %
+              </h3>
+              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                {batchInfo.completionPercentage}%
+              </p>
             </div>
-            <div className={`w-12 h-12 ${TAILWIND_COLORS.BADGE_SUCCESS} rounded-lg flex items-center justify-center`}>
-              <svg className={`w-6 h-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            <div
+              className={`w-12 h-12 ${TAILWIND_COLORS.BADGE_SUCCESS} rounded-lg flex items-center justify-center`}
+            >
+              <svg
+                className={`w-6 h-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                />
               </svg>
             </div>
           </div>
@@ -254,27 +263,38 @@ export default function BatchDetail({ batchData, onBack }) {
         <div className={`${TAILWIND_COLORS.CARD} p-6`}>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Active Students</h3>
-              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{batchInfo.activeStudents}</p>
+              <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
+                Active Students
+              </h3>
+              <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                {batchInfo.activeStudents}
+              </p>
             </div>
-            <div className={`w-12 h-12 ${TAILWIND_COLORS.BADGE_WARN} rounded-lg flex items-center justify-center`}>
+            <div
+              className={`w-12 h-12 ${TAILWIND_COLORS.BADGE_WARN} rounded-lg flex items-center justify-center`}
+            >
               <LuUsers className={`w-6 h-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content Grid */}
+      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Batch Information */}
+        {/* Batch Info */}
         <div className={`${TAILWIND_COLORS.CARD} p-6`}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Batch Information</h2>
-            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(batchInfo.status)}`}>
+            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Batch Information
+            </h2>
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
+                batchInfo.status
+              )}`}
+            >
               {batchInfo.status}
             </span>
           </div>
-          
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <LuCalendar className={`w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
@@ -283,7 +303,6 @@ export default function BatchDetail({ batchData, onBack }) {
                 <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{batchInfo.duration}</p>
               </div>
             </div>
-            
             <div className="flex items-center gap-3">
               <LuClock className={`w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
               <div>
@@ -291,27 +310,42 @@ export default function BatchDetail({ batchData, onBack }) {
                 <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{batchInfo.timeSlot}</p>
               </div>
             </div>
-            
             <div>
-              <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Description</p>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>{batchInfo.description}</p>
+              <p
+                className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+              >
+                Description
+              </p>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
+                {batchInfo.description}
+              </p>
             </div>
           </div>
         </div>
 
         {/* Instructors */}
         <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Instructor</h2>
+          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
+            Instructor
+          </h2>
           <div className="space-y-4">
             {instructors.map((instructor) => (
-              <div key={instructor.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <div
+                key={instructor.id}
+                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+              >
                 <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                   <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                    {instructor.name.split(' ').map(n => n[0]).join('')}
+                    {instructor.name
+                      .split(' ')
+                      .map((n) => n[0])
+                      .join('')}
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{instructor.name}</h3>
+                  <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                    {instructor.name}
+                  </h3>
                   <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{instructor.email}</p>
                   <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{instructor.phone}</p>
                 </div>
@@ -325,8 +359,10 @@ export default function BatchDetail({ batchData, onBack }) {
       <div className={`mt-6 ${TAILWIND_COLORS.CARD}`}>
         <div className={`p-6 ${TAILWIND_COLORS.BORDER}`}>
           <div className="flex items-center justify-between">
-            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Enrolled Students ({batchInfo.totalStudents})</h2>
-            <Button 
+            <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Enrolled Students ({batchInfo.totalStudents})
+            </h2>
+            <Button
               onClick={handleSendMessageToAll}
               variant="primary"
               size="sm"
@@ -337,31 +373,61 @@ export default function BatchDetail({ batchData, onBack }) {
             </Button>
           </div>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>Student</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>Join Date</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>Status</th>
-                <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>Actions</th>
+                <th
+                  className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                >
+                  Student
+                </th>
+                <th
+                  className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                >
+                  Join Date
+                </th>
+                <th
+                  className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                >
+                  Status
+                </th>
+                <th
+                  className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                >
+                  Actions
+                </th>
               </tr>
             </thead>
-            <tbody className={`${TAILWIND_COLORS.BG_PRIMARY} divide-y ${TAILWIND_COLORS.BORDER}`}>
+            <tbody
+              className={`${TAILWIND_COLORS.BG_PRIMARY} divide-y ${TAILWIND_COLORS.BORDER}`}
+            >
               {students.map((student) => (
                 <tr key={student.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</div>
-                      <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.email}</div>
+                      <div
+                        className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                      >
+                        {student.name}
+                      </div>
+                      <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                        {student.email}
+                      </div>
                     </div>
                   </td>
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                  <td
+                    className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                  >
                     {student.joinDate}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(student.status)}`}>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(
+                        student.status
+                      )}`}
+                    >
                       {student.status}
                     </span>
                   </td>
@@ -391,4 +457,3 @@ export default function BatchDetail({ batchData, onBack }) {
     </div>
   )
 }
-

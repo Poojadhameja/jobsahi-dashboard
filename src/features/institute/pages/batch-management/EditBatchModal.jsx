@@ -1,21 +1,59 @@
-import React, { useState } from 'react'
-import { LuX, LuPlus, LuCalendar, LuFileText, LuUpload } from 'react-icons/lu'
+import React, { useState, useEffect } from 'react'
+import { LuX, LuPlus, LuFileText, LuUpload } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { putMethod, getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl.js'
 
 const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
   const [formData, setFormData] = useState({
-    batchName: batchData?.name || 'Full Stack Web Development A',
-    course: batchData?.course || 'Full Stack Web Development',
-    startDate: batchData?.startDate || '25/12/2024',
-    endDate: batchData?.endDate || '1/10/2025',
-    timeSlot: batchData?.timeSlot || '10:00 AM - 12:00 PM',
-    instructor: batchData?.instructor || 'Mr. Rajeev Kumar - Web developer',
-    students: batchData?.students || ['himanshushrirang@gmail.com'],
-    newStudentEmail: 'himanshushrirang4@gmail.com',
-    uploadedFile: 'himanshushrirang_cv.csv'
+    batchName: batchData?.name || '',
+    course: batchData?.course_id || '',
+    startDate: batchData?.start_date || '',
+    endDate: batchData?.end_date || '',
+    timeSlot: batchData?.batch_time_slot || '10:00 AM - 12:00 PM',
+    instructor: batchData?.instructor_id || '',
+    students: batchData?.students || [],
+    newStudentEmail: '',
+    uploadedFile: ''
   })
 
+  const [courses, setCourses] = useState([])
+  const [instructors, setInstructors] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  // ✅ Fetch courses and instructors when modal opens
+ // ✅ Fetch courses & instructors when modal opens
+useEffect(() => {
+  if (isOpen) {
+    fetchCourses();
+    fetchInstructors();
+  }
+}, [isOpen]);
+
+  
+
+  const fetchCourses = async () => {
+    try {
+      const res = await getMethod({ apiUrl: apiService.getCourses })
+      if (res.status && res.courses) {
+        setCourses(res.courses)
+      }
+    } catch (err) {
+      console.error('Error fetching courses:', err)
+    }
+  }
+
+  const fetchInstructors = async () => {
+    try {
+      const res = await getMethod({ apiUrl: apiService.getFaculty })
+      if (res.status && res.data) {
+        setInstructors(res.data)
+      }
+    } catch (err) {
+      console.error('Error fetching instructors:', err)
+    }
+  }
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -51,11 +89,47 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
     }
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onUpdate(formData)
-    onClose()
+ // ✅ Handle Update Batch API Integration
+const handleSubmit = async (e) => {
+  e.preventDefault()
+  setLoading(true)
+
+  try {
+    const payload = {
+      course_id: Number(formData.course),
+      name: formData.batchName.trim(),
+      batch_time_slot: formData.timeSlot,
+      start_date: formData.startDate,
+      end_date: formData.endDate,
+      instructor_id: Number(formData.instructor)
+    }
+
+    const res = await putMethod({
+      apiUrl: `${apiService.updateBatch}?batch_id=${batchData?.id || batchData?.batch_id}`,
+      payload
+    })
+
+    if (res.status) {
+      alert('✅ Batch updated successfully!')
+      
+      // 🔄 Auto-refresh parent view
+      onUpdate && onUpdate({
+        ...batchData,
+        ...payload
+      })
+
+      onClose()
+    } else {
+      alert(`❌ ${res.message || 'Failed to update batch.'}`)
+    }
+  } catch (err) {
+    console.error('Update Batch Error:', err)
+    alert('⚠️ Something went wrong while updating the batch.')
+  } finally {
+    setLoading(false)
   }
+}
+
 
   if (!isOpen) return null
 
@@ -83,7 +157,6 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   BATCH NAME
                 </label>
-                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Edit the name of the batch (course or job role).</p>
                 <input
                   type="text"
                   value={formData.batchName}
@@ -97,22 +170,17 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   SELECT COURSE
                 </label>
-                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Edit or select the associated course for this batch.</p>
                 <div className="relative">
                   <select
                     value={formData.course}
                     onChange={(e) => handleInputChange('course', e.target.value)}
                     className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                   >
-                    <option value="Full Stack Web Development">Full Stack Web Development</option>
-                    <option value="Data Science">Data Science</option>
-                    <option value="Mobile Development">Mobile Development</option>
+                    <option value="">Select course</option>
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.id}>{c.title}</option>
+                    ))}
                   </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <svg className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
                 </div>
               </div>
 
@@ -121,166 +189,67 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   BATCH TIME SLOT
                 </label>
-                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Set the daily time slot for this batch.</p>
-                <div className="relative">
-                  <select
-                    value={formData.timeSlot}
-                    onChange={(e) => handleInputChange('timeSlot', e.target.value)}
-                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-                  >
-                    <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
-                    <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
-                    <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
-                    <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
-                    <option value="03:00 PM - 05:00 PM">03:00 PM - 05:00 PM</option>
-                    <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
-                    <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
-                    <option value="07:00 PM - 09:00 PM">07:00 PM - 09:00 PM</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                    <svg className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
+                <select
+                  value={formData.timeSlot}
+                  onChange={(e) => handleInputChange('timeSlot', e.target.value)}
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                >
+                  <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
+                  <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
+                  <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
+                  <option value="02:00 PM - 04:00 PM">02:00 PM - 04:00 PM</option>
+                  <option value="03:00 PM - 05:00 PM">03:00 PM - 05:00 PM</option>
+                  <option value="04:00 PM - 06:00 PM">04:00 PM - 06:00 PM</option>
+                  <option value="06:00 PM - 08:00 PM">06:00 PM - 08:00 PM</option>
+                  <option value="07:00 PM - 09:00 PM">07:00 PM - 09:00 PM</option>
+                </select>
               </div>
 
-              {/* Date Fields */}
+              {/* Dates */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Starting Date */}
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    STARTING DATE
+                    START DATE
                   </label>
-                  <div className="relative">
-                    <input
-                      type="date"
-                      value={formData.startDate}
-                      onChange={(e) => handleInputChange('startDate', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
+                  <input
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => handleInputChange('startDate', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
                 </div>
 
-                {/* End Date */}
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     END DATE
                   </label>
-                  <div className="relative">
-                    <input
-                      type="date"
-                      value={formData.endDate}
-                      onChange={(e) => handleInputChange('endDate', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
+                  <input
+                    type="date"
+                    value={formData.endDate}
+                    onChange={(e) => handleInputChange('endDate', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  />
                 </div>
               </div>
-
             </div>
           </div>
 
           {/* Instructor Assignment Section */}
           <div>
             <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Instructor Assignment</h3>
-            <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
-                ASSIGN INSTRUCTOR
-              </label>
-              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Change or update the assigned instructor.</p>
-              <div className="relative">
-                <select
-                  value={formData.instructor}
-                  onChange={(e) => handleInputChange('instructor', e.target.value)}
-                  className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-                >
-                  <option value="Mr. Rajeev Kumar - Web developer">Mr. Rajeev Kumar - Web developer</option>
-                  <option value="Ms. Priya Sharma - Full Stack Developer">Ms. Priya Sharma - Full Stack Developer</option>
-                  <option value="Dr. Amit Singh - Data Scientist">Dr. Amit Singh - Data Scientist</option>
-                </select>
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <svg className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Manage Students Section */}
-          <div>
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Manage Students</h3>
-            <div className="space-y-4">
-              {/* Add Student Input */}
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  value={formData.newStudentEmail}
-                  onChange={(e) => handleInputChange('newStudentEmail', e.target.value)}
-                  placeholder="Enter student email"
-                  className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-                />
-                <Button
-                  type="button"
-                  onClick={handleAddStudent}
-                  variant="secondary"
-                  size="sm"
-                  icon={<LuPlus className="w-4 h-4" />}
-                  className="w-10 h-10 p-0 rounded-full"
-                />
-              </div>
-
-              {/* Enrolled Students */}
-              <div>
-                <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  ENROLLED STUDENTS ({formData.students.length})
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {formData.students.map((email, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center gap-2 bg-gray-100 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm`}
-                    >
-                      <span>{email}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveStudent(email)}
-                        className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-gray-700`}
-                      >
-                        <LuX className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* File Upload */}
-              <div>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <LuFileText className={`w-8 h-8 ${TAILWIND_COLORS.TEXT_MUTED} mx-auto mb-2`} />
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>{formData.uploadedFile}</p>
-                  <input
-                    type="file"
-                    id="file-upload"
-                    onChange={handleFileUpload}
-                    accept=".csv"
-                    className="hidden"
-                  />
-                  <Button
-                    as="label"
-                    htmlFor="file-upload"
-                    variant="secondary"
-                    size="sm"
-                    icon={<LuUpload className="w-4 h-4" />}
-                    className="cursor-pointer"
-                  >
-                    Update File
-                  </Button>
-                </div>
-              </div>
+            <div className="relative">
+              <select
+                value={formData.instructor}
+                onChange={(e) => handleInputChange('instructor', e.target.value)}
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent appearance-none pr-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+              >
+                <option value="">Select Instructor</option>
+                {instructors.map((inst) => (
+                  <option key={inst.id} value={inst.id}>{inst.name}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -295,12 +264,8 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              variant="secondary"
-              size="md"
-            >
-              Update
+            <Button type="submit" variant="secondary" size="md" disabled={loading}>
+              {loading ? 'Updating...' : 'Update'}
             </Button>
           </div>
         </form>

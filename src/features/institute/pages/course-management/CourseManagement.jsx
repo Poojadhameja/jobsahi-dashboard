@@ -23,14 +23,14 @@ export default function CourseManagement() {
   // Navigation tabs for PillNavigation
   const navigationTabs = [
     {
-      id: 'create-course',
-      label: 'Create Course',
-      icon: LuPlus
-    },
-    {
       id: 'manage-course',
       label: 'Manage Course',
       icon: LuSettings
+    },
+    {
+      id: 'create-course',
+      label: 'Create Course',
+      icon: LuPlus
     }
   ]
 
@@ -57,9 +57,9 @@ export default function CourseManagement() {
 
         {/* Content Area */}
         {activeTabIndex === 0 ? (
-          <CreateCourse />
+          <ManageCourse onNavigateToCreateCourse={() => setActiveTabIndex(1)} />
         ) : (
-          <ManageCourse />
+          <CreateCourse />
         )}
       </div>
     </CourseProvider>

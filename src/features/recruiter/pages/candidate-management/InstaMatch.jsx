@@ -21,6 +21,9 @@ import { Horizontal4Cards } from "../../../../shared/components/metricCard";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { Button } from "../../../../shared/components/Button";
 
+// ✅ Added ComingSoonPopup like MessageNotification.jsx
+import ComingSoonPopup from "../../../../shared/components/ComingSoon";
+
 const InstaMatch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [matchFilter, setMatchFilter] = useState("");
@@ -168,7 +171,7 @@ const InstaMatch = () => {
   };
 
   const handleSchedule = (candidateId) => {
-    const candidate = candidates.find(c => c.id === candidateId);
+    const candidate = candidates.find((c) => c.id === candidateId);
     setSelectedCandidate(candidate);
     setInterviewForm({
       date: candidate.interview.date || "",
@@ -183,8 +186,8 @@ const InstaMatch = () => {
 
   const handleSaveInterview = () => {
     if (!selectedCandidate) return;
-    
-    const updatedCandidates = candidates.map(candidate => {
+
+    const updatedCandidates = candidates.map((candidate) => {
       if (candidate.id === selectedCandidate.id) {
         return {
           ...candidate,
@@ -196,12 +199,12 @@ const InstaMatch = () => {
             duration: interviewForm.duration,
             location: interviewForm.location,
             notes: interviewForm.notes,
-          }
+          },
         };
       }
       return candidate;
     });
-    
+
     setCandidates(updatedCandidates);
     setShowInterviewModal(false);
     setSelectedCandidate(null);
@@ -236,11 +239,13 @@ const InstaMatch = () => {
     <div className="min-h-screen bg-[var(--color-bg-primary)] p-2">
       {/* Header */}
       <div className="mb-5">
-        <h1 className={`text-3xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>
+        <h1
+          className={`text-3xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}
+        >
           InstaMatch Dashboard
         </h1>
 
-        {/* Search and Filters */}
+        {/* Search & Filters */}
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
           {/* Search Bar */}
           <div className="relative flex-1 max-w-md">
@@ -259,7 +264,6 @@ const InstaMatch = () => {
 
           {/* Filters */}
           <div className="flex gap-3">
-            {/* Match Percentage Filter */}
             <div className="relative">
               <select
                 value={matchFilter}
@@ -278,7 +282,6 @@ const InstaMatch = () => {
               />
             </div>
 
-            {/* Status Filter */}
             <div className="relative">
               <select
                 value={statusFilter}
@@ -304,33 +307,35 @@ const InstaMatch = () => {
         <Horizontal4Cards data={statsData} />
       </div>
 
-      {/* Candidate Cards Grid */}
+      {/* Candidate Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {candidates.map((candidate) => (
           <div
             key={candidate.id}
             className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
           >
-            {/* Header with Profile and Status */}
+            {/* Candidate Info */}
             <div className="flex items-start justify-between mb-5">
               <div className="flex items-center gap-4">
-                {/* Profile Image Placeholder */}
                 <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                  <span className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm font-medium`}>
+                  <span
+                    className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm font-medium`}
+                  >
                     {candidate.name
                       .split(" ")
                       .map((n) => n[0])
                       .join("")}
                   </span>
                 </div>
-
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                      {candidate.name}
-                    </h3>
-                  </div>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{candidate.role}</p>
+                <div>
+                  <h3
+                    className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                  >
+                    {candidate.name}
+                  </h3>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                    {candidate.role}
+                  </p>
                 </div>
               </div>
               <span
@@ -341,12 +346,17 @@ const InstaMatch = () => {
                 {candidate.status}
               </span>
             </div>
+
             {/* AI Match Score */}
-            <div className="">
-              <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>AI Match Score</div>
+            <div className="mb-3">
+              <div
+                className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}
+              >
+                AI Match Score
+              </div>
               <div className="flex items-center gap-2">
                 <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-[var(--color-secondary)] rounded-full transition-all duration-300"
                     style={{ width: `${candidate.aiMatch}%` }}
                   />
@@ -357,27 +367,31 @@ const InstaMatch = () => {
               </div>
             </div>
 
-            {/* Location and Education */}
-            <div className="flex items-center justify-between mb-4">
-              <div className={`flex items-center gap-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+            {/* Location, Education, Experience */}
+            <div className="flex items-center justify-between mb-4 text-sm text-gray-600">
+              <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  <LuMapPin size={16} />
-                  <span>{candidate.location}</span>
+                  <LuMapPin size={14} />
+                  {candidate.location}
                 </div>
                 <div className="flex items-center gap-1">
-                  <LuGraduationCap size={16} />
-                  <span>{candidate.education}</span>
+                  <LuGraduationCap size={14} />
+                  {candidate.education}
                 </div>
               </div>
-              <div className={`flex items-center gap-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                <LuBriefcase size={16} />
-                <span>{candidate.experience}</span>
+              <div className="flex items-center gap-1">
+                <LuBriefcase size={14} />
+                {candidate.experience}
               </div>
             </div>
 
             {/* Skills */}
             <div className="mb-4">
-              <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Skills</div>
+              <div
+                className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}
+              >
+                Skills
+              </div>
               <div className="flex flex-wrap gap-2">
                 {candidate.skills.map((skill, index) => (
                   <span
@@ -390,140 +404,109 @@ const InstaMatch = () => {
               </div>
             </div>
 
-            {/* Interview Information */}
-            {candidate.interview.scheduled && (
-              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2 flex items-center gap-2`}>
-                  <LuCalendar size={16} className="text-blue-600" />
-                  Interview Scheduled
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="flex items-center gap-1">
-                    <LuClock size={14} className={TAILWIND_COLORS.TEXT_MUTED} />
-                    <span className={TAILWIND_COLORS.TEXT_MUTED}>
-                      {new Date(candidate.interview.date).toLocaleDateString()} at {candidate.interview.time}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {candidate.interview.type === "video" && <LuVideo size={14} className={TAILWIND_COLORS.TEXT_MUTED} />}
-                    {candidate.interview.type === "phone" && <LuPhone size={14} className={TAILWIND_COLORS.TEXT_MUTED} />}
-                    {candidate.interview.type === "in-person" && <LuMapPin size={14} className={TAILWIND_COLORS.TEXT_MUTED} />}
-                    <span className={TAILWIND_COLORS.TEXT_MUTED}>
-                      {candidate.interview.type === "video" ? "Video Call" : 
-                       candidate.interview.type === "phone" ? "Phone Call" : "In-Person"}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <LuClock size={14} className={TAILWIND_COLORS.TEXT_MUTED} />
-                    <span className={TAILWIND_COLORS.TEXT_MUTED}>{candidate.interview.duration} min</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <LuMapPin size={14} className={TAILWIND_COLORS.TEXT_MUTED} />
-                    <span className={TAILWIND_COLORS.TEXT_MUTED} title={candidate.interview.location}>
-                      {candidate.interview.location.length > 20 
-                        ? `${candidate.interview.location.substring(0, 20)}...` 
-                        : candidate.interview.location}
-                    </span>
-                  </div>
-                </div>
-                {candidate.interview.notes && (
-                  <div className={`mt-2 text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                    <strong className={TAILWIND_COLORS.TEXT_PRIMARY}>Notes:</strong> {candidate.interview.notes}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Action Buttons */}
+            {/* Buttons */}
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => handleInvite(candidate.id)}
                 variant="outline"
                 size="sm"
                 icon={<LuMail size={16} />}
-                className="text-sm"
               >
                 Invite
               </Button>
-
               <Button
                 onClick={() => handleSchedule(candidate.id)}
                 variant="outline"
                 size="sm"
                 icon={<LuCalendar size={16} />}
-                className="text-sm"
               >
                 Schedule
               </Button>
-
               <Button
                 onClick={() => handleShortlist(candidate.id)}
                 variant={candidate.isShortlisted ? "primary" : "outline"}
                 size="sm"
-                icon={<LuStar size={16} className={candidate.isShortlisted ? "fill-current" : ""} />}
-                className="text-sm"
+                icon={
+                  <LuStar
+                    size={16}
+                    className={candidate.isShortlisted ? "fill-current" : ""}
+                  />
+                }
               />
             </div>
           </div>
         ))}
       </div>
 
-      {/* Interview Scheduling Modal */}
+      {/* Interview Modal */}
       {showInterviewModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              <h2 className="text-xl font-semibold">
                 Schedule Interview - {selectedCandidate?.name}
               </h2>
               <button
                 onClick={handleCancelInterview}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-lg"
               >
-                <LuX size={20} className={TAILWIND_COLORS.TEXT_MUTED} />
+                <LuX size={20} />
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-6 space-y-6">
-              {/* Date and Time */}
+              {/* Date & Time */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                  <label className="block text-sm font-medium mb-2">
                     Interview Date
                   </label>
                   <input
                     type="date"
                     value={interviewForm.date}
-                    onChange={(e) => setInterviewForm({...interviewForm, date: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                    min={new Date().toISOString().split('T')[0]}
+                    onChange={(e) =>
+                      setInterviewForm({
+                        ...interviewForm,
+                        date: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    min={new Date().toISOString().split("T")[0]}
                   />
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                  <label className="block text-sm font-medium mb-2">
                     Interview Time
                   </label>
                   <input
                     type="time"
                     value={interviewForm.time}
-                    onChange={(e) => setInterviewForm({...interviewForm, time: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    onChange={(e) =>
+                      setInterviewForm({
+                        ...interviewForm,
+                        time: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   />
                 </div>
               </div>
 
-              {/* Interview Type and Duration */}
+              {/* Type & Duration */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                  <label className="block text-sm font-medium mb-2">
                     Interview Type
                   </label>
                   <select
                     value={interviewForm.type}
-                    onChange={(e) => setInterviewForm({...interviewForm, type: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    onChange={(e) =>
+                      setInterviewForm({
+                        ...interviewForm,
+                        type: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   >
                     <option value="video">Video Call</option>
                     <option value="phone">Phone Call</option>
@@ -531,13 +514,18 @@ const InstaMatch = () => {
                   </select>
                 </div>
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                  <label className="block text-sm font-medium mb-2">
                     Duration
                   </label>
                   <select
                     value={interviewForm.duration}
-                    onChange={(e) => setInterviewForm({...interviewForm, duration: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    onChange={(e) =>
+                      setInterviewForm({
+                        ...interviewForm,
+                        duration: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   >
                     <option value="30">30 minutes</option>
                     <option value="45">45 minutes</option>
@@ -549,53 +537,61 @@ const InstaMatch = () => {
 
               {/* Location */}
               <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                <label className="block text-sm font-medium mb-2">
                   Location / Meeting Link
                 </label>
                 <input
                   type="text"
                   value={interviewForm.location}
-                  onChange={(e) => setInterviewForm({...interviewForm, location: e.target.value})}
-                  placeholder={
-                    interviewForm.type === "video" 
-                      ? "Google Meet link, Zoom link, etc." 
-                      : interviewForm.type === "phone" 
-                      ? "Phone number" 
-                      : "Office address, conference room, etc."
+                  onChange={(e) =>
+                    setInterviewForm({
+                      ...interviewForm,
+                      location: e.target.value,
+                    })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  placeholder={
+                    interviewForm.type === "video"
+                      ? "Google Meet / Zoom link"
+                      : interviewForm.type === "phone"
+                      ? "Phone number"
+                      : "Office address / Conference room"
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 />
               </div>
 
               {/* Notes */}
               <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                <label className="block text-sm font-medium mb-2">
                   Interview Notes
                 </label>
                 <textarea
                   value={interviewForm.notes}
-                  onChange={(e) => setInterviewForm({...interviewForm, notes: e.target.value})}
-                  placeholder="Add any specific notes or requirements for this interview..."
+                  onChange={(e) =>
+                    setInterviewForm({
+                      ...interviewForm,
+                      notes: e.target.value,
+                    })
+                  }
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+                  placeholder="Add any specific notes or requirements..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 />
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
-              <Button
-                onClick={handleCancelInterview}
-                variant="outline"
-                className="px-4 py-2"
-              >
+              <Button onClick={handleCancelInterview} variant="outline">
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveInterview}
                 variant="primary"
-                className="px-4 py-2"
-                disabled={!interviewForm.date || !interviewForm.time || !interviewForm.location}
+                disabled={
+                  !interviewForm.date ||
+                  !interviewForm.time ||
+                  !interviewForm.location
+                }
               >
                 Schedule Interview
               </Button>
@@ -603,6 +599,9 @@ const InstaMatch = () => {
           </div>
         </div>
       )}
+
+      {/* ✅ Coming Soon Popup (like MessageNotification.jsx) */}
+      <ComingSoonPopup />
     </div>
   );
 };

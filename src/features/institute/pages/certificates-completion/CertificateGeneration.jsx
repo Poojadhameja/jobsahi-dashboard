@@ -11,25 +11,43 @@ import {
   LuSettings
 } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { useEffect } from 'react'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl.js'
+
 
 function CertificateGeneration() {
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // ✅ Get Courses
+        const courseRes = await getMethod({ apiUrl: apiService.getCourses })
+        if (courseRes?.status && Array.isArray(courseRes.courses)) {
+          setCourses(courseRes.courses)
+        }
+  
+        // ✅ Get Batches
+        const batchRes = await getMethod({ apiUrl: apiService.getBatches })
+        if (batchRes?.status && Array.isArray(batchRes.batches)) {
+          setBatches(batchRes.batches)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+  
+    fetchData()
+  }, [])
+  
+  
   const [selectedCourse, setSelectedCourse] = useState('')
   const [selectedBatch, setSelectedBatch] = useState('')
   const [completionDate, setCompletionDate] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedCertificates, setGeneratedCertificates] = useState([])
 
-  const courses = [
-    { id: '1', name: 'Power Technician' },
-    { id: '2', name: 'Electrical Engineering' },
-    { id: '3', name: 'Mechanical Engineering' }
-  ]
-
-  const batches = [
-    { id: '1', name: 'Batch A - 2024' },
-    { id: '2', name: 'Batch B - 2024' },
-    { id: '3', name: 'Batch C - 2024' }
-  ]
+  const [courses, setCourses] = useState([])
+  const [batches, setBatches] = useState([])
 
   const students = [
     {
@@ -124,9 +142,9 @@ function CertificateGeneration() {
         {/* Basic Information */}
         <div className="mb-8">
           <h4 className={`text-md font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Basic Information</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
             {/* Course Selection */}
-            <div>
+            <div className=''>
               <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 SELECT COURSE
               </label>
@@ -137,10 +155,11 @@ function CertificateGeneration() {
               >
                 <option value="">Choose a course</option>
                 {courses.map(course => (
-                  <option key={course.id} value={course.id}>
-                    {course.name}
-                  </option>
-                ))}
+  <option key={course.id} value={course.id}>
+    {course.title}
+  </option>
+))}
+
               </select>
             </div>
 
@@ -156,10 +175,11 @@ function CertificateGeneration() {
               >
                 <option value="">Choose a batch</option>
                 {batches.map(batch => (
-                  <option key={batch.id} value={batch.id}>
-                    {batch.name}
-                  </option>
-                ))}
+  <option key={batch.batch_id} value={batch.batch_id}>
+    {batch.batch_name}
+  </option>
+))}
+
               </select>
             </div>
 
