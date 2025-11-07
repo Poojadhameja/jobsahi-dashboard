@@ -1,10 +1,34 @@
-import React from 'react'
-import { LuX, LuMail, LuPhone, LuMapPin, LuCalendar, LuFileText, LuDownload } from 'react-icons/lu'
-import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import { Button, IconButton } from '../../../../shared/components/Button'
+import React from "react";
+import {
+  LuX,
+  LuMail,
+  LuPhone,
+  LuMapPin,
+  LuCalendar,
+  LuFileText,
+  LuExternalLink,
+} from "react-icons/lu";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
+import { Button } from "../../../../shared/components/Button";
 
 const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
-  if (!isOpen || !candidate) return null
+  if (!isOpen || !candidate) return null;
+
+  // ✅ Handle skills safely
+  const skills = Array.isArray(candidate.skills)
+    ? candidate.skills
+    : typeof candidate.skills === "string"
+    ? candidate.skills.split(", ")
+    : [];
+
+  // ✅ Handle experience JSON safely
+  let experienceList = [];
+  try {
+    experienceList = JSON.parse(candidate.experience);
+    if (!Array.isArray(experienceList)) experienceList = [];
+  } catch {
+    experienceList = [];
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -13,19 +37,30 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
         <div className="flex justify-between items-start p-6 border-b border-gray-200">
           <div className="flex items-start space-x-4">
             {/* Avatar */}
-            <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
               <span className="text-xl font-semibold text-gray-600">
-                {candidate.name.split(' ').map(n => n[0]).join('')}
+                {candidate.name
+                  ? candidate.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                  : "NA"}
               </span>
             </div>
-            
+
             {/* Name and Applied For */}
             <div>
-              <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>{candidate.name}</h2>
+              <h2
+                className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+              >
+                {candidate.name}
+              </h2>
               <div className="flex items-center space-x-2">
-                <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Applied for</span>
+                <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                  Applied for
+                </span>
                 <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  {candidate.appliedFor}
+                  {candidate.applied_for}
                 </span>
               </div>
             </div>
@@ -33,17 +68,22 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
-            <div className={`flex items-center space-x-2 ${TAILWIND_COLORS.TEXT_MUTED}`}>
-              <LuFileText className="w-4 h-4" />
-              <span className="text-sm">CV.pdf</span>
+            {candidate.resume_url && (
+              <a
+                href={candidate.resume_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-sm text-blue-600 hover:underline"
+              >
+                <LuFileText className="w-4 h-4" />
+                <span>View Resume</span>
+              </a>
+            )}
+            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+              STATUS
             </div>
-            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>STATUS</div>
-            <Button 
-              variant="primary" 
-              size="sm"
-              className="text-sm font-medium"
-            >
-              New Application
+            <Button variant="primary" size="sm" className="text-sm font-medium">
+              {candidate.status || "Applied"}
             </Button>
             <button
               onClick={onClose}
@@ -56,82 +96,167 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
 
         {/* Content */}
         <div className="p-6">
-          {/* Description */}
+          {/* Bio / Description */}
           <div className="mb-6">
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Description</h3>
+            <h3
+              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}
+            >
+              About Candidate
+            </h3>
             <div className="bg-gray-100 rounded-lg p-4">
               <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} leading-relaxed`}>
-                A dedicated ITI student specialized in [Electrical / Fitter / Mechanical], with a strong foundation in workshop tools, machine operations, and maintenance techniques. Quick learner, team-oriented, and eager to apply technical knowledge in real-world job environments.
+                {candidate.bio || "No bio available for this candidate."}
               </p>
             </div>
           </div>
+
+          {/* Cover Letter */}
+          {candidate.cover_letter && candidate.cover_letter !== "—" && (
+            <div className="mb-6">
+              <h3
+                className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}
+              >
+                Cover Letter
+              </h3>
+              <div className="bg-gray-100 rounded-lg p-4">
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} leading-relaxed`}>
+                  {candidate.cover_letter}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Two Column Layout */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
             {/* Personal Details */}
             <div>
-              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Personal Details</h3>
+              <h3
+                className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}
+              >
+                Personal Details
+              </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>FULL NAME</span>
-                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.name}</span>
+                  <span
+                    className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                  >
+                    FULL NAME
+                  </span>
+                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                    {candidate.name}
+                  </span>
                 </div>
+
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>EMAIL</span>
+                  <span
+                    className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                  >
+                    EMAIL
+                  </span>
                   <div className="flex items-center space-x-2">
                     <LuMail className="w-4 h-4 text-gray-400" />
-                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.email}</span>
+                    <span
+                      className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                    >
+                      {candidate.email}
+                    </span>
                   </div>
                 </div>
+
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>PHONE</span>
+                  <span
+                    className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                  >
+                    PHONE
+                  </span>
                   <div className="flex items-center space-x-2">
                     <LuPhone className="w-4 h-4 text-gray-400" />
-                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.phone || '(123) 456-7890'}</span>
+                    <span
+                      className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                    >
+                      {candidate.phone_number || "—"}
+                    </span>
                   </div>
                 </div>
+
                 <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>LOCATION</span>
-                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.location || 'Ward 07, Balaghat'}</span>
+                  <span
+                    className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                  >
+                    LOCATION
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <LuMapPin className="w-4 h-4 text-gray-400" />
+                    <span
+                      className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                    >
+                      {candidate.location || "—"}
+                    </span>
+                  </div>
                 </div>
+
                 <div className="flex justify-between items-center py-2">
-                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>APPLIED</span>
-                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.appliedDate || 'Aug, 22 2023'}</span>
+                  <span
+                    className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                  >
+                    APPLIED DATE
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <LuCalendar className="w-4 h-4 text-gray-400" />
+                    <span
+                      className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                    >
+                      {candidate.applied_date || "—"}
+                    </span>
+                  </div>
                 </div>
+
+                {/* Portfolio Link */}
+                {candidate.portfolio_link && (
+                  <div className="flex justify-between items-center py-2">
+                    <span
+                      className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    >
+                      PORTFOLIO
+                    </span>
+                    <a
+                      href={candidate.portfolio_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:underline flex items-center space-x-1"
+                    >
+                      <LuExternalLink className="w-4 h-4" />
+                      <span>View</span>
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Education Information */}
+            {/* Education Info */}
             <div>
-              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Educations Information</h3>
+              <h3
+                className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}
+              >
+                Education Information
+              </h3>
               <div className="space-y-4">
-                {/* Education Entry 1 */}
                 <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mt-1">
                     <span className="text-xs font-semibold text-gray-600">1</span>
                   </div>
                   <div className="flex-1">
-                    <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{candidate.qualification || 'Bachelor of Science in Computer Science'}</h4>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>{candidate.university || 'UNIVERSITY OF TECHNOLOGY'}</p>
-                    <div className="flex items-center space-x-1 mt-1">
-                      <LuCalendar className="w-3 h-3 text-gray-400" />
-                      <span className="text-xs text-gray-500">Graduated May 2017</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Education Entry 2 */}
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-xs font-semibold text-gray-600">2</span>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Certification in Full Stack Web Development</h4>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>CODING ACADEMY</p>
-                    <div className="flex items-center space-x-1 mt-1">
-                      <LuCalendar className="w-3 h-3 text-gray-400" />
-                      <span className="text-xs text-gray-500">Completed 2023</span>
-                    </div>
+                    <h4
+                      className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                    >
+                      {candidate.education}
+                    </h4>
+                    <p
+                      className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}
+                    >
+                      Verified Candidate:{" "}
+                      {candidate.verified ? "Yes" : "No"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -139,40 +264,68 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
           </div>
 
           {/* Skills Section */}
-          <div>
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Skills</h3>
+          <div className="mb-6">
+            <h3
+              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}
+            >
+              Skills
+            </h3>
             <div className="flex flex-wrap gap-2">
-              {candidate.skills ? candidate.skills.split(', ').map((skill, index) => (
+              {skills.length > 0 ? (
+                skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}
+                  >
+                    {skill}
+                  </span>
+                ))
+              ) : (
                 <span
-                  key={index}
                   className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}
                 >
-                  {skill}
+                  No skills added
                 </span>
-              )) : (
-                <>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>JavaScript</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Python</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>HTML5</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>CSS3</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>React.js</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Node.js</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Express.js</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>MongoDB</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>MySQL</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Git</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Scrum</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>VS Code</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>JIRA</span>
-                  <span className={`bg-gray-200 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm font-medium`}>Slack</span>
-                </>
               )}
             </div>
+          </div>
+
+          {/* Experience Section */}
+          <div>
+            <h3
+              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}
+            >
+              Work Experience
+            </h3>
+            {experienceList.length > 0 ? (
+              <div className="space-y-4">
+                {experienceList.map((exp, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                  >
+                    <h4 className="font-semibold text-gray-900">
+                      {exp.role} @ {exp.company}
+                    </h4>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {exp.duration}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                      {exp.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">
+                No experience details available.
+              </p>
+            )}
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ViewDetailsModal
+export default ViewDetailsModal;
