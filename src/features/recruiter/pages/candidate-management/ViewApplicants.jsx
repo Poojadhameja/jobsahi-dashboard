@@ -1,345 +1,287 @@
-import React, { useState } from 'react'
-import { LuSearch, LuFilter, LuChevronDown, LuDownload, LuArrowRight, LuMessageCircle, LuChevronLeft, LuChevronRight } from 'react-icons/lu'
-import CustomDataTable from './CustomDataTable'
-import ViewDetailsModal from './ViewDetailsModal'
-import EditCandidateModal from './EditCandidateModal'
-import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import { Button, LightButton, NeutralButton } from '../../../../shared/components/Button'
+import React, { useState, useEffect } from "react";
+import {
+  LuSearch,
+  LuDownload,
+  LuArrowRight,
+  LuMessageCircle,
+  LuChevronLeft,
+  LuChevronRight,
+} from "react-icons/lu";
+import CustomDataTable from "./CustomDataTable";
+import ViewDetailsModal from "./ViewDetailsModal";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
+import {
+  Button,
+  NeutralButton,
+} from "../../../../shared/components/Button";
+import { getMethod } from "../../../../service/api";
+import apiService from "../../services/serviceUrl";
+import * as XLSX from "xlsx"; // ✅ Excel export library
 
 const ViewApplicants = () => {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCandidates, setSelectedCandidates] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [showFilters, setShowFilters] = useState(false)
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
-  const [selectedCandidate, setSelectedCandidate] = useState(null)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [editingCandidate, setEditingCandidate] = useState(null)
-  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
-  const [applicants, setApplicants] = useState([
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@email.com',
-      phone: '+1 (555) 123-4567',
-      location: 'New York, NY',
-      qualification: 'MS Computer Science',
-      university: 'Stanford University',
-      graduationYear: '2022',
-      currentPosition: 'Senior Software Engineer',
-      company: 'Tech Corp',
-      experience: '3 years',
-      skills: 'React, Java, +2',
-      appliedFor: 'Assistant Electrical',
-      jobId: 'AE-2024-001',
-      appliedDate: '2024-01-15',
-      expectedSalary: '$80,000 - $90,000',
-      noticePeriod: '2 weeks',
-      availability: 'Immediate',
-      source: 'LinkedIn',
-      status: 'Shortlisted'
-    },
-    {
-      id: 2,
-      name: 'Michael Chen',
-      email: 'michael.chen@email.com',
-      qualification: 'BS Electrical Engineering',
-      skills: 'Python, C++, +1',
-      appliedFor: 'Assistant Electrical',
-      status: 'Shortlisted'
-    },
-    {
-      id: 3,
-      name: 'Emily Rodriguez',
-      email: 'emily.rodriguez@email.com',
-      qualification: 'MS Computer Science',
-      skills: 'React, Java, +2',
-      appliedFor: 'Assistant Electrical',
-      status: 'Shortlisted'
-    },
-    {
-      id: 4,
-      name: 'David Kim',
-      email: 'david.kim@email.com',
-      qualification: 'BS Electrical Engineering',
-      skills: 'Python, C++, +1',
-      appliedFor: 'Assistant Electrical',
-      status: 'Shortlisted'
-    },
-    {
-      id: 5,
-      name: 'Lisa Wang',
-      email: 'lisa.wang@email.com',
-      qualification: 'MS Computer Science',
-      skills: 'React, Java, +2',
-      appliedFor: 'Assistant Electrical',
-      status: 'Shortlisted'
-    },
-    {
-      id: 6,
-      name: 'James Brown',
-      email: 'james.brown@email.com',
-      qualification: 'BS Electrical Engineering',
-      skills: 'Python, C++, +1',
-      appliedFor: 'Assistant Electrical',
-      status: 'Shortlisted'
-    },
-    {
-      id: 7,
-      name: 'Maria Garcia',
-      email: 'maria.garcia@email.com',
-      qualification: 'MS Computer Science',
-      skills: 'React, Java, +2',
-      appliedFor: 'Assistant Electrical',
-      status: 'Shortlisted'
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCandidates, setSelectedCandidates] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [applicants, setApplicants] = useState([]);
+  const [filteredApplicants, setFilteredApplicants] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // ✅ Prevent background scroll when modal is open
+  useEffect(() => {
+    if (isViewModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
     }
-  ])
+    return () => (document.body.style.overflow = "auto");
+  }, [isViewModalOpen]);
 
-  // Define actions for DataTable (empty array to hide action buttons)
-  const actions = []
+  // ✅ Fetch applicants from API
+  useEffect(() => {
+    const fetchApplicants = async () => {
+      setLoading(true);
+      try {
+        const res = await getMethod({ apiUrl: apiService.getRecentApplicants });
 
+        if (res?.status && Array.isArray(res?.all_applicants?.data)) {
+          const formatted = res.all_applicants.data.map((item, i) => ({
+            id: item.application_id || i + 1,
+            name: item.name || "N/A",
+            email: item.email || "N/A",
+            phone_number: item.phone_number || "—",
+            qualification: item.education || "—",
+            skills: Array.isArray(item.skills)
+              ? item.skills.join(", ")
+              : typeof item.skills === "string"
+              ? item.skills
+              : "",
+            bio: item.bio || "—",
+            appliedFor: item.applied_for || "—",
+            applied_date: item.applied_date || "—",
+            status: item.status || "Pending",
+            verified: item.verified ? "Yes" : "No",
+            location: item.location || "—",
+            experience: item.experience || "—",
+            jobType: item.job_type || "Full-time",
+            resume_url: item.resume_url || null,
+            portfolio_link: item.portfolio_link || null,
+            cover_letter: item.cover_letter || "—",
+            actions: {
+              view: true,
+              downloadCV: true,
+              delete: true,
+              reject: true,
+            },
+          }));
 
-  const handleMoveToStage = () => {
-    console.log('Move to stage:', selectedCandidates)
-  }
+          setApplicants(formatted);
+          setFilteredApplicants(formatted);
+        } else {
+          setApplicants([]);
+          setFilteredApplicants([]);
+        }
+      } catch (err) {
+        console.error("❌ Error fetching applicants:", err);
+        setApplicants([]);
+        setFilteredApplicants([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleSendMessage = () => {
-    console.log('Send message to:', selectedCandidates)
-  }
+    fetchApplicants();
+  }, []);
 
-  const handleExportSelected = () => {
-    console.log('Export selected:', selectedCandidates)
-  }
+  // ✅ Search Functionality
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredApplicants(applicants);
+      return;
+    }
 
+    const lowerSearch = searchTerm.toLowerCase();
+    const filtered = applicants.filter((app) =>
+      [
+        app.name,
+        app.email,
+        app.phone_number,
+        app.appliedFor,
+        app.qualification,
+        app.skills,
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(lowerSearch)
+    );
+
+    setFilteredApplicants(filtered);
+  }, [searchTerm, applicants]);
+
+  // ✅ Export all applicants to Excel
   const handleExportAll = () => {
-    console.log('Export all applicants')
-  }
+    if (!filteredApplicants.length) {
+      alert("No applicant data to export.");
+      return;
+    }
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page)
-  }
+    const exportData = filteredApplicants.map((app) => ({
+      Name: app.name,
+      Email: app.email,
+      Phone: app.phone_number,
+      Qualification: app.qualification,
+      Skills: app.skills,
+      Experience: app.experience,
+      Applied_For: app.appliedFor,
+      Applied_Date: app.applied_date,
+      Status: app.status,
+      Location: app.location,
+      Job_Type: app.jobType,
+      Resume_URL: app.resume_url || "—",
+      Portfolio_Link: app.portfolio_link || "—",
+    }));
 
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Applicants");
+
+    XLSX.writeFile(wb, "Applicants_List.xlsx");
+  };
+
+  // ---------------- ACTIONS ----------------
   const handleViewDetails = (row) => {
-    console.log('View details for:', row.name)
-    setSelectedCandidate(row)
-    setIsViewModalOpen(true)
-  }
+    setSelectedCandidate(row);
+    setIsViewModalOpen(true);
+  };
 
   const handleCloseModal = () => {
-    setIsViewModalOpen(false)
-    setSelectedCandidate(null)
-  }
+    setIsViewModalOpen(false);
+    setSelectedCandidate(null);
+  };
 
   const handleDownloadCV = (row) => {
-    console.log('Download CV for:', row.name)
-    
-    // Create a simple text file with candidate details
     const candidateData = `
-Candidate Information
-====================
-Name: ${row.name}
-Email: ${row.email}
-Phone: ${row.phone || 'Not provided'}
-Location: ${row.location || 'Not provided'}
-Qualification: ${row.qualification}
-University: ${row.university || 'Not provided'}
-Current Position: ${row.currentPosition || 'Not provided'}
-Company: ${row.company || 'Not provided'}
-Experience: ${row.experience || 'Not provided'}
-Skills: ${row.skills}
-Applied For: ${row.appliedFor}
-Job ID: ${row.jobId || 'Not provided'}
-Applied Date: ${row.appliedDate || 'Not provided'}
-Expected Salary: ${row.expectedSalary || 'Not provided'}
-Notice Period: ${row.noticePeriod || 'Not provided'}
-Availability: ${row.availability || 'Not provided'}
-Source: ${row.source || 'Not provided'}
-Status: ${row.status}
-    `.trim()
+      Candidate Information
+      ====================
+      Name: ${row.name}
+      Email: ${row.email}
+      Phone: ${row.phone_number || "Not provided"}
+      Location: ${row.location || "Not provided"}
+      Qualification: ${row.qualification}
+      Experience: ${row.experience || "Not provided"}
+      Skills: ${row.skills}
+      Applied For: ${row.appliedFor}
+      Applied Date: ${row.applied_date || "Not provided"}
+      Status: ${row.status}
+    `.trim();
 
-    // Create and download the file
-    const blob = new Blob([candidateData], { type: 'text/plain' })
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${row.name.replace(/\s+/g, '_')}_CV.txt`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
-  }
-
-  const handleEdit = (row) => {
-    console.log('Edit candidate:', row.name)
-    setEditingCandidate(row)
-    setIsEditModalOpen(true)
-  }
-
-  const handleSaveEdit = (updatedData) => {
-    console.log('Saving candidate:', updatedData.name)
-    
-    // Update the candidate in the applicants array
-    setApplicants(prevApplicants => 
-      prevApplicants.map(applicant => 
-        applicant.id === editingCandidate.id 
-          ? { ...applicant, ...updatedData }
-          : applicant
-      )
-    )
-    
-    console.log(`${updatedData.name} has been updated successfully.`)
-  }
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false)
-    setEditingCandidate(null)
-  }
+    const blob = new Blob([candidateData], { type: "text/plain" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${row.name.replace(/\s+/g, "_")}_CV.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
 
   const handleDelete = (row) => {
-    console.log('Delete candidate:', row.name)
-    
-    // Show confirmation dialog
-    const confirmed = window.confirm(`Are you sure you want to delete ${row.name}? This action cannot be undone.`)
-    
+    const confirmed = window.confirm(`Are you sure you want to delete ${row.name}?`);
     if (confirmed) {
-      // Remove the candidate from the applicants array
-      setApplicants(prevApplicants => 
-        prevApplicants.filter(applicant => applicant.id !== row.id)
-      )
-      
-      // Also remove from selected candidates if it was selected
-      setSelectedCandidates(prevSelected => 
-        prevSelected.filter(id => id !== row.id)
-      )
-      
-      console.log(`${row.name} has been deleted successfully.`)
+      setApplicants((prev) => prev.filter((a) => a.id !== row.id));
+      setFilteredApplicants((prev) => prev.filter((a) => a.id !== row.id));
     }
-  }
+  };
 
-  const handleShortlist = (row) => {
-    console.log('Shortlist candidate:', row.name)
-    
-    // Update the candidate's status to 'Shortlisted'
-    setApplicants(prevApplicants => 
-      prevApplicants.map(applicant => 
-        applicant.id === row.id 
-          ? { ...applicant, status: 'Shortlisted' }
-          : applicant
+  const handleReject = (row) => {
+    setApplicants((prev) =>
+      prev.map((a) =>
+        a.id === row.id ? { ...a, status: "Rejected" } : a
       )
-    )
-    
-    console.log(`${row.name} has been shortlisted.`)
-  }
+    );
+    setFilteredApplicants((prev) =>
+      prev.map((a) =>
+        a.id === row.id ? { ...a, status: "Rejected" } : a
+      )
+    );
+  };
 
-  const selectedCount = selectedCandidates.length
+  const totalRecords = filteredApplicants.length;
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const endIndex = Math.min(startIndex + recordsPerPage, totalRecords);
+  const paginatedApplicants = filteredApplicants.slice(startIndex, endIndex);
 
+  // ---------------- RENDER ----------------
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)] p-6">
+    <div className="h-screen overflow-hidden bg-[var(--color-bg-primary)] p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className={`text-3xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>View Applicants</h1>
-        
-        <div className="flex items-center gap-4">          
-          <Button
-            onClick={handleExportAll}
-            variant="primary"
-            size="lg"
-            icon={<LuDownload size={20} />}
-          >
-            EXPORT ALL
-          </Button>
-        </div>
+        <h1 className={`text-3xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+          View Applicants
+        </h1>
+
+        <Button
+          onClick={handleExportAll}
+          variant="primary"
+          size="lg"
+          icon={<LuDownload size={20} />}
+        >
+          EXPORT ALL
+        </Button>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-6">
-        {/* Search Bar */}
         <div className="relative flex-1 max-w-md">
-          <LuSearch className={`absolute left-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`} size={20} />
+          <LuSearch
+            className={`absolute left-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`}
+            size={20}
+          />
           <input
             type="text"
-            placeholder="Search candidates"
+            placeholder="Search candidates by name, email, job, or skills"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
           />
         </div>
-
-        {/* Filters Button */}
-        <LightButton
-          onClick={() => setShowFilters(!showFilters)}
-          icon={<LuFilter size={20} />}
-          iconRight={<LuChevronDown size={16} />}
-        >
-          Filters
-        </LightButton>
       </div>
 
-      {/* Selection Bar */}
-      {selectedCount > 0 && (
-        <div className="bg-gray-100 rounded-lg p-4 mb-6 flex items-center justify-between">
-          <span className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}>
-            {selectedCount} candidate{selectedCount > 1 ? 's' : ''} selected
-          </span>
-          <div className="flex items-center gap-3">
-            <NeutralButton
-              onClick={handleMoveToStage}
-              size="sm"
-              icon={<LuArrowRight size={16} />}
-              iconRight={<LuChevronDown size={16} />}
-            >
-              Move to Stage
-            </NeutralButton>
-            <NeutralButton
-              onClick={handleSendMessage}
-              size="sm"
-              icon={<LuMessageCircle size={16} />}
-            >
-              Send Message
-            </NeutralButton>
-            <NeutralButton
-              onClick={handleExportSelected}
-              size="sm"
-              icon={<LuDownload size={16} />}
-            >
-              Export Selected
-            </NeutralButton>
-          </div>
-        </div>
-      )}
-
-      {/* Custom DataTable */}
+      {/* Data Table */}
       <CustomDataTable
         title=""
-        data={applicants}
+        data={paginatedApplicants}
         showHeader={false}
         onViewDetails={handleViewDetails}
         onDownloadCV={handleDownloadCV}
-        onEdit={handleEdit}
         onDelete={handleDelete}
-        onShortlist={handleShortlist}
+        onReject={handleReject}
       />
 
       {/* Pagination */}
       <div className="flex items-center justify-between mt-6">
         <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-          Showing 10 from 160 data
+          Showing {startIndex + 1}–{endIndex} of {totalRecords} applicants
         </div>
+
         <div className="flex items-center gap-2">
           <NeutralButton
-            onClick={() => handlePageChange(currentPage - 1)}
+            onClick={() => setCurrentPage(currentPage - 1)}
             disabled={currentPage === 1}
             size="sm"
             icon={<LuChevronLeft size={16} />}
           >
             Previous
           </NeutralButton>
-          
-          {[1, 2, 3, 4].map((page) => (
+
+          {[1, 2, 3, 4].map((page) =>
             currentPage === page ? (
               <Button
                 key={page}
-                onClick={() => handlePageChange(page)}
+                onClick={() => setCurrentPage(page)}
                 variant="primary"
                 size="sm"
               >
@@ -348,17 +290,17 @@ Status: ${row.status}
             ) : (
               <NeutralButton
                 key={page}
-                onClick={() => handlePageChange(page)}
+                onClick={() => setCurrentPage(page)}
                 size="sm"
               >
                 {page}
               </NeutralButton>
             )
-          ))}
-          
+          )}
+
           <NeutralButton
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === 4}
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={endIndex >= totalRecords}
             size="sm"
             iconRight={<LuChevronRight size={16} />}
           >
@@ -373,16 +315,8 @@ Status: ${row.status}
         onClose={handleCloseModal}
         candidate={selectedCandidate}
       />
-
-      {/* Edit Candidate Modal */}
-      <EditCandidateModal
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        candidate={editingCandidate}
-        onSave={handleSaveEdit}
-      />
     </div>
-  )
-}
+  );
+};
 
-export default ViewApplicants
+export default ViewApplicants;

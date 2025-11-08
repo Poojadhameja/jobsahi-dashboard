@@ -86,7 +86,7 @@ const CompanyInfo = () => {
       <div className={`${TAILWIND_COLORS.CARD} p-6`}>
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-          <LuUpload className="text-secondary" size={20} />
+          <LuUpload className={TAILWIND_COLORS.TEXT_ACCENT} size={20} />
           <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Company Logo
           </h3>
@@ -120,7 +120,7 @@ const CompanyInfo = () => {
                     }}
                     variant="unstyled"
                     size="sm"
-                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white shadow-md hover:bg-gray-100 text-gray-500"
+                    className={`absolute top-3 right-3 p-1.5 rounded-full bg-white shadow-md hover:bg-gray-100 ${TAILWIND_COLORS.TEXT_MUTED}`}
                     title="Remove logo"
                     icon={<LuX size={16} />}
                   />
@@ -129,20 +129,20 @@ const CompanyInfo = () => {
             ) : (
               <div className="text-center">
                 <div 
-                  className="w-20 h-20 mx-auto mb-4 rounded-lg flex items-center justify-center shadow-sm bg-bg-muted border-2 border-gray-200 text-secondary"
+                  className={`w-20 h-20 mx-auto mb-4 rounded-lg flex items-center justify-center shadow-sm bg-bg-muted border-2 border-gray-200 ${TAILWIND_COLORS.TEXT_ACCENT}`}
                 >
                   <div className="text-center">
                     <div className="flex items-center justify-center mb-1">
-                      <span className="text-xs font-bold text-blue-600">JOB</span>
-                      <LuSearch className="ml-1 text-blue-600" size={12} />
+                      <span className={`text-xs font-bold ${TAILWIND_COLORS.TEXT_BRAND_BLUE}`}>JOB</span>
+                      <LuSearch className={`ml-1 ${TAILWIND_COLORS.TEXT_BRAND_BLUE}`} size={12} />
                     </div>
-                    <div className="text-xs font-bold text-green-600">SAHi</div>
+                    <div className={`text-xs font-bold ${TAILWIND_COLORS.TEXT_BRAND_GREEN}`}>SAHi</div>
                   </div>
                 </div>
                 <p className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   Click to upload or drag and drop
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   PNG, JPG, SVG, Web up to 5MB
                 </p>
               </div>
@@ -162,8 +162,8 @@ const CompanyInfo = () => {
         {/* Error Message */}
         {uploadError && (
           <div className="flex items-center gap-2 mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
-            <FiAlertCircle size={16} className="text-error" />
-            <p className="text-sm text-error">
+            <FiAlertCircle size={16} className={TAILWIND_COLORS.TEXT_ERROR} />
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_ERROR}`}>
               {uploadError}
             </p>
           </div>
@@ -187,7 +187,7 @@ const CompanyInfo = () => {
       <div className={`${TAILWIND_COLORS.CARD} p-6`}>
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-          <LuBuilding2 className="text-secondary" size={20} />
+          <LuBuilding2 className={TAILWIND_COLORS.TEXT_ACCENT} size={20} />
           <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Company Information
           </h3>
@@ -208,7 +208,7 @@ const CompanyInfo = () => {
               value={companyData.name}
               onChange={(e) => handleChange("name", e.target.value)}
               placeholder="Enter company name"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200"
+              className={`w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 ${TAILWIND_COLORS.TEXT_PRIMARY} placeholder:${TAILWIND_COLORS.TEXT_MUTED}`}
             />
           </div>
 
@@ -222,7 +222,7 @@ const CompanyInfo = () => {
               value={companyData.website}
               onChange={(e) => handleChange("website", e.target.value)}
               placeholder="https://example.com"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200"
+              className={`w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 ${TAILWIND_COLORS.TEXT_PRIMARY} placeholder:${TAILWIND_COLORS.TEXT_MUTED}`}
             />
           </div>
 
@@ -235,7 +235,7 @@ const CompanyInfo = () => {
               <select
                 value={companyData.trade}
                 onChange={(e) => handleChange("trade", e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 appearance-none bg-white"
+                className={`w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 appearance-none bg-white ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               >
                 {tradeOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -243,7 +243,7 @@ const CompanyInfo = () => {
                   </option>
                 ))}
               </select>
-              <LuChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+              <LuChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_ICON_MUTED} pointer-events-none`} size={16} />
             </div>
           </div>
 

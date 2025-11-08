@@ -13,5 +13,8 @@ export default defineConfig({
       '@features': path.resolve(__dirname, 'src/features'),
       '@shared': path.resolve(__dirname, 'src/shared'),
     }
+  },
+  optimizeDeps: {
+    include: ['xlsx']
   }
 })

@@ -330,10 +330,10 @@ const ScheduleInterviews = () => {
                 onClick={handleCandidateFieldClick}
                 className="w-full px-3 py-2 text-left flex items-center justify-between border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <span className={formData.candidates ? `${TAILWIND_COLORS.TEXT_PRIMARY}` : 'text-gray-400'}>
+                <span className={formData.candidates ? `${TAILWIND_COLORS.TEXT_PRIMARY}` : `${TAILWIND_COLORS.TEXT_MUTED}`}>
                   {formData.candidates || 'Choose candidates'}
                 </span>
-                <LuChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showCandidateDropdown ? 'rotate-180' : ''}`} />
+                <LuChevronDown className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED} transition-transform ${showCandidateDropdown ? 'rotate-180' : ''}`} />
               </button>
               
               {/* Candidate Dropdown */}
@@ -350,13 +350,13 @@ const ScheduleInterviews = () => {
                     >
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-medium text-gray-600">
+                          <span className={`text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
                             {candidate.name.split(' ').map(n => n[0]).join('')}
                           </span>
                         </div>
                         <div className="flex-1">
                           <div className="font-medium">{candidate.name}</div>
-                          <div className="text-sm text-gray-500">{candidate.jobRole}</div>
+                          <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{candidate.jobRole}</div>
                         </div>
                       </div>
                     </button>
@@ -460,7 +460,7 @@ const ScheduleInterviews = () => {
                     onChange={(e) => handleInputChange('location', e.target.value)}
                     className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <LuMapPin className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                    <LuMapPin className={`absolute left-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                 </div>
               </div>
             )}
@@ -489,7 +489,7 @@ const ScheduleInterviews = () => {
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative">
-            <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <LuSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
             <input
               type="text"
               placeholder="Search by candidate name, job role, time, status, round..."
@@ -511,7 +511,7 @@ const ScheduleInterviews = () => {
                 {/* Candidate Info */}
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-semibold text-gray-600">
+                    <span className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
                       {interview.candidate.initials}
                     </span>
                   </div>
@@ -580,7 +580,7 @@ const ScheduleInterviews = () => {
                 {/* Candidate Information */}
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-semibold text-gray-600">
+                    <span className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
                       {interview.candidate.initials}
                     </span>
                   </div>
@@ -763,7 +763,7 @@ const ScheduleInterviews = () => {
                       onChange={(e) => handleEditInputChange('location', e.target.value)}
                       className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
-                    <LuMapPin className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                    <LuMapPin className={`absolute left-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                   </div>
                 </div>
               )}

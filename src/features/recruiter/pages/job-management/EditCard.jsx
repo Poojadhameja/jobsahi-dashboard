@@ -5,6 +5,7 @@ import service from "../../services/serviceUrl";
 import { toast } from "react-toastify";
 import RichTextEditor from "@shared/components/RichTextEditor";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
+import { Button, IconButton } from "../../../../shared/components/Button";
 
 const EditCard = ({ isOpen, onClose, job, onSave }) => {
   const [formData, setFormData] = useState({
@@ -276,15 +277,17 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
       <div className="relative z-[9999] bg-white rounded-xl max-w-6xl w-full max-h-[95vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-semibold text-[var(--color-primary)]">
+          <h2 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Edit Job Post
           </h2>
-          <button
+          <IconButton
+            label="Close"
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            variant="light"
+            className="hover:bg-gray-100"
           >
-            <LuX size={24} className={`${TAILWIND_COLORS.TEXT_MUTED}`} />
-          </button>
+            <LuX size={20} />
+          </IconButton>
         </div>
 
         {/* Form */}
@@ -300,7 +303,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
 
           {/* BASIC INFO */}
           <div className="bg-white rounded-xl border p-5">
-            <h2 className="text-xl font-bold mb-8">Basic Information</h2>
+            <h2 className={`text-xl font-bold mb-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Basic Information</h2>
 
             {/* Job Title */}
             <input
@@ -308,7 +311,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 mb-6 border rounded-lg"
+              className={`w-full px-4 py-3 mb-6 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               placeholder="Enter job title"
             />
 
@@ -327,7 +330,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                   jobSectorName: selectedName, // store name for payload
                 }));
               }}
-              className="w-full px-4 py-3 mb-6 border rounded-lg"
+              className={`w-full px-4 py-3 mb-6 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
             >
               <option value="">Choose Category</option>
               {jobCategories.map((cat) => (
@@ -348,7 +351,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
             {/* Salary Section */}
             <div className="flex gap-4 mt-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                   MONTHLY SALARY <span className="text-red-500">*</span>
                 </label>
               </div>
@@ -358,7 +361,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                 value={formData.minSalary}
                 onChange={handleInputChange}
                 placeholder="Min Salary"
-                className="w-1/3 border px-4 py-3 rounded-lg"
+                className={`w-1/3 border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               />
               <input
                 type="number"
@@ -366,7 +369,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                 value={formData.maxSalary}
                 onChange={handleInputChange}
                 placeholder="Max Salary"
-                className="w-1/3 border px-4 py-3 rounded-lg"
+                className={`w-1/3 border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               />
             </div>
 
@@ -375,7 +378,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               name="jobType"
               value={formData.jobType}
               onChange={handleInputChange}
-              className="w-full mt-6 px-4 py-3 border rounded-lg"
+              className={`w-full mt-6 px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
             >
               <option value="">Choose job type</option>
               <option value="full_time">Full-time</option>
@@ -391,7 +394,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               value={formData.requiredSkills}
               onChange={handleInputChange}
               placeholder="e.g. JavaScript, React, Node.js"
-              className="w-full mt-6 px-4 py-3 border rounded-lg"
+              className={`w-full mt-6 px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
             />
 
             {/* Experience */}
@@ -401,32 +404,32 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               value={formData.experience}
               onChange={handleInputChange}
               placeholder="e.g. 2-5 years"
-              className="w-full mt-6 px-4 py-3 border rounded-lg"
+              className={`w-full mt-6 px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
             />
           </div>
 
           {/* LOCATION */}
           <div className="bg-white rounded-xl border p-5">
-            <h2 className="text-xl font-bold mb-8">Address / Location</h2>
+            <h2 className={`text-xl font-bold mb-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Address / Location</h2>
             <input
               type="text"
               name="location"
               value={formData.location}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border rounded-lg"
+              className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               placeholder="Enter complete address"
             />
           </div>
 
           {/* CONTACT INFO */}
           <div className="bg-white rounded-xl border p-5">
-            <h2 className="text-xl font-bold mb-8">Contact Information</h2>
+            <h2 className={`text-xl font-bold mb-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Contact Information</h2>
             <input
               type="text"
               name="contactPerson"
               value={formData.contactPerson}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border rounded-lg mb-4"
+              className={`w-full px-4 py-3 border rounded-lg mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               placeholder="Contact Person"
             />
             <input
@@ -434,7 +437,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border rounded-lg mb-4"
+              className={`w-full px-4 py-3 border rounded-lg mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               placeholder="Phone Number"
             />
             <input
@@ -442,14 +445,14 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               name="additionalContact"
               value={formData.additionalContact}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border rounded-lg"
+              className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               placeholder="Additional Contact Email"
             />
           </div>
 
           {/* DATES + STATUS */}
           <div className="bg-white rounded-xl border p-5">
-            <h2 className="text-xl font-bold mb-8">Dates & Status</h2>
+            <h2 className={`text-xl font-bold mb-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Dates & Status</h2>
 
             <input
               type="number"
@@ -457,7 +460,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               value={formData.no_of_vacancies}
               onChange={handleInputChange}
               placeholder="Number of vacancies"
-              className="w-full px-4 py-3 mb-6 border rounded-lg"
+              className={`w-full px-4 py-3 mb-6 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
             />
 
             <div className="grid grid-cols-2 gap-4 mb-6">
@@ -466,13 +469,13 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
                 name="closingDate"
                 value={formData.closingDate}
                 onChange={handleInputChange}
-                className="border px-4 py-3 rounded-lg"
+                className={`border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               />
               <select
                 name="vacancyStatus"
                 value={formData.vacancyStatus}
                 onChange={handleInputChange}
-                className="border px-4 py-3 rounded-lg"
+                className={`border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               >
                 <option value="">Vacancy Status</option>
                 <option value="open">Open</option>
@@ -484,20 +487,26 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
 
           {/* Footer Buttons */}
           <div className="flex justify-end gap-4 border-t pt-6">
-            <button
+            <Button
               type="button"
               onClick={onClose}
-              className="px-6 py-3 border border-gray-300 rounded-lg"
+              variant="neutral"
+              size="md"
+              className="px-6 py-2"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={handleSubmit}
-              className="px-6 py-3 bg-[var(--color-secondary)] text-white rounded-lg"
+              variant="primary"
+              size="md"
+              className="px-6 py-2"
+              loading={loading}
+              disabled={loading}
             >
               Update Job
-            </button>
+            </Button>
           </div>
         </form>
       </div>

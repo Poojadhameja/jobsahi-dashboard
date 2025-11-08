@@ -6,6 +6,7 @@ import { getChartColors } from '../../../shared/utils/chartColors'
 import { Horizontal4Cards, MatrixCard } from '../../../shared/components/metricCard'
 import { Button } from '../../../shared/components/Button'
 import DynamicButton from '../../../shared/components/DynamicButton'
+import { TAILWIND_COLORS } from '../../../shared/WebConstant'
 
 const AnalyticsReports = () => {
   const [timeFilter, setTimeFilter] = useState('Last 30 days')
@@ -180,7 +181,7 @@ ${reportData.keyMetrics.map(metric =>
       {/* Filters and Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-gray-700">Filters:</span>
+          <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Filters:</span>
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
@@ -267,7 +268,7 @@ ${reportData.keyMetrics.map(metric =>
       {/* Key Metrics Summary */}
       <div className="mb-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-6">Key Metrics Summary</h3>
+          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Key Metrics Summary</h3>
           <Horizontal4Cards data={keyMetricsData} />
         </div>
       </div>
