@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { LuSettings, LuNetwork, LuChevronDown } from "react-icons/lu";
+import { useNavigate } from "react-router-dom";
+import { LuSettings, LuNetwork, LuChevronDown, LuArrowLeft } from "react-icons/lu";
 import { TAILWIND_COLORS } from "@shared/WebConstant";
 import { Button, SaveButton } from "@shared/components/Button";
 import DynamicButton from "@shared/components/DynamicButton";
@@ -7,7 +8,8 @@ import DynamicButton from "@shared/components/DynamicButton";
 // ✅ Added ComingSoonPopup like TeamManagement.jsx
 import ComingSoonPopup from "../../../../shared/components/ComingSoon";
 
-const Preferences = () => {
+const Preferences = ({ onBack }) => {
+  const navigate = useNavigate();
   const [emailPreferences, setEmailPreferences] = useState({
     frequency: "Daily Digest",
     autoReplies: true
@@ -81,8 +83,28 @@ const Preferences = () => {
 
   const teamMembersCount = 3;
 
+  const handleBackClick = () => {
+    if (typeof onBack === "function") {
+      onBack();
+      return;
+    }
+
+    navigate("/recruiter/company-profile");
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {onBack && (
+        <div className="col-span-full mb-2">
+          <button
+            onClick={handleBackClick}
+            className={`flex items-center gap-2 font-medium hover:underline transition-all ${TAILWIND_COLORS.TEXT_ACCENT}`}
+          >
+            <LuArrowLeft size={18} />
+            Go Back
+          </button>
+        </div>
+      )}
       {/* Left Section - Email Preferences */}
       <div className={`${TAILWIND_COLORS.CARD} p-6`}>
         <div className="flex items-center gap-3 mb-2">

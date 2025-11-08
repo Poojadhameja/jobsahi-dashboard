@@ -345,7 +345,7 @@ const ScheduleInterviews = () => {
                       type="button"
                       onClick={() => handleCandidateSelect(candidate)}
                       className={`w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors ${
-                        formData.candidates === candidate.name ? 'bg-primary-10 text-primary' : `${TAILWIND_COLORS.TEXT_PRIMARY}`
+                        formData.candidates === candidate.name ? `bg-primary-10 ${TAILWIND_COLORS.TEXT_PRIMARY}` : `${TAILWIND_COLORS.TEXT_PRIMARY}`
                       }`}
                     >
                       <div className="flex items-center space-x-3">

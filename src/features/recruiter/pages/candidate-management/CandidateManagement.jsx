@@ -7,6 +7,7 @@ import ViewApplicants from './ViewApplicants'
 
 const CandidateManagement = () => {
   const [activeTab, setActiveTab] = useState(0)
+  const [previousTab, setPreviousTab] = useState(null)
 
   const tabs = [
     {
@@ -22,7 +23,13 @@ const CandidateManagement = () => {
   ]
 
   const handleTabChange = (tabIndex) => {
+    if (tabIndex === activeTab) return
+    setPreviousTab(activeTab)
     setActiveTab(tabIndex)
+  }
+
+  const handleReturnToPreviousTab = () => {
+    setActiveTab(previousTab ?? 0)
   }
 
   return (
@@ -39,7 +46,7 @@ const CandidateManagement = () => {
 
       {/* Conditional Rendering based on active tab */}
        {activeTab === 0 && <ViewApplicants />}
-      {activeTab === 1 && <InstaMatch />}
+      {activeTab === 1 && <InstaMatch onComingSoonClose={handleReturnToPreviousTab} />}
      
     </div>
   )

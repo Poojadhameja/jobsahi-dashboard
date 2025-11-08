@@ -168,3 +168,39 @@ export const createBatch = async (payload) => {
     };
   }
 };
+
+/**
+ * 🟢 POST (multipart/form-data) method — for file uploads like certificate templates
+ */
+export const postMultipart = async (data) => {
+  try {
+    const token = localStorage.getItem("authToken");
+    const headers = {
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "multipart/form-data",
+    };
+
+    console.log("🌐 POST (Multipart) Request:", {
+      url: backendHost + data.apiUrl,
+      formDataKeys: data.formData ? Array.from(data.formData.keys()) : [],
+    });
+
+    const respData = await axios({
+      method: "post",
+      url: backendHost + data.apiUrl,
+      data: data.formData, // must be FormData object
+      headers,
+    });
+
+    console.log("✅ POST (Multipart) Response:", respData.data);
+    return respChanges(respData.data);
+  } catch (err) {
+    console.error("❌ POST (Multipart) Error:", err.response?.data || err);
+    return {
+      status: false,
+      message:
+        err.response?.data?.message || "Something went wrong while uploading file.",
+      data: [],
+    };
+  }
+};

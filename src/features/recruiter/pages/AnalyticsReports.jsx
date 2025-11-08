@@ -4,7 +4,6 @@ import BarChart from '../../../shared/components/charts/BarChart'
 import TradePieChart from '../../../shared/components/charts/TradePieChart'
 import { getChartColors } from '../../../shared/utils/chartColors'
 import { Horizontal4Cards, MatrixCard } from '../../../shared/components/metricCard'
-import { Button } from '../../../shared/components/Button'
 import DynamicButton from '../../../shared/components/DynamicButton'
 import { TAILWIND_COLORS } from '../../../shared/WebConstant'
 
@@ -81,11 +80,6 @@ const AnalyticsReports = () => {
       icon: <LuDollarSign />
     }
   ]
-
-  const handleCreateReport = () => {
-    console.log('Create Report clicked')
-    // TODO: Implement create report functionality
-  }
 
   const handleCSVDownload = () => {
     // Create CSV data for applications by department
@@ -169,7 +163,7 @@ ${reportData.keyMetrics.map(metric =>
   }
 
   return (
-    <div className="p-2">
+    <div className={`p-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Header */}
       <div className="mb-8">
         <MatrixCard 
@@ -185,7 +179,7 @@ ${reportData.keyMetrics.map(metric =>
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
           >
             <option value="Last 7 days">Last 7 days</option>
             <option value="Last 30 days">Last 30 days</option>
@@ -195,7 +189,7 @@ ${reportData.keyMetrics.map(metric =>
           <select
             value={departmentFilter}
             onChange={(e) => setDepartmentFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
           >
             <option value="All Department">All Department</option>
             <option value="Engineering">Engineering</option>
@@ -208,36 +202,25 @@ ${reportData.keyMetrics.map(metric =>
         </div>
 
         <div className="flex items-center gap-3">
-          <Button
-            onClick={handleCreateReport}
-            variant="primary"
-            size="md"
-            icon={<LuFileText className="w-4 h-4" />}
-            className="font-medium"
-          >
-            + Create Report
-          </Button>
           <DynamicButton
             onClick={handleCSVDownload}
             backgroundColor="transparent"
-            textColor="var(--color-secondary)"
+            textColor="var(--color-text-primary)"
             border="2px solid var(--color-secondary)"
             hoverBackgroundColor="var(--color-secondary)"
-            hoverTextColor="white"
             icon={<LuFileSpreadsheet className="w-4 h-4" />}
-            className="font-medium"
+            className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}
           >
             CSV
           </DynamicButton>
           <DynamicButton
             onClick={handlePDFDownload}
             backgroundColor="transparent"
-            textColor="var(--color-secondary)"
+            textColor="var(--color-text-primary)"
             border="2px solid var(--color-secondary)"
             hoverBackgroundColor="var(--color-secondary)"
-            hoverTextColor="white"
             icon={<LuFileText className="w-4 h-4" />}
-            className="font-medium"
+            className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}
           >
             PDF
           </DynamicButton>
