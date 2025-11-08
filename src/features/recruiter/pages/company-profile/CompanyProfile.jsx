@@ -20,7 +20,8 @@ const CompanyProfile = () => {
       id: "team-management",
       label: "Team Management",
       icon: LuUsers,
-      component: <TeamManagement />
+      // ✅ Pass onBack: switch back to Company Info tab
+      component: <TeamManagement onBack={() => setActiveTab(0)} />
     },
     {
       id: "preferences",
@@ -32,24 +33,19 @@ const CompanyProfile = () => {
 
   return (
     <div className="space-y-5">
-      {/* Header Section using MatrixCard */}
       <MatrixCard
         title="Company Profile & Settings"
         subtitle="Manage your company information and team settings"
-        className=""
       />
 
-      {/* Navigation Pills using PillNavigation */}
       <div className="flex justify-center">
         <PillNavigation
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          className=""
         />
       </div>
 
-      {/* Tab Content */}
       <div className="mt-5">
         {tabs[activeTab]?.component}
       </div>

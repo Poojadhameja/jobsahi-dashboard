@@ -1,5 +1,6 @@
 import React from 'react'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
+import { Button } from '../../../../../shared/components/Button.jsx'
 
 // Certificate Issuance Table Component
 function CertificateIssuanceTable() {
@@ -84,9 +85,13 @@ function CertificateIssuanceTable() {
                       <span className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
                         {certificate.status}
                       </span>
-                      <span className="inline-flex items-center px-3 py-1 bg-green-50 text-green-600 text-xs font-medium rounded border border-green-200">
+                      <Button
+                        variant="light"
+                        size="sm"
+                        className="px-3 py-1 text-xs bg-green-50 text-green-600 border border-green-200 hover:bg-green-100"
+                      >
                         View
-                      </span>
+                      </Button>
                     </div>
                   </td>
                 </tr>

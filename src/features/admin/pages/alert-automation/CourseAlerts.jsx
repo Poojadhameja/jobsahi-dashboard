@@ -113,7 +113,7 @@ const CourseDeadlineSettings = ({ settings, onSettingsChange, onUpdateSettings }
             variant="primary"
             size="md"
             fullWidth
-            className="font-medium"
+            className="font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30"
           >
             Save Alert Settings
           </Button>

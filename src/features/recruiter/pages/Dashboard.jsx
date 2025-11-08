@@ -462,63 +462,96 @@ const fetchRecentApplicants = async () => {
       <Horizontal4Cards data={metricCardsData} className="mb-5" />
 
       {/* Calendar + Charts */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
-        {/* Left: Calendar + Interview Details */}
-        <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Calendar
-              variant="recruiter"
-              selectedDate={selectedDate}
-              onDateSelect={setSelectedDate}
-              interviewDates={interviewDates}
-              className="w-full max-w-[320px]"
-            />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8"> 
+       {/* 📅 Calendar + Candidate Interview Section */}
+<div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+  <h3 className="text-xl font-semibold text-gray-900 mb-4">
+    Interview Schedule
+  </h3>
 
-            <div className="flex flex-col">
-              <h3 className="text-lg font-bold text-[var(--color-primary)] mb-3 text-center lg:text-left">
-                Candidate Interview Details
-              </h3>
+  {/* Responsive: Calendar first, Interview below */}
+  <div className="flex flex-col gap-6">
+    {/* Calendar Section */}
+    <div className="w-full flex justify-center">
+      <div className="w-full sm:w-[380px] md:w-[400px] lg:w-[420px] border border-gray-100 rounded-xl shadow-sm p-4">
+        <Calendar
+          variant="recruiter"
+          selectedDate={selectedDate}
+          onDateSelect={setSelectedDate}
+          interviewDates={interviewDates}
+        />
+      </div>
+    </div>
 
-              <div className="flex-1 h-64 overflow-y-auto space-y-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                {interviewDetails.length > 0 ? (
-                  interviewDetails.map((item, i) => (
-                    <div
-                      key={i}
-                      className="p-3 bg-[var(--color-bg-primary)] border border-[var(--color-primary)3C] rounded-lg shadow-sm"
-                    >
-                      <div className="grid grid-cols-2 gap-x-2 text-xs sm:text-sm">
-                        <span className="text-gray-600">Name:</span>
-                        <span className="font-semibold">{item.name}</span>
+    {/* Candidate Interview Section */}
+<div className="bg-[var(--color-bg-primary)] rounded-2xl border border-gray-200 shadow-sm p-6">
+  <h4 className="text-xl font-semibold text-[var(--color-primary)] mb-4 text-center sm:text-left">
+    Candidate Interview Details
+  </h4>
 
-                        <span className="text-gray-600">Job Title:</span>
-                        <span className="font-semibold">{item.job_title}</span>
+  {interviewDetails.length > 0 ? (
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 overflow-y-auto max-h-[420px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 px-1">
+      {interviewDetails.map((item, i) => (
+        <div
+          key={i}
+          className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 p-5 flex flex-col justify-between"
+        >
+          {/* Top: Candidate Name & Date */}
+          <div className="flex items-center justify-between mb-3">
+            <h5 className="font-semibold text-gray-800 text-sm sm:text-base truncate">
+              {item.name || "—"}
+            </h5>
+            <p className="text-xs text-gray-500 whitespace-nowrap">
+              {item.scheduled_at
+                ? new Date(item.scheduled_at).toLocaleDateString()
+                : "--"}
+            </p>
+          </div>
 
-                        <span className="text-gray-600">Mode:</span>
-                        <span className="font-semibold">{item.mode}</span>
+          {/* Details */}
+          <div className="space-y-2 text-xs sm:text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Job Title:</span>
+              <span className="font-medium text-gray-800 text-right truncate max-w-[140px]">
+                {item.job_title || "-"}
+              </span>
+            </div>
 
-                        <span className="text-gray-600">Location:</span>
-                        <span className="font-semibold">{item.location}</span>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Mode:</span>
+              <span className="font-medium text-gray-800 text-right">
+                {item.mode || "-"}
+              </span>
+            </div>
 
-                        <span className="text-gray-600">Time:</span>
-                        <span className="font-semibold">{item.time}</span>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Location:</span>
+              <span className="font-medium text-gray-800 text-right truncate max-w-[140px]">
+                {item.location || "-"}
+              </span>
+            </div>
 
-                        <span className="text-gray-600">Date:</span>
-                        <span className="font-semibold">
-                          {item.scheduled_at}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-10 text-gray-400 text-sm">
-                    <FaCalendarAlt className="text-3xl mx-auto mb-2" />
-                    No interviews scheduled for this month
-                  </div>
-                )}
-              </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Time:</span>
+              <span className="font-medium text-gray-800 text-right">
+                {item.time || "-"}
+              </span>
             </div>
           </div>
         </div>
+      ))}
+    </div>
+  ) : (
+    <div className="text-center py-12 text-gray-400 text-sm flex flex-col items-center justify-center">
+      <FaCalendarAlt className="text-3xl mb-2" />
+      No interviews scheduled for this month
+    </div>
+  )}
+</div>
+
+  </div>
+</div>
+
 
         {/* Right: Chart + Applicants */}
         <div className="xl:col-span-2 flex flex-col gap-6">

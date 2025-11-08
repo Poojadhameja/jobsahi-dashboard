@@ -1,59 +1,82 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { 
   LuUsers, 
   LuGraduationCap,
   LuBookOpen,
-  LuTrendingUp,
-  // LuBarChart3
+  LuTrendingUp
 } from 'react-icons/lu'
 import { Horizontal4Cards, MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import StudentCompletion from './StudentCompletion'
 import CoursePopularity from './CoursePopularity'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
 
 export default function ReportsAnalytics() {
   const navigate = useNavigate()
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
-  const handleCoursePopularity = () => {
-    navigate('/institute/reports-analytics/course-popularity')
-  }
+  // ✅ State for Key Metrics
+  const [metrics, setMetrics] = useState({
+    total_students: 0,
+    completion_rate: 0,
+    total_courses: 0,
+    active_batches: 0
+  })
 
-  const handleStudentCompletion = () => {
-    navigate('/institute/reports-analytics/student-completion')
-  }
+  // ✅ Fetch metrics once
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const res = await getMethod({ apiUrl: apiService.INSTITUTE_REPORT })
+        if (res?.status && res?.data?.metrics) {
+          setMetrics({
+            total_students: res.data.metrics.total_students ?? 0,
+            completion_rate: res.data.metrics.completion_rate ?? 0,
+            total_courses: res.data.metrics.total_courses ?? 0,
+            active_batches: res.data.metrics.active_batches ?? 0
+          })
+        } else {
+          console.warn('⚠️ Metrics not found in API response')
+        }
+      } catch (err) {
+        console.error('❌ Error fetching metrics:', err)
+      }
+    }
+    fetchMetrics()
+  }, [])
 
-  // Key metrics data for Horizontal4Cards
+  // ✅ Dynamic key metrics for UI (no UI change)
   const keyMetrics = [
     {
       title: 'Total Students',
-      value: '4',
+      value: metrics.total_students,
       delta: '+15% from last month',
       icon: <LuUsers className="w-5 h-5" />
     },
     {
       title: 'Completion Rate',
-      value: '2',
+      value: metrics.completion_rate,
       delta: '+8% from last month',
       icon: <LuGraduationCap className="w-5 h-5" />
     },
     {
       title: 'All Courses',
-      value: '20',
+      value: metrics.total_courses,
       delta: '+2 from last month',
       icon: <LuBookOpen className="w-5 h-5" />
     },
     {
       title: 'Active Batches',
-      value: '54',
+      value: metrics.active_batches,
       delta: '+5% from last month',
       icon: <LuTrendingUp className="w-5 h-5" />
     }
   ]
 
-  // Navigation tabs for PillNavigation
+  // ✅ Tabs for navigation (unchanged UI)
   const navigationTabs = [
     {
       id: 'student-completion',

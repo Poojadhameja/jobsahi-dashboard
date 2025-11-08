@@ -14,6 +14,7 @@ import {
 } from 'react-icons/lu'
 import { HiDotsVertical } from 'react-icons/hi'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
+import { Button } from '../../../../../shared/components/Button.jsx'
 
 // Placement Ready Students Table Component
 function PlacementReadyStudentsTable() {
@@ -379,12 +380,14 @@ function PlacementReadyStudentsTable() {
           </div>
           
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-            <button
+            <Button
               onClick={onClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+              variant="neutral"
+              size="md"
+              className="px-6 py-2"
             >
               Close
-            </button>
+            </Button>
           </div>
         </div>
       </div>

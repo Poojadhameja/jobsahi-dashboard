@@ -3,11 +3,13 @@ import { LuSearch, LuFilter, LuChevronDown, LuDownload, LuArrowRight, LuMessageC
 import CustomDataTable from './CustomDataTable'
 import ViewDetailsModal from './ViewDetailsModal'
 import EditCandidateModal from './EditCandidateModal'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { Button, LightButton, NeutralButton } from '../../../../shared/components/Button'
 
 const ViewApplicants = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCandidates, setSelectedCandidates] = useState([])
-  const [currentPage, setCurrentPage] = useState(3)
+  const [currentPage, setCurrentPage] = useState(1)
   const [showFilters, setShowFilters] = useState(false)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [selectedCandidate, setSelectedCandidate] = useState(null)
@@ -235,16 +237,17 @@ Status: ${row.status}
     <div className="min-h-screen bg-[var(--color-bg-primary)] p-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-semibold text-[var(--color-primary)]">View Applicants</h1>
+        <h1 className={`text-3xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>View Applicants</h1>
         
         <div className="flex items-center gap-4">          
-          <button
+          <Button
             onClick={handleExportAll}
-            className="px-6 py-3 bg-[var(--color-secondary)] text-white rounded-lg hover:bg-secondary-dark transition-colors font-medium flex items-center gap-2"
+            variant="primary"
+            size="lg"
+            icon={<LuDownload size={20} />}
           >
-            <LuDownload size={20} />
             EXPORT ALL
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -252,7 +255,7 @@ Status: ${row.status}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-6">
         {/* Search Bar */}
         <div className="relative flex-1 max-w-md">
-          <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+          <LuSearch className={`absolute left-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`} size={20} />
           <input
             type="text"
             placeholder="Search candidates"
@@ -263,45 +266,44 @@ Status: ${row.status}
         </div>
 
         {/* Filters Button */}
-        <button
+        <LightButton
           onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          icon={<LuFilter size={20} />}
+          iconRight={<LuChevronDown size={16} />}
         >
-          <LuFilter size={20} />
-          <span>Filters</span>
-          <LuChevronDown size={16} />
-        </button>
+          Filters
+        </LightButton>
       </div>
 
       {/* Selection Bar */}
       {selectedCount > 0 && (
         <div className="bg-gray-100 rounded-lg p-4 mb-6 flex items-center justify-between">
-          <span className="text-gray-700 font-medium">
+          <span className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}>
             {selectedCount} candidate{selectedCount > 1 ? 's' : ''} selected
           </span>
           <div className="flex items-center gap-3">
-            <button
+            <NeutralButton
               onClick={handleMoveToStage}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+              size="sm"
+              icon={<LuArrowRight size={16} />}
+              iconRight={<LuChevronDown size={16} />}
             >
-              <LuArrowRight size={16} />
               Move to Stage
-              <LuChevronDown size={16} />
-            </button>
-            <button
+            </NeutralButton>
+            <NeutralButton
               onClick={handleSendMessage}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+              size="sm"
+              icon={<LuMessageCircle size={16} />}
             >
-              <LuMessageCircle size={16} />
               Send Message
-            </button>
-            <button
+            </NeutralButton>
+            <NeutralButton
               onClick={handleExportSelected}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+              size="sm"
+              icon={<LuDownload size={16} />}
             >
-              <LuDownload size={16} />
               Export Selected
-            </button>
+            </NeutralButton>
           </div>
         </div>
       )}
@@ -320,41 +322,48 @@ Status: ${row.status}
 
       {/* Pagination */}
       <div className="flex items-center justify-between mt-6">
-        <div className="text-sm text-gray-700">
+        <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
           Showing 10 from 160 data
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <NeutralButton
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+            size="sm"
+            icon={<LuChevronLeft size={16} />}
           >
-            <LuChevronLeft size={16} />
             Previous
-          </button>
+          </NeutralButton>
           
           {[1, 2, 3, 4].map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                currentPage === page
-                  ? 'bg-[var(--color-secondary)] text-white'
-                  : 'border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              {page}
-            </button>
+            currentPage === page ? (
+              <Button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                variant="primary"
+                size="sm"
+              >
+                {page}
+              </Button>
+            ) : (
+              <NeutralButton
+                key={page}
+                onClick={() => handlePageChange(page)}
+                size="sm"
+              >
+                {page}
+              </NeutralButton>
+            )
           ))}
           
-          <button
+          <NeutralButton
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === 4}
-            className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+            size="sm"
+            iconRight={<LuChevronRight size={16} />}
           >
             Next
-            <LuChevronRight size={16} />
-          </button>
+          </NeutralButton>
         </div>
       </div>
 

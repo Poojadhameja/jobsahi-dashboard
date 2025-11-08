@@ -16,6 +16,7 @@ import Swal from 'sweetalert2'
 import { postMethod, putMethod } from '../../../../../service/api'
 import apiService from '../../../../admin/services/serviceUrl'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
+import { Button } from '../../../../../shared/components/Button.jsx'
 
 // Institute Approval Card Component
 function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }) {
@@ -258,12 +259,14 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
         </div>
 
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-          <button
+          <Button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            variant="neutral"
+            size="md"
+            className="px-6 py-2"
           >
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -8,7 +8,9 @@ import {
 } from "react-icons/lu";
 import { FiAlertCircle } from "react-icons/fi";
 import RichTextEditor from "@shared/components/RichTextEditor";
-import { COLORS } from "@shared/WebConstant";
+import { TAILWIND_COLORS } from "@shared/WebConstant";
+import { Button, SaveButton } from "@shared/components/Button";
+import DynamicButton from "@shared/components/DynamicButton";
 
 const CompanyInfo = () => {
   const [companyData, setCompanyData] = useState({
@@ -81,16 +83,16 @@ const CompanyInfo = () => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Left Column - Company Logo */}
-      <div className="bg-white rounded-2xl shadow-sm p-6" style={{ border: `1px solid ${COLORS.GRAY_200}` }}>
+      <div className={`${TAILWIND_COLORS.CARD} p-6`}>
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-          <LuUpload style={{ color: COLORS.GREEN_PRIMARY }} size={20} />
-          <h3 className="font-semibold text-lg" style={{ color: COLORS.PRIMARY }}>
+          <LuUpload className="text-secondary" size={20} />
+          <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Company Logo
           </h3>
         </div>
         
-        <p className="text-sm mb-6" style={{ color: COLORS.GRAY_600 }}>
+        <p className={`text-sm mb-6 ${TAILWIND_COLORS.TEXT_MUTED}`}>
           Upload your company logo (Max 5MB)
         </p>
 
@@ -111,28 +113,23 @@ const CompanyInfo = () => {
                   className="max-h-28 max-w-28 object-contain rounded-lg"
                 />
                 {logoFile && (
-                  <button
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleLogoRemove();
                     }}
-                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white shadow-md hover:bg-gray-100 transition-colors"
-                    style={{ color: COLORS.GRAY_500 }}
+                    variant="unstyled"
+                    size="sm"
+                    className="absolute top-3 right-3 p-1.5 rounded-full bg-white shadow-md hover:bg-gray-100 text-gray-500"
                     title="Remove logo"
-                  >
-                    <LuX size={16} />
-                  </button>
+                    icon={<LuX size={16} />}
+                  />
                 )}
               </div>
             ) : (
               <div className="text-center">
                 <div 
-                  className="w-20 h-20 mx-auto mb-4 rounded-lg flex items-center justify-center shadow-sm"
-                  style={{ 
-                    backgroundColor: 'var(--color-bg-muted)',
-                    border: '2px solid var(--color-gray-200)',
-                    color: COLORS.GREEN_PRIMARY
-                  }}
+                  className="w-20 h-20 mx-auto mb-4 rounded-lg flex items-center justify-center shadow-sm bg-bg-muted border-2 border-gray-200 text-secondary"
                 >
                   <div className="text-center">
                     <div className="flex items-center justify-center mb-1">
@@ -142,10 +139,10 @@ const CompanyInfo = () => {
                     <div className="text-xs font-bold text-green-600">SAHi</div>
                   </div>
                 </div>
-                <p className="text-sm font-medium mb-2" style={{ color: COLORS.GRAY_600 }}>
+                <p className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   Click to upload or drag and drop
                 </p>
-                <p className="text-xs" style={{ color: COLORS.GRAY_500 }}>
+                <p className="text-xs text-gray-500">
                   PNG, JPG, SVG, Web up to 5MB
                 </p>
               </div>
@@ -165,37 +162,37 @@ const CompanyInfo = () => {
         {/* Error Message */}
         {uploadError && (
           <div className="flex items-center gap-2 mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
-            <FiAlertCircle size={16} style={{ color: COLORS.ERROR }} />
-            <p className="text-sm" style={{ color: COLORS.ERROR }}>
+            <FiAlertCircle size={16} className="text-error" />
+            <p className="text-sm text-error">
               {uploadError}
             </p>
           </div>
         )}
 
         {/* Upload Button */}
-        <button
+        <Button
           onClick={handleClick}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          style={{ color: COLORS.GRAY_700 }}
+          variant="light"
+          size="md"
+          fullWidth
+          loading={isUploading}
           disabled={isUploading}
+          icon={<LuUpload size={16} />}
         >
-          <LuUpload size={16} />
-          <span className="text-sm font-medium">
-            {isUploading ? 'Uploading...' : logoFile ? 'Change Logo' : 'Upload Logo'}
-          </span>
-        </button>
+          {isUploading ? 'Uploading...' : logoFile ? 'Change Logo' : 'Upload Logo'}
+        </Button>
       </div>
 
       {/* Right Column - Company Information */}
-      <div className="bg-white rounded-2xl shadow-sm p-6" style={{ border: `1px solid ${COLORS.GRAY_200}` }}>
+      <div className={`${TAILWIND_COLORS.CARD} p-6`}>
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-          <LuBuilding2 style={{ color: COLORS.GREEN_PRIMARY }} size={20} />
-          <h3 className="font-semibold text-lg" style={{ color: COLORS.PRIMARY }}>
+          <LuBuilding2 className="text-secondary" size={20} />
+          <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Company Information
           </h3>
         </div>
-        <p className="text-sm mb-6" style={{ color: COLORS.GRAY_600 }}>
+        <p className={`text-sm mb-6 ${TAILWIND_COLORS.TEXT_MUTED}`}>
           Basic information about your company
         </p>
 
@@ -203,7 +200,7 @@ const CompanyInfo = () => {
         <div className="space-y-4">
           {/* Company Name */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium mb-2" style={{ color: COLORS.PRIMARY }}>
+            <label className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               Company Name
             </label>
             <input
@@ -217,7 +214,7 @@ const CompanyInfo = () => {
 
           {/* Website */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium mb-2" style={{ color: COLORS.PRIMARY }}>
+            <label className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               Website
             </label>
             <input
@@ -231,7 +228,7 @@ const CompanyInfo = () => {
 
           {/* Trade */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium mb-2" style={{ color: COLORS.PRIMARY }}>
+            <label className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               Trade
             </label>
             <div className="relative">
@@ -252,7 +249,7 @@ const CompanyInfo = () => {
 
           {/* Company Description */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium mb-3 block" style={{ color: COLORS.PRIMARY }}>
+            <label className={`text-sm font-medium mb-3 block ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               Company Description
             </label>
 
@@ -267,9 +264,14 @@ const CompanyInfo = () => {
 
         {/* Save Button */}
         <div className="mt-6 flex justify-end">
-          <button className="px-6 py-2 bg-[var(--color-secondary)] text-white font-bold rounded-lg hover:bg-secondary-dark transition-colors">
+          <SaveButton
+            onClick={() => {
+              // Handle save logic here
+              console.log('Saving company data:', companyData);
+            }}
+          >
             Save Changes
-          </button>
+          </SaveButton>
         </div>
       </div>
     </div>

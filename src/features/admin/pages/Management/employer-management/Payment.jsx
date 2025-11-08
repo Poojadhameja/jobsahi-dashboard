@@ -16,6 +16,7 @@ import {
 } from 'react-icons/lu'
 import { HiDotsVertical } from 'react-icons/hi'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
+import { Button } from '../../../../../shared/components/Button.jsx'
 
 // Payment History & Subscription Status Component
 function PaymentHistory() {
@@ -214,12 +215,13 @@ function PaymentHistory() {
         <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
             <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Payment Details & History</h2>
-            <button
+            <Button
               onClick={onClose}
-              className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors duration-200`}
+              variant="unstyled"
+              className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors duration-200 p-2`}
             >
               <span className="text-2xl">&times;</span>
-            </button>
+            </Button>
           </div>
           
           <div className="p-6 space-y-6">
@@ -399,12 +401,13 @@ function PaymentHistory() {
           </div>
           
           <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-            <button
+            <Button
               onClick={onClose}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+              variant="neutral"
+              size="md"
             >
               Close
-            </button>
+            </Button>
           </div>
         </div>
       </div>

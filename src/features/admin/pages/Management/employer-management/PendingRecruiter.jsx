@@ -18,6 +18,7 @@ import {
 } from 'react-icons/lu'
 import { postMethod, putMethod } from '../../../../../service/api'
 import apiService from '../../../../admin/services/serviceUrl'
+import { Button } from '../../../../../shared/components/Button'
 
 // Approval Card Component
 function ApprovalCard({ company, recruiter, email, phone, website, industry, employees, appliedDate, documents, onReview, onApprove, onReject }) {
@@ -38,10 +39,10 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
 
             {/* Contact Info */}
             <div className={`flex flex-wrap gap-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>
-              <span>{email}</span>
-              <span>{phone}</span>
+              <span className={TAILWIND_COLORS.TEXT_MUTED}>{email}</span>
+              <span className={TAILWIND_COLORS.TEXT_MUTED}>{phone}</span>
               <div className="flex items-center gap-2">
-                <span>{website}</span>
+                <span className={TAILWIND_COLORS.TEXT_MUTED}>{website}</span>
                 <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">P A</span>
               </div>
             </div>
@@ -55,7 +56,7 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
             {/* Applied Date */}
             <div className={`flex items-center gap-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>
               <LuCalendar size={16} />
-              <span>Applied: {appliedDate}</span>
+              <span className={TAILWIND_COLORS.TEXT_MUTED}>Applied: {appliedDate}</span>
             </div>
 
             {/* Documents */}
@@ -75,27 +76,30 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
 
         {/* Right Side - Action Buttons */}
         <div className="flex flex-col space-y-2 ml-4">
-          <button
+          <Button
             onClick={onReview}
-            className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200"
+            variant="light"
+            size="sm"
+            icon={<LuEye size={16} />}
           >
-            <LuEye size={16} />
-            <span className="text-sm font-medium">Review</span>
-          </button>
-          <button
+            Review
+          </Button>
+          <Button
             onClick={onApprove}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+            variant="success"
+            size="sm"
+            icon={<LuCheck size={16} />}
           >
-            <LuCheck size={16} />
-            <span className="text-sm font-medium">Approve</span>
-          </button>
-          <button
+            Approve
+          </Button>
+          <Button
             onClick={onReject}
-            className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
+            variant="danger"
+            size="sm"
+            icon={<LuX size={16} />}
           >
-            <LuX size={16} />
-            <span className="text-sm font-medium">Reject</span>
-          </button>
+            Reject
+          </Button>
         </div>
       </div>
     </div>
@@ -111,12 +115,13 @@ function ReviewModal({ recruiter, isOpen, onClose }) {
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Recruiter Review</h2>
-          <button
+          <Button
             onClick={onClose}
-            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors duration-200`}
+            variant="unstyled"
+            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors duration-200 p-2`}
           >
             <span className="text-2xl">&times;</span>
-          </button>
+          </Button>
         </div>
 
         <div className="p-6 space-y-6">
@@ -148,12 +153,13 @@ function ReviewModal({ recruiter, isOpen, onClose }) {
         </div>
 
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-          <button
+          <Button
             onClick={onClose}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            variant="neutral"
+            size="md"
           >
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </div>

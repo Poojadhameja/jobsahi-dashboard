@@ -1,4 +1,6 @@
 import React from 'react'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { Button } from '../../../../shared/components/Button'
 
 const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, jobTitle }) => {
   if (!isOpen) return null
@@ -9,29 +11,33 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, jobTitle }) => {
         {/* Modal Content */}
         <div className="p-8 text-center">
           {/* Title */}
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
             Delete This Job Post?
           </h2>
           
           {/* Description */}
-          <p className="text-gray-600 mb-8 leading-relaxed">
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-8 leading-relaxed`}>
             Are you sure you want to delete this job post? This action cannot be undone.
           </p>
           
           {/* Buttons */}
           <div className="flex gap-4 justify-center">
-            <button
+            <Button
               onClick={onConfirm}
-              className="px-8 py-3 bg-[var(--color-secondary)] text-white rounded-lg font-medium hover:bg-secondary-dark transition-colors duration-200"
+              variant="danger"
+              size="md"
+              className="px-8 py-3"
             >
               Yes, Delete
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onClose}
-              className="px-8 py-3 bg-gray-100 text-gray-900 border border-gray-300 rounded-lg font-medium hover:bg-gray-200 transition-colors duration-200"
+              variant="light"
+              size="md"
+              className="px-8 py-3"
             >
               No
-            </button>
+            </Button>
           </div>
         </div>
       </div>

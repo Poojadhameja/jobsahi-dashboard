@@ -2,9 +2,15 @@ import React, { useState } from "react";
 import { LuMessageSquare, LuBell, LuFileText } from "react-icons/lu";
 import { MatrixCard } from "@shared/components/metricCard";
 import { PillNavigation } from "@shared/components/navigation";
+
+// ✅ Import existing files
 import Message from "./Message";
 import Notifications from "./Notifications";
 import Templates from "./Templates";
+
+// ✅ Import ComingSoonPopup (adjust path if your folder is different)
+import ComingSoonPopup from "../../../../shared/components/ComingSoon";
+
 const MessageNotification = () => {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -13,44 +19,45 @@ const MessageNotification = () => {
       id: "messages",
       label: "Messages",
       icon: LuMessageSquare,
-      component: <Message />
+      component: <Message />,
     },
     {
       id: "notifications",
       label: "Notifications",
       icon: LuBell,
-      component: <Notifications />
+      component: <Notifications />,
     },
     {
       id: "templates",
       label: "Templates",
       icon: LuFileText,
-      component: <Templates />
-    }
+      component: <Templates />,
+    },
   ];
 
   return (
     <div className="space-y-5">
-      {/* Header Section using MatrixCard */}
+      {/* Header Section */}
       <MatrixCard
         title="Messages & Notifications"
         subtitle="Manage your communication and notification settings"
-        className=""
       />
 
-      {/* Navigation Pills using PillNavigation */}
+      {/* Navigation Pills */}
       <div className="flex justify-center">
         <PillNavigation
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          className=""
         />
       </div>
 
       {/* Tab Content */}
       <div className="mt-5">
         {tabs[activeTab]?.component}
+
+        {/* ✅ Coming Soon Popup */}
+        <ComingSoonPopup />
       </div>
     </div>
   );

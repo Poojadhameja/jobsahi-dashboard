@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { LuUsers, LuCheck, LuClock, LuDownload, LuSearch, LuEye, LuPencil, LuMessageSquare, LuTrash2, LuX } from 'react-icons/lu'
 import { Horizontal4Cards } from '../../../../shared/components/metricCard'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
@@ -24,6 +24,36 @@ const ViewStudents = () => {
     total_courses: 0,
   })
   const [loading, setLoading] = useState(false)
+
+  const defaultCourseOptions = [
+    'Electrician',
+    'Fitter',
+    'Welder',
+    'Mechanic',
+    'Plumber',
+    'Carpenter',
+    'Painter'
+  ]
+
+  const defaultBatchOptions = [
+    'Batch A',
+    'Batch B',
+    'Batch C'
+  ]
+
+  const courseOptions = useMemo(() => {
+    const uniqueCourses = Array.from(
+      new Set(students.map((student) => student.course).filter(Boolean))
+    )
+    return uniqueCourses.length > 0 ? uniqueCourses : defaultCourseOptions
+  }, [students])
+
+  const batchOptions = useMemo(() => {
+    const uniqueBatches = Array.from(
+      new Set(students.map((student) => student.batch).filter(Boolean))
+    )
+    return uniqueBatches.length > 0 ? uniqueBatches : defaultBatchOptions
+  }, [students])
   
   const fetchStudents = async () => {
     try {
@@ -56,6 +86,47 @@ const ViewStudents = () => {
     }
   }
   
+  // ✅ Fetch single student details when "View" is clicked
+const fetchStudentDetails = async (studentId) => {
+  try {
+    setLoading(true);
+    const resp = await getMethod({
+      apiUrl: `${apiService.get_student_profile}?id=${studentId}`
+    });
+
+    console.log("View student detail response:", resp);
+
+    if (resp?.success && resp.data?.profiles?.length > 0) {
+      const profile = resp.data.profiles[0];
+
+      // Map backend fields to UI structure
+      const mapped = {
+        id: profile.profile_id,
+        name: profile.personal_info.user_name,
+        email: profile.personal_info.email,
+        phone: profile.personal_info.phone_number,
+        course: profile.professional_info.trade || "Not Assigned",
+        batch: "-",
+        qualification: profile.professional_info.education || "",
+        experience: profile.professional_info.experience?.years || "",
+        skills: (profile.professional_info.skills || "").split(",").map(s => s.trim()).filter(Boolean),
+        projects: (profile.professional_info.projects || []).map(p => p.name || p),
+      };
+
+      setSelectedStudent(mapped);
+      setShowViewPopup(true);
+    } else {
+      console.warn("No profile found for this student");
+      alert("No detailed profile found for this student.");
+    }
+  } catch (error) {
+    console.error("Error fetching student details:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   
   useEffect(() => {
     fetchStudents()
@@ -147,7 +218,7 @@ const ViewStudents = () => {
     }
   }
 
-  const handleSelectStudent = (studentId, checked) => {
+  const handleSelectStudent = (studentId, checked) => {a
     if (checked) {
       setSelectedStudents([...selectedStudents, studentId])
     } else {
@@ -157,9 +228,9 @@ const ViewStudents = () => {
 
   // Popup handlers
   const handleViewStudent = (student) => {
-    setSelectedStudent(student)
-    setShowViewPopup(true)
-  }
+    fetchStudentDetails(student.user_id || student.id);
+  };
+  
 
   const handleEditStudent = (student) => {
     setSelectedStudent(student)
@@ -192,6 +263,32 @@ const ViewStudents = () => {
     setSelectedStudent(null)
   }
 
+  // ✅ Update student data to backend
+const updateStudentDetails = async (updatedStudent) => {
+  try {
+    const resp = await getMethod({
+      apiUrl: `${apiService.update_student_profile}?id=${updatedStudent.id}`,
+      data: updatedStudent, // if using POST, change to postMethod
+    });
+
+    console.log("Edit student API response:", resp);
+
+    if (resp?.status || resp?.success) {
+      // reflect change locally
+      setStudents(prev =>
+        prev.map(s => s.id === updatedStudent.id ? updatedStudent : s)
+      );
+      setShowEditPopup(false);
+      setSelectedStudent(null);
+    } else {
+      alert(resp?.message || "Failed to update student");
+    }
+  } catch (error) {
+    console.error("Update student error:", error);
+  }
+};
+
+
   return (
     <div className="p-2   min-h-screen">
       {/* Summary Cards */}
@@ -202,8 +299,8 @@ const ViewStudents = () => {
 
       {/* Filters and Export */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
-        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-          <div className="flex flex-col lg:flex-row gap-4 flex-1">
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="flex flex-col md:flex-row gap-4 flex-1">
             <div className="relative flex-1 max-w-md">
               <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -303,12 +400,6 @@ const ViewStudents = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
                       <button 
-                        onClick={() => handleViewStudent(student)}
-                        className="text-gray-400 hover:text-blue-600 transition-colors p-2 border border-gray-300 rounded-md"
-                      >
-                        <LuEye className="w-4 h-4" />
-                      </button>
-                      <button 
                         onClick={() => handleEditStudent(student)}
                         className="text-gray-400 hover:text-green-600 transition-colors p-2 border border-gray-300 rounded-md"
                       >
@@ -357,9 +448,6 @@ const ViewStudents = () => {
                   <p><span className="font-medium">Name:</span> {selectedStudent.name}</p>
                   <p><span className="font-medium">Email:</span> {selectedStudent.email}</p>
                   <p><span className="font-medium">Phone:</span> {selectedStudent.phone}</p>
-                  <p><span className="font-medium">Date of Birth:</span> {selectedStudent.dateOfBirth}</p>
-                  <p><span className="font-medium">Gender:</span> {selectedStudent.gender}</p>
-                  <p><span className="font-medium">Address:</span> {selectedStudent.address}</p>
                 </div>
               </div>
 
@@ -369,66 +457,42 @@ const ViewStudents = () => {
                 <div className="space-y-2">
                   <p><span className="font-medium">Course:</span> {selectedStudent.course}</p>
                   <p><span className="font-medium">Batch:</span> {selectedStudent.batch}</p>
-                  <p><span className="font-medium">Qualification:</span> {selectedStudent.qualification}</p>
-                  <p><span className="font-medium">Experience:</span> {selectedStudent.experience}</p>
                 </div>
               </div>
 
+          
               {/* Skills */}
-              <div className="space-y-4">
-                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedStudent.skills.map((skill, index) => (
-                    <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
+<div className="space-y-4">
+  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Skills</h3>
+  <div className="flex flex-wrap gap-2">
+    {(selectedStudent.skills || []).map((skill, index) => (
+      <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+        {skill}
+      </span>
+    ))}
+  </div>
+</div>
 
-              {/* Achievements */}
-              <div className="space-y-4">
-                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Achievements</h3>
-                <ul className="space-y-1">
-                  {selectedStudent.achievements.map((achievement, index) => (
-                    <li key={index} className="flex items-center">
-                      <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                      {achievement}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+             {/* Projects */}
+<div className="space-y-4">
+  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Projects</h3>
+  <ul className="space-y-1">
+    {(selectedStudent.projects || []).map((project, index) => (
+      <li key={index} className="flex items-center">
+        <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+        {project}
+      </li>
+    ))}
+  </ul>
+</div>
 
-              {/* Projects */}
-              <div className="space-y-4">
-                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Projects</h3>
-                <ul className="space-y-1">
-                  {selectedStudent.projects.map((project, index) => (
-                    <li key={index} className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                      {project}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Languages */}
-              <div className="space-y-4">
-                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Languages</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedStudent.languages.map((language, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
-                      {language}
-                    </span>
-                  ))}
-                </div>
-              </div>
             </div>
 
             <div className="mt-6 flex justify-end">
               <Button
                 onClick={handleClosePopups}
                 variant="neutral"
+                className={TAILWIND_COLORS.TEXT_PRIMARY}
               >
                 Close
               </Button>
@@ -462,7 +526,6 @@ const ViewStudents = () => {
                 course: formData.get('course'),
                 batch: formData.get('batch'),
                 status: formData.get('status'),
-                address: formData.get('address'),
                 qualification: formData.get('qualification'),
                 experience: formData.get('experience')
               }
@@ -501,23 +564,41 @@ const ViewStudents = () => {
                 </div>
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Course</label>
-                  <input
-                    type="text"
+                  <select
                     name="course"
-                    defaultValue={selectedStudent.course}
+                    defaultValue={selectedStudent.course || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
-                  />
+                  >
+                    <option value="" disabled>Select course</option>
+                    {courseOptions.map((course) => (
+                      <option key={course} value={course}>
+                        {course}
+                      </option>
+                    ))}
+                    {selectedStudent.course && !courseOptions.includes(selectedStudent.course) && (
+                      <option value={selectedStudent.course}>{selectedStudent.course}</option>
+                    )}
+                  </select>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Batch</label>
-                  <input
-                    type="text"
+                  <select
                     name="batch"
-                    defaultValue={selectedStudent.batch}
+                    defaultValue={selectedStudent.batch || ''}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
-                  />
+                  >
+                    <option value="" disabled>Select batch</option>
+                    {batchOptions.map((batch) => (
+                      <option key={batch} value={batch}>
+                        {batch}
+                      </option>
+                    ))}
+                    {selectedStudent.batch && !batchOptions.includes(selectedStudent.batch) && (
+                      <option value={selectedStudent.batch}>{selectedStudent.batch}</option>
+                    )}
+                  </select>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Status</label>
@@ -532,15 +613,7 @@ const ViewStudents = () => {
                     <option value="On Hold">On Hold</option>
                   </select>
                 </div>
-                <div className="md:col-span-2">
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Address</label>
-                  <textarea
-                    name="address"
-                    defaultValue={selectedStudent.address}
-                    rows="3"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+               
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Qualification</label>
                   <input
@@ -566,6 +639,7 @@ const ViewStudents = () => {
                   type="button"
                   onClick={handleClosePopups}
                   variant="neutral"
+                  className={TAILWIND_COLORS.TEXT_PRIMARY}
                 >
                   Cancel
                 </Button>
@@ -606,6 +680,7 @@ const ViewStudents = () => {
               <Button
                 onClick={handleClosePopups}
                 variant="neutral"
+                className={TAILWIND_COLORS.TEXT_PRIMARY}
               >
                 Cancel
               </Button>

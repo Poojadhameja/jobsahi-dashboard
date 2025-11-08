@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { LuCheck, LuEye } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import Button from '../../../../shared/components/Button'
+import { Button, PrimaryButton, OutlineButton } from '../../../../shared/components/Button'
 import { getMethod, postMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
 
@@ -256,12 +256,20 @@ const AssignCourse = () => {
 
             {/* Actions */}
             <div className="flex space-x-3 pt-4">
-              <Button onClick={handleAssignSelected} variant="primary" icon={<LuCheck className="w-4 h-4" />} fullWidth>
+              <PrimaryButton
+                onClick={handleAssignSelected}
+                icon={<LuCheck className="w-4 h-4" />}
+                fullWidth
+              >
                 Assign Selected
-              </Button>
-              <Button onClick={handlePreviewChanges} variant="outline" icon={<LuEye className="w-4 h-4" />} fullWidth>
+              </PrimaryButton>
+              <OutlineButton
+                onClick={handlePreviewChanges}
+                icon={<LuEye className="w-4 h-4" />}
+                fullWidth
+              >
                 Preview Changes
-              </Button>
+              </OutlineButton>
             </div>
           </div>
 

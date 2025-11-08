@@ -224,7 +224,7 @@ const SendMessages = () => {
                     type="checkbox"
                     checked={messageData.deliveryOptions.sms}
                     onChange={() => handleDeliveryOptionChange('sms')}
-                    className="rounded border-gray-300 text-[#5B9821] focus:ring-[#5B9821]"
+                    className="rounded border-gray-300 text-green-600 focus:ring-green-600"
                   />
                   <span className={`ml-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center`}>
                     <LuMessageSquare className="w-4 h-4 mr-2 text-green-600" />
@@ -237,7 +237,7 @@ const SendMessages = () => {
                     type="checkbox"
                     checked={messageData.deliveryOptions.email}
                     onChange={() => handleDeliveryOptionChange('email')}
-                    className="rounded border-gray-300 text-[#5B9821] focus:ring-[#5B9821]"
+                    className="rounded border-gray-300 text-green-600 focus:ring-green-600"
                   />
                   <span className={`ml-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center`}>
                     <LuMail className="w-4 h-4 mr-2 text-blue-600" />
@@ -250,7 +250,7 @@ const SendMessages = () => {
                     type="checkbox"
                     checked={messageData.deliveryOptions.pushNotification}
                     onChange={() => handleDeliveryOptionChange('pushNotification')}
-                    className="rounded border-gray-300 text-[#5B9821] focus:ring-[#5B9821]"
+                    className="rounded border-gray-300 text-green-600 focus:ring-green-600"
                   />
                   <span className={`ml-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center`}>
                     <LuBell className="w-4 h-4 mr-2 text-purple-600" />
@@ -284,7 +284,7 @@ const SendMessages = () => {
                 className="p-4 border border-gray-200 rounded-lg hover:border-[#5B9821] hover:bg-green-50 cursor-pointer transition-colors"
               >
                 <div className="flex items-start">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-4 text-gray-600">
+                  <div className={`w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-4 ${TAILWIND_COLORS.TEXT_MUTED}`}>
                     {template.icon}
                   </div>
                   <div className="flex-1">

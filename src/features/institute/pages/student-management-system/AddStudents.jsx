@@ -182,10 +182,13 @@ const AddStudents = () => {
                     name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#5B9821] focus:border-transparent"
+                    max={new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#5B9821] focus:border-transparent cursor-pointer"
+                    placeholder="Select date of birth"
                   />
-                  <LuCalendar className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                 
                 </div>
+               
               </div>
 
               
@@ -258,6 +261,8 @@ const AddStudents = () => {
               <Button
                 type="submit"
                 variant="primary"
+                size="md"
+                className="font-medium"
               >
                 Add Student
               </Button>
@@ -265,6 +270,8 @@ const AddStudents = () => {
                 type="button"
                 onClick={handleReset}
                 variant="outline"
+                size="md"
+                className="font-medium"
               >
                 Reset
               </Button>
@@ -350,13 +357,17 @@ const AddStudents = () => {
             <Button
               onClick={handleDownloadTemplate}
               variant="primary"
+              size="md"
               icon={<LuDownload className="w-4 h-4" />}
+              className="font-medium"
             >
               Download Template
             </Button>
             <Button
               onClick={handleBulkUpload}
               variant="outline"
+              size="md"
+              className="font-medium"
             >
               Upload Students
             </Button>

@@ -1,5 +1,6 @@
 import React from 'react'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
+import { Button } from '../../../../shared/components/Button.jsx'
 
 export default function MessageLogs() {
   // Sample message log data
@@ -54,12 +55,28 @@ export default function MessageLogs() {
             </p>
           </div>
           <div className="flex gap-3">
-            <button className={`flex items-center gap-2 px-4 py-2 bg-white border-2 border-[var(--color-secondary)] ${TAILWIND_COLORS.TEXT_PRIMARY} rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors duration-200 font-medium`}>
-              <span className="text-sm">Refresh</span>
-            </button>
-            <button className={`flex items-center gap-2 px-4 py-2 bg-white border-2 border-[var(--color-secondary)] ${TAILWIND_COLORS.TEXT_PRIMARY} rounded-lg hover:bg-[var(--color-secondary)] hover:text-white transition-colors duration-200 font-medium`}>
-              <span className="text-sm">Export</span>
-            </button>
+            <Button 
+              variant="outline" 
+              size="md"
+              icon={
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              }
+            >
+              Refresh
+            </Button>
+            <Button 
+              variant="outline" 
+              size="md"
+              icon={
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              }
+            >
+              Export
+            </Button>
           </div>
         </div>
       </div>
