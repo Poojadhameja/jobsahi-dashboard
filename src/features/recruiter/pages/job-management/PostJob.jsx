@@ -4,6 +4,8 @@ import RichTextEditor from "@shared/components/RichTextEditor";
 import { postMethod, getMethod } from "../../../../service/api";
 import service from "../../services/serviceUrl";
 import { toast } from "react-toastify"; // optional toast
+import { Button } from "@shared/components/Button";
+import { TAILWIND_COLORS } from "@shared/WebConstant";
 
 const PostJob = ({ onJobSubmit }) => {
   const [formData, setFormData] = useState({
@@ -223,27 +225,31 @@ const PostJob = ({ onJobSubmit }) => {
       <form onSubmit={handleSubmit} className="space-y-8">
 
         <div className="flex flex-col gap-5 sm:flex-row sm:justify-between items-center mb-8">
-        <h1 className="text-3xl font-semibold text-[var(--color-primary)]">
+        <h1 className={`text-3xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
           Create Job Posts
         </h1>
         <div className="flex space-x-2">
-          <button
+          <Button
             onClick={handleCancel}
-            className="px-5 py-2 bg-secondary-10 text-[var(--color-secondary)] rounded-full font-bold hover:bg-[var(--color-secondary)] hover:text-white border-2 border-[var(--color-secondary)] transition"
+            variant="light"
+            size="md"
+            className="rounded-full"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            className="px-5 py-2 bg-[var(--color-secondary)] text-white rounded-full font-bold border-2 border-[var(--color-secondary)] hover:bg-[var(--color-secondary)] transition"
+            variant="primary"
+            size="md"
+            className="rounded-full"
           >
             Save
-          </button>
+          </Button>
         </div>
       </div>
         {/* BASIC INFO SECTION */}
         <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-          <h2 className="text-xl font-bold text-gray-900 mb-8">
+          <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>
             Basic Information
           </h2>
 
@@ -251,10 +257,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* JOB TITLE */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   JOB TITLE <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Add position name</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Add position name</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -274,10 +280,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* ✅ JOB SECTOR + Add Category */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   JOB SECTOR <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Choose category</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose category</p>
               </div>
               <div className="lg:col-span-2 flex items-center gap-3">
                 <select
@@ -296,13 +302,14 @@ const PostJob = ({ onJobSubmit }) => {
                     </option>
                   ))}
                 </select>
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowAddCategoryModal(true)}
-                  className="px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg text-sm font-semibold hover:opacity-90"
+                  variant="primary"
+                  size="sm"
                 >
                   + Add
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -310,7 +317,7 @@ const PostJob = ({ onJobSubmit }) => {
             {showAddCategoryModal && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                 <div className="bg-white rounded-xl p-6 w-[90%] max-w-sm shadow-lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
                     Add New Category
                   </h3>
                   <input
@@ -321,20 +328,22 @@ const PostJob = ({ onJobSubmit }) => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-[var(--color-secondary)]"
                   />
                   <div className="flex justify-end gap-3">
-                    <button
+                    <Button
                       onClick={handleCancelAddCategory}
                       type="button"
-                      className="px-4 py-2 bg-gray-200 rounded-lg text-gray-700"
+                      variant="light"
+                      size="md"
                     >
                       Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={handleAddCategory}
                       type="button"
-                      className="px-4 py-2 bg-[var(--color-secondary)] text-white rounded-lg"
+                      variant="primary"
+                      size="md"
                     >
                       Add
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -343,10 +352,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* JOB DESCRIPTION */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   JOB DESCRIPTION <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   For effective candidate selection, enhance job description
                 </p>
               </div>
@@ -363,7 +372,7 @@ const PostJob = ({ onJobSubmit }) => {
             {/* ✅ SALARY SECTION */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   MONTHLY SALARY <span className="text-red-500">*</span>
                 </label>
                
@@ -394,10 +403,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* ✅ JOB TYPE */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   JOB TYPE <span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Choose job type</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose job type</p>
               </div>
               <div className="lg:col-span-2">
                 <select
@@ -419,10 +428,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* ✅ REQUIRED SKILLS */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   REQUIRED SKILLS
                 </label>
-                <p className="text-sm text-gray-500">List needed skills</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>List needed skills</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -439,10 +448,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* ✅ EXPERIENCE */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   EXPERIENCE
                 </label>
-                <p className="text-sm text-gray-500">Choose required experience</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Choose required experience</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -460,7 +469,7 @@ const PostJob = ({ onJobSubmit }) => {
 
         {/* ✅ ADDRESS / LOCATION SECTION */}
         <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5">
-          <h2 className="text-xl font-bold text-gray-900 mb-8">
+          <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>
             Address / Location
           </h2>
 
@@ -468,10 +477,10 @@ const PostJob = ({ onJobSubmit }) => {
             {/* FULL ADDRESS */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   FULL ADDRESS<span className="text-red-500">*</span>
                 </label>
-                <p className="text-sm text-gray-500">Enter full location</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter full location</p>
               </div>
               <div className="lg:col-span-2">
                 <input
@@ -492,7 +501,7 @@ const PostJob = ({ onJobSubmit }) => {
         <div className="flex flex-col lg:flex-row gap-4">
           {/* CONTACT INFO */}
           <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
-            <h2 className="text-xl font-bold text-gray-900 mb-8">
+            <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>
               Contact Information
             </h2>
 
@@ -500,7 +509,7 @@ const PostJob = ({ onJobSubmit }) => {
               {/* CONTACT PERSON */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     PERSON
                   </label>
                 </div>
@@ -519,7 +528,7 @@ const PostJob = ({ onJobSubmit }) => {
               {/* PHONE */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     PHONE
                   </label>
                 </div>
@@ -544,7 +553,7 @@ const PostJob = ({ onJobSubmit }) => {
               {/* ADDITIONAL CONTACT */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     ADDITIONAL CONTACT
                   </label>
                 </div>
@@ -564,7 +573,7 @@ const PostJob = ({ onJobSubmit }) => {
 
           {/* DATES & STATUS */}
           <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-5 w-full lg:w-[50%]">
-            <h2 className="text-xl font-bold text-gray-900 mb-8">
+            <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-8`}>
               Dates and Status
             </h2>
 
@@ -572,7 +581,7 @@ const PostJob = ({ onJobSubmit }) => {
               {/* VACANCY STATUS */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     VACANCY STATUS<span className="text-red-500">*</span>
                   </label>
                 </div>
@@ -595,7 +604,7 @@ const PostJob = ({ onJobSubmit }) => {
               {/* NO OF VACANCIES */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     NUMBER OF VACANCIES<span className="text-red-500">*</span>
                   </label>
                 </div>
@@ -616,7 +625,7 @@ const PostJob = ({ onJobSubmit }) => {
               {/* Closing Date */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                     CLOSING DATE<span className="text-red-500">*</span>
                   </label>
                 </div>

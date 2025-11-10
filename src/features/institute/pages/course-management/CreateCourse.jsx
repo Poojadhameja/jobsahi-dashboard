@@ -1,17 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LuArrowLeft, LuPlus, LuUpload, LuX } from 'react-icons/lu'
-import Button, { PrimaryButton, OutlineButton, IconButton } from '../../../../shared/components/Button.jsx'
+import Button, { OutlineButton, IconButton, AddCategoryButton } from '../../../../shared/components/Button.jsx'
 import DynamicButton from '../../../../shared/components/DynamicButton.jsx'
 import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
 import { useCourseContext } from '../../context/CourseContext'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-
-
-import { postMethod } from '../../../../service/api'
+import { getMethod, postMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl.js'
 
+
 export default function CreateCourse() {
+  
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getMethod({ apiUrl: apiService.getCourseCategories })
+        if (res?.status && Array.isArray(res.categories)) {
+          // ✅ Backend se aayi categories set kar dena
+          setCategories(res.categories)
+        } else {
+          console.warn('⚠️ No categories found or invalid response:', res)
+        }
+      } catch (error) {
+        console.error('❌ Error fetching categories:', error)
+      }
+    }
+  
+    fetchCategories()
+  }, [])
+  
   
   const navigate = useNavigate()
   const { addCourse } = useCourseContext()
@@ -242,14 +260,16 @@ const handleSave = async () => {
   return (
     <div className="">
         {/* Header with Action Buttons */}
-        <div className={`flex items-center mb-6`}>
-          <button
+        <div className="flex items-center mb-6">
+          <Button
             onClick={handleBack}
-            className={`flex items-center gap-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors`}
+            variant="unstyled"
+            size="sm"
+            icon={<LuArrowLeft className="w-5 h-5" />}
+            className={`gap-2 !px-0 !py-0 bg-transparent ${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary transition-colors`}
           >
-            <LuArrowLeft className="w-5 h-5" />
             <span className="text-sm font-medium">Back to Course Management</span>
-          </button>
+          </Button>
         </div>
        
         {/* Basic Information Section */}
@@ -318,24 +338,28 @@ const handleSave = async () => {
                 <select 
                   value={formData.category}
                   onChange={(e) => handleInputChange('category', e.target.value)}
-                  className={getInputClassName('category')}
+                  className={getInputClassName('category') }
                 >
                   <option value="">Select category</option>
-                  {categories.map((category, index) => (
-                    <option key={index} value={category}>{category}</option>
-                  ))}
+                  {categories.map(category => (
+  <option key={category.id} value={category.category_name}>
+    {category.category_name}
+  </option>
+))}
+
                 </select>
                 {validationErrors.category && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.category}</p>
                 )}
               </div>
-              <button 
+              <AddCategoryButton
                 type="button"
                 onClick={handleAddCategoryClick}
-                className="bg-[#5C9A24] hover:bg-[#3f6c17] text-white font-semibold px-4 py-2 rounded-md transition-colors"
+                className="flex items-center gap-2 font-semibold"
               >
-                + Add Category
-              </button>
+                <LuPlus className="w-4 h-4 text-white" />
+                Add Category
+              </AddCategoryButton>
             </div>
 
             {/* Course Description */}
@@ -659,7 +683,7 @@ const handleSave = async () => {
             />
             <label htmlFor="media-upload" className="cursor-pointer">
               <div className="w-12 h-12 bg-gray-100 rounded-md mx-auto mb-4 flex items-center justify-center">
-                <LuPlus className="w-6 h-6 text-gray-400" />
+                <LuPlus className={`w-6 h-6 ${TAILWIND_COLORS.TEXT_MUTED}`} />
               </div>
               <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Drag and Drop files here</p>
             </label>
@@ -679,13 +703,16 @@ const handleSave = async () => {
                         </div>
                         <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{media.name}</span>
                       </div>
-                      <button
+                      <IconButton
+                        label="Remove file"
+                        variant="unstyled"
+                        size="sm"
                         onClick={() => handleRemoveMedia(media.id)}
-                        className="text-red-500 hover:text-red-700 p-1"
+                        className="px-1 py-1 text-red-500 hover:text-red-700"
                         title="Remove file"
                       >
                         <LuX className="w-3 h-3" />
-                      </button>
+                      </IconButton>
                     </div>
                   ))}
                 </div>
@@ -705,13 +732,16 @@ const handleSave = async () => {
                           <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{media.name}</p>
                           <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{formatFileSize(media.size)}</p>
                         </div>
-                        <button
+                        <IconButton
+                          label="Remove file"
+                          variant="unstyled"
+                          size="sm"
                           onClick={() => handleRemoveMedia(media.id)}
-                          className="ml-2 text-red-500 hover:text-red-700"
+                          className="ml-2 px-1 py-1 text-red-500 hover:text-red-700"
                           title="Remove file"
                         >
                           <LuX className="w-4 h-4" />
-                        </button>
+                        </IconButton>
                       </div>
                       
                       {/* Media Preview */}
@@ -776,12 +806,15 @@ const handleSave = async () => {
                 <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                   Add New Category
                 </h3>
-                <button
+                <IconButton
+                  label="Close"
+                  variant="unstyled"
+                  size="sm"
                   onClick={handleCancelAddCategory}
-                  className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors`}
+                  className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary`}
                 >
                   <LuX className="w-5 h-5" />
-                </button>
+                </IconButton>
               </div>
 
               {/* Modal Content */}
@@ -805,20 +838,20 @@ const handleSave = async () => {
 
                 {/* Modal Actions */}
                 <div className="flex justify-end gap-3">
-                  <button
+                  <OutlineButton
                     type="button"
                     onClick={handleCancelAddCategory}
-                    className={`px-4 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors`}
                   >
                     Cancel
-                  </button>
-                  <button
+                  </OutlineButton>
+                  <Button
                     type="button"
                     onClick={handleAddCategory}
-                    className="px-4 py-2 bg-[#5C9A24] text-white rounded-lg hover:bg-[#3f6c17] transition-colors"
+                    variant="primary"
+                    className="font-semibold"
                   >
                     Add Category
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

@@ -17,6 +17,11 @@ export const TAILWIND_COLORS = {
   // Text tokens
   TEXT_PRIMARY: 'text-text-primary',
   TEXT_MUTED: 'text-text-muted',
+  TEXT_INVERSE: 'text-white',
+  TEXT_BRAND: 'text-primary',
+  TEXT_SUCCESS: 'text-success',
+  TEXT_WARNING: 'text-warning',
+  TEXT_PURPLE: 'text-purple-600',
 
   // Nav items (sidebar)
   NAV: 'text-gray-600 hover:bg-primary-10 hover:text-text-primary',

@@ -4,13 +4,14 @@ import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import ViewStudents from './ViewStudents'
-import AddStudents from './AddStudents'
+// import AddStudents from './AddStudents'
 import AssignCourse from './AssignCourse'
 // import TrackProgress from './TrackProgress'
 import SendMessages from './SendMessages'
 
 export default function StudentManagementSystem() {
   const [activeTab, setActiveTab] = useState(0)
+  const [previousTab, setPreviousTab] = useState(null)
 
   // Navigation tabs configuration
   const navigationTabs = [
@@ -19,11 +20,11 @@ export default function StudentManagementSystem() {
       label: 'View Students',
       icon: LuUsers
     },
-    {
-      id: 'add-students',
-      label: 'Add Students',
-      icon: LuPlus
-    },
+    // {
+    //   id: 'add-students',
+    //   label: 'Add Students',
+    //   icon: LuPlus
+    // },
     {
       id: 'assign-course',
       label: 'Assign Course/Batch',
@@ -42,7 +43,13 @@ export default function StudentManagementSystem() {
   ]
 
   const handleTabChange = (index) => {
+    if (index === activeTab) return
+    setPreviousTab(activeTab)
     setActiveTab(index)
+  }
+
+  const handleReturnToPreviousTab = () => {
+    setActiveTab(previousTab ?? 0)
   }
 
   return (
@@ -69,10 +76,10 @@ export default function StudentManagementSystem() {
       {/* Conditional Content Rendering */}
       <div className={`mt-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
         {activeTab === 0 && <ViewStudents />}
-        {activeTab === 1 && <AddStudents />}
-        {activeTab === 2 && <AssignCourse />}
+        {/* {activeTab === 1 && <AddStudents />} */}
+        {activeTab === 1 && <AssignCourse />}
         {/* {activeTab === 3 && <TrackProgress />} */}
-        {activeTab === 3 && <SendMessages />}
+        {activeTab === 2 && <SendMessages onComingSoonClose={handleReturnToPreviousTab} />}
         {/* Add other tab components here as needed */}
       </div>
     </div>

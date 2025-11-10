@@ -27,7 +27,7 @@ const CompanyProfile = () => {
       id: "preferences",
       label: "Preferences",
       icon: LuSettings,
-      component: <Preferences />
+      component: <Preferences onBack={() => setActiveTab(0)} />
     }
   ];
 

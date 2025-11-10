@@ -8,6 +8,7 @@ import {
   FaUserCheck,
 } from "react-icons/fa";
 import { LuMail } from "react-icons/lu";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 
 // 🔹 Custom Dropdown Menu Component
 const CustomDropdownMenu = ({
@@ -53,9 +54,9 @@ const CustomDropdownMenu = ({
             onViewDetails(row);
             onClose();
           }}
-          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100`}
         >
-          <FaEye className="w-4 h-4 mr-3 text-gray-500" />
+          <FaEye className={`w-4 h-4 mr-3 ${TAILWIND_COLORS.TEXT_MUTED}`} />
           View Details
         </button>
         <button
@@ -63,9 +64,9 @@ const CustomDropdownMenu = ({
             onEdit(row);
             onClose();
           }}
-          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100`}
         >
-          <FaEdit className="w-4 h-4 mr-3 text-gray-500" />
+          <FaEdit className={`w-4 h-4 mr-3 ${TAILWIND_COLORS.TEXT_MUTED}`} />
           Edit
         </button>
         <button
@@ -73,9 +74,9 @@ const CustomDropdownMenu = ({
             onShortlist(row);
             onClose();
           }}
-          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100`}
         >
-          <FaUserCheck className="w-4 h-4 mr-3 text-gray-500" />
+          <FaUserCheck className={`w-4 h-4 mr-3 ${TAILWIND_COLORS.TEXT_MUTED}`} />
           Shortlist
         </button>
         <button
@@ -83,9 +84,9 @@ const CustomDropdownMenu = ({
             onDownloadCV(row);
             onClose();
           }}
-          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100`}
         >
-          <FaDownload className="w-4 h-4 mr-3 text-gray-500" />
+          <FaDownload className={`w-4 h-4 mr-3 ${TAILWIND_COLORS.TEXT_MUTED}`} />
           Download CV
         </button>
         <button
@@ -156,7 +157,7 @@ const CustomDataTable = ({
       {showHeader && (
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{title}</h3>
             <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
               View All
             </button>
@@ -177,22 +178,22 @@ const CustomDataTable = ({
                   className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                 />
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                 Candidate
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                 Qualification
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                 Skills
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                 Applied For
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                 Actions
               </th>
             </tr>
@@ -203,7 +204,7 @@ const CustomDataTable = ({
               <tr>
                 <td
                   colSpan="7"
-                  className="text-center py-6 text-gray-500 text-sm"
+                  className={`text-center py-6 ${TAILWIND_COLORS.TEXT_MUTED} text-sm`}
                 >
                   No applicants found
                 </td>
@@ -224,10 +225,10 @@ const CustomDataTable = ({
                   {/* Candidate Info */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-col">
-                      <div className="text-sm font-semibold text-gray-900">
+                      <div className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                         {row.name}
                       </div>
-                      <div className="flex items-center text-sm text-gray-500 mt-1">
+                      <div className={`flex items-center text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
                         <LuMail className="w-4 h-4 mr-1" />
                         {row.email}
                       </div>
@@ -235,7 +236,7 @@ const CustomDataTable = ({
                   </td>
 
                   {/* Qualification */}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     {row.qualification}
                   </td>
 
@@ -248,7 +249,7 @@ const CustomDataTable = ({
                       ).map((skill, skillIndex) => (
                         <span
                           key={skillIndex}
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                         >
                           {skill}
                         </span>
@@ -257,7 +258,7 @@ const CustomDataTable = ({
                   </td>
 
                   {/* Applied For */}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     {row.appliedFor}
                   </td>
 
@@ -282,7 +283,7 @@ const CustomDataTable = ({
                               openDropdown === rowIndex ? null : rowIndex
                             )
                           }
-                          className="p-1 text-gray-400 hover:text-gray-600"
+                          className={`p-1 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary`}
                         >
                           <FaEllipsisV className="w-4 h-4" />
                         </button>

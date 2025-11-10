@@ -6,6 +6,7 @@ import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import SendNotice from './SendNotice'
 import Templates from './Templates'
 import AutoAlerts from './AutoAlerts'
+import ComingSoonPopup from '../../../../shared/components/ComingSoon'
 
 export default function MessagingAlerts() {
   const [activeTab, setActiveTab] = useState(0)
@@ -55,6 +56,7 @@ export default function MessagingAlerts() {
       {/* Tab Content */}
       <div className="mt-5">
         {tabs[activeTab]?.component}
+        <ComingSoonPopup />
       </div>
     </div>
   )

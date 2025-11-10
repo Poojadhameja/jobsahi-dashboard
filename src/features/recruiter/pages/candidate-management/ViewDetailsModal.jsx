@@ -9,7 +9,7 @@ import {
   LuExternalLink,
 } from "react-icons/lu";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
-import { Button } from "../../../../shared/components/Button";
+import { Button, IconButton } from "../../../../shared/components/Button";
 
 const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
   if (!isOpen || !candidate) return null;
@@ -38,7 +38,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
           <div className="flex items-start space-x-4">
             {/* Avatar */}
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-              <span className="text-xl font-semibold text-gray-600">
+              <span className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
                 {candidate.name
                   ? candidate.name
                       .split(" ")
@@ -154,7 +154,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
                     EMAIL
                   </span>
                   <div className="flex items-center space-x-2">
-                    <LuMail className="w-4 h-4 text-gray-400" />
+                    <LuMail className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                     <span
                       className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                     >
@@ -170,7 +170,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
                     PHONE
                   </span>
                   <div className="flex items-center space-x-2">
-                    <LuPhone className="w-4 h-4 text-gray-400" />
+                    <LuPhone className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                     <span
                       className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                     >
@@ -186,7 +186,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
                     LOCATION
                   </span>
                   <div className="flex items-center space-x-2">
-                    <LuMapPin className="w-4 h-4 text-gray-400" />
+                    <LuMapPin className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                     <span
                       className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                     >
@@ -202,7 +202,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
                     APPLIED DATE
                   </span>
                   <div className="flex items-center space-x-2">
-                    <LuCalendar className="w-4 h-4 text-gray-400" />
+                    <LuCalendar className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                     <span
                       className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                     >
@@ -243,7 +243,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mt-1">
-                    <span className="text-xs font-semibold text-gray-600">1</span>
+                    <span className={`text-xs font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>1</span>
                   </div>
                   <div className="flex-1">
                     <h4
@@ -304,20 +304,20 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
                     key={index}
                     className="border border-gray-200 rounded-lg p-4 bg-gray-50"
                   >
-                    <h4 className="font-semibold text-gray-900">
+                    <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                       {exp.role} @ {exp.company}
                     </h4>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
                       {exp.duration}
                     </p>
-                    <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-2 leading-relaxed`}>
                       {exp.description}
                     </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">
+              <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>
                 No experience details available.
               </p>
             )}

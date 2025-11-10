@@ -171,22 +171,20 @@ const CompanyInfo = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-4 lg:p-6 space-y-8">
-      {/* Company Card */}
-      <div className={`${TAILWIND_COLORS.CARD} p-6 rounded-2xl shadow-sm`}>
-        {/* Company Logo Section */}
-        <div className="mb-10">
-          <div className="flex items-center gap-3 mb-2">
-            <LuUpload className="text-secondary" size={20} />
-            <h3
-              className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-            >
-              Company Logo
-            </h3>
-          </div>
-          <p className={`text-sm mb-5 ${TAILWIND_COLORS.TEXT_MUTED}`}>
-            Upload your company logo (Max 5MB)
-          </p>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Left Column - Company Logo */}
+      <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-2">
+          <LuUpload className={TAILWIND_COLORS.TEXT_ACCENT} size={20} />
+          <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+            Company Logo
+          </h3>
+        </div>
+        
+        <p className={`text-sm mb-6 ${TAILWIND_COLORS.TEXT_MUTED}`}>
+          Upload your company logo (Max 5MB)
+        </p>
 
           {/* Logo Upload Area */}
           <div
@@ -215,7 +213,7 @@ const CompanyInfo = () => {
                     }}
                     variant="unstyled"
                     size="sm"
-                    className="absolute top-2 right-2 p-1.5 rounded-full bg-white shadow hover:bg-gray-100 text-gray-600"
+                    className={`absolute top-3 right-3 p-1.5 rounded-full bg-white shadow-md hover:bg-gray-100 ${TAILWIND_COLORS.TEXT_MUTED}`}
                     title="Remove logo"
                     icon={<LuX size={16} />}
                   />
@@ -223,15 +221,15 @@ const CompanyInfo = () => {
               </div>
             ) : (
               <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-3 rounded-lg flex items-center justify-center shadow-sm bg-bg-muted border border-gray-200 text-secondary">
+                <div 
+                  className={`w-20 h-20 mx-auto mb-4 rounded-lg flex items-center justify-center shadow-sm bg-bg-muted border-2 border-gray-200 ${TAILWIND_COLORS.TEXT_ACCENT}`}
+                >
                   <div className="text-center">
                     <div className="flex items-center justify-center mb-1">
-                      <span className="text-xs font-bold text-blue-600">
-                        JOB
-                      </span>
-                      <LuSearch className="ml-1 text-blue-600" size={12} />
+                      <span className={`text-xs font-bold ${TAILWIND_COLORS.TEXT_BRAND_BLUE}`}>JOB</span>
+                      <LuSearch className={`ml-1 ${TAILWIND_COLORS.TEXT_BRAND_BLUE}`} size={12} />
                     </div>
-                    <div className="text-xs font-bold text-green-600">SAHi</div>
+                    <div className={`text-xs font-bold ${TAILWIND_COLORS.TEXT_BRAND_GREEN}`}>SAHi</div>
                   </div>
                 </div>
                 <p
@@ -239,8 +237,8 @@ const CompanyInfo = () => {
                 >
                   Click to upload or drag & drop
                 </p>
-                <p className="text-xs text-gray-500">
-                  PNG, JPG, SVG, or WebP — up to 5MB
+                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                  PNG, JPG, SVG, Web up to 5MB
                 </p>
               </div>
             )}
@@ -255,13 +253,15 @@ const CompanyInfo = () => {
             className="hidden"
           />
 
-          {/* Upload error */}
-          {uploadError && (
-            <div className="flex items-center gap-2 mt-4 p-3 rounded-lg bg-red-50 border border-red-200">
-              <FiAlertCircle size={16} className="text-error" />
-              <p className="text-sm text-error">{uploadError}</p>
-            </div>
-          )}
+        {/* Error Message */}
+        {uploadError && (
+          <div className="flex items-center gap-2 mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
+            <FiAlertCircle size={16} className={TAILWIND_COLORS.TEXT_ERROR} />
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_ERROR}`}>
+              {uploadError}
+            </p>
+          </div>
+        )}
 
           {/* Upload Button */}
           <div className="mt-5">
@@ -286,77 +286,67 @@ const CompanyInfo = () => {
         {/* Divider */}
         <div className="border-t border-gray-200 my-8" />
 
-        {/* Company Info Section */}
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <LuBuilding2 className="text-secondary" size={20} />
-            <h3
-              className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-            >
-              Company Information
-            </h3>
+      {/* Right Column - Company Information */}
+      <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-2">
+          <LuBuilding2 className={TAILWIND_COLORS.TEXT_ACCENT} size={20} />
+          <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+            Company Information
+          </h3>
+        </div>
+        <p className={`text-sm mb-6 ${TAILWIND_COLORS.TEXT_MUTED}`}>
+          Basic information about your company
+        </p>
+
+        {/* Form Fields */}
+        <div className="space-y-4">
+          {/* Company Name */}
+          <div className="flex flex-col">
+            <label className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Company Name
+            </label>
+            <input
+              type="text"
+              value={companyData.name}
+              onChange={(e) => handleChange("name", e.target.value)}
+              placeholder="Enter company name"
+              className={`w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 ${TAILWIND_COLORS.TEXT_PRIMARY} placeholder:${TAILWIND_COLORS.TEXT_MUTED}`}
+            />
           </div>
-          <p className={`text-sm mb-6 ${TAILWIND_COLORS.TEXT_MUTED}`}>
-            Basic information about your company
-          </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Company Name */}
-            <div className="flex flex-col">
-              <label
-                className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              >
-                Company Name
-              </label>
-              <input
-                type="text"
-                value={companyData.name}
-                onChange={(e) => handleChange("name", e.target.value)}
-                placeholder="Enter company name"
-                className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200"
-              />
-            </div>
+          {/* Website */}
+          <div className="flex flex-col">
+            <label className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Website
+            </label>
+            <input
+              type="url"
+              value={companyData.website}
+              onChange={(e) => handleChange("website", e.target.value)}
+              placeholder="https://example.com"
+              className={`w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 ${TAILWIND_COLORS.TEXT_PRIMARY} placeholder:${TAILWIND_COLORS.TEXT_MUTED}`}
+            />
+          </div>
 
-            {/* Website */}
-            <div className="flex flex-col">
-              <label
-                className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+          {/* Trade */}
+          <div className="flex flex-col">
+            <label className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Trade
+            </label>
+            <div className="relative">
+              <select
+                value={companyData.trade}
+                onChange={(e) => handleChange("trade", e.target.value)}
+                className={`w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 appearance-none bg-white ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               >
-                Website
-              </label>
-              <input
-                type="url"
-                value={companyData.website}
-                onChange={(e) => handleChange("website", e.target.value)}
-                placeholder="https://example.com"
-                className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200"
-              />
-            </div>
-
-            {/* Trade */}
-            <div className="flex flex-col">
-              <label
-                className={`text-sm font-medium mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              >
-                Trade
-              </label>
-              <div className="relative">
-                <select
-                  value={companyData.trade}
-                  onChange={(e) => handleChange("trade", e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 appearance-none bg-white"
-                >
-                  {tradeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <LuChevronDown
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                  size={16}
-                />
-              </div>
+                {tradeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <LuChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_ICON_MUTED} pointer-events-none`} size={16} />
             </div>
 
             {/* Email */}
