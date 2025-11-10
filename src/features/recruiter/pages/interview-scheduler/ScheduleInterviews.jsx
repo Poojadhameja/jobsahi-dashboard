@@ -33,7 +33,7 @@ const applicationDropdownRef = useRef(null)
   const [formData, setFormData] = useState({
    candidate_id: '', // ✅ will store student_id
   application_id: '',       // label: selected candidate name
-    application_id: '',      // for API
+    // application_id: '',      // for API
     date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
     timeSlot: '',
     interviewMode: '',

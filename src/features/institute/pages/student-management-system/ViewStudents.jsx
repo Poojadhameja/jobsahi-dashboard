@@ -399,26 +399,13 @@ const updateStudentDetails = async (updatedStudent) => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
-<<<<<<< HEAD
-                      <IconButton
-                        label="View student"
-                        onClick={() => handleViewStudent(student)}
-                        variant="light"
-                        className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-blue-600 border border-gray-300 rounded-md transition-colors`}
-                      >
-                        <LuEye className="w-4 h-4" />
-                      </IconButton>
-                      <IconButton
-                        label="Edit student"
-=======
                       <button 
->>>>>>> b6309bd861d20703fe85cd10ccd9983b33d08d97
                         onClick={() => handleEditStudent(student)}
                         variant="light"
                         className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-green-600 border border-gray-300 rounded-md transition-colors`}
                       >
                         <LuPencil className="w-4 h-4" />
-                      </IconButton>
+                      </button>
                       <IconButton
                         label="Delete student"
                         onClick={() => handleDeleteStudent(student)}
@@ -504,33 +491,6 @@ const updateStudentDetails = async (updatedStudent) => {
   </ul>
 </div>
 
-<<<<<<< HEAD
-              {/* Projects */}
-              <div className="space-y-4">
-                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Projects</h3>
-                <ul className="space-y-1">
-                  {selectedStudent.projects.map((project, index) => (
-                    <li key={index} className="flex items-center">
-                      <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                      {project}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Languages */}
-              <div className="space-y-4">
-                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Languages</h3>
-                <div className="flex flex-wrap gap-2">
-                  {selectedStudent.languages.map((language, index) => (
-                    <span key={index} className={`bg-gray-100 ${TAILWIND_COLORS.TEXT_PRIMARY} px-3 py-1 rounded-full text-sm`}>
-                      {language}
-                    </span>
-                  ))}
-                </div>
-              </div>
-=======
->>>>>>> b6309bd861d20703fe85cd10ccd9983b33d08d97
             </div>
 
             <div className="mt-6 flex justify-end">

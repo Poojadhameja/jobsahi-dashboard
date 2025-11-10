@@ -196,21 +196,36 @@ export const postMultipart = async (data) => {
   }
 };
 
-/**
- * 🟢 Custom function — Create Batch (for Institute / Admin)
- */
-// export const createBatch = async (payload) => {
+
+// export const postMultipart = async (data) => {
 //   try {
-//     const response = await postMethod({
-//       apiUrl: '/batches/create_batch.php', // ✅ your PHP endpoint
-//       payload
+//     const token = localStorage.getItem("authToken");
+//     const headers = {
+//       Authorization: token ? `Bearer ${token}` : "",
+//       "Content-Type": "multipart/form-data",
+//     };
+
+//     console.log("🌐 POST (Multipart) Request:", {
+//       url: backendHost + data.apiUrl,
+//       formDataKeys: data.formData ? Array.from(data.formData.keys()) : [],
 //     });
-//     return response;
+
+//     const respData = await axios({
+//       method: "post",
+//       url: backendHost + data.apiUrl,
+//       data: data.formData, // must be FormData object
+//       headers,
+//     });
+
+//     console.log("✅ POST (Multipart) Response:", respData.data);
+//     return respChanges(respData.data);
 //   } catch (err) {
-//     console.error('❌ createBatch() Error:', err);
+//     console.error("❌ POST (Multipart) Error:", err.response?.data || err);
 //     return {
 //       status: false,
-//       message: err.message || 'Failed to create batch.'
+//       message:
+//         err.response?.data?.message || "Something went wrong while uploading file.",
+//       data: [],
 //     };
 //   }
 // };
