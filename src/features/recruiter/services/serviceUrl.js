@@ -18,7 +18,15 @@ const service = {
 
     //candidate management
 
-    getRecentApplicants: "/employer/get_recent_applicants.php"
+    getRecentApplicants: "/employer/get_recent_applicants.php",
+
+    //inetvriew schedule
+
+    scheduleInterview: "/applications/schedule_interview.php",
+
+    //profile
+      getRecruiterProfile: "/employer/profile.php",
+//   updateRecruiterProfile: "/employer/update_recruiter_profile.php",
 
 };
 export default service;

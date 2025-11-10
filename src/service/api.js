@@ -151,20 +151,66 @@ export const deleteMethod = async (data) => {
 };
 
 /**
- * 🟢 Custom function — Create Batch (for Institute / Admin)
+ * 🟢 POST MULTIPART method (for file uploads like logo, resume, etc.)
  */
-export const createBatch = async (payload) => {
+export const postMultipart = async (data) => {
   try {
-    const response = await postMethod({
-      apiUrl: '/batches/create_batch.php', // ✅ your PHP endpoint
-      payload
+    const token = localStorage.getItem("authToken");
+    const headers = {
+      "Content-Type": "multipart/form-data",
+    };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    console.log("🌐 POST Multipart Request:", {
+      url: backendHost + data.apiUrl,
+      data: data.data instanceof FormData ? "[FormData]" : data.data,
+      token: token ? `${token.substring(0, 15)}...` : "No token",
     });
+
+    const respData = await axios({
+      method: "post",
+      url: backendHost + data.apiUrl,
+      data: data.data, // ✅ This must be FormData
+      headers,
+    });
+
+    const response = respChanges(respData.data);
+    response.httpStatus = respData.status;
+    console.log("✅ POST Multipart Response:", response);
     return response;
   } catch (err) {
-    console.error('❌ createBatch() Error:', err);
+    console.error("❌ POST Multipart Error:", {
+      message: err.message,
+      response: err.response?.data,
+      url: backendHost + data.apiUrl,
+    });
+
     return {
       status: false,
-      message: err.message || 'Failed to create batch.'
+      message:
+        err.response?.data?.message ||
+        err.message ||
+        "Something went wrong during file upload.",
+      data: [],
     };
   }
 };
+
+/**
+ * 🟢 Custom function — Create Batch (for Institute / Admin)
+ */
+// export const createBatch = async (payload) => {
+//   try {
+//     const response = await postMethod({
+//       apiUrl: '/batches/create_batch.php', // ✅ your PHP endpoint
+//       payload
+//     });
+//     return response;
+//   } catch (err) {
+//     console.error('❌ createBatch() Error:', err);
+//     return {
+//       status: false,
+//       message: err.message || 'Failed to create batch.'
+//     };
+//   }
+// };
