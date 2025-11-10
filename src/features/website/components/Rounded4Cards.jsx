@@ -44,7 +44,7 @@ const MeetOurTeam = ({ teamMembers, title, description }) => {
             </p>
 
             {/* Navigation Arrows */}
-            <div className="flex space-x-3">
+            {/* <div className="flex space-x-3">
               <button
                 onClick={prevSlide}
                 className="w-12 h-12 border-2 border-[#5C9A24] rounded-full flex items-center justify-center text-[#5C9A24] hover:bg-[#5C9A24] hover:text-white transition-all duration-300"
@@ -57,7 +57,7 @@ const MeetOurTeam = ({ teamMembers, title, description }) => {
               >
                 <FaChevronRight className="text-lg" />
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
 

@@ -107,10 +107,6 @@ const fetchStudentDetails = async (studentId) => {
         phone: profile.personal_info.phone_number,
         course: profile.professional_info.trade || "Not Assigned",
         batch: "-",
-        qualification: profile.professional_info.education || "",
-        experience: profile.professional_info.experience?.years || "",
-        skills: (profile.professional_info.skills || "").split(",").map(s => s.trim()).filter(Boolean),
-        projects: (profile.professional_info.projects || []).map(p => p.name || p),
       };
 
       setSelectedStudent(mapped);
@@ -526,8 +522,6 @@ const updateStudentDetails = async (updatedStudent) => {
                 course: formData.get('course'),
                 batch: formData.get('batch'),
                 status: formData.get('status'),
-                qualification: formData.get('qualification'),
-                experience: formData.get('experience')
               }
               handleUpdateStudent(updatedStudent)
             }}>
@@ -614,24 +608,7 @@ const updateStudentDetails = async (updatedStudent) => {
                   </select>
                 </div>
                
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Qualification</label>
-                  <input
-                    type="text"
-                    name="qualification"
-                    defaultValue={selectedStudent.qualification}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Experience</label>
-                  <input
-                    type="text"
-                    name="experience"
-                    defaultValue={selectedStudent.experience}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+               
               </div>
 
               <div className="mt-6 flex justify-end space-x-3">
