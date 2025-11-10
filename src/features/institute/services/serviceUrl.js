@@ -1,5 +1,5 @@
 // ✅ Add this constant at the very top
-const instituteBase = "/institute";
+// const instituteBase = "/institute";
 
 const apiService = {
   // Dashboard
@@ -43,6 +43,14 @@ const apiService = {
   institute_view_students: `/institute/get_institute_students.php`,
   list_students: "/admin/list_students.php",
   assign_course_batch: "/institute/assign_course_batch.php",
+
+  INSTITUTE_REPORT: "/institute/institute_report.php",
+
+  profile: '/student/profile.php'
+
+  // get_student_profile: '/student/get_student_profile.php',
+// update_student_profile: '/student/update_student_profile.php',
+
 };
 
 export default apiService;

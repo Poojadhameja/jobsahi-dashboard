@@ -9,9 +9,9 @@ import { Pie } from 'react-chartjs-2'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-const PieChart = ({ 
-  data, 
-  title = "Chart", 
+const PieChart = ({
+  data,
+  title = "Chart",
   subtitle = "",
   showExport = true,
   onExport,
@@ -23,14 +23,18 @@ const PieChart = ({
     plugins: {
       legend: {
         position: 'right',
+        align: 'start',
         labels: {
           usePointStyle: true,
-          padding: 20,
+          padding: 18,
           font: {
             size: 14,
-            weight: '500'
-          }
-        }
+            weight: '500',
+          },
+          color: '#1f2937',
+          boxWidth: 12,
+          boxHeight: 12,
+        },
       },
       title: {
         display: false,
@@ -39,7 +43,7 @@ const PieChart = ({
   }
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 p-6 ${className}`}>
+    <div className={`bg-white rounded-lg border border-gray-200 p-6 min-h-[420px] ${className}`}>
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -62,8 +66,8 @@ const PieChart = ({
       </div>
 
       {/* Chart */}
-      <div className="h-80 flex items-center justify-center">
-        <div className="w-80 h-80">
+      <div className="flex items-center justify-center">
+        <div className="w-full max-w-[560px] h-[360px] md:h-[420px]">
           <Pie data={data} options={options} />
         </div>
       </div>

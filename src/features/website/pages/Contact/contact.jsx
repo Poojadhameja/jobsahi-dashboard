@@ -44,19 +44,29 @@ const Contact = () => {
       <Navbar />
 
       {/* Header Section */}
-      <section className=" py-16">
-        <div className="bg-[#EAF5FB] max-w-5xl mx-auto rounded-3xl p-12 text-center">
-          <div className="inline-block border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-2 rounded-full text-sm font-semibold mb-6">
-            #1 PORTAL JOB PLATFORM
-          </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#0B537D] mb-4">
-            Feel Free To <span className="relative">Contact Us
-              <img src={textunderline} alt="" className="absolute -bottom-2 left-0 w-full h-3" />
-            </span>
-          </h1>
-          <p className="text-gray-600 text-lg">
+      <section className="py-10 bg-[#EAF5FB] mx-4 rounded-[50px] my-8">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center">
+            {/* Top Banner */}
+            <div className="mb-5">
+              <div className="inline-block border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-2 rounded-full text-sm font-semibold">
+                #1 PORTAL JOB PLATFORM
+              </div>
+            </div>
+
+            {/* Main Heading */}
+            <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-12 ">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 text-[#0B537D] leading-tight">
+              Feel Free To Contact Us
+              </h1>
+              <img src={textunderline} alt="" className="w-[30%] h-[15px] md:h-[25px] -mt-10" />
+            </div>
+
+            {/* Description */}
+            <p className="text-gray-700 text-lg ">
             Get the latest news, updates and tips.
-          </p>
+            </p>
+          </div>
         </div>
       </section>
 
