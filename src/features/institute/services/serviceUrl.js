@@ -49,10 +49,10 @@ const apiService = {
 
   INSTITUTE_REPORT: "/institute/institute_report.php",
 
-  profile: '/student/profile.php'
+  getInstituteProfile: '/institute/profiles.php',
+  updateInstituteProfile: '/institute/profile_updated.php',
 
-  // get_student_profile: '/student/get_student_profile.php',
-// update_student_profile: '/student/update_student_profile.php',
+
 
 };
 
