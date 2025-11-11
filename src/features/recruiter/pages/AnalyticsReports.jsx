@@ -1,172 +1,223 @@
-import React, { useState } from 'react'
-import { LuDownload, LuFileText, LuFileSpreadsheet, LuUsers, LuUserCheck, LuPercent, LuDollarSign } from 'react-icons/lu'
-import BarChart from '../../../shared/components/charts/BarChart'
-import TradePieChart from '../../../shared/components/charts/TradePieChart'
-import { getChartColors } from '../../../shared/utils/chartColors'
-import { Horizontal4Cards, MatrixCard } from '../../../shared/components/metricCard'
-import DynamicButton from '../../../shared/components/DynamicButton'
-import { TAILWIND_COLORS } from '../../../shared/WebConstant'
+import React, { useState, useEffect } from "react";
+import {
+  LuFileText,
+  LuFileSpreadsheet,
+  LuUsers,
+  LuUserCheck,
+  LuPercent,
+  LuDollarSign,
+} from "react-icons/lu";
+import BarChart from "../../../shared/components/charts/BarChart";
+import TradePieChart from "../../../shared/components/charts/TradePieChart";
+import { getChartColors } from "../../../shared/utils/chartColors";
+import { Horizontal4Cards, MatrixCard } from "../../../shared/components/metricCard";
+import DynamicButton from "../../../shared/components/DynamicButton";
+import { TAILWIND_COLORS } from "../../../shared/WebConstant";
+import { getMethod } from "../../../service/api";
+import apiService from "../services/serviceUrl";
 
 const AnalyticsReports = () => {
-  const [timeFilter, setTimeFilter] = useState('Last 30 days')
-  const [departmentFilter, setDepartmentFilter] = useState('All Department')
+  const [timeFilter, setTimeFilter] = useState("Last 30 days");
+  const [departmentFilter, setDepartmentFilter] = useState("All Department");
+  const [loading, setLoading] = useState(true);
+  const [analyticsData, setAnalyticsData] = useState(null);
 
-  // Resolve palette for charts (Chart.js needs concrete color strings)
-  const chartColors = getChartColors()
+  const chartColors = getChartColors();
 
-  // Sample data for Applications by Department
-  const applicationsData = {
-    labels: ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations'],
-    datasets: [
-      {
-        label: 'Total Applications',
-        data: [250, 190, 140, 80, 120, 70],
-        backgroundColor: chartColors.info,
-        borderRadius: 4,
-      },
-      {
-        label: 'Interviews',
-        data: [70, 40, 35, 25, 30, 20],
-        backgroundColor: chartColors.success,
-        borderRadius: 4,
-      },
-      {
-        label: 'Hires',
-        data: [20, 15, 20, 10, 15, 10],
-        backgroundColor: chartColors.warning,
-        borderRadius: 4,
-      },
-    ],
-  }
+  // ==========================
+  // 📊 Fetch Analytics Data
+  // ==========================
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        const res = await getMethod({
+          apiUrl: apiService.recruiterAnalyticsReports, // ✅ your endpoint
+        });
 
-  // Sample data for Source of Hire
-  const sourceOfHireData = {
-    labels: ['Job Portal', 'LinkedIn', 'Referrals', 'Career Fair', 'Direct Apply'],
-    datasets: [
-      {
-        data: [35, 28, 20, 12, 5],
-        backgroundColor: [
-          chartColors.info,
-          chartColors.success,
-          chartColors.warning,
-          chartColors.error,
-          chartColors.primary,
+        if (res?.status && res?.data) {
+          setAnalyticsData(res.data);
+        } else {
+          console.warn("⚠️ Invalid analytics response:", res);
+        }
+      } catch (err) {
+        console.error("❌ Error fetching analytics:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalytics();
+  }, []);
+
+  // ==========================
+  // 📊 Map Backend → Charts
+  // ==========================
+  const applicationsData = analyticsData
+    ? {
+        labels: analyticsData.applications_by_department.map((d) => d.department),
+        datasets: [
+          {
+            label: "Total Applications",
+            data: analyticsData.applications_by_department.map((d) => d.total_applications),
+            backgroundColor: chartColors.info,
+            borderRadius: 4,
+          },
+          {
+            label: "Shortlisted",
+            data: analyticsData.applications_by_department.map((d) => d.shortlisted),
+            backgroundColor: chartColors.success,
+            borderRadius: 4,
+          },
+          {
+            label: "Hired",
+            data: analyticsData.applications_by_department.map((d) => d.hired),
+            backgroundColor: chartColors.warning,
+            borderRadius: 4,
+          },
         ],
-        borderWidth: 0,
-      },
-    ],
-  }
+      }
+    : null;
 
-  // Sample data for Key Metrics
-  const keyMetricsData = [
-    {
-      title: 'Total Interviews',
-      value: '264',
-      icon: <LuUsers />
-    },
-    {
-      title: 'Total Hires',
-      value: '85',
-      icon: <LuUserCheck />
-    },
-    {
-      title: 'Interview-to-Hire',
-      value: '32.1%',
-      icon: <LuPercent />
-    },
-    {
-      title: 'Avg Cost per Hire',
-      value: '₹2.1L',
-      icon: <LuDollarSign />
-    }
-  ]
+  const sourceOfHireData = analyticsData
+    ? {
+        labels: analyticsData.source_of_hire.map((s) => s.source),
+        datasets: [
+          {
+            data: analyticsData.source_of_hire.map((s) => s.count),
+            backgroundColor: [
+              chartColors.info,
+              chartColors.success,
+              chartColors.warning,
+              chartColors.error,
+              chartColors.primary,
+            ],
+            borderWidth: 0,
+          },
+        ],
+      }
+    : null;
 
+  const keyMetricsData = analyticsData
+    ? [
+        {
+          title: "Total Jobs",
+          value: analyticsData.key_metrics.total_jobs,
+          icon: <LuUsers />,
+        },
+        {
+          title: "Total Applications",
+          value: analyticsData.key_metrics.total_applications,
+          icon: <LuUsers />,
+        },
+        {
+          title: "Total Interviews",
+          value: analyticsData.key_metrics.total_interviews,
+          icon: <LuUserCheck />,
+        },
+        {
+          title: "Total Hires",
+          value: analyticsData.key_metrics.total_hires,
+          icon: <LuUserCheck />,
+        },
+        {
+          title: "Interview-to-Hire",
+          value: analyticsData.key_metrics.interview_to_hire_ratio,
+          icon: <LuPercent />,
+        },
+        {
+          title: "Avg Cost per Hire",
+          value: analyticsData.key_metrics.avg_cost_per_hire,
+          icon: <LuDollarSign />,
+        },
+      ]
+    : [];
+
+  // ==========================
+  // 📂 Export Handlers
+  // ==========================
   const handleCSVDownload = () => {
-    // Create CSV data for applications by department
+    if (!analyticsData) return;
+
     const csvData = [
-      ['Department', 'Total Applications', 'Interviews', 'Hires'],
-      ...applicationsData.labels.map((label, index) => [
-        label,
-        applicationsData.datasets[0].data[index],
-        applicationsData.datasets[1].data[index],
-        applicationsData.datasets[2].data[index]
-      ])
-    ]
-    
-    const csvContent = csvData.map(row => row.join(',')).join('\n')
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    const url = URL.createObjectURL(blob)
-    link.setAttribute('href', url)
-    link.setAttribute('download', 'analytics_data.csv')
-    link.style.visibility = 'hidden'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+      ["Department", "Total Applications", "Shortlisted", "Hired"],
+      ...analyticsData.applications_by_department.map((d) => [
+        d.department,
+        d.total_applications,
+        d.shortlisted,
+        d.hired,
+      ]),
+    ];
+
+    const csvContent = csvData.map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "analytics_data.csv");
+    link.click();
+  };
 
   const handlePDFDownload = () => {
-    // Create a simple text report that can be printed as PDF
-    const reportData = {
-      title: 'Analytics & Reports',
-      date: new Date().toLocaleDateString(),
-      timeFilter,
-      departmentFilter,
-      applications: applicationsData.labels.map((label, index) => ({
-        department: label,
-        totalApplications: applicationsData.datasets[0].data[index],
-        interviews: applicationsData.datasets[1].data[index],
-        hires: applicationsData.datasets[2].data[index]
-      })),
-      sourceOfHire: sourceOfHireData.labels.map((label, index) => ({
-        source: label,
-        percentage: sourceOfHireData.datasets[0].data[index]
-      })),
-      keyMetrics: keyMetricsData
-    }
-    
+    if (!analyticsData) return;
+
     const reportContent = `
-Analytics & Reports
-Generated on: ${reportData.date}
-Filters: ${reportData.timeFilter}, ${reportData.departmentFilter}
+Recruiter Analytics Report
+Generated on: ${new Date().toLocaleDateString()}
 
 APPLICATIONS BY DEPARTMENT:
-${reportData.applications.map(app => 
-  `${app.department}: ${app.totalApplications} total, ${app.interviews} interviews, ${app.hires} hires`
-).join('\n')}
+${analyticsData.applications_by_department
+  .map(
+    (d) =>
+      `${d.department}: ${d.total_applications} applications, ${d.shortlisted} shortlisted, ${d.hired} hired`
+  )
+  .join("\n")}
 
 SOURCE OF HIRE:
-${reportData.sourceOfHire.map(source => 
-  `${source.source}: ${source.percentage}%`
-).join('\n')}
+${analyticsData.source_of_hire
+  .map((s) => `${s.source}: ${s.count}`)
+  .join("\n")}
 
 KEY METRICS:
-${reportData.keyMetrics.map(metric => 
-  `${metric.title}: ${metric.value}`
-).join('\n')}
-    `.trim()
-    
-    const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8;' })
-    const link = document.createElement('a')
-    const url = URL.createObjectURL(blob)
-    link.setAttribute('href', url)
-    link.setAttribute('download', 'analytics_report.txt')
-    link.style.visibility = 'hidden'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+${Object.entries(analyticsData.key_metrics)
+  .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
+  .join("\n")}
+    `.trim();
+
+    const blob = new Blob([reportContent], {
+      type: "text/plain;charset=utf-8;",
+    });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "analytics_report.txt");
+    link.click();
+  };
+
+  // ==========================
+  // 🧩 Render
+  // ==========================
+  if (loading) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        Loading analytics data...
+      </div>
+    );
   }
 
-  const handleChartDownload = () => {
-    // This is now handled by individual chart components
-    console.log('Chart Download handled by individual components')
+  if (!analyticsData) {
+    return (
+      <div className="p-6 text-center text-red-500">
+        No analytics data available.
+      </div>
+    );
   }
 
   return (
     <div className={`p-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Header */}
       <div className="mb-8">
-        <MatrixCard 
+        <MatrixCard
           title="Analytics & Reports"
           subtitle="Track recruitment metrics, generate insights, and create custom reports."
         />
@@ -175,29 +226,18 @@ ${reportData.keyMetrics.map(metric =>
       {/* Filters and Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div className="flex items-center gap-4">
-          <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Filters:</span>
+          <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+            Filters:
+          </span>
           <select
             value={timeFilter}
             onChange={(e) => setTimeFilter(e.target.value)}
-            className={`px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+            className={`px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500`}
           >
             <option value="Last 7 days">Last 7 days</option>
             <option value="Last 30 days">Last 30 days</option>
             <option value="Last 90 days">Last 90 days</option>
             <option value="Last year">Last year</option>
-          </select>
-          <select
-            value={departmentFilter}
-            onChange={(e) => setDepartmentFilter(e.target.value)}
-            className={`px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-          >
-            <option value="All Department">All Department</option>
-            <option value="Engineering">Engineering</option>
-            <option value="Marketing">Marketing</option>
-            <option value="Sales">Sales</option>
-            <option value="HR">HR</option>
-            <option value="Finance">Finance</option>
-            <option value="Operations">Operations</option>
           </select>
         </div>
 
@@ -209,7 +249,6 @@ ${reportData.keyMetrics.map(metric =>
             border="2px solid var(--color-secondary)"
             hoverBackgroundColor="var(--color-secondary)"
             icon={<LuFileSpreadsheet className="w-4 h-4" />}
-            className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}
           >
             CSV
           </DynamicButton>
@@ -220,7 +259,6 @@ ${reportData.keyMetrics.map(metric =>
             border="2px solid var(--color-secondary)"
             hoverBackgroundColor="var(--color-secondary)"
             icon={<LuFileText className="w-4 h-4" />}
-            className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}
           >
             PDF
           </DynamicButton>
@@ -229,21 +267,16 @@ ${reportData.keyMetrics.map(metric =>
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
-        {/* Applications by Department - Takes 2 columns */}
         <div className="xl:col-span-2">
           <BarChart
             title="Applications by Department"
             data={applicationsData}
-            onDownload={handleChartDownload}
           />
         </div>
-
-        {/* Source of Hire - Takes 1 column */}
         <div className="xl:col-span-1">
           <TradePieChart
             title="Source of Hire"
             data={sourceOfHireData}
-            onDownload={handleChartDownload}
           />
         </div>
       </div>
@@ -251,12 +284,14 @@ ${reportData.keyMetrics.map(metric =>
       {/* Key Metrics Summary */}
       <div className="mb-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Key Metrics Summary</h3>
+          <h3 className={`text-lg font-semibold mb-6`}>
+            Key Metrics Summary
+          </h3>
           <Horizontal4Cards data={keyMetricsData} />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AnalyticsReports
+export default AnalyticsReports;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from "react";
 import {
   LuCalendar,
   LuClock,
@@ -10,168 +10,178 @@ import {
   LuMapPin,
   LuChevronDown,
   LuCheck,
-  LuSearch
-} from 'react-icons/lu'
-import Calendar from '../../../../shared/components/Calendar'
-import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import { Button } from '../../../../shared/components/Button'
-import { getMethod, postMethod } from '../../../../service/api'
-import apiService from '../../services/serviceUrl'
+  LuSearch,
+} from "react-icons/lu";
+import Calendar from "../../../../shared/components/Calendar";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
+import { Button } from "../../../../shared/components/Button";
+import { getMethod, postMethod } from "../../../../service/api";
+import apiService from "../../services/serviceUrl";
 
 const ScheduleInterviews = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date()) // Current date
-  const [showCandidateDropdown, setShowCandidateDropdown] = useState(false)
-  const candidateDropdownRef = useRef(null)
-// 🔹 Application dropdown states
-const [applications, setApplications] = useState([])
-const [loadingApps, setLoadingApps] = useState(false)
-const [showApplicationDropdown, setShowApplicationDropdown] = useState(false)
-const applicationDropdownRef = useRef(null)
-
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Current date
+  const [showCandidateDropdown, setShowCandidateDropdown] = useState(false);
+  const candidateDropdownRef = useRef(null);
+  // 🔹 Application dropdown states
+  const [applications, setApplications] = useState([]);
+  const [loadingApps, setLoadingApps] = useState(false);
+  const [showApplicationDropdown, setShowApplicationDropdown] = useState(false);
+  const applicationDropdownRef = useRef(null);
 
   // 🔹 Form State
   const [formData, setFormData] = useState({
-   candidate_id: '', // ✅ will store student_id
-  application_id: '',       // label: selected candidate name
+    candidate_id: "", // ✅ will store student_id
+    application_id: "", // label: selected candidate name
     // application_id: '',      // for API
-    date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
-    timeSlot: '',
-    interviewMode: '',
-    location: ''
-  })
+    date: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+    timeSlot: "",
+    interviewMode: "",
+    location: "",
+  });
 
   // 🔹 Candidates from API
-  const [candidates, setCandidates] = useState([])
-  const [loadingCandidates, setLoadingCandidates] = useState(false)
+  const [candidates, setCandidates] = useState([]);
+  const [loadingCandidates, setLoadingCandidates] = useState(false);
 
   // 🔹 Panel Members (static for UI)
   const panelMembers = [
-    { id: 1, name: 'Anjali Roy', role: 'Senior Developer', selected: false },
-    { id: 2, name: 'Shakti Singh', role: 'Hr Manager', selected: false },
-    { id: 3, name: 'Dr. Rajesh Yadav', role: 'Senior Developer', selected: false },
-    { id: 4, name: 'Suresh Kumar', role: 'Junior Developer', selected: false }
-  ]
+    { id: 1, name: "Anjali Roy", role: "Senior Developer", selected: false },
+    { id: 2, name: "Shakti Singh", role: "Hr Manager", selected: false },
+    {
+      id: 3,
+      name: "Dr. Rajesh Yadav",
+      role: "Senior Developer",
+      selected: false,
+    },
+    { id: 4, name: "Suresh Kumar", role: "Junior Developer", selected: false },
+  ];
 
   // 🔹 Scheduled Interviews (starts with sample UI data)
   const [scheduledInterviews, setScheduledInterviews] = useState([
     {
       id: 1,
       candidate: {
-        name: 'Rohit Singh',
-        initials: 'RS',
-        jobRole: 'Electrician',
-        date: '25-03-25'
+        name: "Rohit Singh",
+        initials: "RS",
+        jobRole: "Electrician",
+        date: "25-03-25",
       },
-      time: '10.00 AM',
-      type: 'Virtual Call',
-      round: 'Round 1',
-      status: 'Scheduled',
-      panelMembers: ['Hr manager', 'Senior Developer']
+      time: "10.00 AM",
+      type: "Virtual Call",
+      round: "Round 1",
+      status: "Scheduled",
+      panelMembers: ["Hr manager", "Senior Developer"],
     },
     {
       id: 2,
       candidate: {
-        name: 'Rohit Singh',
-        initials: 'RS',
-        jobRole: 'Electrician',
-        date: '25-03-25'
+        name: "Rohit Singh",
+        initials: "RS",
+        jobRole: "Electrician",
+        date: "25-03-25",
       },
-      time: '12.00 PM',
-      type: 'Virtual Call',
-      round: 'Round 1',
-      status: 'Scheduled',
-      panelMembers: ['Hr manager', 'Senior Developer']
-    }
-  ])
+      time: "12.00 PM",
+      type: "Virtual Call",
+      round: "Round 1",
+      status: "Scheduled",
+      panelMembers: ["Hr manager", "Senior Developer"],
+    },
+  ]);
 
   // 🔹 Search + Edit State
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [selectedInterview, setSelectedInterview] = useState(null)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState(null);
   const [editFormData, setEditFormData] = useState({
-    candidate: '',
-    date: '',
-    timeSlot: '',
-    interviewMode: '',
-    location: '',
-    round: '',
-    status: ''
-  })
+    candidate: "",
+    date: "",
+    timeSlot: "",
+    interviewMode: "",
+    location: "",
+    round: "",
+    status: "",
+  });
 
   // =========================================================
   // 1) FETCH CANDIDATES FROM get_recent_applicants.php
   // =========================================================
   useEffect(() => {
     const fetchCandidates = async () => {
-      setLoadingCandidates(true)
+      setLoadingCandidates(true);
       try {
-        const res = await getMethod({ apiUrl: apiService.getRecentApplicants })
+        const res = await getMethod({ apiUrl: apiService.getRecentApplicants });
 
+        // 🔹 Handle valid data structure
         if (res?.status && Array.isArray(res?.all_applicants?.data)) {
           const formatted = res.all_applicants.data.map((item) => ({
-            id: item.application_id,              // for React key / UI
-            application_id: item.application_id,  // for schedule_interview API
-            name: item.name,
-            jobRole: item.applied_for || '—'
-          }))
-          setCandidates(formatted)
+            candidate_name: item.name,
+            candidate_id: item.student_id || item.application_id, // fallback if student_id not present
+            application_id: item.application_id,
+            job_title: item.job_title || item.applied_for || "—",
+            status: item.status || "pending",
+          }));
+
+          setCandidates(formatted);
         } else {
-          setCandidates([])
+          setCandidates([]);
         }
       } catch (error) {
-        console.error('❌ Error fetching candidates:', error)
-        setCandidates([])
+        console.error("❌ Error fetching candidates:", error);
+        setCandidates([]);
       } finally {
-        setLoadingCandidates(false)
+        setLoadingCandidates(false);
       }
-    }
+    };
 
-    fetchCandidates()
-  }, [])
+    fetchCandidates();
+  }, []);
 
   // =========================================================
   // 2) DROPDOWN OUTSIDE CLICK
   // =========================================================
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (candidateDropdownRef.current && !candidateDropdownRef.current.contains(event.target)) {
-        setShowCandidateDropdown(false)
+      if (
+        candidateDropdownRef.current &&
+        !candidateDropdownRef.current.contains(event.target)
+      ) {
+        setShowCandidateDropdown(false);
       }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // =========================================================
   // 3) HELPERS
   // =========================================================
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
-    }))
-  }
+      [field]: value,
+    }));
+  };
 
   const formatTimeTo12Hour = (time24) => {
-    if (!time24) return ''
-    const [h, m] = time24.split(':')
-    const hours = parseInt(h, 10)
-    const hour12 = hours % 12 || 12
-    const ampm = hours >= 12 ? 'PM' : 'AM'
-    return `${hour12}:${m} ${ampm}`
-  }
+    if (!time24) return "";
+    const [h, m] = time24.split(":");
+    const hours = parseInt(h, 10);
+    const hour12 = hours % 12 || 12;
+    const ampm = hours >= 12 ? "PM" : "AM";
+    return `${hour12}:${m} ${ampm}`;
+  };
 
   const handleDateSelect = (date) => {
-    setSelectedDate(date)
-    setFormData(prev => ({
+    setSelectedDate(date);
+    setFormData((prev) => ({
       ...prev,
-      date: date.toISOString().split('T')[0]
-    }))
-  }
+      date: date.toISOString().split("T")[0],
+    }));
+  };
 
   const handleCandidateFieldClick = () => {
-    setShowCandidateDropdown(!showCandidateDropdown)
-  }
+    setShowCandidateDropdown(!showCandidateDropdown);
+  };
 
   // const handleCandidateSelect = (candidate) => {
   //   setFormData(prev => ({
@@ -181,19 +191,19 @@ const applicationDropdownRef = useRef(null)
   //   }))
   //   setShowCandidateDropdown(false)
   // }
-  const handleCandidateSelect = (candidate) => {
+const handleCandidateSelect = (candidate) => {
   setFormData((prev) => ({
     ...prev,
-    candidates: candidate.name,
-    candidate_id: candidate.student_id,
-    application_id: candidate.application_id
+    candidates: candidate.candidate_name,
+    candidate_id: candidate.candidate_id,
+    application_id: candidate.application_id,
   }));
   setShowCandidateDropdown(false);
 };
 
 
   const buildScheduledAt = () =>
-    `${formData.date} ${formData.timeSlot || '00:00'}:00`
+    `${formData.date} ${formData.timeSlot || "00:00"}:00`;
 
   // =========================================================
   // 4) SCHEDULE INTERVIEW (calls schedule_interview.php)
@@ -201,105 +211,108 @@ const applicationDropdownRef = useRef(null)
   const handleScheduleInterview = async () => {
     // Frontend validations
     if (!formData.application_id) {
-      alert('Please select a candidate.')
-      return
+      alert("Please select a candidate.");
+      return;
     }
     if (!formData.date || !formData.timeSlot) {
-      alert('Please select date and time.')
-      return
+      alert("Please select date and time.");
+      return;
     }
     if (!formData.interviewMode) {
-      alert('Please select interview mode.')
-      return
+      alert("Please select interview mode.");
+      return;
     }
-    if (formData.interviewMode === 'offline' && !formData.location.trim()) {
-      alert('Please enter interview location for offline mode.')
-      return
+    if (formData.interviewMode === "offline" && !formData.location.trim()) {
+      alert("Please enter interview location for offline mode.");
+      return;
     }
 
     const selectedCandidate = candidates.find(
-      c => c.application_id === formData.application_id
-    )
+      (c) => c.application_id === formData.application_id
+    );
 
     if (!selectedCandidate) {
-      alert('Selected candidate not found. Please choose again.')
-      return
+      alert("Selected candidate not found. Please choose again.");
+      return;
     }
 
     const payload = {
       application_id: Number(formData.application_id),
       scheduled_at: buildScheduledAt(), // "YYYY-MM-DD HH:MM:00"
-      mode: formData.interviewMode,     // "online" / "offline"
+      mode: formData.interviewMode, // "online" / "offline"
       location:
-        formData.interviewMode === 'offline'
+        formData.interviewMode === "offline"
           ? formData.location
-          : 'Online Meeting Link',
-      status: 'scheduled',
-      feedback: 'Initial technical round'
-    }
+          : "Online Meeting Link",
+      status: "scheduled",
+      feedback: "Initial technical round",
+    };
 
     try {
       const response = await postMethod({
         apiUrl: apiService.scheduleInterview,
-        data: payload
-      })
+        data: payload,
+      });
 
       if (response?.status) {
-        alert('✅ Interview scheduled successfully!')
+        alert("✅ Interview scheduled successfully!");
 
         // Push into local scheduledInterviews list for UI
-        const dateObj = new Date(formData.date)
-        const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(
-          dateObj.getMonth() + 1
-        ).padStart(2, '0')}-${String(dateObj.getFullYear()).slice(-2)}`
-        const formattedTime = formatTimeTo12Hour(formData.timeSlot)
+        const dateObj = new Date(formData.date);
+        const formattedDate = `${String(dateObj.getDate()).padStart(
+          2,
+          "0"
+        )}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(
+          dateObj.getFullYear()
+        ).slice(-2)}`;
+        const formattedTime = formatTimeTo12Hour(formData.timeSlot);
         const interviewType =
-          formData.interviewMode === 'online' ? 'Virtual Call' : 'In-Person'
+          formData.interviewMode === "online" ? "Virtual Call" : "In-Person";
 
         const newInterview = {
           id: response.interview_id || scheduledInterviews.length + 1,
           candidate: {
             name: selectedCandidate.name,
             initials: selectedCandidate.name
-              .split(' ')
-              .map(n => n[0])
-              .join(''),
+              .split(" ")
+              .map((n) => n[0])
+              .join(""),
             jobRole: selectedCandidate.jobRole,
-            date: formattedDate
+            date: formattedDate,
           },
           time: formattedTime,
           type: interviewType,
-          round: 'Round 1',
-          status: 'Scheduled',
-          panelMembers: ['Hr manager', 'Senior Developer']
-        }
+          round: "Round 1",
+          status: "Scheduled",
+          panelMembers: ["Hr manager", "Senior Developer"],
+        };
 
-        setScheduledInterviews(prev => [newInterview, ...prev])
+        setScheduledInterviews((prev) => [newInterview, ...prev]);
 
         // Reset form
         setFormData({
-          candidates: '',
-          application_id: '',
-          date: new Date().toISOString().split('T')[0],
-          timeSlot: '',
-          interviewMode: '',
-          location: ''
-        })
-        setSelectedDate(new Date())
+          candidates: "",
+          application_id: "",
+          date: new Date().toISOString().split("T")[0],
+          timeSlot: "",
+          interviewMode: "",
+          location: "",
+        });
+        setSelectedDate(new Date());
       } else {
-        alert(`❌ ${response?.message || 'Failed to schedule interview.'}`)
+        alert(`❌ ${response?.message || "Failed to schedule interview."}`);
       }
     } catch (error) {
-      console.error('❌ Error scheduling interview:', error)
-      alert('Server error while scheduling interview.')
+      console.error("❌ Error scheduling interview:", error);
+      alert("Server error while scheduling interview.");
     }
-  }
+  };
 
   // =========================================================
   // 5) FILTER SCHEDULED INTERVIEWS (search box)
   // =========================================================
   const filteredInterviews = scheduledInterviews.filter((interview) => {
-    const q = searchQuery.toLowerCase()
+    const q = searchQuery.toLowerCase();
     return (
       interview.candidate.name.toLowerCase().includes(q) ||
       interview.candidate.jobRole.toLowerCase().includes(q) ||
@@ -307,69 +320,76 @@ const applicationDropdownRef = useRef(null)
       interview.type.toLowerCase().includes(q) ||
       interview.round.toLowerCase().includes(q) ||
       interview.status.toLowerCase().includes(q) ||
-      interview.panelMembers.some(m => m.toLowerCase().includes(q))
-    )
-  })
+      interview.panelMembers.some((m) => m.toLowerCase().includes(q))
+    );
+  });
 
   // =========================================================
   // 6) EDIT INTERVIEW (purely frontend, as in your UI)
   // =========================================================
   const handleEditClick = (interview) => {
-    setSelectedInterview(interview)
+    setSelectedInterview(interview);
 
-    const [day, month, year] = interview.candidate.date.split('-')
-    const fullYear = '20' + year
-    const formattedDate = `${fullYear}-${month}-${day}`
+    const [day, month, year] = interview.candidate.date.split("-");
+    const fullYear = "20" + year;
+    const formattedDate = `${fullYear}-${month}-${day}`;
 
     const parseTimeTo24Hour = (time12) => {
-      if (!time12) return ''
-      const [time, period] = time12.split(' ')
-      const [hh, mm] = time.split(':')
-      let h = parseInt(hh, 10)
-      if (period === 'PM' && h !== 12) h += 12
-      if (period === 'AM' && h === 12) h = 0
-      return `${String(h).padStart(2, '0')}:${mm}`
-    }
+      if (!time12) return "";
+      const [time, period] = time12.split(" ");
+      const [hh, mm] = time.split(":");
+      let h = parseInt(hh, 10);
+      if (period === "PM" && h !== 12) h += 12;
+      if (period === "AM" && h === 12) h = 0;
+      return `${String(h).padStart(2, "0")}:${mm}`;
+    };
 
     setEditFormData({
       candidate: interview.candidate.name,
       date: formattedDate,
       timeSlot: parseTimeTo24Hour(interview.time),
-      interviewMode: interview.type === 'Virtual Call' ? 'online' : 'offline',
-      location: '',
+      interviewMode: interview.type === "Virtual Call" ? "online" : "offline",
+      location: "",
       round: interview.round,
-      status: interview.status
-    })
+      status: interview.status,
+    });
 
-    setShowEditModal(true)
-  }
+    setShowEditModal(true);
+  };
 
   const handleEditInputChange = (field, value) => {
-    setEditFormData(prev => ({
+    setEditFormData((prev) => ({
       ...prev,
-      [field]: value
-    }))
-  }
+      [field]: value,
+    }));
+  };
 
   const handleUpdateInterview = () => {
-    if (!selectedInterview) return
+    if (!selectedInterview) return;
 
-    if (!editFormData.candidate || !editFormData.date || !editFormData.timeSlot) {
-      alert('Please fill all required fields')
-      return
+    if (
+      !editFormData.candidate ||
+      !editFormData.date ||
+      !editFormData.timeSlot
+    ) {
+      alert("Please fill all required fields");
+      return;
     }
 
-    const dateObj = new Date(editFormData.date)
-    const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(
-      dateObj.getMonth() + 1
-    ).padStart(2, '0')}-${String(dateObj.getFullYear()).slice(-2)}`
-    const formattedTime = formatTimeTo12Hour(editFormData.timeSlot)
+    const dateObj = new Date(editFormData.date);
+    const formattedDate = `${String(dateObj.getDate()).padStart(
+      2,
+      "0"
+    )}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(
+      dateObj.getFullYear()
+    ).slice(-2)}`;
+    const formattedTime = formatTimeTo12Hour(editFormData.timeSlot);
     const interviewType =
-      editFormData.interviewMode === 'online' ? 'Virtual Call' : 'In-Person'
+      editFormData.interviewMode === "online" ? "Virtual Call" : "In-Person";
 
     const selectedCandidate = candidates.find(
-      c => c.name === editFormData.candidate
-    )
+      (c) => c.name === editFormData.candidate
+    );
 
     const updated = scheduledInterviews.map((interview) => {
       if (interview.id === selectedInterview.id) {
@@ -379,33 +399,33 @@ const applicationDropdownRef = useRef(null)
             name: editFormData.candidate,
             initials: selectedCandidate
               ? selectedCandidate.name
-                  .split(' ')
-                  .map(n => n[0])
-                  .join('')
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
               : interview.candidate.initials,
             jobRole: selectedCandidate
               ? selectedCandidate.jobRole
               : interview.candidate.jobRole,
-            date: formattedDate
+            date: formattedDate,
           },
           time: formattedTime,
           type: interviewType,
           round: editFormData.round,
-          status: editFormData.status
-        }
+          status: editFormData.status,
+        };
       }
-      return interview
-    })
+      return interview;
+    });
 
-    setScheduledInterviews(updated)
-    setShowEditModal(false)
-    setSelectedInterview(null)
-  }
+    setScheduledInterviews(updated);
+    setShowEditModal(false);
+    setSelectedInterview(null);
+  };
 
   const handleCloseEditModal = () => {
-    setShowEditModal(false)
-    setSelectedInterview(null)
-  }
+    setShowEditModal(false);
+    setSelectedInterview(null);
+  };
 
   // =========================================================
   // 7) RENDER (UI unchanged)
@@ -417,8 +437,14 @@ const applicationDropdownRef = useRef(null)
         {/* Calendar Panel */}
         <div className="bg-white rounded-lg border border-gray-200 p-5">
           <div className="mb-4">
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Calendar</h3>
-            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select interview date</p>
+            <h3
+              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+            >
+              Calendar
+            </h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+              Select interview date
+            </p>
           </div>
           <Calendar
             selectedDate={selectedDate}
@@ -429,14 +455,23 @@ const applicationDropdownRef = useRef(null)
         {/* Schedule New Interview Panel */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="mb-6">
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Schedule New Interview</h3>
-            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Configure interview details and assign panel</p>
+            <h3
+              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+            >
+              Schedule New Interview
+            </h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+              Configure interview details and assign panel
+            </p>
           </div>
 
           <div className="space-y-4">
             {/* Select Candidate(s) */}
             <div className="relative" ref={candidateDropdownRef}>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+              {/* 🟩 Candidate Dropdown */}
+              <label
+                className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+              >
                 Select Candidate(s)
               </label>
               <button
@@ -444,45 +479,56 @@ const applicationDropdownRef = useRef(null)
                 onClick={handleCandidateFieldClick}
                 className="w-full px-3 py-2 text-left flex items-center justify-between border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <span className={formData.candidates ? `${TAILWIND_COLORS.TEXT_PRIMARY}` : 'text-gray-400'}>
+                <span
+                  className={
+                    formData.candidates
+                      ? `${TAILWIND_COLORS.TEXT_PRIMARY}`
+                      : "text-gray-400"
+                  }
+                >
                   {formData.candidates ||
-                    (loadingCandidates ? 'Loading candidates...' : 'Choose candidates')}
+                    (loadingCandidates
+                      ? "Loading candidates..."
+                      : "Choose candidates")}
                 </span>
                 <LuChevronDown
                   className={`w-4 h-4 text-gray-400 transition-transform ${
-                    showCandidateDropdown ? 'rotate-180' : ''
+                    showCandidateDropdown ? "rotate-180" : ""
                   }`}
                 />
               </button>
 
-              {/* Candidate Dropdown */}
+              {/* Candidate List */}
+              {/* Candidate List */}
               {showCandidateDropdown && (
                 <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   {candidates.length > 0 ? (
                     candidates.map((candidate) => (
                       <button
-                        key={candidate.id}
+                        key={candidate.application_id}
                         type="button"
                         onClick={() => handleCandidateSelect(candidate)}
                         className={`w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors ${
-                          formData.candidates === candidate.name
-                            ? 'bg-primary-10 text-primary'
+                          formData.candidates === candidate.candidate_name
+                            ? "bg-primary-10 text-primary"
                             : `${TAILWIND_COLORS.TEXT_PRIMARY}`
                         }`}
                       >
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                             <span className="text-xs font-medium text-gray-600">
-                              {candidate.name
-                                .split(' ')
+                              {candidate.candidate_name
+                                .split(" ")
                                 .map((n) => n[0])
-                                .join('')}
+                                .join("")}
                             </span>
                           </div>
                           <div className="flex-1">
-                            <div className="font-medium">{candidate.name}</div>
+                            <div className="font-medium">
+                              {candidate.candidate_name}
+                            </div>
                             <div className="text-sm text-gray-500">
-                              {candidate.jobRole}
+                              {candidate.job_title}
                             </div>
                           </div>
                         </div>
@@ -495,52 +541,63 @@ const applicationDropdownRef = useRef(null)
                   )}
                 </div>
               )}
-              {/* 🔽 Select Application Dropdown (visible after student selection) */}
-{formData.candidate_id && (
-  <div className="relative mt-4" ref={applicationDropdownRef}>
-    <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-      Select Application
-    </label>
-    <button
-      type="button"
-      onClick={handleApplicationFieldClick}
-      className="w-full px-3 py-2 text-left flex items-center justify-between border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-    >
-      <span className={formData.application_id ? `${TAILWIND_COLORS.TEXT_PRIMARY}` : 'text-gray-400'}>
-        {formData.applicationTitle || 'Choose application'}
-      </span>
-      <LuChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showApplicationDropdown ? 'rotate-180' : ''}`} />
-    </button>
 
-    {/* Application Dropdown */}
-    {showApplicationDropdown && (
-      <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-        {loadingApps ? (
-          <div className="p-3 text-sm text-gray-500 text-center">Loading...</div>
-        ) : applications.length > 0 ? (
-          applications.map((app) => (
-            <button
-              key={app.id}
-              type="button"
-              onClick={() => handleApplicationSelect(app)}
-              className={`w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors ${
-                formData.application_id === app.id ? 'bg-primary-10 text-primary' : `${TAILWIND_COLORS.TEXT_PRIMARY}`
-              }`}
-            >
-              <div className="flex flex-col">
-                <span className="font-medium">{app.job_title}</span>
-                <span className="text-xs text-gray-500">Status: {app.status}</span>
-              </div>
-            </button>
-          ))
-        ) : (
-          <div className="p-3 text-sm text-gray-500 text-center">No applications found</div>
-        )}
-      </div>
-    )}
-  </div>
-)}
+              {/* 🆕 Select Application Dropdown (Appears after Candidate selection) */}
+              {formData.candidate_id && (
+                <div className="relative mt-5" ref={applicationDropdownRef}>
+                  <label
+                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                  >
+                    Select Application
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowApplicationDropdown(!showApplicationDropdown)
+                    }
+                    className="w-full px-3 py-2 text-left flex items-center justify-between border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <span
+                      className={
+                        formData.application_id
+                          ? `${TAILWIND_COLORS.TEXT_PRIMARY}`
+                          : "text-gray-400"
+                      }
+                    >
+                      {formData.applicationTitle || "Choose application"}
+                    </span>
+                    <LuChevronDown
+                      className={`w-4 h-4 text-gray-400 transition-transform ${
+                        showApplicationDropdown ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
 
+                  {/* Dropdown List (static for now) */}
+                  {showApplicationDropdown && (
+                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                      <button
+                        type="button"
+                        className="w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors text-gray-800"
+                      >
+                        Application #A-101 — Electrician
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors text-gray-800"
+                      >
+                        Application #A-102 — Fitter
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors text-gray-800"
+                      >
+                        Application #A-103 — Welder
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Date & Time */}
@@ -555,7 +612,7 @@ const applicationDropdownRef = useRef(null)
                 <input
                   type="date"
                   value={formData.date}
-                  onChange={(e) => handleInputChange('date', e.target.value)}
+                  onChange={(e) => handleInputChange("date", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8 cursor-pointer"
                 />
               </div>
@@ -571,7 +628,7 @@ const applicationDropdownRef = useRef(null)
                   type="time"
                   value={formData.timeSlot}
                   onChange={(e) =>
-                    handleInputChange('timeSlot', e.target.value)
+                    handleInputChange("timeSlot", e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
                 />
@@ -593,9 +650,9 @@ const applicationDropdownRef = useRef(null)
                     id="online-mode"
                     name="interviewMode"
                     value="online"
-                    checked={formData.interviewMode === 'online'}
+                    checked={formData.interviewMode === "online"}
                     onChange={(e) =>
-                      handleInputChange('interviewMode', e.target.value)
+                      handleInputChange("interviewMode", e.target.value)
                     }
                     className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                   />
@@ -610,9 +667,7 @@ const applicationDropdownRef = useRef(null)
                       >
                         Online
                       </div>
-                      <div
-                        className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}
-                      >
+                      <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
                         Virtual call or video conference
                       </div>
                     </label>
@@ -626,9 +681,9 @@ const applicationDropdownRef = useRef(null)
                     id="offline-mode"
                     name="interviewMode"
                     value="offline"
-                    checked={formData.interviewMode === 'offline'}
+                    checked={formData.interviewMode === "offline"}
                     onChange={(e) =>
-                      handleInputChange('interviewMode', e.target.value)
+                      handleInputChange("interviewMode", e.target.value)
                     }
                     className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                   />
@@ -643,9 +698,7 @@ const applicationDropdownRef = useRef(null)
                       >
                         Offline
                       </div>
-                      <div
-                        className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}
-                      >
+                      <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
                         In-person meeting at office
                       </div>
                     </label>
@@ -655,7 +708,7 @@ const applicationDropdownRef = useRef(null)
             </div>
 
             {/* Location (show only for offline mode) */}
-            {formData.interviewMode === 'offline' && (
+            {formData.interviewMode === "offline" && (
               <div>
                 <label
                   className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
@@ -668,11 +721,13 @@ const applicationDropdownRef = useRef(null)
                     placeholder="Enter interview location"
                     value={formData.location}
                     onChange={(e) =>
-                      handleInputChange('location', e.target.value)
+                      handleInputChange("location", e.target.value)
                     }
                     className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                    <LuMapPin className={`absolute left-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
+                  <LuMapPin
+                    className={`absolute left-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`}
+                  />
                 </div>
               </div>
             )}
@@ -707,7 +762,9 @@ const applicationDropdownRef = useRef(null)
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative">
-            <LuSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
+            <LuSearch
+              className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`}
+            />
             <input
               type="text"
               placeholder="Search by candidate name, job role, time, status, round..."
@@ -729,7 +786,9 @@ const applicationDropdownRef = useRef(null)
                 {/* Candidate Info */}
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                    <span
+                      className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    >
                       {interview.candidate.initials}
                     </span>
                   </div>
@@ -740,9 +799,7 @@ const applicationDropdownRef = useRef(null)
                     >
                       {interview.candidate.name}
                     </h4>
-                    <p
-                      className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
-                    >
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                       {interview.candidate.jobRole}
                     </p>
                   </div>
@@ -796,9 +853,7 @@ const applicationDropdownRef = useRef(null)
 
                 {/* Panel Members - Mobile */}
                 <div>
-                  <span
-                    className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
-                  >
+                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                     Panel:
                   </span>
                   <div className="flex flex-wrap gap-1 mt-1">
@@ -819,7 +874,9 @@ const applicationDropdownRef = useRef(null)
                 {/* Candidate Information */}
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                    <span className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                    <span
+                      className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    >
                       {interview.candidate.initials}
                     </span>
                   </div>
@@ -830,9 +887,7 @@ const applicationDropdownRef = useRef(null)
                     >
                       {interview.candidate.name}
                     </h4>
-                    <p
-                      className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
-                    >
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                       {interview.candidate.jobRole}
                     </p>
                     <div className="flex items-center space-x-4 mt-1">
@@ -948,7 +1003,7 @@ const applicationDropdownRef = useRef(null)
                     type="date"
                     value={editFormData.date}
                     onChange={(e) =>
-                      handleEditInputChange('date', e.target.value)
+                      handleEditInputChange("date", e.target.value)
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -964,7 +1019,7 @@ const applicationDropdownRef = useRef(null)
                     type="time"
                     value={editFormData.timeSlot}
                     onChange={(e) =>
-                      handleEditInputChange('timeSlot', e.target.value)
+                      handleEditInputChange("timeSlot", e.target.value)
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -985,9 +1040,9 @@ const applicationDropdownRef = useRef(null)
                       id="edit-online-mode"
                       name="editInterviewMode"
                       value="online"
-                      checked={editFormData.interviewMode === 'online'}
+                      checked={editFormData.interviewMode === "online"}
                       onChange={(e) =>
-                        handleEditInputChange('interviewMode', e.target.value)
+                        handleEditInputChange("interviewMode", e.target.value)
                       }
                       className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                     />
@@ -1017,9 +1072,9 @@ const applicationDropdownRef = useRef(null)
                       id="edit-offline-mode"
                       name="editInterviewMode"
                       value="offline"
-                      checked={editFormData.interviewMode === 'offline'}
+                      checked={editFormData.interviewMode === "offline"}
                       onChange={(e) =>
-                        handleEditInputChange('interviewMode', e.target.value)
+                        handleEditInputChange("interviewMode", e.target.value)
                       }
                       className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                     />
@@ -1046,7 +1101,7 @@ const applicationDropdownRef = useRef(null)
               </div>
 
               {/* Location (if offline) */}
-              {editFormData.interviewMode === 'offline' && (
+              {editFormData.interviewMode === "offline" && (
                 <div>
                   <label
                     className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
@@ -1059,11 +1114,13 @@ const applicationDropdownRef = useRef(null)
                       placeholder="Enter interview location"
                       value={editFormData.location}
                       onChange={(e) =>
-                        handleEditInputChange('location', e.target.value)
+                        handleEditInputChange("location", e.target.value)
                       }
                       className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
-                    <LuMapPin className={`absolute left-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
+                    <LuMapPin
+                      className={`absolute left-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    />
                   </div>
                 </div>
               )}
@@ -1079,7 +1136,7 @@ const applicationDropdownRef = useRef(null)
                   type="text"
                   value={editFormData.round}
                   onChange={(e) =>
-                    handleEditInputChange('round', e.target.value)
+                    handleEditInputChange("round", e.target.value)
                   }
                   placeholder="Round 1"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -1096,7 +1153,7 @@ const applicationDropdownRef = useRef(null)
                 <select
                   value={editFormData.status}
                   onChange={(e) =>
-                    handleEditInputChange('status', e.target.value)
+                    handleEditInputChange("status", e.target.value)
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
@@ -1130,7 +1187,7 @@ const applicationDropdownRef = useRef(null)
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ScheduleInterviews
+export default ScheduleInterviews;

@@ -5,6 +5,8 @@ import { PillNavigation } from "@shared/components/navigation";
 import CompanyInfo from "./CompanyInformation";
 import TeamManagement from "./TeamManagement";
 import Preferences from "./Preferences";
+import { getMethod, postMultipart, putMethod } from "../../../../service/api";
+import apiService from "../../services/serviceUrl";
 
 const CompanyProfile = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -31,6 +33,7 @@ const CompanyProfile = () => {
     }
   ];
 
+  // console.log(service)
   return (
     <div className="space-y-5">
       <MatrixCard

@@ -24,9 +24,12 @@ const service = {
 
     scheduleInterview: "/applications/schedule_interview.php",
 
+    //report 
+    recruiterAnalyticsReports: "/employer/recruiter_analytics_reports.php",
+
     //profile
       getRecruiterProfile: "/employer/profile.php",
-//   updateRecruiterProfile: "/employer/update_recruiter_profile.php",
+  updateRecruiterProfile: "/employer/update_recruiter_profile.php",
 
 };
 export default service;
