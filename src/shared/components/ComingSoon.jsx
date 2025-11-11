@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const ComingSoonPopup = () => {
+const ComingSoonPopup = ({ onClose, fallbackPath }) => {
   const [showModal, setShowModal] = useState(true);
   const navigate = useNavigate();
 
@@ -15,7 +15,18 @@ const ComingSoonPopup = () => {
   const handleClose = () => {
     setShowModal(false);
     // ✅ Go back to previous page after a short delay (smooth close)
-    setTimeout(() => navigate(-1), 200);
+    setTimeout(() => {
+      if (onClose) {
+        onClose();
+        return;
+      }
+
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else if (fallbackPath) {
+        navigate(fallbackPath, { replace: true });
+      }
+    }, 200);
   };
 
   return (

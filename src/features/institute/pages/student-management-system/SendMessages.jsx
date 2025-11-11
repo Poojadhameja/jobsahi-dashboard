@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import { LuSend, LuMessageSquare, LuMail, LuBell, LuUsers, LuFileText, LuCalendar, LuBuilding, LuDollarSign } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Button from '../../../../shared/components/Button'
+import ComingSoonPopup from '../../../../shared/components/ComingSoon'
 
-const SendMessages = () => {
+const SendMessages = ({ onComingSoonClose }) => {
   const [messageData, setMessageData] = useState({
     messageType: 'Individual Message',
     recipients: '',
@@ -224,10 +225,10 @@ const SendMessages = () => {
                     type="checkbox"
                     checked={messageData.deliveryOptions.sms}
                     onChange={() => handleDeliveryOptionChange('sms')}
-                    className="rounded border-gray-300 text-green-600 focus:ring-green-600"
+                    className={`rounded border-gray-300 ${TAILWIND_COLORS.TEXT_PRIMARY} focus:ring-[#5B9821]`}
                   />
                   <span className={`ml-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center`}>
-                    <LuMessageSquare className="w-4 h-4 mr-2 text-green-600" />
+                    <LuMessageSquare className={`w-4 h-4 mr-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`} />
                     Send SMS
                   </span>
                 </label>
@@ -237,10 +238,10 @@ const SendMessages = () => {
                     type="checkbox"
                     checked={messageData.deliveryOptions.email}
                     onChange={() => handleDeliveryOptionChange('email')}
-                    className="rounded border-gray-300 text-green-600 focus:ring-green-600"
+                    className={`rounded border-gray-300 ${TAILWIND_COLORS.TEXT_PRIMARY} focus:ring-[#5B9821]`}
                   />
                   <span className={`ml-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center`}>
-                    <LuMail className="w-4 h-4 mr-2 text-blue-600" />
+                    <LuMail className={`w-4 h-4 mr-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`} />
                     Send Email
                   </span>
                 </label>
@@ -250,10 +251,10 @@ const SendMessages = () => {
                     type="checkbox"
                     checked={messageData.deliveryOptions.pushNotification}
                     onChange={() => handleDeliveryOptionChange('pushNotification')}
-                    className="rounded border-gray-300 text-green-600 focus:ring-green-600"
+                    className={`rounded border-gray-300 ${TAILWIND_COLORS.TEXT_PRIMARY} focus:ring-[#5B9821]`}
                   />
                   <span className={`ml-3 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center`}>
-                    <LuBell className="w-4 h-4 mr-2 text-purple-600" />
+                    <LuBell className={`w-4 h-4 mr-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`} />
                     Push Notification
                   </span>
                 </label>
@@ -342,6 +343,7 @@ const SendMessages = () => {
           </div>
         </div>
       )}
+      <ComingSoonPopup onClose={onComingSoonClose} />
     </div>
   )
 }

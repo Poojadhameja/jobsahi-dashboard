@@ -220,10 +220,10 @@ const PanelManagement = () => {
                   <div className="mb-3">{renderStars(feedback.rating)}</div>
 
                   <div className="flex flex-wrap gap-2 mb-3">
-                    <span className="px-2 py-1 bg-gray-100 text-xs text-gray-600 rounded-full">
+                    <span className={`px-2 py-1 bg-gray-100 text-xs ${TAILWIND_COLORS.TEXT_MUTED} rounded-full`}>
                       {feedback.panelist}
                     </span>
-                    <span className="px-2 py-1 bg-gray-100 text-xs text-gray-600 rounded-full">
+                    <span className={`px-2 py-1 bg-gray-100 text-xs ${TAILWIND_COLORS.TEXT_MUTED} rounded-full`}>
                       {feedback.role}
                     </span>
                   </div>
@@ -265,10 +265,10 @@ const PanelManagement = () => {
           <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-4 border-b pb-2">
-              <h3 className="text-lg font-semibold text-gray-900">Update Feedback</h3>
+              <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Update Feedback</h3>
               <button
                 onClick={() => setShowUpdateModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary`}
               >
                 <LuX className="w-5 h-5" />
               </button>
@@ -278,7 +278,7 @@ const PanelManagement = () => {
             <div className="space-y-4">
               {/* Candidate */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Candidate
                 </label>
                 <input
@@ -293,7 +293,7 @@ const PanelManagement = () => {
 
               {/* Rating */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Rating
                 </label>
                 {renderStars(selectedFeedback.rating, true, (r) =>
@@ -303,7 +303,7 @@ const PanelManagement = () => {
 
               {/* Remarks */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Remarks
                 </label>
                 <textarea
@@ -318,7 +318,7 @@ const PanelManagement = () => {
 
               {/* Decision */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Decision
                 </label>
                 <input

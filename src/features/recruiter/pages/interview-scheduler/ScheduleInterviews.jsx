@@ -1,301 +1,435 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { LuCalendar, LuClock, LuVideo, LuUsers, LuLink, LuPlus, LuX, LuMapPin, LuChevronDown, LuCheck, LuSearch } from 'react-icons/lu'
-import Calendar from '../../../../shared/components/Calendar'
-import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import { Button } from '../../../../shared/components/Button'
-
+import React, { useState, useEffect, useRef } from "react";
+import {
+  LuCalendar,
+  LuClock,
+  LuVideo,
+  LuUsers,
+  LuLink,
+  LuPlus,
+  LuX,
+  LuMapPin,
+  LuChevronDown,
+  LuCheck,
+  LuSearch,
+} from "react-icons/lu";
+import Calendar from "../../../../shared/components/Calendar";
+import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
+import { Button } from "../../../../shared/components/Button";
+import { getMethod, postMethod } from "../../../../service/api";
+import apiService from "../../services/serviceUrl";
 
 const ScheduleInterviews = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date()) // Current date
-  const [showCandidateDropdown, setShowCandidateDropdown] = useState(false)
-  const candidateDropdownRef = useRef(null)
+  const [selectedDate, setSelectedDate] = useState(new Date()); // Current date
+  const [showCandidateDropdown, setShowCandidateDropdown] = useState(false);
+  const candidateDropdownRef = useRef(null);
+  // 🔹 Application dropdown states
+  const [applications, setApplications] = useState([]);
+  const [loadingApps, setLoadingApps] = useState(false);
+  const [showApplicationDropdown, setShowApplicationDropdown] = useState(false);
+  const applicationDropdownRef = useRef(null);
+
+  // 🔹 Form State
   const [formData, setFormData] = useState({
-    candidates: '',
-    date: new Date().toISOString().split('T')[0], // Format: YYYY-MM-DD for HTML date input
-    timeSlot: '',
-    interviewMode: '',
-    location: ''
-  })
+    candidate_id: "", // ✅ will store student_id
+    application_id: "", // label: selected candidate name
+    // application_id: '',      // for API
+    date: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+    timeSlot: "",
+    interviewMode: "",
+    location: "",
+  });
 
-  // Sample candidates
-  const candidates = [
-    { id: 1, name: 'Rohit Singh', jobRole: 'Electrician', email: 'rohit@email.com' },
-    { id: 2, name: 'Priya Sharma', jobRole: 'Software Developer', email: 'priya@email.com' },
-    { id: 3, name: 'Amit Kumar', jobRole: 'Data Analyst', email: 'amit@email.com' },
-    { id: 4, name: 'Sneha Patel', jobRole: 'UI/UX Designer', email: 'sneha@email.com' },
-    { id: 5, name: 'Rajesh Verma', jobRole: 'Project Manager', email: 'rajesh@email.com' }
-  ]
+  // 🔹 Candidates from API
+  const [candidates, setCandidates] = useState([]);
+  const [loadingCandidates, setLoadingCandidates] = useState(false);
 
-  // Close candidate dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (candidateDropdownRef.current && !candidateDropdownRef.current.contains(event.target)) {
-        setShowCandidateDropdown(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
-  // Sample panel members
+  // 🔹 Panel Members (static for UI)
   const panelMembers = [
-    { id: 1, name: 'Anjali Roy', role: 'Senior Developer', selected: false },
-    { id: 2, name: 'Shakti Singh', role: 'Hr Manager', selected: false },
-    { id: 3, name: 'Dr. Rajesh Yadav', role: 'Senior Developer', selected: false },
-    { id: 4, name: 'Suresh Kumar', role: 'Junior Developer', selected: false }
-  ]
+    { id: 1, name: "Anjali Roy", role: "Senior Developer", selected: false },
+    { id: 2, name: "Shakti Singh", role: "Hr Manager", selected: false },
+    {
+      id: 3,
+      name: "Dr. Rajesh Yadav",
+      role: "Senior Developer",
+      selected: false,
+    },
+    { id: 4, name: "Suresh Kumar", role: "Junior Developer", selected: false },
+  ];
 
-  // Scheduled interviews state
+  // 🔹 Scheduled Interviews (starts with sample UI data)
   const [scheduledInterviews, setScheduledInterviews] = useState([
     {
       id: 1,
       candidate: {
-        name: 'Rohit Singh',
-        initials: 'RS',
-        jobRole: 'Electrician',
-        date: '25-03-25'
+        name: "Rohit Singh",
+        initials: "RS",
+        jobRole: "Electrician",
+        date: "25-03-25",
       },
-      time: '10.00 AM',
-      type: 'Virtual Call',
-      round: 'Round 1',
-      status: 'Scheduled',
-      panelMembers: ['Hr manager', 'Senior Developer']
+      time: "10.00 AM",
+      type: "Virtual Call",
+      round: "Round 1",
+      status: "Scheduled",
+      panelMembers: ["Hr manager", "Senior Developer"],
     },
     {
       id: 2,
       candidate: {
-        name: 'Rohit Singh',
-        initials: 'RS',
-        jobRole: 'Electrician',
-        date: '25-03-25'
+        name: "Rohit Singh",
+        initials: "RS",
+        jobRole: "Electrician",
+        date: "25-03-25",
       },
-      time: '12.00 PM',
-      type: 'Virtual Call',
-      round: 'Round 1',
-      status: 'Scheduled',
-      panelMembers: ['Hr manager', 'Senior Developer']
-    }
-  ])
+      time: "12.00 PM",
+      type: "Virtual Call",
+      round: "Round 1",
+      status: "Scheduled",
+      panelMembers: ["Hr manager", "Senior Developer"],
+    },
+  ]);
 
-  // Search state
-  const [searchQuery, setSearchQuery] = useState('')
-
-  // Edit modal state
-  const [showEditModal, setShowEditModal] = useState(false)
-  const [selectedInterview, setSelectedInterview] = useState(null)
+  // 🔹 Search + Edit State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedInterview, setSelectedInterview] = useState(null);
   const [editFormData, setEditFormData] = useState({
-    candidate: '',
-    date: '',
-    timeSlot: '',
-    interviewMode: '',
-    location: '',
-    round: '',
-    status: ''
-  })
+    candidate: "",
+    date: "",
+    timeSlot: "",
+    interviewMode: "",
+    location: "",
+    round: "",
+    status: "",
+  });
 
-  // Filter interviews based on search query
-  const filteredInterviews = scheduledInterviews.filter((interview) => {
-    const query = searchQuery.toLowerCase()
-    return (
-      interview.candidate.name.toLowerCase().includes(query) ||
-      interview.candidate.jobRole.toLowerCase().includes(query) ||
-      interview.time.toLowerCase().includes(query) ||
-      interview.type.toLowerCase().includes(query) ||
-      interview.round.toLowerCase().includes(query) ||
-      interview.status.toLowerCase().includes(query) ||
-      interview.panelMembers.some(member => member.toLowerCase().includes(query))
-    )
-  })
+  // =========================================================
+  // 1) FETCH CANDIDATES FROM get_recent_applicants.php
+  // =========================================================
+  useEffect(() => {
+    const fetchCandidates = async () => {
+      setLoadingCandidates(true);
+      try {
+        const res = await getMethod({ apiUrl: apiService.getRecentApplicants });
 
+        // 🔹 Handle valid data structure
+        if (res?.status && Array.isArray(res?.all_applicants?.data)) {
+          const formatted = res.all_applicants.data.map((item) => ({
+            candidate_name: item.name,
+            candidate_id: item.student_id || item.application_id, // fallback if student_id not present
+            application_id: item.application_id,
+            job_title: item.job_title || item.applied_for || "—",
+            status: item.status || "pending",
+          }));
+
+          setCandidates(formatted);
+        } else {
+          setCandidates([]);
+        }
+      } catch (error) {
+        console.error("❌ Error fetching candidates:", error);
+        setCandidates([]);
+      } finally {
+        setLoadingCandidates(false);
+      }
+    };
+
+    fetchCandidates();
+  }, []);
+
+  // =========================================================
+  // 2) DROPDOWN OUTSIDE CLICK
+  // =========================================================
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        candidateDropdownRef.current &&
+        !candidateDropdownRef.current.contains(event.target)
+      ) {
+        setShowCandidateDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // =========================================================
+  // 3) HELPERS
+  // =========================================================
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
-    }))
-  }
+      [field]: value,
+    }));
+  };
 
-  // Helper function to format time from 24-hour (HH:MM) to 12-hour (HH:MM AM/PM)
   const formatTimeTo12Hour = (time24) => {
-    if (!time24) return ''
-    const [hours, minutes] = time24.split(':')
-    const hour12 = hours % 12 || 12
-    const ampm = hours >= 12 ? 'PM' : 'AM'
-    return `${hour12}:${minutes} ${ampm}`
-  }
+    if (!time24) return "";
+    const [h, m] = time24.split(":");
+    const hours = parseInt(h, 10);
+    const hour12 = hours % 12 || 12;
+    const ampm = hours >= 12 ? "PM" : "AM";
+    return `${hour12}:${m} ${ampm}`;
+  };
 
   const handleDateSelect = (date) => {
-    setSelectedDate(date)
-    setFormData(prev => ({
+    setSelectedDate(date);
+    setFormData((prev) => ({
       ...prev,
-      date: date.toISOString().split('T')[0] // Convert to YYYY-MM-DD format
-    }))
-  }
-
-  const handleCandidateSelect = (candidate) => {
-    handleInputChange('candidates', candidate.name)
-    setShowCandidateDropdown(false)
-  }
+      date: date.toISOString().split("T")[0],
+    }));
+  };
 
   const handleCandidateFieldClick = () => {
-    setShowCandidateDropdown(!showCandidateDropdown)
-  }
+    setShowCandidateDropdown(!showCandidateDropdown);
+  };
 
-  const handleScheduleInterview = () => {
-    // Validate form data
-    if (!formData.candidates || !formData.date || !formData.timeSlot || !formData.interviewMode) {
-      alert('Please fill all required fields')
-      return
+  // const handleCandidateSelect = (candidate) => {
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     candidates: candidate.name,
+  //     application_id: candidate.application_id
+  //   }))
+  //   setShowCandidateDropdown(false)
+  // }
+const handleCandidateSelect = (candidate) => {
+  setFormData((prev) => ({
+    ...prev,
+    candidates: candidate.candidate_name,
+    candidate_id: candidate.candidate_id,
+    application_id: candidate.application_id,
+  }));
+  setShowCandidateDropdown(false);
+};
+
+
+  const buildScheduledAt = () =>
+    `${formData.date} ${formData.timeSlot || "00:00"}:00`;
+
+  // =========================================================
+  // 4) SCHEDULE INTERVIEW (calls schedule_interview.php)
+  // =========================================================
+  const handleScheduleInterview = async () => {
+    // Frontend validations
+    if (!formData.application_id) {
+      alert("Please select a candidate.");
+      return;
+    }
+    if (!formData.date || !formData.timeSlot) {
+      alert("Please select date and time.");
+      return;
+    }
+    if (!formData.interviewMode) {
+      alert("Please select interview mode.");
+      return;
+    }
+    if (formData.interviewMode === "offline" && !formData.location.trim()) {
+      alert("Please enter interview location for offline mode.");
+      return;
     }
 
-    // Find selected candidate details
-    const selectedCandidate = candidates.find(c => c.name === formData.candidates)
+    const selectedCandidate = candidates.find(
+      (c) => c.application_id === formData.application_id
+    );
+
     if (!selectedCandidate) {
-      alert('Please select a valid candidate')
-      return
+      alert("Selected candidate not found. Please choose again.");
+      return;
     }
 
-    // Format date to DD-MM-YY
-    const dateObj = new Date(formData.date)
-    const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getFullYear()).slice(-2)}`
+    const payload = {
+      application_id: Number(formData.application_id),
+      scheduled_at: buildScheduledAt(), // "YYYY-MM-DD HH:MM:00"
+      mode: formData.interviewMode, // "online" / "offline"
+      location:
+        formData.interviewMode === "offline"
+          ? formData.location
+          : "Online Meeting Link",
+      status: "scheduled",
+      feedback: "Initial technical round",
+    };
 
-    // Format time from 24-hour to 12-hour
-    const formattedTime = formatTimeTo12Hour(formData.timeSlot)
+    try {
+      const response = await postMethod({
+        apiUrl: apiService.scheduleInterview,
+        data: payload,
+      });
 
-    // Determine interview type
-    const interviewType = formData.interviewMode === 'online' ? 'Virtual Call' : 'In-Person'
+      if (response?.status) {
+        alert("✅ Interview scheduled successfully!");
 
-    // Create new interview object
-    const newInterview = {
-      id: scheduledInterviews.length + 1,
-      candidate: {
-        name: selectedCandidate.name,
-        initials: selectedCandidate.name.split(' ').map(n => n[0]).join(''),
-        jobRole: selectedCandidate.jobRole,
-        date: formattedDate
-      },
-      time: formattedTime,
-      type: interviewType,
-      round: 'Round 1',
-      status: 'Scheduled',
-      panelMembers: ['Hr manager', 'Senior Developer']
+        // Push into local scheduledInterviews list for UI
+        const dateObj = new Date(formData.date);
+        const formattedDate = `${String(dateObj.getDate()).padStart(
+          2,
+          "0"
+        )}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(
+          dateObj.getFullYear()
+        ).slice(-2)}`;
+        const formattedTime = formatTimeTo12Hour(formData.timeSlot);
+        const interviewType =
+          formData.interviewMode === "online" ? "Virtual Call" : "In-Person";
+
+        const newInterview = {
+          id: response.interview_id || scheduledInterviews.length + 1,
+          candidate: {
+            name: selectedCandidate.name,
+            initials: selectedCandidate.name
+              .split(" ")
+              .map((n) => n[0])
+              .join(""),
+            jobRole: selectedCandidate.jobRole,
+            date: formattedDate,
+          },
+          time: formattedTime,
+          type: interviewType,
+          round: "Round 1",
+          status: "Scheduled",
+          panelMembers: ["Hr manager", "Senior Developer"],
+        };
+
+        setScheduledInterviews((prev) => [newInterview, ...prev]);
+
+        // Reset form
+        setFormData({
+          candidates: "",
+          application_id: "",
+          date: new Date().toISOString().split("T")[0],
+          timeSlot: "",
+          interviewMode: "",
+          location: "",
+        });
+        setSelectedDate(new Date());
+      } else {
+        alert(`❌ ${response?.message || "Failed to schedule interview."}`);
+      }
+    } catch (error) {
+      console.error("❌ Error scheduling interview:", error);
+      alert("Server error while scheduling interview.");
     }
+  };
 
-    // Add new interview to the top of the list (most recent first)
-    setScheduledInterviews(prev => [newInterview, ...prev])
+  // =========================================================
+  // 5) FILTER SCHEDULED INTERVIEWS (search box)
+  // =========================================================
+  const filteredInterviews = scheduledInterviews.filter((interview) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      interview.candidate.name.toLowerCase().includes(q) ||
+      interview.candidate.jobRole.toLowerCase().includes(q) ||
+      interview.time.toLowerCase().includes(q) ||
+      interview.type.toLowerCase().includes(q) ||
+      interview.round.toLowerCase().includes(q) ||
+      interview.status.toLowerCase().includes(q) ||
+      interview.panelMembers.some((m) => m.toLowerCase().includes(q))
+    );
+  });
 
-    console.log('Interview scheduled successfully:', newInterview)
-
-    // Reset form after successful submission
-    setFormData({
-      candidates: '',
-      date: new Date().toISOString().split('T')[0],
-      timeSlot: '',
-      interviewMode: '',
-      location: ''
-    })
-
-    // Reset calendar
-    setSelectedDate(new Date())
-  }
-
-  // Open edit modal
+  // =========================================================
+  // 6) EDIT INTERVIEW (purely frontend, as in your UI)
+  // =========================================================
   const handleEditClick = (interview) => {
-    setSelectedInterview(interview)
-    
-    // Parse date from DD-MM-YY to YYYY-MM-DD
-    const [day, month, year] = interview.candidate.date.split('-')
-    const fullYear = '20' + year
-    const formattedDate = `${fullYear}-${month}-${day}`
-    
-    // Parse time from 12-hour to 24-hour
+    setSelectedInterview(interview);
+
+    const [day, month, year] = interview.candidate.date.split("-");
+    const fullYear = "20" + year;
+    const formattedDate = `${fullYear}-${month}-${day}`;
+
     const parseTimeTo24Hour = (time12) => {
-      if (!time12) return ''
-      const [time, period] = time12.split(' ')
-      const [hours, minutes] = time.split(':')
-      let hour24 = parseInt(hours)
-      if (period === 'PM' && hour24 !== 12) hour24 += 12
-      if (period === 'AM' && hour24 === 12) hour24 = 0
-      return `${String(hour24).padStart(2, '0')}:${minutes}`
-    }
-    
+      if (!time12) return "";
+      const [time, period] = time12.split(" ");
+      const [hh, mm] = time.split(":");
+      let h = parseInt(hh, 10);
+      if (period === "PM" && h !== 12) h += 12;
+      if (period === "AM" && h === 12) h = 0;
+      return `${String(h).padStart(2, "0")}:${mm}`;
+    };
+
     setEditFormData({
       candidate: interview.candidate.name,
       date: formattedDate,
       timeSlot: parseTimeTo24Hour(interview.time),
-      interviewMode: interview.type === 'Virtual Call' ? 'online' : 'offline',
-      location: '',
+      interviewMode: interview.type === "Virtual Call" ? "online" : "offline",
+      location: "",
       round: interview.round,
-      status: interview.status
-    })
-    
-    setShowEditModal(true)
-  }
+      status: interview.status,
+    });
 
-  // Handle edit form input change
+    setShowEditModal(true);
+  };
+
   const handleEditInputChange = (field, value) => {
-    setEditFormData(prev => ({
+    setEditFormData((prev) => ({
       ...prev,
-      [field]: value
-    }))
-  }
+      [field]: value,
+    }));
+  };
 
-  // Update interview
   const handleUpdateInterview = () => {
-    if (!selectedInterview) return
+    if (!selectedInterview) return;
 
-    // Validate form data
-    if (!editFormData.candidate || !editFormData.date || !editFormData.timeSlot) {
-      alert('Please fill all required fields')
-      return
+    if (
+      !editFormData.candidate ||
+      !editFormData.date ||
+      !editFormData.timeSlot
+    ) {
+      alert("Please fill all required fields");
+      return;
     }
 
-    // Format date to DD-MM-YY
-    const dateObj = new Date(editFormData.date)
-    const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getFullYear()).slice(-2)}`
+    const dateObj = new Date(editFormData.date);
+    const formattedDate = `${String(dateObj.getDate()).padStart(
+      2,
+      "0"
+    )}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(
+      dateObj.getFullYear()
+    ).slice(-2)}`;
+    const formattedTime = formatTimeTo12Hour(editFormData.timeSlot);
+    const interviewType =
+      editFormData.interviewMode === "online" ? "Virtual Call" : "In-Person";
 
-    // Format time from 24-hour to 12-hour
-    const formattedTime = formatTimeTo12Hour(editFormData.timeSlot)
+    const selectedCandidate = candidates.find(
+      (c) => c.name === editFormData.candidate
+    );
 
-    // Determine interview type
-    const interviewType = editFormData.interviewMode === 'online' ? 'Virtual Call' : 'In-Person'
-
-    // Find selected candidate details
-    const selectedCandidate = candidates.find(c => c.name === editFormData.candidate)
-
-    // Update interview
-    const updatedInterviews = scheduledInterviews.map(interview => {
+    const updated = scheduledInterviews.map((interview) => {
       if (interview.id === selectedInterview.id) {
         return {
           ...interview,
           candidate: {
             name: editFormData.candidate,
-            initials: selectedCandidate ? selectedCandidate.name.split(' ').map(n => n[0]).join('') : interview.candidate.initials,
-            jobRole: selectedCandidate ? selectedCandidate.jobRole : interview.candidate.jobRole,
-            date: formattedDate
+            initials: selectedCandidate
+              ? selectedCandidate.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+              : interview.candidate.initials,
+            jobRole: selectedCandidate
+              ? selectedCandidate.jobRole
+              : interview.candidate.jobRole,
+            date: formattedDate,
           },
           time: formattedTime,
           type: interviewType,
           round: editFormData.round,
-          status: editFormData.status
-        }
+          status: editFormData.status,
+        };
       }
-      return interview
-    })
+      return interview;
+    });
 
-    setScheduledInterviews(updatedInterviews)
-    setShowEditModal(false)
-    setSelectedInterview(null)
-  }
+    setScheduledInterviews(updated);
+    setShowEditModal(false);
+    setSelectedInterview(null);
+  };
 
-  // Close edit modal
   const handleCloseEditModal = () => {
-    setShowEditModal(false)
-    setSelectedInterview(null)
-  }
+    setShowEditModal(false);
+    setSelectedInterview(null);
+  };
 
+  // =========================================================
+  // 7) RENDER (UI unchanged)
+  // =========================================================
   return (
     <div className="mt-5">
       {/* Top Section - Calendar and Form */}
@@ -303,8 +437,14 @@ const ScheduleInterviews = () => {
         {/* Calendar Panel */}
         <div className="bg-white rounded-lg border border-gray-200 p-5">
           <div className="mb-4">
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Calendar</h3>
-            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select interview date</p>
+            <h3
+              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+            >
+              Calendar
+            </h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+              Select interview date
+            </p>
           </div>
           <Calendar
             selectedDate={selectedDate}
@@ -315,14 +455,23 @@ const ScheduleInterviews = () => {
         {/* Schedule New Interview Panel */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="mb-6">
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Schedule New Interview</h3>
-            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Configure interview details and assign panel</p>
+            <h3
+              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+            >
+              Schedule New Interview
+            </h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+              Configure interview details and assign panel
+            </p>
           </div>
 
           <div className="space-y-4">
             {/* Select Candidate(s) */}
             <div className="relative" ref={candidateDropdownRef}>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+              {/* 🟩 Candidate Dropdown */}
+              <label
+                className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+              >
                 Select Candidate(s)
               </label>
               <button
@@ -330,77 +479,167 @@ const ScheduleInterviews = () => {
                 onClick={handleCandidateFieldClick}
                 className="w-full px-3 py-2 text-left flex items-center justify-between border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <span className={formData.candidates ? `${TAILWIND_COLORS.TEXT_PRIMARY}` : 'text-gray-400'}>
-                  {formData.candidates || 'Choose candidates'}
+                <span
+                  className={
+                    formData.candidates
+                      ? `${TAILWIND_COLORS.TEXT_PRIMARY}`
+                      : "text-gray-400"
+                  }
+                >
+                  {formData.candidates ||
+                    (loadingCandidates
+                      ? "Loading candidates..."
+                      : "Choose candidates")}
                 </span>
-                <LuChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showCandidateDropdown ? 'rotate-180' : ''}`} />
+                <LuChevronDown
+                  className={`w-4 h-4 text-gray-400 transition-transform ${
+                    showCandidateDropdown ? "rotate-180" : ""
+                  }`}
+                />
               </button>
-              
-              {/* Candidate Dropdown */}
+
+              {/* Candidate List */}
+              {/* Candidate List */}
               {showCandidateDropdown && (
                 <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  {candidates.map((candidate) => (
-                    <button
-                      key={candidate.id}
-                      type="button"
-                      onClick={() => handleCandidateSelect(candidate)}
-                      className={`w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors ${
-                        formData.candidates === candidate.name ? 'bg-primary-10 text-primary' : `${TAILWIND_COLORS.TEXT_PRIMARY}`
-                      }`}
+                  {candidates.length > 0 ? (
+                    candidates.map((candidate) => (
+                      <button
+                        key={candidate.application_id}
+                        type="button"
+                        onClick={() => handleCandidateSelect(candidate)}
+                        className={`w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors ${
+                          formData.candidates === candidate.candidate_name
+                            ? "bg-primary-10 text-primary"
+                            : `${TAILWIND_COLORS.TEXT_PRIMARY}`
+                        }`}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                            <span className="text-xs font-medium text-gray-600">
+                              {candidate.candidate_name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")}
+                            </span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="font-medium">
+                              {candidate.candidate_name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {candidate.job_title}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-sm text-gray-500">
+                      No applicants found
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 🆕 Select Application Dropdown (Appears after Candidate selection) */}
+              {formData.candidate_id && (
+                <div className="relative mt-5" ref={applicationDropdownRef}>
+                  <label
+                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                  >
+                    Select Application
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowApplicationDropdown(!showApplicationDropdown)
+                    }
+                    className="w-full px-3 py-2 text-left flex items-center justify-between border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <span
+                      className={
+                        formData.application_id
+                          ? `${TAILWIND_COLORS.TEXT_PRIMARY}`
+                          : "text-gray-400"
+                      }
                     >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-xs font-medium text-gray-600">
-                            {candidate.name.split(' ').map(n => n[0]).join('')}
-                          </span>
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium">{candidate.name}</div>
-                          <div className="text-sm text-gray-500">{candidate.jobRole}</div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
+                      {formData.applicationTitle || "Choose application"}
+                    </span>
+                    <LuChevronDown
+                      className={`w-4 h-4 text-gray-400 transition-transform ${
+                        showApplicationDropdown ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {/* Dropdown List (static for now) */}
+                  {showApplicationDropdown && (
+                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                      <button
+                        type="button"
+                        className="w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors text-gray-800"
+                      >
+                        Application #A-101 — Electrician
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors text-gray-800"
+                      >
+                        Application #A-102 — Fitter
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors text-gray-800"
+                      >
+                        Application #A-103 — Welder
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-          <div className="flex flex-col md:flex-row md:justify-between">
+            {/* Date & Time */}
+            <div className="flex flex-col md:flex-row md:justify-between">
               {/* Date */}
-              <div className="relative">
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+              <div className="relative w-full md:mr-2">
+                <label
+                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                >
                   Date
                 </label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => handleInputChange('date', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8 cursor-pointer"
-                  />
-                  
-                </div>
+                <input
+                  type="date"
+                  value={formData.date}
+                  onChange={(e) => handleInputChange("date", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8 cursor-pointer"
+                />
               </div>
 
-            {/* Time slot */}
-            <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                Time slot
-              </label>
-              <div className="relative">
+              {/* Time slot */}
+              <div className="relative w-full md:ml-2 mt-4 md:mt-0">
+                <label
+                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                >
+                  Time slot
+                </label>
                 <input
                   type="time"
                   value={formData.timeSlot}
-                  onChange={(e) => handleInputChange('timeSlot', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("timeSlot", e.target.value)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
                 />
               </div>
             </div>
-          </div>
 
             {/* Interview Mode */}
             <div>
-              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>
+              <label
+                className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}
+              >
                 Interview Mode
               </label>
               <div className="space-y-3">
@@ -411,15 +650,26 @@ const ScheduleInterviews = () => {
                     id="online-mode"
                     name="interviewMode"
                     value="online"
-                    checked={formData.interviewMode === 'online'}
-                    onChange={(e) => handleInputChange('interviewMode', e.target.value)}
+                    checked={formData.interviewMode === "online"}
+                    onChange={(e) =>
+                      handleInputChange("interviewMode", e.target.value)
+                    }
                     className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                   />
                   <div className="flex items-center space-x-2">
                     <LuVideo className="w-5 h-5 text-primary" />
-                    <label htmlFor="online-mode" className="cursor-pointer flex-1">
-                      <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Online</div>
-                      <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Virtual call or video conference</div>
+                    <label
+                      htmlFor="online-mode"
+                      className="cursor-pointer flex-1"
+                    >
+                      <div
+                        className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                      >
+                        Online
+                      </div>
+                      <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                        Virtual call or video conference
+                      </div>
                     </label>
                   </div>
                 </div>
@@ -431,15 +681,26 @@ const ScheduleInterviews = () => {
                     id="offline-mode"
                     name="interviewMode"
                     value="offline"
-                    checked={formData.interviewMode === 'offline'}
-                    onChange={(e) => handleInputChange('interviewMode', e.target.value)}
+                    checked={formData.interviewMode === "offline"}
+                    onChange={(e) =>
+                      handleInputChange("interviewMode", e.target.value)
+                    }
                     className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                   />
                   <div className="flex items-center space-x-2">
                     <LuUsers className="w-5 h-5 text-green-600" />
-                    <label htmlFor="offline-mode" className="cursor-pointer flex-1">
-                      <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Offline</div>
-                      <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>In-person meeting at office</div>
+                    <label
+                      htmlFor="offline-mode"
+                      className="cursor-pointer flex-1"
+                    >
+                      <div
+                        className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                      >
+                        Offline
+                      </div>
+                      <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                        In-person meeting at office
+                      </div>
                     </label>
                   </div>
                 </div>
@@ -447,9 +708,11 @@ const ScheduleInterviews = () => {
             </div>
 
             {/* Location (show only for offline mode) */}
-            {formData.interviewMode === 'offline' && (
+            {formData.interviewMode === "offline" && (
               <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                <label
+                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                >
                   Location
                 </label>
                 <div className="relative">
@@ -457,10 +720,14 @@ const ScheduleInterviews = () => {
                     type="text"
                     placeholder="Enter interview location"
                     value={formData.location}
-                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("location", e.target.value)
+                    }
                     className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
-                  <LuMapPin className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                  <LuMapPin
+                    className={`absolute left-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`}
+                  />
                 </div>
               </div>
             )}
@@ -473,7 +740,7 @@ const ScheduleInterviews = () => {
               fullWidth
               icon={<LuCheck className="w-4 h-4" />}
             >
-               Confirm Schedule 
+              Confirm Schedule
             </Button>
           </div>
         </div>
@@ -482,14 +749,22 @@ const ScheduleInterviews = () => {
       {/* Scheduled Interviews Panel */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="mb-6">
-          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Scheduled Interviews</h3>
-          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Upcoming and completed interviews</p>
+          <h3
+            className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+          >
+            Scheduled Interviews
+          </h3>
+          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+            Upcoming and completed interviews
+          </p>
         </div>
 
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative">
-            <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <LuSearch
+              className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`}
+            />
             <input
               type="text"
               placeholder="Search by candidate name, job role, time, status, round..."
@@ -502,8 +777,8 @@ const ScheduleInterviews = () => {
 
         <div className="space-y-4">
           {filteredInterviews.map((interview) => (
-            <div 
-              key={interview.id} 
+            <div
+              key={interview.id}
               className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
             >
               {/* Mobile Layout */}
@@ -511,20 +786,26 @@ const ScheduleInterviews = () => {
                 {/* Candidate Info */}
                 <div className="flex items-center space-x-3 mb-3">
                   <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-semibold text-gray-600">
+                    <span
+                      className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    >
                       {interview.candidate.initials}
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h4 
+                    <h4
                       className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer hover:text-primary transition-colors`}
                       onClick={() => handleEditClick(interview)}
                     >
                       {interview.candidate.name}
                     </h4>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{interview.candidate.jobRole}</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      {interview.candidate.jobRole}
+                    </p>
                   </div>
-                  <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${TAILWIND_COLORS.BADGE_SUCCESS}`}>
+                  <div
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${TAILWIND_COLORS.BADGE_SUCCESS}`}
+                  >
                     {interview.status}
                   </div>
                 </div>
@@ -532,28 +813,39 @@ const ScheduleInterviews = () => {
                 {/* Interview Details - Mobile */}
                 <div className="space-y-2 mb-3">
                   <div className="flex items-center justify-between">
-                    <div className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                    <div
+                      className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    >
                       <LuCalendar className="w-4 h-4" />
                       <span>{interview.candidate.date}</span>
                     </div>
-                    <div className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                    <div
+                      className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    >
                       <LuClock className="w-4 h-4" />
                       <span>{interview.time}</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between">
-                    <a href="#" className={`flex items-center space-x-2 text-sm text-primary hover:text-primary-dark transition-colors`}>
+                    <a
+                      href="#"
+                      className={`flex items-center space-x-2 text-sm text-primary hover:text-primary-dark transition-colors`}
+                    >
                       <LuLink className="w-4 h-4" />
                       <span>Join Meeting</span>
                     </a>
-                    <div className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                    <div
+                      className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    >
                       <LuVideo className="w-4 h-4" />
                       <span>{interview.type}</span>
                     </div>
                   </div>
 
-                  <div className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                  <div
+                    className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
+                  >
                     <LuUsers className="w-4 h-4" />
                     <span>{interview.round}</span>
                   </div>
@@ -561,7 +853,9 @@ const ScheduleInterviews = () => {
 
                 {/* Panel Members - Mobile */}
                 <div>
-                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Panel:</span>
+                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                    Panel:
+                  </span>
                   <div className="flex flex-wrap gap-1 mt-1">
                     {interview.panelMembers.map((member, index) => (
                       <span
@@ -580,24 +874,33 @@ const ScheduleInterviews = () => {
                 {/* Candidate Information */}
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-semibold text-gray-600">
+                    <span
+                      className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    >
                       {interview.candidate.initials}
                     </span>
                   </div>
                   <div>
-                    <h4 
+                    <h4
                       className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer hover:text-primary transition-colors inline-block`}
                       onClick={() => handleEditClick(interview)}
                     >
                       {interview.candidate.name}
                     </h4>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{interview.candidate.jobRole}</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      {interview.candidate.jobRole}
+                    </p>
                     <div className="flex items-center space-x-4 mt-1">
-                      <div className={`flex items-center space-x-1 text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      <div
+                        className={`flex items-center space-x-1 text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}
+                      >
                         <LuCalendar className="w-3 h-3" />
                         <span>{interview.candidate.date}</span>
                       </div>
-                      <a href="#" className={`flex items-center space-x-1 text-xs text-primary hover:text-primary-dark transition-colors`}>
+                      <a
+                        href="#"
+                        className={`flex items-center space-x-1 text-xs text-primary hover:text-primary-dark transition-colors`}
+                      >
                         <LuLink className="w-3 h-3" />
                         <span>Join Meeting</span>
                       </a>
@@ -618,22 +921,30 @@ const ScheduleInterviews = () => {
                 {/* Interview Details - Desktop */}
                 <div className="flex items-center space-x-6">
                   <div className="text-center">
-                    <div className={`flex items-center space-x-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
+                    <div
+                      className={`flex items-center space-x-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}
+                    >
                       <LuClock className="w-4 h-4" />
                       <span>{interview.time}</span>
                     </div>
-                    <div className={`flex items-center space-x-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                    <div
+                      className={`flex items-center space-x-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    >
                       <LuVideo className="w-4 h-4" />
                       <span>{interview.type}</span>
                     </div>
                   </div>
 
                   <div className="text-center">
-                    <div className={`flex items-center space-x-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>
+                    <div
+                      className={`flex items-center space-x-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}
+                    >
                       <LuUsers className="w-4 h-4" />
                       <span>{interview.round}</span>
                     </div>
-                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${TAILWIND_COLORS.BADGE_SUCCESS}`}>
+                    <div
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${TAILWIND_COLORS.BADGE_SUCCESS}`}
+                    >
                       {interview.status}
                     </div>
                   </div>
@@ -650,7 +961,9 @@ const ScheduleInterviews = () => {
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-              <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              <h2
+                className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+              >
                 Edit Interview
               </h2>
               <button
@@ -665,7 +978,9 @@ const ScheduleInterviews = () => {
             <div className="p-6 space-y-4">
               {/* Candidate Selection */}
               <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                <label
+                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                >
                   Candidate
                 </label>
                 <input
@@ -679,25 +994,33 @@ const ScheduleInterviews = () => {
               {/* Date and Time */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                  <label
+                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                  >
                     Date
                   </label>
                   <input
                     type="date"
                     value={editFormData.date}
-                    onChange={(e) => handleEditInputChange('date', e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("date", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                  <label
+                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                  >
                     Time
                   </label>
                   <input
                     type="time"
                     value={editFormData.timeSlot}
-                    onChange={(e) => handleEditInputChange('timeSlot', e.target.value)}
+                    onChange={(e) =>
+                      handleEditInputChange("timeSlot", e.target.value)
+                    }
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -705,7 +1028,9 @@ const ScheduleInterviews = () => {
 
               {/* Interview Mode */}
               <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>
+                <label
+                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}
+                >
                   Interview Mode
                 </label>
                 <div className="space-y-3">
@@ -715,15 +1040,28 @@ const ScheduleInterviews = () => {
                       id="edit-online-mode"
                       name="editInterviewMode"
                       value="online"
-                      checked={editFormData.interviewMode === 'online'}
-                      onChange={(e) => handleEditInputChange('interviewMode', e.target.value)}
+                      checked={editFormData.interviewMode === "online"}
+                      onChange={(e) =>
+                        handleEditInputChange("interviewMode", e.target.value)
+                      }
                       className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                     />
                     <div className="flex items-center space-x-2">
                       <LuVideo className="w-5 h-5 text-primary" />
-                      <label htmlFor="edit-online-mode" className="cursor-pointer flex-1">
-                        <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Online</div>
-                        <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Virtual call or video conference</div>
+                      <label
+                        htmlFor="edit-online-mode"
+                        className="cursor-pointer flex-1"
+                      >
+                        <div
+                          className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                        >
+                          Online
+                        </div>
+                        <div
+                          className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}
+                        >
+                          Virtual call or video conference
+                        </div>
                       </label>
                     </div>
                   </div>
@@ -734,15 +1072,28 @@ const ScheduleInterviews = () => {
                       id="edit-offline-mode"
                       name="editInterviewMode"
                       value="offline"
-                      checked={editFormData.interviewMode === 'offline'}
-                      onChange={(e) => handleEditInputChange('interviewMode', e.target.value)}
+                      checked={editFormData.interviewMode === "offline"}
+                      onChange={(e) =>
+                        handleEditInputChange("interviewMode", e.target.value)
+                      }
                       className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                     />
                     <div className="flex items-center space-x-2">
                       <LuUsers className="w-5 h-5 text-green-600" />
-                      <label htmlFor="edit-offline-mode" className="cursor-pointer flex-1">
-                        <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Offline</div>
-                        <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>In-person meeting at office</div>
+                      <label
+                        htmlFor="edit-offline-mode"
+                        className="cursor-pointer flex-1"
+                      >
+                        <div
+                          className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                        >
+                          Offline
+                        </div>
+                        <div
+                          className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}
+                        >
+                          In-person meeting at office
+                        </div>
                       </label>
                     </div>
                   </div>
@@ -750,9 +1101,11 @@ const ScheduleInterviews = () => {
               </div>
 
               {/* Location (if offline) */}
-              {editFormData.interviewMode === 'offline' && (
+              {editFormData.interviewMode === "offline" && (
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                  <label
+                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                  >
                     Location
                   </label>
                   <div className="relative">
@@ -760,23 +1113,31 @@ const ScheduleInterviews = () => {
                       type="text"
                       placeholder="Enter interview location"
                       value={editFormData.location}
-                      onChange={(e) => handleEditInputChange('location', e.target.value)}
+                      onChange={(e) =>
+                        handleEditInputChange("location", e.target.value)
+                      }
                       className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
-                    <LuMapPin className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                    <LuMapPin
+                      className={`absolute left-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    />
                   </div>
                 </div>
               )}
 
               {/* Round */}
               <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                <label
+                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                >
                   Round
                 </label>
                 <input
                   type="text"
                   value={editFormData.round}
-                  onChange={(e) => handleEditInputChange('round', e.target.value)}
+                  onChange={(e) =>
+                    handleEditInputChange("round", e.target.value)
+                  }
                   placeholder="Round 1"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -784,12 +1145,16 @@ const ScheduleInterviews = () => {
 
               {/* Status */}
               <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+                <label
+                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                >
                   Status
                 </label>
                 <select
                   value={editFormData.status}
-                  onChange={(e) => handleEditInputChange('status', e.target.value)}
+                  onChange={(e) =>
+                    handleEditInputChange("status", e.target.value)
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="Scheduled">Scheduled</option>
@@ -821,9 +1186,8 @@ const ScheduleInterviews = () => {
           </div>
         </div>
       )}
-
     </div>
-  )
-}
+  );
+};
 
-export default ScheduleInterviews
+export default ScheduleInterviews;

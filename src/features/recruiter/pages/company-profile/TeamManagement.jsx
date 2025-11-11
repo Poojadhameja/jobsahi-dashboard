@@ -127,7 +127,7 @@ const TeamManagement = ({ onBack }) => {
         return "bg-[var(--color-secondary)] text-white border-[var(--color-secondary)]";
       case "Viewer":
       default:
-        return "bg-secondary-10 text-[var(--color-secondary)] border-[var(--color-secondary)]";
+        return `bg-secondary-10 border-[var(--color-secondary)] ${TAILWIND_COLORS.TEXT_ACCENT}`;
     }
   };
 
@@ -138,7 +138,7 @@ const TeamManagement = ({ onBack }) => {
         <div className="col-span-full mb-2">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-[var(--color-secondary)] font-medium hover:underline transition-all"
+            className={`flex items-center gap-2 font-medium hover:underline transition-all ${TAILWIND_COLORS.TEXT_ACCENT}`}
           >
             <LuArrowLeft size={18} />
             Go Back
@@ -149,7 +149,7 @@ const TeamManagement = ({ onBack }) => {
       {/* Left Section - Invite Teammate */}
       <div className={`${TAILWIND_COLORS.CARD} p-6 flex flex-col`}>
         <div className="flex items-center gap-3 mb-2">
-          <LuUpload className={`${TAILWIND_COLORS.SECONDARY}`} size={20} />
+          <LuUpload className={TAILWIND_COLORS.TEXT_ACCENT} size={20} />
           <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Invite Teammate
           </h3>
@@ -195,15 +195,19 @@ const TeamManagement = ({ onBack }) => {
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                 {React.createElement(getRoleIcon(inviteData.role), {
                   size: 16,
-                  style: { color: "var(--color-secondary)" },
+                  className: TAILWIND_COLORS.TEXT_ACCENT,
                 })}
               </div>
             </div>
           </div>
 
           {showSuccessMessage && (
-            <div className="mb-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-700 text-sm">
-              ✅ Team member added successfully!
+            <div
+              className={`mb-4 p-3 bg-green-100 border border-green-300 rounded-lg text-sm ${TAILWIND_COLORS.TEXT_SUCCESS}`}
+            >
+              <span>
+                ✅ Team member added successfully!
+              </span>
             </div>
           )}
 
@@ -223,7 +227,7 @@ const TeamManagement = ({ onBack }) => {
       {/* Right Section - Team Members */}
       <div className={`${TAILWIND_COLORS.CARD} p-6 flex flex-col`}>
         <div className="flex items-center gap-3 mb-2 flex-shrink-0">
-          <LuUsers className={`${TAILWIND_COLORS.SECONDARY}`} size={20} />
+          <LuUsers className={TAILWIND_COLORS.TEXT_ACCENT} size={20} />
           <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Team Members
           </h3>
@@ -275,7 +279,7 @@ const TeamManagement = ({ onBack }) => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleEditMember(member.id)}
-                        className={`p-2 hover:bg-gray-100 rounded-lg transition-colors ${TAILWIND_COLORS.SECONDARY}`}
+                        className={`p-2 hover:bg-gray-100 rounded-lg transition-colors ${TAILWIND_COLORS.TEXT_ACCENT}`}
                         title="Edit member"
                       >
                         <LuPencil size={16} />

@@ -17,6 +17,8 @@ import ViewJobModal from "./ViewJobModal";
 import { getMethod, deleteMethod } from "../../../../service/api";
 import service from "../../services/serviceUrl";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
+import { Button } from "../../../../shared/components/Button";
+import DynamicButton from "../../../../shared/components/DynamicButton";
 
 /* ============================
    HELPER FUNCTIONS
@@ -166,10 +168,10 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
 
   const handleEditCancel = () => setShowEditModal(false);
 
-  // const handleViewClick = (job) => {
-  //   setJobToView(job);
-  //   setShowViewModal(true);
-  // };
+  const handleViewClick = (job) => {
+    setJobToView(job);
+    setShowViewModal(true);
+  };
 
   const handleViewClose = () => setShowViewModal(false);
 
@@ -207,7 +209,7 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
      RENDER UI
   ============================ */
   if (loading)
-    return <div className="p-4 text-gray-600">Loading jobs…</div>;
+    return <div className={`p-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Loading jobs…</div>;
   if (error)
     return <div className="p-4 text-red-600">{error}</div>;
 
@@ -224,7 +226,7 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
           {/* Search */}
           <div className="relative flex-1 max-w-md">
             <LuSearch
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className={`absolute left-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`}
               size={20}
             />
             <input
@@ -251,7 +253,7 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                 <option value="Draft">Draft</option>
               </select>
               <LuChevronDown
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`}
                 size={16}
               />
             </div>
@@ -270,7 +272,7 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                 <option value="Bangalore">Bangalore</option>
               </select>
               <LuChevronDown
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`}
                 size={16}
               />
             </div>
@@ -288,7 +290,7 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                 <option value="month">This Month</option>
               </select>
               <LuCalendar
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`}
                 size={16}
               />
             </div>
@@ -320,7 +322,7 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                 <span className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-secondary)] text-white">
                   {job.status || "Open"}
                 </span>
-                <span className="text-sm text-gray-500">
+                <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   {job.company_name || "—"}
                 </span>
 
@@ -331,7 +333,7 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                         ? "bg-green-100 text-green-700"
                         : job.admin_action === "pending"
                         ? "bg-yellow-100 text-yellow-700"
-                        : "bg-gray-100 text-gray-700"
+                        : `bg-gray-100 ${TAILWIND_COLORS.TEXT_PRIMARY}`
                     }`}
                   >
                     {job.admin_action === "approved"
@@ -343,11 +345,11 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                 )}
               </div>
 
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 {job.title}
               </h3>
 
-              <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+              <div className={`flex items-center gap-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>
                 <div className="flex items-center gap-1">
                   <LuEye size={16} />
                   <span>{job.views || 0}</span>
@@ -359,13 +361,13 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
             </div>
 
             <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-              <span className="text-xs text-gray-500">Logo</span>
+              <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Logo</span>
             </div>
           </div>
 
-          <p className="text-gray-600 text-sm mb-4 line-clamp-3">{desc}</p>
+          <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm mb-4 line-clamp-3`}>{desc}</p>
 
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+          <div className={`flex items-center gap-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-4`}>
             <LuMapPin size={16} className="text-error" />
             <span>{job.location || "—"}</span>
           </div>
@@ -382,26 +384,29 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
             </div>
 
             <div className="flex gap-2">
-              {/* Uncomment when needed */}
-              {/* <button
+              <Button
                 onClick={() => handleViewClick(job)}
-                className="p-2 text-gray-400 hover:text-[var(--color-secondary)] hover:bg-secondary-10 rounded-lg transition-colors"
+                variant="unstyled"
+                className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors`}
+                aria-label="View Job"
               >
                 <LuFileText size={18} />
-              </button> */}
-              <button
+              </Button>
+              <Button
                 onClick={() => handleEditClick(job)}
-                className="p-2 text-gray-400 hover:text-[var(--color-secondary)] hover:bg-secondary-10 rounded-lg transition-colors"
+                variant="unstyled"
+                className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors`}
+                aria-label="Edit Job"
               >
                 <LuPencil size={18} />
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       );
     })
   ) : (
-    <p className="text-gray-500 text-center col-span-2">
+    <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-center col-span-2`}>
       No jobs found.
     </p>
   )}
@@ -411,37 +416,42 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
-          <div className="text-sm text-gray-600">
+          <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Showing {currentPage} of {totalPages} pages
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={handlePrevious}
               disabled={currentPage === 1}
-              className="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+              variant="unstyled"
+              className={`px-3 py-2 rounded-lg border border-gray-300 ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100 disabled:opacity-50`}
+              aria-label="Previous Page"
             >
               <LuChevronLeft size={16} />
-            </button>
+            </Button>
             {getPageNumbers().map((num) => (
-              <button
+              <Button
                 key={num}
                 onClick={() => handlePageChange(num)}
+                variant="unstyled"
                 className={`px-3 py-2 rounded-lg text-sm font-medium ${
                   num === currentPage
                     ? "bg-[var(--color-primary)] text-white"
-                    : "border border-gray-300 text-gray-600 hover:bg-gray-100"
+                    : `border border-gray-300 ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100`
                 }`}
               >
                 {num}
-              </button>
+              </Button>
             ))}
-            <button
+            <Button
               onClick={handleNext}
               disabled={currentPage === totalPages}
-              className="px-3 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+              variant="unstyled"
+              className={`px-3 py-2 rounded-lg border border-gray-300 ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100 disabled:opacity-50`}
+              aria-label="Next Page"
             >
               <LuChevronRight size={16} />
-            </button>
+            </Button>
           </div>
         </div>
       )}

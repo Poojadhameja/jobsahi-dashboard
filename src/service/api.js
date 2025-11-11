@@ -151,56 +151,81 @@ export const deleteMethod = async (data) => {
 };
 
 /**
- * 🟢 Custom function — Create Batch (for Institute / Admin)
- */
-export const createBatch = async (payload) => {
-  try {
-    const response = await postMethod({
-      apiUrl: '/batches/create_batch.php', // ✅ your PHP endpoint
-      payload
-    });
-    return response;
-  } catch (err) {
-    console.error('❌ createBatch() Error:', err);
-    return {
-      status: false,
-      message: err.message || 'Failed to create batch.'
-    };
-  }
-};
-
-/**
- * 🟢 POST (multipart/form-data) method — for file uploads like certificate templates
+ * 🟢 POST MULTIPART method (for file uploads like logo, resume, etc.)
  */
 export const postMultipart = async (data) => {
   try {
     const token = localStorage.getItem("authToken");
     const headers = {
-      Authorization: token ? `Bearer ${token}` : "",
       "Content-Type": "multipart/form-data",
     };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
 
-    console.log("🌐 POST (Multipart) Request:", {
+    console.log("🌐 POST Multipart Request:", {
       url: backendHost + data.apiUrl,
-      formDataKeys: data.formData ? Array.from(data.formData.keys()) : [],
+      data: data.data instanceof FormData ? "[FormData]" : data.data,
+      token: token ? `${token.substring(0, 15)}...` : "No token",
     });
 
     const respData = await axios({
       method: "post",
       url: backendHost + data.apiUrl,
-      data: data.formData, // must be FormData object
+      data: data.data, // ✅ This must be FormData
       headers,
     });
 
-    console.log("✅ POST (Multipart) Response:", respData.data);
-    return respChanges(respData.data);
+    const response = respChanges(respData.data);
+    response.httpStatus = respData.status;
+    console.log("✅ POST Multipart Response:", response);
+    return response;
   } catch (err) {
-    console.error("❌ POST (Multipart) Error:", err.response?.data || err);
+    console.error("❌ POST Multipart Error:", {
+      message: err.message,
+      response: err.response?.data,
+      url: backendHost + data.apiUrl,
+    });
+
     return {
       status: false,
       message:
-        err.response?.data?.message || "Something went wrong while uploading file.",
+        err.response?.data?.message ||
+        err.message ||
+        "Something went wrong during file upload.",
       data: [],
     };
   }
 };
+
+
+// export const postMultipart = async (data) => {
+//   try {
+//     const token = localStorage.getItem("authToken");
+//     const headers = {
+//       Authorization: token ? `Bearer ${token}` : "",
+//       "Content-Type": "multipart/form-data",
+//     };
+
+//     console.log("🌐 POST (Multipart) Request:", {
+//       url: backendHost + data.apiUrl,
+//       formDataKeys: data.formData ? Array.from(data.formData.keys()) : [],
+//     });
+
+//     const respData = await axios({
+//       method: "post",
+//       url: backendHost + data.apiUrl,
+//       data: data.formData, // must be FormData object
+//       headers,
+//     });
+
+//     console.log("✅ POST (Multipart) Response:", respData.data);
+//     return respChanges(respData.data);
+//   } catch (err) {
+//     console.error("❌ POST (Multipart) Error:", err.response?.data || err);
+//     return {
+//       status: false,
+//       message:
+//         err.response?.data?.message || "Something went wrong while uploading file.",
+//       data: [],
+//     };
+//   }
+// };

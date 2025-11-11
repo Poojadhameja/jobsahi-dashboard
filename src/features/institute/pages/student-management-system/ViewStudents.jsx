@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { LuUsers, LuCheck, LuClock, LuDownload, LuSearch, LuEye, LuPencil, LuMessageSquare, LuTrash2, LuX } from 'react-icons/lu'
 import { Horizontal4Cards } from '../../../../shared/components/metricCard'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import Button from '../../../../shared/components/Button'
+import Button, { IconButton } from '../../../../shared/components/Button'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
 
@@ -139,7 +139,7 @@ const fetchStudentDetails = async (studentId) => {
       case 'On Hold':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200'
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
+        return `bg-gray-100 ${TAILWIND_COLORS.TEXT_PRIMARY} border-gray-200`
     }
   }
 
@@ -298,7 +298,7 @@ const updateStudentDetails = async (updatedStudent) => {
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex flex-col md:flex-row gap-4 flex-1">
             <div className="relative flex-1 max-w-md">
-              <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <LuSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} w-4 h-4`} />
               <input
                 type="text"
                 placeholder="Search by name, email, or phone..."
@@ -397,16 +397,19 @@ const updateStudentDetails = async (updatedStudent) => {
                     <div className="flex items-center space-x-2">
                       <button 
                         onClick={() => handleEditStudent(student)}
-                        className="text-gray-400 hover:text-green-600 transition-colors p-2 border border-gray-300 rounded-md"
+                        variant="light"
+                        className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-green-600 border border-gray-300 rounded-md transition-colors`}
                       >
                         <LuPencil className="w-4 h-4" />
                       </button>
-                      <button 
+                      <IconButton
+                        label="Delete student"
                         onClick={() => handleDeleteStudent(student)}
-                        className="text-gray-400 hover:text-red-600 transition-colors p-2 border border-gray-300 rounded-md"
+                        variant="light"
+                        className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-red-600 border border-gray-300 rounded-md transition-colors`}
                       >
                         <LuTrash2 className="w-4 h-4" />
-                      </button>
+                      </IconButton>
                     </div>
                   </td>
                 </tr>
@@ -428,12 +431,14 @@ const updateStudentDetails = async (updatedStudent) => {
           <div className="bg-white rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student Resume - {selectedStudent.name}</h2>
-              <button
+              <IconButton
+                label="Close view student"
                 onClick={handleClosePopups}
-                className="text-gray-400 hover:text-gray-600"
+                variant="unstyled"
+                className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary`}
               >
                 <LuX className="w-6 h-6" />
-              </button>
+              </IconButton>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -503,12 +508,14 @@ const updateStudentDetails = async (updatedStudent) => {
           <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Student - {selectedStudent.name}</h2>
-              <button
+              <IconButton
+                label="Close edit student"
                 onClick={handleClosePopups}
-                className="text-gray-400 hover:text-gray-600"
+                variant="unstyled"
+                className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary`}
               >
                 <LuX className="w-6 h-6" />
-              </button>
+              </IconButton>
             </div>
             
             <form onSubmit={(e) => {

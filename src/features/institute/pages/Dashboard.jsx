@@ -16,34 +16,10 @@ import {
   LuTrendingUp
 } from 'react-icons/lu'
 import { Horizontal4Cards } from '../../../shared/components/metricCard'
-import ProgressChart from '../../../shared/components/charts/ProgressChart'
 import { TAILWIND_COLORS } from '../../../shared/WebConstant'
-
-import React, { useEffect, useState } from 'react'
-import { getMethod } from '../../../service/api'
-import apiService from '../services/serviceUrl'
-// import ProgressChart from '../../../shared/components/charts/ProgressChart'
 
 
 export default function Dashboard() {
-
-  // api integration for performance overview
-  const [performance, setPerformance] = useState({
-    course_completion_rate: 0,
-    student_satisfaction: 0,
-    placement_success: 0
-  })
-  
-  useEffect(() => {
-    getMethod({ apiUrl: apiService.dashboardStats })
-      .then((res) => {
-        if (res.status === 'success') {
-          setPerformance(res.data)
-        }
-      })
-      .catch((err) => console.error(err))
-  }, [])
-
 
   const navigate = useNavigate()
 
@@ -143,8 +119,67 @@ export default function Dashboard() {
     }
   ]
 
+  const courseStatistics = [
+    {
+      id: 1,
+      course: 'Electrician',
+      value: 82
+    },
+    {
+      id: 2,
+      course: 'Fitter',
+      value: 58
+    },
+    {
+      id: 3,
+      course: 'Welder',
+      value: 44
+    },
+    {
+      id: 4,
+      course: 'Mechanic Diesel',
+      value: 36
+    },
+    {
+      id: 5,
+      course: 'COPA',
+      value: 18
+    }
+  ]
+
+  const staffMembers = [
+    {
+      id: 1,
+      name: 'Amit Verma',
+      designation: 'Head Instructor',
+      department: 'Welding',
+      lastActive: '10 min ago'
+    },
+    {
+      id: 2,
+      name: 'Riya Singh',
+      designation: 'Placement Officer',
+      department: 'Career Services',
+      lastActive: '25 min ago'
+    },
+    {
+      id: 3,
+      name: 'Manish Kumar',
+      designation: 'Course Coordinator',
+      department: 'Automobile',
+      lastActive: 'Today, 9:15 AM'
+    },
+    {
+      id: 4,
+      name: 'Neha Patel',
+      designation: 'Student Counselor',
+      department: 'Student Support',
+      lastActive: '5 min ago'
+    }
+  ]
+
   return (
-    <div className="p-2 bg-[#F6FAFF] min-h-screen">
+    <div className={`p-2 bg-[#F6FAFF] min-h-screen ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Key Metrics Section - Using Horizontal4Cards */}
       <div className="mb-5">
         <Horizontal4Cards data={keyMetrics} />
@@ -168,7 +203,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 gap-4">
             <button 
               onClick={handleAddNewCourse}
-              className="bg-[#3B82F6] text-white p-4 rounded-lg hover:bg-[#276edf] transition-colors flex items-center justify-center"
+              className={`bg-[#3B82F6] ${TAILWIND_COLORS.TEXT_INVERSE} p-4 rounded-lg hover:bg-[#276edf] transition-colors flex items-center justify-center`}
             >
               <LuPlus className="w-5 h-5 mr-2" />
               <span className="text-sm font-medium">Add New Course</span>
@@ -176,7 +211,7 @@ export default function Dashboard() {
             
             <button 
               onClick={handleGenerateReports}
-              className="bg-[#A855F7] text-white p-4 rounded-lg hover:bg-[#9421ff] transition-colors flex items-center justify-center"
+              className={`bg-[#A855F7] ${TAILWIND_COLORS.TEXT_INVERSE} p-4 rounded-lg hover:bg-[#9421ff] transition-colors flex items-center justify-center`}
             >
               {/* <LuBarChart className="w-5 h-5 mr-2" /> */}
               <span className="text-sm font-medium">Generate Reports</span>
@@ -184,7 +219,7 @@ export default function Dashboard() {
             
             <button 
               onClick={handleViewStudents}
-              className="bg-[#22C55E] text-white p-4 rounded-lg hover:bg-[#2bae5b] transition-colors flex items-center justify-center"
+              className={`bg-[#22C55E] ${TAILWIND_COLORS.TEXT_INVERSE} p-4 rounded-lg hover:bg-[#2bae5b] transition-colors flex items-center justify-center`}
             >
               <LuUsers className="w-5 h-5 mr-2" />
               <span className="text-sm font-medium">View Students</span>
@@ -192,7 +227,7 @@ export default function Dashboard() {
             
             <button 
               onClick={handleSendNotification}
-              className="bg-[#F97316] text-white p-4 rounded-lg hover:bg-[#d56d23] transition-colors flex items-center justify-center"
+              className={`bg-[#F97316] ${TAILWIND_COLORS.TEXT_INVERSE} p-4 rounded-lg hover:bg-[#d56d23] transition-colors flex items-center justify-center`}
             >
               <LuBell className="w-5 h-5 mr-2" />
               <span className="text-sm font-medium">Send Notification</span>
@@ -222,36 +257,65 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Performance Overview */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center mb-5">
-          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Performance Overview</h2>
+      {/* Course Statistics & Staff Management */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        {/* Course Statistics */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Course Statistics</h2>
+
+          <div className="space-y-4">
+            {courseStatistics.map((stat) => (
+              <div
+                key={stat.id}
+                className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-lg font-semibold`}>{stat.course}</p>
+                  <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm font-semibold`}>{stat.value}%</span>
+                </div>
+                <div className="h-3 w-full rounded-full bg-[#E7F0FF]">
+                  <div
+                    className="h-3 rounded-full bg-[#2563EB]"
+                    style={{ width: `${stat.value}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Course Completion Rate */}
-          <ProgressChart 
-            percentage={performance.course_completion_rate}
-            label="Course Completion Rate"
-            color="#10B981"
-            size={120}
-          />
 
-          {/* Student Satisfaction */}
-          <ProgressChart 
-            percentage={performance.student_satisfaction}
-            label="Student Satisfaction"
-            color="#3B82F6"
-            size={120}
-          />
+        {/* Staff Management */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Staff Management</h2>
+            <button
+              type="button"
+              onClick={() => navigate('/institute/staff-management')}
+              className="text-sm font-semibold text-[#2563EB] hover:text-[#1E4ECB]"
+            >
+              View All
+            </button>
+          </div>
 
-          {/* Placement Success */}
-          <ProgressChart 
-            percentage={performance.placement_success}
-            label="Placement Success"
-            color="#8B5CF6"
-            size={120}
-          />
+          <div className="space-y-4">
+            {staffMembers.map((staff) => (
+              <div
+                key={staff.id}
+                className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm"
+              >
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-lg font-semibold`}>{staff.name}</p>
+                    <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>
+                      {staff.designation} · {staff.department}
+                    </p>
+                    <p className="text-xs text-[#94A3B8] mt-1">Last active: {staff.lastActive}</p>
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

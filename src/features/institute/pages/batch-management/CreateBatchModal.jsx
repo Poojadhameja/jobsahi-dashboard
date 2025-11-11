@@ -9,7 +9,7 @@ import {
 } from "react-icons/lu";
 import Button from "../../../../shared/components/Button";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
-import { createBatch, postMethod, getMethod } from "../../../../service/api";
+import {postMethod, getMethod } from "../../../../service/api";
 import apiService from "../../services/serviceUrl.js";
 import { SERVICE_URL } from "../../../../service/api";
 

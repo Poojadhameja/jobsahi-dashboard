@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LuArrowLeft, LuPlus, LuUpload, LuX } from 'react-icons/lu'
-import Button, { PrimaryButton, OutlineButton, IconButton } from '../../../../shared/components/Button.jsx'
+import Button, { OutlineButton, IconButton, AddCategoryButton } from '../../../../shared/components/Button.jsx'
 import DynamicButton from '../../../../shared/components/DynamicButton.jsx'
 import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
 import { useCourseContext } from '../../context/CourseContext'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import { getMethod, postMethod } from '../../../../service/api'
+import { getMethod, postMethod, postMultipart } from '../../../../service/api'
 import apiService from '../../services/serviceUrl.js'
 
 
@@ -17,7 +17,6 @@ export default function CreateCourse() {
       try {
         const res = await getMethod({ apiUrl: apiService.getCourseCategories })
         if (res?.status && Array.isArray(res.categories)) {
-          // ✅ Backend se aayi categories set kar dena
           setCategories(res.categories)
         } else {
           console.warn('⚠️ No categories found or invalid response:', res)
@@ -26,10 +25,8 @@ export default function CreateCourse() {
         console.error('❌ Error fetching categories:', error)
       }
     }
-  
     fetchCategories()
   }, [])
-  
   
   const navigate = useNavigate()
   const { addCourse } = useCourseContext()
@@ -50,9 +47,7 @@ export default function CreateCourse() {
   const [newModule, setNewModule] = useState({ title: '', description: '' })
   const [selectedMedia, setSelectedMedia] = useState([])
   const [validationErrors, setValidationErrors] = useState({})
-  
-  // ✅ Dynamic categories state
-  const [categories, setCategories] = useState([ ])
+  const [categories, setCategories] = useState([])
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
   const [newCategory, setNewCategory] = useState('')
 
@@ -61,14 +56,9 @@ export default function CreateCourse() {
   }
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
+    setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-
-  // ✅ Category management handlers
   const handleAddCategoryClick = () => {
     setShowAddCategoryModal(true)
     setNewCategory('')
@@ -77,16 +67,12 @@ export default function CreateCourse() {
   const handleAddCategory = () => {
     if (newCategory.trim()) {
       const categoryName = newCategory.trim()
-      // Check if category already exists
       if (categories.includes(categoryName)) {
         alert('This category already exists!')
         return
       }
-      // Add new category
       setCategories(prev => [...prev, categoryName])
-      // Auto-select the new category
       handleInputChange('category', categoryName)
-      // Close modal and reset
       setShowAddCategoryModal(false)
       setNewCategory('')
       alert(`✅ Category "${categoryName}" added successfully!`)
@@ -99,121 +85,115 @@ export default function CreateCourse() {
     setShowAddCategoryModal(false)
     setNewCategory('')
   }
-  
 
-  // ✅ Backend integration for Save button
-  // ✅ Backend integration for Save button
-// ✅ Save handler with API integration
-// ✅ Save handler with API integration (Updated with module + media support)
-const handleSave = async () => {
-  setValidationErrors({})
+  // ✅ Save handler (updated with postMultipart)
+  const handleSave = async () => {
+    setValidationErrors({})
+    const requiredFields = [
+      { field: 'courseTitle', label: 'Course Title' },
+      { field: 'duration', label: 'Duration' },
+      { field: 'category', label: 'Category' },
+      { field: 'description', label: 'Course Description' },
+      { field: 'batchLimits', label: 'Batch Limits' },
+      { field: 'instructorName', label: 'Instructor Name' },
+      { field: 'mode', label: 'Mode' },
+      { field: 'fee', label: 'fee' }
+    ]
 
-  const requiredFields = [
-    { field: 'courseTitle', label: 'Course Title' },
-    { field: 'duration', label: 'Duration' },
-    { field: 'category', label: 'Category' },
-    { field: 'description', label: 'Course Description' },
-    { field: 'batchLimits', label: 'Batch Limits' },
-    { field: 'instructorName', label: 'Instructor Name' },
-    { field: 'mode', label: 'Mode' },
-    { field: 'fee', label: 'fee' }
-  ]
-
-  const missingFields = requiredFields.filter(field => !formData[field.field] || formData[field.field].toString().trim() === '')
-  if (missingFields.length > 0) {
-    const missingFieldNames = missingFields.map(field => field.label).join(', ')
-    const errors = {}
-    missingFields.forEach(field => { errors[field.field] = `${field.label} is required` })
-    setValidationErrors(errors)
-    alert(`Please fill in all required fields: ${missingFieldNames}`)
-    return
-  }
-
-  // ✅ Combine module titles and descriptions
-  let module_title = ''
-  let module_description = ''
-
-  if (modules.length > 0) {
-    // Agar user ne + button se multiple modules add kiye hain
-    module_title = modules.map(m => m.title.trim()).join(' | ')
-    module_description = modules.map(m => m.description.trim()).join(' || ')
-  } else if (newModule.title.trim() && newModule.description.trim()) {
-    // Agar user ne sirf ek hi module likha par + button nahi dabaya
-    module_title = newModule.title.trim()
-    module_description = newModule.description.trim()
-  } else {
-    // Agar kuch bhi module fill nahi kiya
-    module_title = ''
-    module_description = ''
-  }
-
-  // ✅ Prepare media filenames
-  const mediaNames = selectedMedia.map(file => file.name).join(', ')
-
-  // ✅ Category ID map karna (from dropdown)
-  const categoryIdMap = {
-    'Technical': 1,
-    'Non-Technical': 2,
-    'Vocational': 3,
-    'Professional': 4
-  }
-
-  // ✅ Payload ready for backend
-  const payload = {
-    title: formData.courseTitle.trim(),
-    description: formData.description.trim(),
-    duration: formData.duration.trim(),
-    fee: parseFloat(formData.fee),
-    category_id: categoryIdMap[formData.category] || null,
-    tagged_skills: formData.taggedSkills.trim(),
-    batch_limit: parseInt(formData.batchLimits),
-    status: formData.courseStatus,
-    instructor_name: formData.instructorName.trim(),
-    mode: formData.mode,
-    certification_allowed: formData.certificationAllowed,
-    module_title: module_title,
-    module_description: module_description,
-    media: mediaNames
-  }
-
-  console.log('🔍 Final Payload:', payload)
-
-  try {
-    const res = await postMethod({ apiUrl: apiService.createCourse, payload })
-    if (res?.status) {
-      alert('✅ Course created successfully!')
-      navigate('/institute/course-management')
-
-      // Reset form
-      setFormData({
-        courseTitle: '',
-        duration: '',
-        category: '',
-        description: '',
-        taggedSkills: '',
-        batchLimits: '',
-        courseStatus: 'Active',
-        instructorName: '',
-        mode: '',
-        fee: '',
-        certificationAllowed: true
-      })
-      setModules([])
-      setNewModule({ title: '', description: '' })
-      setSelectedMedia([])
-
-    } else {
-      alert(`❌ ${res?.message || 'Failed to create course'}`)
+    const missingFields = requiredFields.filter(field => !formData[field.field] || formData[field.field].toString().trim() === '')
+    if (missingFields.length > 0) {
+      const errors = {}
+      missingFields.forEach(field => { errors[field.field] = `${field.label} is required` })
+      setValidationErrors(errors)
+      alert(`Please fill in all required fields`)
+      return
     }
-  } catch (err) {
-    console.error('Create Course Error:', err)
-    alert('Something went wrong while creating the course.')
+
+    let module_title = ''
+    let module_description = ''
+    if (modules.length > 0) {
+      module_title = modules.map(m => m.title.trim()).join(' | ')
+      module_description = modules.map(m => m.description.trim()).join(' || ')
+    } else if (newModule.title.trim() && newModule.description.trim()) {
+      module_title = newModule.title.trim()
+      module_description = newModule.description.trim()
+    }
+
+    
+
+    try {
+      let res
+
+      if (selectedMedia.length > 0) {
+        const formDataToSend = new FormData()
+        formDataToSend.append('title', formData.courseTitle.trim())
+        formDataToSend.append('description', formData.description.trim())
+        formDataToSend.append('duration', formData.duration.trim())
+        formDataToSend.append('fee', parseFloat(formData.fee))
+        formDataToSend.append('category_id', categoryIdMap[formData.category] || null)
+        formDataToSend.append('tagged_skills', formData.taggedSkills.trim())
+        formDataToSend.append('batch_limit', parseInt(formData.batchLimits))
+        formDataToSend.append('status', formData.courseStatus)
+        formDataToSend.append('instructor_name', formData.instructorName.trim())
+        formDataToSend.append('mode', formData.mode)
+        formDataToSend.append('certification_allowed', formData.certificationAllowed ? 1 : 0)
+        formDataToSend.append('module_title', module_title)
+        formDataToSend.append('module_description', module_description)
+
+        selectedMedia.forEach(file => {
+          formDataToSend.append('media_files[]', file.file)
+        })
+
+        res = await postMultipart({
+          apiUrl: apiService.createCourse,
+          data: formDataToSend
+        })
+      } else {
+        const payload = {
+          title: formData.courseTitle.trim(),
+          description: formData.description.trim(),
+          duration: formData.duration.trim(),
+          fee: parseFloat(formData.fee),
+          category_id: categoryIdMap[formData.category] || null,
+          tagged_skills: formData.taggedSkills.trim(),
+          batch_limit: parseInt(formData.batchLimits),
+          status: formData.courseStatus,
+          instructor_name: formData.instructorName.trim(),
+          mode: formData.mode,
+          certification_allowed: formData.certificationAllowed,
+          module_title,
+          module_description
+        }
+        res = await postMethod({ apiUrl: apiService.createCourse, payload })
+      }
+
+      if (res?.status || res?.success) {
+        alert('✅ Course created successfully!')
+        navigate('/institute/course-management')
+        setFormData({
+          courseTitle: '',
+          duration: '',
+          category: '',
+          description: '',
+          taggedSkills: '',
+          batchLimits: '',
+          courseStatus: 'Active',
+          instructorName: '',
+          mode: '',
+          fee: '',
+          certificationAllowed: true
+        })
+        setModules([])
+        setNewModule({ title: '', description: '' })
+        setSelectedMedia([])
+      } else {
+        alert(`❌ ${res?.message || 'Failed to create course'}`)
+      }
+    } catch (err) {
+      console.error('Create Course Error:', err)
+      alert('Something went wrong while creating the course.')
+    }
   }
-}
-
-
-
-
 
   const handleCancel = () => {
     navigate('/institute/course-management')
@@ -260,14 +240,16 @@ const handleSave = async () => {
   return (
     <div className="">
         {/* Header with Action Buttons */}
-        <div className={`flex items-center mb-6`}>
-          <button
+        <div className="flex items-center mb-6">
+          <Button
             onClick={handleBack}
-            className={`flex items-center gap-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors`}
+            variant="unstyled"
+            size="sm"
+            icon={<LuArrowLeft className="w-5 h-5" />}
+            className={`gap-2 !px-0 !py-0 bg-transparent ${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary transition-colors`}
           >
-            <LuArrowLeft className="w-5 h-5" />
             <span className="text-sm font-medium">Back to Course Management</span>
-          </button>
+          </Button>
         </div>
        
         {/* Basic Information Section */}
@@ -350,13 +332,14 @@ const handleSave = async () => {
                   <p className="text-red-500 text-sm mt-1">{validationErrors.category}</p>
                 )}
               </div>
-              <button 
+              <AddCategoryButton
                 type="button"
                 onClick={handleAddCategoryClick}
-                className="bg-[#5C9A24] hover:bg-[#3f6c17] text-white font-semibold px-4 py-2 rounded-md transition-colors"
+                className="flex items-center gap-2 font-semibold"
               >
-                + Add Category
-              </button>
+                <LuPlus className="w-4 h-4 text-white" />
+                Add Category
+              </AddCategoryButton>
             </div>
 
             {/* Course Description */}
@@ -680,7 +663,7 @@ const handleSave = async () => {
             />
             <label htmlFor="media-upload" className="cursor-pointer">
               <div className="w-12 h-12 bg-gray-100 rounded-md mx-auto mb-4 flex items-center justify-center">
-                <LuPlus className="w-6 h-6 text-gray-400" />
+                <LuPlus className={`w-6 h-6 ${TAILWIND_COLORS.TEXT_MUTED}`} />
               </div>
               <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Drag and Drop files here</p>
             </label>
@@ -700,13 +683,16 @@ const handleSave = async () => {
                         </div>
                         <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{media.name}</span>
                       </div>
-                      <button
+                      <IconButton
+                        label="Remove file"
+                        variant="unstyled"
+                        size="sm"
                         onClick={() => handleRemoveMedia(media.id)}
-                        className="text-red-500 hover:text-red-700 p-1"
+                        className="px-1 py-1 text-red-500 hover:text-red-700"
                         title="Remove file"
                       >
                         <LuX className="w-3 h-3" />
-                      </button>
+                      </IconButton>
                     </div>
                   ))}
                 </div>
@@ -726,13 +712,16 @@ const handleSave = async () => {
                           <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{media.name}</p>
                           <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{formatFileSize(media.size)}</p>
                         </div>
-                        <button
+                        <IconButton
+                          label="Remove file"
+                          variant="unstyled"
+                          size="sm"
                           onClick={() => handleRemoveMedia(media.id)}
-                          className="ml-2 text-red-500 hover:text-red-700"
+                          className="ml-2 px-1 py-1 text-red-500 hover:text-red-700"
                           title="Remove file"
                         >
                           <LuX className="w-4 h-4" />
-                        </button>
+                        </IconButton>
                       </div>
                       
                       {/* Media Preview */}
@@ -797,12 +786,15 @@ const handleSave = async () => {
                 <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                   Add New Category
                 </h3>
-                <button
+                <IconButton
+                  label="Close"
+                  variant="unstyled"
+                  size="sm"
                   onClick={handleCancelAddCategory}
-                  className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors`}
+                  className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary`}
                 >
                   <LuX className="w-5 h-5" />
-                </button>
+                </IconButton>
               </div>
 
               {/* Modal Content */}
@@ -826,20 +818,20 @@ const handleSave = async () => {
 
                 {/* Modal Actions */}
                 <div className="flex justify-end gap-3">
-                  <button
+                  <OutlineButton
                     type="button"
                     onClick={handleCancelAddCategory}
-                    className={`px-4 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors`}
                   >
                     Cancel
-                  </button>
-                  <button
+                  </OutlineButton>
+                  <Button
                     type="button"
                     onClick={handleAddCategory}
-                    className="px-4 py-2 bg-[#5C9A24] text-white rounded-lg hover:bg-[#3f6c17] transition-colors"
+                    variant="primary"
+                    className="font-semibold"
                   >
                     Add Category
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

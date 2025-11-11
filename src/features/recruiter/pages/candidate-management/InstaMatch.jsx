@@ -24,7 +24,7 @@ import { Button } from "../../../../shared/components/Button";
 // ✅ Added ComingSoonPopup like MessageNotification.jsx
 import ComingSoonPopup from "../../../../shared/components/ComingSoon";
 
-const InstaMatch = () => {
+const InstaMatch = ({ onComingSoonClose }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [matchFilter, setMatchFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -601,7 +601,7 @@ const InstaMatch = () => {
       )}
 
       {/* ✅ Coming Soon Popup (like MessageNotification.jsx) */}
-      <ComingSoonPopup />
+      <ComingSoonPopup onClose={onComingSoonClose} />
     </div>
   );
 };

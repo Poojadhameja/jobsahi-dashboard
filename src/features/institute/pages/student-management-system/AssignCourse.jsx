@@ -172,7 +172,7 @@ const AssignCourse = () => {
 
           {/* Student List */}
           {loading ? (
-            <p className="text-center text-gray-500">Loading students...</p>
+            <p className={`text-center ${TAILWIND_COLORS.TEXT_MUTED}`}>Loading students...</p>
           ) : (
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {students.map(student => (
@@ -181,7 +181,7 @@ const AssignCourse = () => {
                     type="checkbox"
                     checked={selectedStudents.includes(student.id)}
                     onChange={(e) => handleStudentSelect(student.id, e.target.checked)}
-                    className="rounded border-gray-300 text-[#5B9821] focus:ring-[#5B9821] mr-4"
+                    className={`rounded border-gray-300 ${TAILWIND_COLORS.TEXT_PRIMARY} focus:ring-[#5B9821] mr-4`}
                   />
                   <div className="flex-1">
                     <h3 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</h3>
@@ -199,7 +199,7 @@ const AssignCourse = () => {
 
           {selectedStudents.length > 0 && (
             <div className="mt-4 p-3 bg-[#5B9821] bg-opacity-10 rounded-lg">
-              <p className="text-sm text-[#5B9821] font-medium">
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}>
                 {selectedStudents.length} student(s) selected
               </p>
             </div>

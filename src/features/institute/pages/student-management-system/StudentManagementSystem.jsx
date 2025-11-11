@@ -11,6 +11,7 @@ import SendMessages from './SendMessages'
 
 export default function StudentManagementSystem() {
   const [activeTab, setActiveTab] = useState(0)
+  const [previousTab, setPreviousTab] = useState(null)
 
   // Navigation tabs configuration
   const navigationTabs = [
@@ -42,7 +43,13 @@ export default function StudentManagementSystem() {
   ]
 
   const handleTabChange = (index) => {
+    if (index === activeTab) return
+    setPreviousTab(activeTab)
     setActiveTab(index)
+  }
+
+  const handleReturnToPreviousTab = () => {
+    setActiveTab(previousTab ?? 0)
   }
 
   return (
@@ -72,7 +79,7 @@ export default function StudentManagementSystem() {
         {/* {activeTab === 1 && <AddStudents />} */}
         {activeTab === 1 && <AssignCourse />}
         {/* {activeTab === 3 && <TrackProgress />} */}
-        {activeTab === 2 && <SendMessages />}
+        {activeTab === 2 && <SendMessages onComingSoonClose={handleReturnToPreviousTab} />}
         {/* Add other tab components here as needed */}
       </div>
     </div>

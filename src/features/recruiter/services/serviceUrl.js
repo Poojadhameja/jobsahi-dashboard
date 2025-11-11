@@ -12,11 +12,24 @@ const service = {
     //job management
     createJob: '/jobs/create_job.php',
     getJobs: "/jobs/jobs.php",
-getJobCategory: "/jobs/get_job_category.php",
-getJobDetail: "/jobs/job-detail.php",          // for fetching single job by id
-  updateJob: "/jobs/update_job.php", 
+    getJobCategory: "/jobs/get_job_category.php",
+    getJobDetail: "/jobs/job-detail.php",          // for fetching single job by id
+    updateJob: "/jobs/update_job.php", 
 
+    //candidate management
 
+    getRecentApplicants: "/employer/get_recent_applicants.php",
+
+    //inetvriew schedule
+
+    scheduleInterview: "/applications/schedule_interview.php",
+
+    //report 
+    recruiterAnalyticsReports: "/employer/recruiter_analytics_reports.php",
+
+    //profile
+      getRecruiterProfile: "/employer/profile.php",
+  updateRecruiterProfile: "/employer/update_recruiter_profile.php",
 
 };
 export default service;
