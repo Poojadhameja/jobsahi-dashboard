@@ -20,10 +20,11 @@ const BrowseJobByCategory = ({ jobCategories = [], headerContent }) => {
               <p className="text-white text-lg mb-4 max-w-md">
                 {headerContent.description}
               </p>
-              <a href="#" className="inline-flex items-center text-[#A1E366] text-lg " >
-                {headerContent.cta}
-                <FaArrowRight className="ml-2 text-sm" />
-              </a>
+              {headerContent.cta && (
+                <div className="inline-flex items-center">
+                  {headerContent.cta}
+                </div>
+              )}
             </div>
           </div>
         )}

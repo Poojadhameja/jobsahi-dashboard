@@ -1,12 +1,8 @@
 import React from 'react'
-import { FaTimes, FaCheck, FaShieldAlt, FaRocket, FaUsers, FaBullhorn, FaBus } from 'react-icons/fa'
+import { FaCheck, FaShieldAlt, FaRocket, FaUsers, FaBullhorn, FaBus } from 'react-icons/fa'
 
-const JobDetails = ({ job, onClose }) => {
+const JobDetails = ({ job, onClose, onApplyJob }) => {
   if (!job) return null
-
-  const handleApplyJob = () => {
-    window.location.href = '/login'
-  }
 
   return (
     <div 
@@ -204,7 +200,10 @@ const JobDetails = ({ job, onClose }) => {
                 }}
                 onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--color-secondary-dark)'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'var(--color-secondary)'}
-                onClick={handleApplyJob}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onApplyJob?.(event, job)
+                }}
               >
                 Apply Job
               </button>

@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar'
 import NewsletterSubscription from '../../components/NewsletterSubscription'
 import Footer from '../../components/Footer'
 import textunderline from '../../assets/website_text_underline.png'
+import { COLOR_CLASSES } from '../../components/colorClasses'
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -40,35 +41,62 @@ const Contact = () => {
   }
 
   return (
-    <div className="bg-[#00395B] min-h-screen">
+    <div className={`${COLOR_CLASSES.bg.navy} min-h-screen`}>
       <Navbar />
 
       {/* Header Section */}
-      <section className=" py-16">
-        <div className="bg-[#EAF5FB] max-w-5xl mx-auto rounded-3xl p-12 text-center">
-          <div className="inline-block border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-2 rounded-full text-sm font-semibold mb-6">
-            #1 PORTAL JOB PLATFORM
+      <section className={`py-10 ${COLOR_CLASSES.bg.surfacePaleBlue} mx-4 rounded-[40px] sm:rounded-[50px] my-8 border-t-4 border-l-4 border-r-4 ${COLOR_CLASSES.border.deepBlue}`}>
+        <div className="max-w-[90%] mx-auto px-6">
+          <div className="text-center">
+            {/* Top Banner */}
+            <div className="mb-6">
+              <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-6 py-2 rounded-full text-xs sm:text-sm font-semibold tracking-wide`}>
+                #1 PORTAL JOB PLATFORM
+              </div>
+            </div>
+
+            {/* Main Heading */}
+            <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-10">
+              <h1 className={`text-3xl sm:text-5xl md:text-6xl lg:px-24 font-bold mb-6 ${COLOR_CLASSES.text.deepBlue} leading-tight`}>
+                Feel Free To <span className="relative inline-block">
+                  Contact Us
+                  <img src={textunderline} alt="underline" className="absolute -bottom-2 left-0 w-full h-3 sm:h-4 object-contain" />
+                </span>
+              </h1>
+            </div>
+
+            {/* Description */}
+            <p className="text-gray-700 text-base sm:text-lg max-w-2xl mx-auto">
+              We would love to hear from you! Share your questions, feedback, or collaboration ideas and our team will reach out shortly.
+            </p>
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#0B537D] mb-4">
-            Feel Free To <span className="relative">Contact Us
-              <img src={textunderline} alt="" className="absolute -bottom-2 left-0 w-full h-3" />
-            </span>
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Get the latest news, updates and tips.
-          </p>
         </div>
       </section>
 
       {/* Contact Info Section */}
       <section className="py-16 bg-white">
-        <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left placeholders */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-100 rounded-xl h-40"></div>
-            <div className="bg-gray-100 rounded-xl h-20"></div>
-            <div className="bg-gray-100 rounded-xl h-20"></div>
-            <div className="bg-gray-100 rounded-xl h-40"></div>
+          <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left visuals */}
+          <div className="relative">
+            <div className="sm:w-96 sm:h-96 w-60 h-60 bg-blue-100 rounded-3xl relative">
+              <div className="w-[80%]">
+                <div className="flex gap-3">
+                  <div className="flex-1 bg-white rounded-xl p-4 shadow-lg relative">
+                    <input 
+                      type="text" 
+                      placeholder="Contact Us..." 
+                      className="w-full text-gray-700 bg-transparent border-none outline-none text-lg"
+                      readOnly
+                    />
+                  </div>
+                  <button className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg relative`}>
+                      <FaPhone className="text-white text-lg" />
+                    <div className={`absolute inset-0 ${COLOR_CLASSES.bg.accentLime} rounded-xl opacity-30 blur-sm`}></div>
+                  </button>
+                </div>
+                <div className="absolute border-4 border-white -bottom-10 left-40 sm:-bottom-10 sm:left-72 w-32 h-24 sm:w-48 sm:h-40 bg-blue-100 rounded-2xl"></div>
+              </div>
+            </div>
           </div>
 
           {/* Right content */}
@@ -82,8 +110,8 @@ const Contact = () => {
 
             <div className="space-y-6">
               {/* Email */}
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-[#5C9A24] rounded-full flex items-center justify-center text-white">
+                <div className="flex items-center space-x-4">
+                <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center text-white`}>
                   <FaEnvelope />
                 </div>
                 <div>
@@ -94,7 +122,7 @@ const Contact = () => {
 
               {/* Call */}
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-[#5C9A24] rounded-full flex items-center justify-center text-white">
+                <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center text-white`}>
                   <FaPhone />
                 </div>
                 <div>
@@ -105,7 +133,7 @@ const Contact = () => {
 
               {/* Website */}
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-[#5C9A24] rounded-full flex items-center justify-center text-white">
+                <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center text-white`}>
                   <FaGlobe />
                 </div>
                 <div>
@@ -119,9 +147,9 @@ const Contact = () => {
       </section>
 
       {/* Contact Form Section */}
-      <section className="py-20 bg-[#EAF5FB]">
+      <section className={`py-20 ${COLOR_CLASSES.bg.surfacePaleBlue}`}>
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#5C9A24] mb-10">
+          <h2 className={`text-3xl md:text-4xl font-bold ${COLOR_CLASSES.text.accentGreen} mb-10`}>
             Do You Have Any Questions? Let Us Know!
           </h2>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -133,7 +161,7 @@ const Contact = () => {
               placeholder="Your Number here" className="w-full px-6 py-4 border rounded-xl" required />
             <textarea name="message" value={formData.message} onChange={handleInputChange}
               placeholder="Tell us about your messages" rows={5} className="w-full px-6 py-4 border rounded-xl" required />
-            <button type="submit" className="bg-[#5C9A24] text-white px-8 py-3 rounded-xl hover:bg-[#4a8220]">
+            <button type="submit" className={`${COLOR_CLASSES.bg.accentGreen} text-white px-8 py-3 rounded-xl ${COLOR_CLASSES.hoverBg.accentGreenDeepest}`}>
               Submit Message
             </button>
           </form>

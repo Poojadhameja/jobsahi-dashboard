@@ -1,31 +1,27 @@
-import React, { useEffect, useState } from "react";
-import {
-  LuUpload,
-  LuFileText,
-  LuDownload,
-  LuFileImage,
-  LuX,
-} from "react-icons/lu";
+import React, { useState, useEffect } from "react";
+import { LuUpload, LuFileText, LuFileImage, LuX } from "react-icons/lu";
 import RichTextEditor from "../../../../shared/components/RichTextEditor";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
-import { getMethod, postMultipart } from "../../../../service/api";
+import { postMultipart, getMethod } from "../../../../service/api";
 import apiService from "../../services/serviceUrl";
 
 function ManageTemplate() {
-  const [templates, setTemplates] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [certificateInfo, setCertificateInfo] = useState({
+    templateName: "",
     completionDate: "",
     description: "",
     instituteLogo: null,
     officialSeal: null,
+    authorizedSignature: null,
   });
 
   const [dragActiveLogo, setDragActiveLogo] = useState(false);
   const [dragActiveSeal, setDragActiveSeal] = useState(false);
+  const [dragActiveSignature, setDragActiveSignature] = useState(false);
 
   // ✅ your backend API base (adjust if hosted differently)
   const BASE_URL =
@@ -40,31 +36,29 @@ function ManageTemplate() {
     return `${BASE_URL}/${path}`;
   };
 
-  // ---------------- FETCH EXISTING ----------------
+  // ---------------- FETCH TEMPLATES ----------------
   useEffect(() => {
-    const loadTemplates = async () => {
+    const fetchTemplates = async () => {
       try {
-        setLoading(true);
+        setLoadingTemplates(true);
         const resp = await getMethod({
           apiUrl: apiService.certificateTemplatesList,
         });
-        if (resp?.status && resp.data?.length) {
-          // fix URLs for each template
-          const fixed = resp.data.map((tpl) => ({
-            ...tpl,
-            logo_url: getFullUrl(tpl.logo_url),
-            seal_url: getFullUrl(tpl.seal_url),
-            background_image_url: getFullUrl(tpl.background_image_url),
-          }));
-          setTemplates(fixed);
+
+        if (resp?.status && Array.isArray(resp.data)) {
+          setTemplates(resp.data);
+        } else {
+          setTemplates([]);
         }
-      } catch (err) {
-        console.error("Error loading templates:", err);
+      } catch (error) {
+        console.error("❌ Error fetching templates:", error);
+        setTemplates([]);
       } finally {
-        setLoading(false);
+        setLoadingTemplates(false);
       }
     };
-    loadTemplates();
+
+    fetchTemplates();
   }, []);
 
   // ---------------- INPUT HANDLERS ----------------
@@ -80,17 +74,24 @@ function ManageTemplate() {
   const handleDrag = (e, field) => {
     e.preventDefault();
     e.stopPropagation();
+    const setDragState = (value) => {
+      if (field === "instituteLogo") setDragActiveLogo(value);
+      if (field === "officialSeal") setDragActiveSeal(value);
+      if (field === "authorizedSignature") setDragActiveSignature(value);
+    };
     if (e.type === "dragenter" || e.type === "dragover") {
-      field === "instituteLogo" ? setDragActiveLogo(true) : setDragActiveSeal(true);
+      setDragState(true);
     } else if (e.type === "dragleave") {
-      field === "instituteLogo" ? setDragActiveLogo(false) : setDragActiveSeal(false);
+      setDragState(false);
     }
   };
 
   const handleDrop = (e, field) => {
     e.preventDefault();
     e.stopPropagation();
-    field === "instituteLogo" ? setDragActiveLogo(false) : setDragActiveSeal(false);
+    if (field === "instituteLogo") setDragActiveLogo(false);
+    if (field === "officialSeal") setDragActiveSeal(false);
+    if (field === "authorizedSignature") setDragActiveSignature(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       setCertificateInfo((prev) => ({
         ...prev,
@@ -103,10 +104,42 @@ function ManageTemplate() {
     setCertificateInfo((prev) => ({ ...prev, [field]: null }));
   };
 
+  // ---------------- TEMPLATE SELECTION HANDLER ----------------
+  const handleTemplateChange = (e) => {
+    const templateId = e.target.value;
+    setSelectedTemplateId(templateId);
+
+    if (templateId) {
+      const selectedTemplate = templates.find(
+        (t) => String(t.template_id || t.id) === String(templateId)
+      );
+      if (selectedTemplate) {
+        setCertificateInfo((prev) => ({
+          ...prev,
+          templateName: selectedTemplate.template_name || "",
+          description: selectedTemplate.footer_text || "",
+        }));
+      }
+    } else {
+      setCertificateInfo((prev) => ({
+        ...prev,
+        templateName: "",
+        description: "",
+      }));
+    }
+  };
+
   // ---------------- CREATE TEMPLATE ----------------
   const handleUpdateTemplate = async () => {
-    if (!certificateInfo.description || !certificateInfo.instituteLogo || !certificateInfo.officialSeal) {
-      alert("Please fill all fields and upload both logo and seal before saving.");
+    if (
+      !selectedTemplateId ||
+      !certificateInfo.templateName?.trim() ||
+      !certificateInfo.description ||
+      !certificateInfo.instituteLogo ||
+      !certificateInfo.officialSeal ||
+      !certificateInfo.authorizedSignature
+    ) {
+      alert("Please select a template and fill all fields, including uploading logo, seal, and signature before saving.");
       return;
     }
 
@@ -114,7 +147,7 @@ function ManageTemplate() {
       setCreating(true);
 
       const form = new FormData();
-      form.append("template_name", "Standard Certificate Template");
+      form.append("template_name", certificateInfo.templateName.trim());
       form.append("header_text", "Certificate of Completion");
 
       const footer = (certificateInfo.description || "")
@@ -130,6 +163,8 @@ function ManageTemplate() {
         form.append("logo_url", certificateInfo.instituteLogo);
       if (certificateInfo.officialSeal)
         form.append("seal_url", certificateInfo.officialSeal);
+      if (certificateInfo.authorizedSignature)
+        form.append("signature_url", certificateInfo.authorizedSignature);
 
       const resp = await postMultipart({
         apiUrl: apiService.createCertificateTemplate,
@@ -139,15 +174,24 @@ function ManageTemplate() {
       if (resp?.status) {
         const newTemplate = {
           id: resp.template_id,
-          template_name: "Standard Certificate Template",
+          template_name: certificateInfo.templateName.trim(),
           header_text: "Certificate of Completion",
           footer_text: footer || "Powered by JobSahi",
           logo_url: getFullUrl(resp.logo_url),
           seal_url: getFullUrl(resp.seal_url),
+          signature_url: getFullUrl(resp.signature_url),
           created_at: new Date().toISOString(),
         };
-        setTemplates([newTemplate, ...templates]);
-        setShowPreview(true);
+        console.log("Template created:", newTemplate);
+        setCertificateInfo((prev) => ({
+          ...prev,
+          instituteLogo: null,
+          officialSeal: null,
+          authorizedSignature: null,
+        }));
+        setDragActiveLogo(false);
+        setDragActiveSeal(false);
+        setDragActiveSignature(false);
       } else {
         alert(resp?.message || "Failed to create template");
       }
@@ -170,6 +214,35 @@ function ManageTemplate() {
 
         {/* inputs (same UI) */}
         <div className="space-y-6 mt-6">
+          {/* Template Name */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            <div className="lg:col-span-1">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                TEMPLATE NAME <span className="text-red-500">*</span>
+              </label>
+            </div>
+            <div className="lg:col-span-3">
+              <select
+                value={selectedTemplateId}
+                onChange={handleTemplateChange}
+                disabled={loadingTemplates}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+              >
+                <option value="">
+                  {loadingTemplates ? "Loading templates..." : "Select a template"}
+                </option>
+                {templates.map((template) => (
+                  <option
+                    key={template.template_id || template.id}
+                    value={template.template_id || template.id}
+                  >
+                    {template.template_name || "Unnamed Template"}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           {/* Date */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div className="lg:col-span-1">
@@ -206,7 +279,7 @@ function ManageTemplate() {
           </div>
 
           {/* Upload sections */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             {/* Logo */}
             <div>
               <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
@@ -292,6 +365,49 @@ function ManageTemplate() {
                 )}
               </div>
             </div>
+
+            {/* Authorized Signature */}
+            <div>
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                AUTHORIZED SIGNATURE <span className="text-red-500">*</span>
+              </label>
+              <div
+                className={`border-2 border-dashed rounded-lg p-6 text-center ${
+                  dragActiveSignature ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-green-400"
+                }`}
+                onDragEnter={(e) => handleDrag(e, "authorizedSignature")}
+                onDragLeave={(e) => handleDrag(e, "authorizedSignature")}
+                onDragOver={(e) => handleDrag(e, "authorizedSignature")}
+                onDrop={(e) => handleDrop(e, "authorizedSignature")}
+              >
+                {certificateInfo.authorizedSignature ? (
+                  <div>
+                    <LuFileImage className="w-10 h-10 text-green-600 mx-auto" />
+                    <p className="text-sm">{certificateInfo.authorizedSignature.name}</p>
+                    <button onClick={() => removeFile("authorizedSignature")} className="text-red-500">
+                      <LuX className="w-5 h-5 mx-auto" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <LuUpload className="h-8 w-8 text-gray-400 mx-auto" />
+                    <input
+                      type="file"
+                      id="signature-upload"
+                      accept="image/png,image/jpeg"
+                      onChange={(e) => handleFileUpload("authorizedSignature", e)}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="signature-upload"
+                      className="inline-block bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-sm cursor-pointer"
+                    >
+                      Choose file
+                    </label>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Save */}
@@ -308,74 +424,6 @@ function ManageTemplate() {
         </div>
       </div>
 
-      {/* ✅ Show only after upload */}
-      {showPreview && templates.length > 0 && (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
-            Existing Template
-          </h2>
-
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50 mt-6">
-            <div className="max-w-3xl mx-auto bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
-              <div className="flex justify-between items-start mb-8">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <LuFileText className="h-6 w-6 text-blue-600" />
-                </div>
-                {templates[0]?.logo_url ? (
-                  <img
-                    src={templates[0].logo_url}
-                    alt="logo"
-                    className="w-16 h-12 object-contain rounded"
-                  />
-                ) : (
-                  <div className="w-16 h-12 bg-gray-200 rounded" />
-                )}
-              </div>
-
-              <div className="text-center mb-8">
-                <h1
-                  className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}
-                  style={{ fontFamily: "serif" }}
-                >
-                  {templates[0]?.header_text}
-                </h1>
-                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} leading-relaxed text-sm`}>
-                  {templates[0]?.footer_text}
-                </p>
-              </div>
-
-              <div className="border-b-2 border-dotted border-gray-300 mb-6" />
-
-              <div className="flex justify-between items-end">
-                <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                  Date: {certificateInfo.completionDate || "—"}
-                </div>
-                <div className="text-center">
-                  <div className={`text-sm font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    {templates[0]?.template_name?.toUpperCase()}
-                  </div>
-                </div>
-                {templates[0]?.seal_url ? (
-                  <img
-                    src={templates[0].seal_url}
-                    alt="seal"
-                    className="w-16 h-12 object-contain rounded"
-                  />
-                ) : (
-                  <div className="w-16 h-12 bg-gray-200 rounded" />
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-center mt-6">
-            <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2">
-              <LuDownload className="h-4 w-4" />
-              <span>Direct Download</span>
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

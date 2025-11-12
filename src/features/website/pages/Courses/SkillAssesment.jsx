@@ -5,6 +5,7 @@ import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import FAQ from '../../components/FAQ'
 import textunderline from '../../assets/website_text_underline.png'
+import { COLOR_CLASSES } from '../../components/colorClasses'
 
 const SkillAssesment = () => {
   const location = useLocation()
@@ -14,6 +15,13 @@ const SkillAssesment = () => {
   const [timeRemaining, setTimeRemaining] = useState(900) // 15 minutes in seconds (15 * 60)
   const [showResultsModal, setShowResultsModal] = useState(false)
   const [testResults, setTestResults] = useState({ correct: 0, wrong: 0, unanswered: 0 })
+  const [hasStarted, setHasStarted] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'auto' })
+    }
+  }, [])
 
   // Assessment info cards data
   const assessmentInfo = [
@@ -22,28 +30,28 @@ const SkillAssesment = () => {
       highlight: 'MCQs',
       suffix: 'in 15 Mins',
       description: 'Quick quiz in Hindi with 14 questions to complete in 15 minutes.',
-      highlightColor: 'text-[#0B537D]'
+      highlightColor: COLOR_CLASSES.text.deepBlue
     },
     {
       value: '42%',
       highlight: 'Marks',
       suffix: '',
       description: 'Quick quiz in Hindi with 14 questions to complete in 15 minutes.',
-      highlightColor: 'text-[#0B537D]'
+      highlightColor: COLOR_CLASSES.text.deepBlue
     },
     {
       value: '1st',
       highlight: 'Attempt',
       suffix: '',
       description: 'Quick quiz in Hindi with 14 questions to complete in 15 minutes.',
-      highlightColor: 'text-[#0B537D]'
+      highlightColor: COLOR_CLASSES.text.deepBlue
     },
     {
       value: 'Results',
       highlight: 'Private',
       suffix: '',
       description: 'Quick quiz in Hindi with 14 questions to complete in 15 minutes.',
-      highlightColor: 'text-[#0B537D]'
+      highlightColor: COLOR_CLASSES.text.deepBlue
     }
   ]
 
@@ -51,23 +59,23 @@ const SkillAssesment = () => {
   const instructions = [
     {
       text: 'Make Sure Your Internet Connection Is Stable.',
-      bgColor: 'bg-[#E8F5E9]',
-      dotColor: 'bg-[#2E7D32]'
+      bgColor: COLOR_CLASSES.bg.surfaceSoftGreen,
+      dotColor: COLOR_CLASSES.bg.accentGreenDark
     },
     {
       text: 'Once You Click "Attempt Test," You Cannot Exit Or Pause.',
-      bgColor: 'bg-[#EAF5FB]',
-      dotColor: 'bg-[#1976D2]'
+      bgColor: COLOR_CLASSES.bg.surfacePaleBlue,
+      dotColor: COLOR_CLASSES.bg.mediumBlue
     },
     {
       text: 'Read All Questions Carefully Before Answering.',
-      bgColor: 'bg-[#E8F5E9]',
-      dotColor: 'bg-[#2E7D32]'
+      bgColor: COLOR_CLASSES.bg.surfaceSoftGreen,
+      dotColor: COLOR_CLASSES.bg.accentGreenDark
     },
     {
       text: 'Final Results Will Be Available After Submission.',
-      bgColor: 'bg-[#EAF5FB]',
-      dotColor: 'bg-[#1976D2]'
+      bgColor: COLOR_CLASSES.bg.surfacePaleBlue,
+      dotColor: COLOR_CLASSES.bg.mediumBlue
     }
   ]
 
@@ -242,6 +250,10 @@ const SkillAssesment = () => {
 
   // Timer countdown effect
   useEffect(() => {
+    if (!hasStarted) {
+      return
+    }
+
     if (timeRemaining <= 0 && !showResultsModal) {
       // Time's up - auto submit
       const autoSubmit = () => {
@@ -277,7 +289,16 @@ const SkillAssesment = () => {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [timeRemaining, showResultsModal, selectedAnswers, quizQuestions])
+  }, [hasStarted, timeRemaining, showResultsModal, selectedAnswers, quizQuestions])
+  const handleStartAssessment = () => {
+    setHasStarted(true)
+    setCurrentQuestionIndex(0)
+    setSelectedAnswers({})
+    setTimeRemaining(900)
+    setShowResultsModal(false)
+    setTestResults({ correct: 0, wrong: 0, unanswered: 0 })
+  }
+
 
   // Format time as MM:SS
   const formatTime = (seconds) => {
@@ -294,6 +315,10 @@ const SkillAssesment = () => {
   }
 
   const handleNext = () => {
+    if (!selectedAnswers[currentQuestionIndex]) {
+      return
+    }
+
     if (currentQuestionIndex < quizQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     }
@@ -307,6 +332,10 @@ const SkillAssesment = () => {
   }
 
   const handleSubmit = () => {
+    if (!selectedAnswers[currentQuestionIndex]) {
+      return
+    }
+
     // Calculate results
     let correct = 0
     let wrong = 0
@@ -329,6 +358,10 @@ const SkillAssesment = () => {
 
   const closeResultsModal = () => {
     setShowResultsModal(false)
+    setHasStarted(false)
+    setCurrentQuestionIndex(0)
+    setSelectedAnswers({})
+    setTimeRemaining(900)
   }
 
   const handleCancel = () => {
@@ -338,23 +371,23 @@ const SkillAssesment = () => {
   }
 
   return (
-    <div className='bg-[#00395B] min-h-screen'>
+    <div className={`${COLOR_CLASSES.bg.navy} min-h-screen`}>
       <Navbar />
 
       {/* Skills Assessment Header Section */}
-      <section className="py-10 bg-[#EAF5FB] mx-4 rounded-[50px] my-8 border-t-4 border-l-4 border-r-4 border-[#0B537D]">
-        <div className="max-w-[90%] mx-auto px-6">
-          <div className="text-center">
+      <section className={`py-10 ${COLOR_CLASSES.bg.surfacePaleBlue} mx-4 sm:mx-6 md:mx-8 rounded-[30px] md:rounded-[50px] my-8 border-t-4 border-l-4 border-r-4 ${COLOR_CLASSES.border.deepBlue}`}>
+        <div className="max-w-[95%] md:max-w-[90%] mx-auto px-4 sm:px-6">
+          <div className="text-center space-y-6">
             {/* Top Banner */}
             <div className="mb-5">
-              <div className="inline-block border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-2 rounded-full text-sm font-semibold">
+              <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-6 py-2 rounded-full text-sm font-semibold`}>
                 #1 PORTAL JOB PLATFORM
               </div>
             </div>
 
             {/* Main Heading */}
             <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-8">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl lg:px-20 font-bold mb-8 text-[#0B537D] leading-tight">
+              <h1 className={`text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl lg:px-20 font-bold mb-6 sm:mb-8 ${COLOR_CLASSES.text.deepBlue} leading-tight`}>
                 Skills <span className="relative">Assessment
                   <img src={textunderline} alt="" className="absolute -bottom-2 left-0 w-full h-6" />
                 </span>
@@ -362,7 +395,7 @@ const SkillAssesment = () => {
             </div>
 
             {/* Description */}
-            <p className="text-gray-700 text-base md:text-lg max-w-4xl mx-auto px-4">
+            <p className="text-gray-700 text-sm sm:text-base md:text-lg max-w-3xl md:max-w-4xl mx-auto px-2 sm:px-4 leading-relaxed">
               This quick 15-minute test will assess your knowledge with 14 multiple-choice questions. Pass with 42% or higher to receive a private result and unlock your next opportunity.
             </p>
           </div>
@@ -371,22 +404,22 @@ const SkillAssesment = () => {
 
       {/* Assessment Info Cards Section */}
       <section className="py-10 bg-white ">
-        <div className="max-w-6xl mx-auto px-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {assessmentInfo.map((info, index) => (
               <div 
                 key={index}
-                className="bg-[#EAF5FB] rounded-3xl p-8 md:p-12 text-center shadow-sm hover:shadow-lg transition-shadow"
+                className={`${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl md:rounded-3xl p-6 md:p-10 text-center shadow-sm hover:shadow-lg transition-shadow`}
               >
                 {/* Value and Highlight */}
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-2">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 mb-2">
                   {info.value} <span className={info.highlightColor}>{info.highlight}</span>
                   {info.suffix && <span className="text-gray-800 text-2xl md:text-3xl"> {info.suffix}</span>}
                 </h2>
 
                 {/* Description */}
-                <p className="text-gray-600 text-sm md:text-base mt-4">
+                <p className="text-gray-600 text-xs sm:text-sm md:text-base mt-4 leading-relaxed">
                   {info.description}
                 </p>
               </div>
@@ -394,9 +427,13 @@ const SkillAssesment = () => {
           </div>
 
           {/* Start Assessment Button */}
-          <div className="text-center mt-12">
-            <button className="bg-[#5C9A24] text-white px-12 py-4 rounded-full font-semibold text-lg hover:bg-[#4a7a1d] transition-colors shadow-lg hover:shadow-xl">
-              Start Assessment
+          <div className="text-center mt-10 sm:mt-12">
+            <button
+              onClick={handleStartAssessment}
+              disabled={hasStarted}
+              className={`${COLOR_CLASSES.bg.accentGreen} text-white w-full sm:w-auto px-10 sm:px-12 py-4 rounded-full font-semibold text-base sm:text-lg ${COLOR_CLASSES.hoverBg.accentGreenDark} transition-colors shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed`}
+            >
+              {hasStarted ? 'Assessment In Progress' : 'Start Assessment'}
             </button>
           </div>
         </div>
@@ -404,24 +441,24 @@ const SkillAssesment = () => {
 
       {/* Instructions Before You Start Section */}
       <section className="py-10 bg-white ">
-        <div className="max-w-4xl mx-auto px-6">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
           {/* Section Title */}
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 text-center mb-8 sm:mb-10">
             Instructions Before You Start
           </h2>
 
           {/* Instructions List */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {instructions.map((instruction, index) => (
               <div 
                 key={index}
-                className={`flex items-center gap-4 p-5 rounded-full ${instruction.bgColor} shadow-sm`}
+                className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-5 rounded-2xl sm:rounded-full ${instruction.bgColor} shadow-sm`}
               >
                 {/* Dot Indicator */}
-                <div className={`w-8 h-8 ${instruction.dotColor} rounded-full flex-shrink-0 border-4 border-gray-300`}></div>
+                <div className={`w-6 h-6 sm:w-8 sm:h-8 ${instruction.dotColor} rounded-full flex-shrink-0 border-4 border-gray-300`}></div>
                 
                 {/* Instruction Text */}
-                <p className="text-gray-800 text-base md:text-lg font-medium">
+                <p className="text-gray-800 text-sm sm:text-base md:text-lg font-medium leading-relaxed">
                   {instruction.text}
                 </p>
               </div>
@@ -431,30 +468,31 @@ const SkillAssesment = () => {
       </section>
 
       {/* Skills Test Section */}
-      <section className="py-10 bg-[#EAF5FB] ">
-        <div className="max-w-7xl mx-auto px-6">
+      {hasStarted && (
+        <section className={`py-10 ${COLOR_CLASSES.bg.surfacePaleBlue}`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6">
           {/* Section Title */}
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0B537D] text-center mb-8">
+          <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold ${COLOR_CLASSES.text.deepBlue} text-center mb-6 sm:mb-8`}>
             Skills Test
           </h2>
 
           {/* Quiz Card */}
-          <div className="bg-white rounded-3xl p-6 md:p-10 shadow-lg">
+          <div className="bg-white rounded-2xl md:rounded-3xl p-4 sm:p-6 md:p-10 shadow-lg">
             {/* Timer and Question Counter */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-6 mb-6">
               {/* Question Counter */}
-              <div className="text-gray-600 font-semibold text-lg">
+              <div className="text-gray-600 font-semibold text-base sm:text-lg">
                 Question {currentQuestionIndex + 1} of {quizQuestions.length}
               </div>
               
               {/* Timer */}
-              <div className={`border-2 px-4 py-2 rounded-lg transition-colors ${
+              <div className={`self-start sm:self-auto border-2 px-3 sm:px-4 py-2 rounded-lg transition-colors ${
                 timeRemaining <= 60 
                   ? 'bg-red-50 border-red-500' 
-                  : 'bg-[#E8F5E9] border-[#5C9A24]'
+                  : `${COLOR_CLASSES.bg.surfaceSoftGreen} ${COLOR_CLASSES.border.accentGreen}`
               }`}>
-                <span className={`font-bold text-lg ${
-                  timeRemaining <= 60 ? 'text-red-600' : 'text-[#2E7D32]'
+                <span className={`font-bold text-base sm:text-lg ${
+                  timeRemaining <= 60 ? 'text-red-600' : COLOR_CLASSES.text.accentGreenDark
                 }`}>
                   {formatTime(timeRemaining)}
                 </span>
@@ -462,33 +500,33 @@ const SkillAssesment = () => {
             </div>
 
             {/* Question */}
-            <h3 className="text-2xl md:text-3xl font-bold text-[#5C9A24] mb-8">
+            <h3 className={`text-xl sm:text-2xl md:text-3xl font-bold ${COLOR_CLASSES.text.accentGreen} mb-6 sm:mb-8`}>
               {currentQuestion.question}
             </h3>
 
             {/* Options */}
-            <div className="space-y-4 mb-8">
+            <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
               {currentQuestion.options.map((option) => (
                 <div 
                   key={option.id}
                   onClick={() => handleOptionSelect(option.id)}
-                  className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                  className={`flex items-start gap-3 sm:gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                     selectedOption === option.id 
-                      ? 'bg-[#E8F5E9] border-[#5C9A24]' 
-                      : 'bg-[#EAF5FB] border-gray-200 hover:border-gray-300'
+                      ? `${COLOR_CLASSES.bg.surfaceSoftGreen} ${COLOR_CLASSES.border.accentGreen}` 
+                      : `${COLOR_CLASSES.bg.surfacePaleBlue} border-gray-200 hover:border-gray-300`
                   }`}
                 >
                   {/* Option Letter */}
-                  <div className={`w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center font-bold text-lg ${
+                  <div className={`w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0 rounded-lg flex items-center justify-center font-bold text-base sm:text-lg ${
                     selectedOption === option.id 
-                      ? 'bg-[#5C9A24] text-white' 
+                      ? `${COLOR_CLASSES.bg.accentGreen} text-white` 
                       : 'bg-gray-200 text-gray-700'
                   }`}>
                     {option.id}
                   </div>
                   
                   {/* Option Text */}
-                  <p className="text-gray-800 text-base md:text-lg pt-2">
+                  <p className="text-gray-800 text-sm sm:text-base md:text-lg pt-2">
                     {option.text}
                   </p>
                 </div>
@@ -496,26 +534,26 @@ const SkillAssesment = () => {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
               {/* Previous Button */}
               <button 
                 onClick={handlePrevious}
                 disabled={currentQuestionIndex === 0}
-                className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-colors ${
+                className={`w-full md:w-auto flex items-center justify-center md:justify-start gap-2 px-6 py-3 rounded-full font-semibold transition-colors ${
                   currentQuestionIndex === 0
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-[#0B537D] text-white hover:bg-[#094670]'
+                    : `${COLOR_CLASSES.bg.deepBlue} text-white ${COLOR_CLASSES.hoverBg.hoverNavy}`
                 }`}
               >
                 <FaArrowLeft />
                 <span>Previous</span>
               </button>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full md:w-auto">
                 {/* Cancel Button */}
                 <button 
                   onClick={handleCancel}
-                  className="px-6 py-3 rounded-full bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition-colors"
+                  className="w-full sm:w-auto px-6 py-3 rounded-full bg-gray-300 text-gray-700 font-semibold hover:bg-gray-400 transition-colors"
                 >
                   Cancel
                 </button>
@@ -524,7 +562,8 @@ const SkillAssesment = () => {
                 {currentQuestionIndex === quizQuestions.length - 1 ? (
                   <button 
                     onClick={handleSubmit}
-                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#5C9A24] text-white font-semibold hover:bg-[#4a7a1d] transition-colors"
+                    disabled={!selectedOption}
+                    className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-full ${COLOR_CLASSES.bg.accentGreen} text-white font-semibold ${COLOR_CLASSES.hoverBg.accentGreenDark} transition-colors disabled:opacity-60 disabled:cursor-not-allowed`}
                   >
                     <span>Submit</span>
                     <FaArrowRight />
@@ -532,7 +571,8 @@ const SkillAssesment = () => {
                 ) : (
                   <button 
                     onClick={handleNext}
-                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#5C9A24] text-white font-semibold hover:bg-[#4a7a1d] transition-colors"
+                    disabled={!selectedOption}
+                    className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-full ${COLOR_CLASSES.bg.accentGreen} text-white font-semibold ${COLOR_CLASSES.hoverBg.accentGreenDark} transition-colors disabled:opacity-60 disabled:cursor-not-allowed`}
                   >
                     <span>Continue</span>
                     <FaArrowRight />
@@ -541,45 +581,46 @@ const SkillAssesment = () => {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* Results Modal */}
       {showResultsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-8 md:p-12 max-w-2xl w-full shadow-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 sm:p-6">
+          <div className="bg-white rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-12 max-w-xl md:max-w-2xl w-full shadow-2xl">
             {/* Modal Title */}
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-700 text-center mb-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-700 text-center mb-6 sm:mb-8">
               Test Results
             </h2>
 
             {/* Results Cards */}
-            <div className="space-y-4 mb-8">
+            <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
               {/* Total Questions */}
-              <div className="bg-[#EAF5FB] rounded-2xl p-6 flex justify-between items-center border-2 border-gray-200">
-                <span className="text-xl md:text-2xl font-bold text-[#0B537D]">Total Questions</span>
-                <span className="text-3xl md:text-4xl font-bold text-[#0B537D]">{quizQuestions.length}</span>
+              <div className={`${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl p-5 sm:p-6 flex justify-between items-center border-2 border-gray-200`}>
+                <span className={`text-lg sm:text-xl md:text-2xl font-bold ${COLOR_CLASSES.text.deepBlue}`}>Total Questions</span>
+                <span className={`text-2xl sm:text-3xl md:text-4xl font-bold ${COLOR_CLASSES.text.deepBlue}`}>{quizQuestions.length}</span>
               </div>
 
               {/* Correct Answers */}
-              <div className="bg-[#EAF5FB] rounded-2xl p-6 flex justify-between items-center border-2 border-gray-200">
-                <span className="text-xl md:text-2xl font-bold text-[#0B537D]">Correct Answer</span>
-                <span className="text-3xl md:text-4xl font-bold text-[#5C9A24]">{testResults.correct}</span>
+              <div className={`${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl p-5 sm:p-6 flex justify-between items-center border-2 border-gray-200`}>
+                <span className={`text-lg sm:text-xl md:text-2xl font-bold ${COLOR_CLASSES.text.deepBlue}`}>Correct Answer</span>
+                <span className={`text-2xl sm:text-3xl md:text-4xl font-bold ${COLOR_CLASSES.text.accentGreen}`}>{testResults.correct}</span>
               </div>
 
               {/* Wrong Answers */}
-              <div className="bg-[#EAF5FB] rounded-2xl p-6 flex justify-between items-center border-2 border-gray-200">
-                <span className="text-xl md:text-2xl font-bold text-[#0B537D]">Wrong Answer</span>
-                <span className="text-3xl md:text-4xl font-bold text-red-500">{testResults.wrong}</span>
+              <div className={`${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl p-5 sm:p-6 flex justify-between items-center border-2 border-gray-200`}>
+                <span className={`text-lg sm:text-xl md:text-2xl font-bold ${COLOR_CLASSES.text.deepBlue}`}>Wrong Answer</span>
+                <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-red-500">{testResults.wrong}</span>
               </div>
             </div>
 
             {/* Success Message */}
-            <div className="text-center mb-8">
-              <h3 className="text-3xl md:text-4xl font-bold text-[#5C9A24]">
+            <div className="text-center mb-6 sm:mb-8">
+              <h3 className={`text-2xl sm:text-3xl md:text-4xl font-bold ${COLOR_CLASSES.text.accentGreen}`}>
                 {testResults.correct >= quizQuestions.length * 0.42 ? 'Well Done!' : 'Keep Trying!'}
               </h3>
-              <p className="text-gray-600 mt-2">
+              <p className="text-gray-600 mt-2 text-sm sm:text-base">
                 {testResults.correct >= quizQuestions.length * 0.42 
                   ? `You passed with ${Math.round((testResults.correct / quizQuestions.length) * 100)}%!`
                   : `You need 42% to pass. Try again!`
@@ -591,7 +632,7 @@ const SkillAssesment = () => {
             <div className="text-center">
               <button 
                 onClick={closeResultsModal}
-                className="px-10 py-3 rounded-full bg-[#0B537D] text-white font-semibold text-lg hover:bg-[#094670] transition-colors shadow-lg"
+                className={`px-8 sm:px-10 py-3 rounded-full ${COLOR_CLASSES.bg.deepBlue} text-white font-semibold text-base sm:text-lg ${COLOR_CLASSES.hoverBg.hoverNavy} transition-colors shadow-lg w-full sm:w-auto`}
               >
                 Close
               </button>
