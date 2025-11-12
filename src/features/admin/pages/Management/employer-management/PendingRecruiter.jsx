@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
-import Swal from 'sweetalert2'
+import React, { useMemo, useState } from "react";
+import Swal from "sweetalert2";
 import {
   LuPaperclip,
   LuEye,
@@ -9,62 +8,190 @@ import {
   LuFileText,
   LuBuilding,
   LuCalendar,
-  LuMail,
-  LuPhone,
   LuGlobe,
+  LuPhone,
+  LuMail,
   LuMapPin,
   LuUsers,
-  LuBriefcase
-} from 'react-icons/lu'
-import { postMethod, putMethod } from '../../../../../service/api'
-import apiService from '../../../../admin/services/serviceUrl'
-import { Button } from '../../../../../shared/components/Button'
+} from "react-icons/lu";
+import { TAILWIND_COLORS } from "../../../../../shared/WebConstant.js";
+import { Button } from "../../../../../shared/components/Button";
+import { postMethod } from "../../../../../service/api";
+import service from "../../../../../service/serviceUrl.js";
 
-// Approval Card Component
-function ApprovalCard({ company, recruiter, email, phone, website, industry, employees, appliedDate, documents, onReview, onApprove, onReject }) {
+/* ---------------------------------------------
+   Helper Functions
+--------------------------------------------- */
+const toTitle = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "N/A");
+
+const statusFromVerified = (v) => {
+  if (v === 1 || v === "1" || v === true) return "approved";
+  if (v === 0 || v === "0") return "rejected";
+  return "pending";
+};
+
+// ✅ Normalize employer object properly
+function normalizeEmployer(raw) {
+  const profile = raw.profile || {};
+
+  // ✅ correct key usage
+  const uid = Number(raw.user_id ?? raw.uid ?? raw.id ?? 0);
+  const profile_id = Number(profile.profile_id ?? raw.profile_id ?? 0);
+
+  const company_name = profile.company_name ?? raw.company_name ?? "No Company";
+  const company_logo = profile.company_logo ?? raw.company_logo ?? null;
+  const industry = profile.industry ?? raw.industry ?? "No Industry";
+  const website = profile.website ?? raw.website ?? "";
+  const location = profile.location ?? raw.location ?? "";
+  const applied_date = profile.applied_date ?? raw.created_at ?? null;
+  const last_modified = profile.last_modified ?? raw.modified_at ?? null;
+
+  const is_verified = Number(raw.is_verified ?? 0);
+  const statusRaw = profile.status ?? raw.admin_action ?? raw.status ?? statusFromVerified(is_verified);
+  const status = statusRaw ? String(statusRaw).toLowerCase() : statusFromVerified(is_verified);
+
+  return {
+    id: profile_id || uid || Math.random(),
+    uid,
+    user_name: raw.user_name ?? "No Recruiter",
+    email: raw.email ?? "No Email",
+    phone_number: raw.phone_number ?? "No Phone",
+    role: raw.role ?? "recruiter",
+    profile_id,
+    company_name,
+    company_logo,
+    industry,
+    website,
+    location,
+    applied_date,
+    last_modified,
+    is_verified,
+    status,
+  };
+}
+
+/* ---------------------------------------------
+   Small UI Components
+--------------------------------------------- */
+function StatusBadge({ status }) {
+  const cls =
+    status === "approved"
+      ? "bg-green-100 text-green-800"
+      : status === "rejected"
+      ? "bg-red-100 text-red-800"
+      : "bg-yellow-100 text-yellow-800";
+  return (
+    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${cls}`}>
+      {toTitle(status)}
+    </span>
+  );
+}
+
+function InfoRow({ label, value, icon }) {
+  return (
+    <div className="flex items-center gap-2">
+      {icon}
+      <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{label}:</span>
+      <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{value || "N/A"}</span>
+    </div>
+  );
+}
+
+/* ---------------------------------------------
+   Approval Card Component
+--------------------------------------------- */
+function ApprovalCard({
+  company,
+  recruiter,
+  email,
+  phone,
+  website,
+  industry,
+  appliedDate,
+  last_modified,
+  documents,
+  status,
+  onReview,
+  onApprove,
+  onReject,
+}) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
       <div className="flex items-start justify-between">
-        {/* Left Side - Company Info */}
+        {/* Left Section */}
         <div className="flex items-start space-x-4 flex-1">
-          {/* Avatar */}
           <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
             <LuBuilding className={TAILWIND_COLORS.TEXT_MUTED} size={24} />
           </div>
 
-          {/* Company Details */}
           <div className="flex-1">
-            <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{company}</h3>
-            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>{recruiter}</p>
-
-            {/* Contact Info */}
-            <div className={`flex flex-wrap gap-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>
-              <span className={TAILWIND_COLORS.TEXT_MUTED}>{email}</span>
-              <span className={TAILWIND_COLORS.TEXT_MUTED}>{phone}</span>
-              <div className="flex items-center gap-2">
-                <span className={TAILWIND_COLORS.TEXT_MUTED}>{website}</span>
-                <span className="bg-purple-600 text-white text-xs px-2 py-1 rounded-full">P A</span>
-              </div>
+            <div className="flex items-center gap-3 mb-2">
+              <h3
+                className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+              >
+                {company}
+              </h3>
+              <StatusBadge status={status} />
             </div>
 
-            {/* Company Attributes */}
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>
+              {recruiter}
+            </p>
+
+            <div className="flex flex-wrap gap-4 text-sm mb-3">
+              <InfoRow
+                label="Email"
+                value={email}
+                icon={<LuMail size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+              />
+              <InfoRow
+                label="Phone"
+                value={phone}
+                icon={<LuPhone size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+              />
+              <InfoRow
+                label="Website"
+                value={website}
+                icon={<LuGlobe size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+              />
+            </div>
+
             <div className="flex flex-wrap gap-2 mb-3">
-              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">{industry}</span>
-              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">{employees}</span>
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                {industry}
+              </span>
             </div>
 
-            {/* Applied Date */}
-            <div className={`flex items-center gap-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>
-              <LuCalendar size={16} />
-              <span className={TAILWIND_COLORS.TEXT_MUTED}>Applied: {appliedDate}</span>
+            <div className="flex flex-wrap gap-4 text-sm mb-4">
+              <InfoRow
+                label="Applied"
+                value={appliedDate}
+                icon={<LuCalendar size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+              />
+              <InfoRow
+                label="Last Modified"
+                value={last_modified}
+                icon={<LuCalendar size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+              />
+              <InfoRow
+                label="Location"
+                value="N/A"
+                icon={<LuMapPin size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+              />
             </div>
 
-            {/* Documents */}
             <div>
-              <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Documents submitted:</p>
+              <p
+                className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+              >
+                Documents submitted:
+              </p>
               <div className="flex flex-wrap gap-2">
-                {documents.map((doc, index) => (
-                  <span key={index} className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center gap-1">
+                {(documents || []).map((doc, i) => (
+                  <span
+                    key={`${doc}-${i}`}
+                    className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center gap-1"
+                  >
                     <LuFileText size={14} />
                     {doc}
                   </span>
@@ -74,8 +201,8 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
           </div>
         </div>
 
-        {/* Right Side - Action Buttons */}
-        <div className="flex flex-col space-y-2 ml-4">
+        {/* Right Actions */}
+        <div className="flex flex-col space-y-2 ml-4 shrink-0">
           <Button
             onClick={onReview}
             variant="light"
@@ -103,248 +230,455 @@ function ApprovalCard({ company, recruiter, email, phone, website, industry, emp
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-// Review Modal Component
+/* ---------------------------------------------
+   Review Modal
+--------------------------------------------- */
+/* ---------------------------------------------
+   Review Modal (Full Data from list_employers)
+--------------------------------------------- */
 function ReviewModal({ recruiter, isOpen, onClose }) {
-  if (!isOpen || !recruiter) return null
+  if (!isOpen || !recruiter) return null;
+
+  const logo = recruiter.company_logo
+    ? recruiter.company_logo.startsWith("http")
+      ? recruiter.company_logo
+      : `${import.meta.env.VITE_BASE_URL || ""}${recruiter.company_logo}`
+    : "";
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+        {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Recruiter Review</h2>
+          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+            Recruiter Full Details
+          </h2>
           <Button
             onClick={onClose}
             variant="unstyled"
-            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} transition-colors duration-200 p-2`}
+            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY} p-2`}
           >
             <span className="text-2xl">&times;</span>
           </Button>
         </div>
 
+        {/* Content */}
         <div className="p-6 space-y-6">
-          {/* Company Information */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
-              <LuBuilding className="text-blue-600" size={20} />
-              Company Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Company Name</label>
-                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}>{recruiter.company}</p>
+          {/* Top Company Info */}
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+            {logo ? (
+              <img
+                src={logo}
+                alt="Company Logo"
+                className="w-20 h-20 rounded-lg border object-cover"
+              />
+            ) : (
+              <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                <LuBuilding className="text-gray-500" size={32} />
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Recruiter Name</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{recruiter.recruiter}</p>
+            )}
+
+            <div>
+              <h3
+                className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+              >
+                {recruiter.company || recruiter.company_name || "No Company"}
+              </h3>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                {recruiter.industry || "No Industry"}
+              </p>
+              <div className="mt-2">
+                <StatusBadge status={recruiter.status} />
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Email</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{recruiter.email}</p>
-              </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Phone</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{recruiter.phone}</p>
-              </div>
+            </div>
+          </div>
+
+          {/* Details Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+            <InfoRow
+              label="Recruiter Name"
+              value={recruiter.recruiter || recruiter.user_name}
+              icon={<LuUsers size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+            />
+            <InfoRow
+              label="Email"
+              value={recruiter.email}
+              icon={<LuMail size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+            />
+            <InfoRow
+              label="Phone"
+              value={recruiter.phone || recruiter.phone_number}
+              icon={<LuPhone size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+            />
+            <div className="flex items-center gap-2">
+              <LuGlobe size={16} className={TAILWIND_COLORS.TEXT_MUTED} />
+              <span className="text-sm text-gray-500">Website:</span>
+              {recruiter.website ? (
+                <a
+                  href={recruiter.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline break-all"
+                >
+                  {recruiter.website}
+                </a>
+              ) : (
+                <span className="text-gray-600">N/A</span>
+              )}
+            </div>
+            <InfoRow
+              label="Location"
+              value={recruiter.location || "N/A"}
+              icon={<LuMapPin size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+            />
+            <InfoRow
+              label="Applied Date"
+              value={
+                recruiter.applied_date
+                  ? new Date(recruiter.applied_date).toLocaleDateString()
+                  : recruiter.appliedDate || "N/A"
+              }
+              icon={<LuCalendar size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+            />
+            <InfoRow
+              label="Last Modified"
+              value={
+                recruiter.last_modified
+                  ? new Date(recruiter.last_modified).toLocaleDateString()
+                  : recruiter.last_modified || "N/A"
+              }
+              icon={<LuCalendar size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+            />
+          </div>
+
+          {/* Documents Section */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p
+              className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}
+            >
+              Documents Submitted:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {recruiter.documents && recruiter.documents.length > 0 ? (
+                recruiter.documents.map((doc, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center gap-1"
+                  >
+                    <LuFileText size={14} />
+                    {doc}
+                  </span>
+                ))
+              ) : (
+                <>
+                  <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center gap-1">
+                    <LuFileText size={14} /> Business License
+                  </span>
+                  <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center gap-1">
+                    <LuFileText size={14} /> Tax Certificate
+                  </span>
+                  <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full flex items-center gap-1">
+                    <LuFileText size={14} /> Company Profile
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
 
+        {/* Footer */}
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-          <Button
-            onClick={onClose}
-            variant="neutral"
-            size="md"
-          >
+          <Button onClick={onClose} variant="neutral" size="md">
             Close
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default function PendingRecruiterApprovals({ employers }) {
-  const [reviewModal, setReviewModal] = useState({ isOpen: false, recruiter: null })
+/* ---------------------------------------------
+   Main Component
+--------------------------------------------- */
+// export default function PendingRecruiterApprovals({ employers = [] }) {
+//   // ✅ Always normalize fresh from API every render
+//   const normalized = useMemo(() => employers.map(normalizeEmployer), [employers]);
+//   const [items, setItems] = useState(normalized);
 
-  const handleReview = (recruiter) => {
-    setReviewModal({ isOpen: true, recruiter })
-  }
+//   // Force sync when API response updates
+//   React.useEffect(() => {
+//     if (employers && employers.length > 0) {
+//       setItems(employers.map(normalizeEmployer));
+//     }
+//   }, [employers]);
 
-  const handleCloseReview = () => {
-    setReviewModal({ isOpen: false, recruiter: null })
-  }
+//   // ✅ Approve/Reject logic
+//   const updateStatus = async (uid, is_verified, label) => {
+//     try {
+//       const data = {
+//         apiUrl: service.verifyUser,
+//         payload: { uid, is_verified }, // ✅ backend expects uid
+//       };
+//       const res = await postMethod(data);
 
-  const handleApprove = (recruiterId) => {
-    Swal.fire({
-      title: 'Approve Recruiter',
-      text: 'Are you sure you want to approve this recruiter?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#10B981',
-      cancelButtonColor: '#EF4444',
-      confirmButtonText: 'Yes, Approve!',
-      cancelButtonText: 'Cancel'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // TODO: Add API call to approve recruiter
-        try {
-          var data = {
-            apiUrl: apiService.updateEmployer,
-            payload: {
-              id: recruiterId,
-              admin_action: "approved"
-            },
-          };
+//       if (res?.success || res?.status) {
+//         // update local state immediately
+//         setItems((prev) =>
+//           prev.map((it) =>
+//             it.uid === uid
+//               ? { ...it, is_verified, status: is_verified ? "approved" : "rejected" }
+//               : it
+//           )
+//         );
 
-          var response = postMethod(data);
-          // console.log(response)
-          if (response.status === true) {
-            Swal.fire({
-              title: 'Approved!',
-              text: 'Recruiter has been approved successfully.',
-              icon: 'success',
-              timer: 2000,
-              showConfirmButton: false
-            })
-          } else {
-            Swal.fire({
-              title: "Failed",
-              text: response.message || "Profile updated but you are not authorized to view it",
-              icon: "error"
-            });
-          }
-        } catch (error) {
-          // console.error("API Error:", error)
-          // alert("Something went wrong. Please try again.")
-          Swal.fire({
-            title: "API Error",
-            text: "Something went wrong. Please try again.",
-            icon: "error"
-          });
-        }
+//         Swal.fire({
+//           title: `${label}!`,
+//           text: `Recruiter has been ${label.toLowerCase()} successfully.`,
+//           icon: "success",
+//           timer: 1500,
+//           showConfirmButton: false,
+//         });
+//       } else {
+//         Swal.fire({
+//           title: "Failed",
+//           text: res?.message || "Update failed.",
+//           icon: "error",
+//         });
+//       }
+//     } catch (e) {
+//       Swal.fire({
+//         title: "API Error",
+//         text: e.message || "Something went wrong.",
+//         icon: "error",
+//       });
+//     }
+//   };
+
+//   const handleApprove = (id) => updateStatus(id, 1, "Approved");
+//   const handleReject = (id) => updateStatus(id, 0, "Rejected");
+
+//   // ✅ Always calculate status counts dynamically
+//   const counts = {
+//     approved: items.filter((i) => i.status === "approved").length,
+//     pending: items.filter((i) => i.status === "pending").length,
+//     rejected: items.filter((i) => i.status === "rejected").length,
+//   };
+
+//   return (
+//     <div className="space-y-6">
+//       {/* Header */}
+//       <div className="flex items-center justify-between flex-wrap gap-3">
+//         <div className="flex items-center gap-3">
+//           <LuPaperclip className={TAILWIND_COLORS.TEXT_MUTED} size={24} />
+//           <div>
+//             <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+//               Recruiter Approvals
+//             </h1>
+//             <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
+//               Manage approved, rejected, and pending recruiters.
+//             </p>
+//           </div>
+//         </div>
+
+//         {/* Summary badges */}
+//         <div className="flex gap-2 flex-wrap">
+//           <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+//             Approved: {counts.approved}
+//           </span>
+//           <span className="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
+//             Pending: {counts.pending}
+//           </span>
+//           <span className="px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
+//             Rejected: {counts.rejected}
+//           </span>
+//         </div>
+//       </div>
+
+//       {/* ✅ Cards — show all (approved, rejected, pending) */}
+//       <div className="space-y-4">
+//         {items.map((c) => (
+//           <ApprovalCard
+//             key={c.id}
+//             company={c.company_name}
+//             recruiter={c.user_name}
+//             email={c.email}
+//             phone={c.phone_number}
+//             website={c.website}
+//             industry={c.industry}
+//             appliedDate={
+//               c.applied_date ? new Date(c.applied_date).toLocaleDateString() : "N/A"
+//             }
+//             last_modified={
+//               c.last_modified ? new Date(c.last_modified).toLocaleDateString() : "N/A"
+//             }
+//             documents={["Business License", "Tax Certificate", "Company Profile"]}
+//             status={c.status}
+//             onReview={() => console.log("Review:", c)}
+//             onApprove={() => handleApprove(c.uid)}
+//             onReject={() => handleReject(c.uid)}
+//           />
+//         ))}
+
+//         {items.length === 0 && (
+//           <div className="bg-white rounded-lg border border-dashed p-8 text-center">
+//             <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>
+//               No recruiters found.
+//             </p>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// }
+
+export default function PendingRecruiterApprovals({ employers = [] }) {
+  const normalized = useMemo(() => employers.map(normalizeEmployer), [employers]);
+  const [items, setItems] = useState(normalized);
+
+  React.useEffect(() => {
+    if (employers && employers.length > 0) {
+      setItems(employers.map(normalizeEmployer));
+    }
+  }, [employers]);
+
+  // ✅ Review modal control
+  const [reviewModal, setReviewModal] = useState({
+    isOpen: false,
+    recruiter: null,
+  });
+
+  const openReview = (rec) => setReviewModal({ isOpen: true, recruiter: rec });
+  const closeReview = () => setReviewModal({ isOpen: false, recruiter: null });
+
+  // ✅ Approve/Reject logic
+  const updateStatus = async (uid, is_verified, label) => {
+    try {
+      const data = {
+        apiUrl: service.verifyUser,
+        payload: { uid, is_verified },
+      };
+      const res = await postMethod(data);
+
+      if (res?.success || res?.status) {
+        setItems((prev) =>
+          prev.map((it) =>
+            it.uid === uid
+              ? { ...it, is_verified, status: is_verified ? "approved" : "rejected" }
+              : it
+          )
+        );
+
+        Swal.fire({
+          title: `${label}!`,
+          text: `Recruiter has been ${label.toLowerCase()} successfully.`,
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire({
+          title: "Failed",
+          text: res?.message || "Update failed.",
+          icon: "error",
+        });
       }
-    })
-  }
+    } catch (e) {
+      Swal.fire({
+        title: "API Error",
+        text: e.message || "Something went wrong.",
+        icon: "error",
+      });
+    }
+  };
 
-  const handleReject = (recruiterId) => {
-    Swal.fire({
-      title: 'Reject Recruiter',
-      text: 'Are you sure you want to reject this recruiter?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#EF4444',
-      cancelButtonColor: '#6B7280',
-      confirmButtonText: 'Yes, Reject!',
-      cancelButtonText: 'Cancel'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // TODO: Add API call to reject recruiter
-        try {
-          var data = {
-            apiUrl: apiService.updateEmployer,
-            payload: {
-              id: recruiterId,
-              admin_action: 'rejected'
-            },
-          };
+  const handleApprove = (id) => updateStatus(id, 1, "Approved");
+  const handleReject = (id) => updateStatus(id, 0, "Rejected");
 
-          var response = postMethod(data);
-          // console.log(response)
-          if (response.status === true) {
-            Swal.fire({
-              title: 'Rejected!',
-              text: 'Recruiter has been rejected.',
-              icon: 'success',
-              timer: 2000,
-              showConfirmButton: false
-            })
-          } else {
-            Swal.fire({
-              title: "Failed",
-              text: response.message || "Profile updated but you are not authorized to view it",
-              icon: "error"
-            });
-          }
-        } catch (error) {
-          // console.error("API Error:", error)
-          // alert("Something went wrong. Please try again.")
-          Swal.fire({
-            title: "API Error",
-            text: "Something went wrong. Please try again.",
-            icon: "error"
-          });
-        }
-      }
-    })
-  }
-
-  const pendingApprovals = employers.map((item, index) => ({
-    id: item.id,
-    company: item.company_name,
-    recruiter: item.user_name || "Recruiter Name",
-    email: item.email,
-    role: item.role,
-    profile_id: item.profile_id,
-    phone: item.phone_number || "+91 9874563210",
-    website: item.website || "company.com",
-    industry: item.industry || "Technology",
-    employees: item.employees || "100-500 employees",
-    appliedDate: item.created_at ? new Date(item.created_at).toLocaleDateString() : "01-01-2025",
-    documents: ["Business License", "Tax Certificate", "Company Profile"]
-  }));
+  const counts = {
+    approved: items.filter((i) => i.status === "approved").length,
+    pending: items.filter((i) => i.status === "pending").length,
+    rejected: items.filter((i) => i.status === "rejected").length,
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <LuPaperclip className={TAILWIND_COLORS.TEXT_MUTED} size={24} />
           <div>
             <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              Pending Recruiter Approvals
+              Recruiter Approvals
             </h1>
             <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
-              Review and approve new employer registrations.
+              Manage approved, rejected, and pending recruiters.
             </p>
           </div>
         </div>
 
-        {/* Status Badge */}
-        <span className="px-4 py-2 border border-red-500 text-red-500 rounded-full text-sm font-medium">
-          Pending
-        </span>
+        {/* Summary badges */}
+        <div className="flex gap-2 flex-wrap">
+          <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+            Approved: {counts.approved}
+          </span>
+          <span className="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
+            Pending: {counts.pending}
+          </span>
+          <span className="px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
+            Rejected: {counts.rejected}
+          </span>
+        </div>
       </div>
 
-      {/* Approval Cards */}
-      <div className="space-y-4">
-        {pendingApprovals.map((approval, index) => (
-          <ApprovalCard
-            key={index}
-            company={approval.company}
-            recruiter={approval.recruiter}
-            email={approval.email}
-            phone={approval.phone}
-            website={approval.website}
-            industry={approval.industry}
-            employees={approval.employees}
-            appliedDate={approval.appliedDate}
-            documents={approval.documents}
-            onReview={() => handleReview(approval)}
-            onApprove={() => handleApprove(approval.profile_id)}
-            onReject={() => handleReject(approval.profile_id)}
-          />
-        ))}
-      </div>
+      {/* ✅ Cards */}
+    {/* Cards */}
+<div className="space-y-4">
+  {items.map((c) => (
+    <ApprovalCard
+      key={c.id}
+      company={c.company_name}
+      recruiter={c.user_name}
+      email={c.email}
+      phone={c.phone_number}
+      website={c.website}
+      industry={c.industry}
+      appliedDate={
+        c.applied_date ? new Date(c.applied_date).toLocaleDateString() : "N/A"
+      }
+      last_modified={
+        c.last_modified ? new Date(c.last_modified).toLocaleDateString() : "N/A"
+      }
+      documents={["Business License", "Tax Certificate", "Company Profile"]}
+      status={c.status}
 
-      {/* Review Modal */}
+      // ✅ FIXED LINE ↓↓↓
+      onReview={() => {
+        console.log("🟢 Review Clicked:", c);
+        openReview(c);
+      }}
+
+      onApprove={() => handleApprove(c.uid)}
+      onReject={() => handleReject(c.uid)}
+    />
+  ))}
+
+  {items.length === 0 && (
+    <div className="bg-white rounded-lg border border-dashed p-8 text-center">
+      <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>No recruiters found.</p>
+    </div>
+  )}
+</div>
+
+
+      {/* ✅ Review Modal */}
       <ReviewModal
         recruiter={reviewModal.recruiter}
         isOpen={reviewModal.isOpen}
-        onClose={handleCloseReview}
+        onClose={closeReview}
       />
     </div>
-  )
+  );
 }
