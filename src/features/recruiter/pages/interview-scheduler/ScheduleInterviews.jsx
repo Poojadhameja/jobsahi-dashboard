@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   LuCalendar,
@@ -15,81 +16,40 @@ import {
 import Calendar from "../../../../shared/components/Calendar";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { Button } from "../../../../shared/components/Button";
-import { getMethod, postMethod } from "../../../../service/api";
+import { getMethod, postMethod ,putMethod} from "../../../../service/api";
 import apiService from "../../services/serviceUrl";
+import Swal from "sweetalert2";
+
 
 const ScheduleInterviews = () => {
-  const [selectedDate, setSelectedDate] = useState(new Date()); // Current date
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [showCandidateDropdown, setShowCandidateDropdown] = useState(false);
-  const candidateDropdownRef = useRef(null);
-  // 🔹 Application dropdown states
-  const [applications, setApplications] = useState([]);
-  const [loadingApps, setLoadingApps] = useState(false);
   const [showApplicationDropdown, setShowApplicationDropdown] = useState(false);
+  const candidateDropdownRef = useRef(null);
   const applicationDropdownRef = useRef(null);
 
-  // 🔹 Form State
-  const [formData, setFormData] = useState({
-    candidate_id: "", // ✅ will store student_id
-    application_id: "", // label: selected candidate name
-    // application_id: '',      // for API
-    date: new Date().toISOString().split("T")[0], // YYYY-MM-DD
-    timeSlot: "",
-    interviewMode: "",
-    location: "",
-  });
-
-  // 🔹 Candidates from API
+  // dropdown + data
+  const [applications, setApplications] = useState([]);
   const [candidates, setCandidates] = useState([]);
   const [loadingCandidates, setLoadingCandidates] = useState(false);
 
-  // 🔹 Panel Members (static for UI)
-  const panelMembers = [
-    { id: 1, name: "Anjali Roy", role: "Senior Developer", selected: false },
-    { id: 2, name: "Shakti Singh", role: "Hr Manager", selected: false },
-    {
-      id: 3,
-      name: "Dr. Rajesh Yadav",
-      role: "Senior Developer",
-      selected: false,
-    },
-    { id: 4, name: "Suresh Kumar", role: "Junior Developer", selected: false },
-  ];
+  // main form
+  const [formData, setFormData] = useState({
+    candidates: "",
+    candidate_id: "",
+    student_id: "",
+    job_id: "",
+    date: new Date().toISOString().split("T")[0],
+    timeSlot: "",
+    interviewMode: "",
+    location: "",
+    status: "Scheduled",
+    feedback: "",
+  });
 
-  // 🔹 Scheduled Interviews (starts with sample UI data)
-  const [scheduledInterviews, setScheduledInterviews] = useState([
-    {
-      id: 1,
-      candidate: {
-        name: "Rohit Singh",
-        initials: "RS",
-        jobRole: "Electrician",
-        date: "25-03-25",
-      },
-      time: "10.00 AM",
-      type: "Virtual Call",
-      round: "Round 1",
-      status: "Scheduled",
-      panelMembers: ["Hr manager", "Senior Developer"],
-    },
-    {
-      id: 2,
-      candidate: {
-        name: "Rohit Singh",
-        initials: "RS",
-        jobRole: "Electrician",
-        date: "25-03-25",
-      },
-      time: "12.00 PM",
-      type: "Virtual Call",
-      round: "Round 1",
-      status: "Scheduled",
-      panelMembers: ["Hr manager", "Senior Developer"],
-    },
-  ]);
-
-  // 🔹 Search + Edit State
+  const [scheduledInterviews, setScheduledInterviews] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [editFormData, setEditFormData] = useState({
@@ -98,55 +58,63 @@ const ScheduleInterviews = () => {
     timeSlot: "",
     interviewMode: "",
     location: "",
-    round: "",
-    status: "",
+    status: "Scheduled",
+    feedback: "",
   });
 
   // =========================================================
-  // 1) FETCH CANDIDATES FROM get_recent_applicants.php
+  // 1) FETCH CANDIDATES FROM API
   // =========================================================
   useEffect(() => {
     const fetchCandidates = async () => {
       setLoadingCandidates(true);
       try {
         const res = await getMethod({ apiUrl: apiService.getRecentApplicants });
-
-        // 🔹 Handle valid data structure
         if (res?.status && Array.isArray(res?.all_applicants?.data)) {
-          const formatted = res.all_applicants.data.map((item) => ({
-            candidate_name: item.name,
-            candidate_id: item.student_id || item.application_id, // fallback if student_id not present
-            application_id: item.application_id,
-            job_title: item.job_title || item.applied_for || "—",
-            status: item.status || "pending",
-          }));
-
-          setCandidates(formatted);
-        } else {
-          setCandidates([]);
-        }
-      } catch (error) {
-        console.error("❌ Error fetching candidates:", error);
+          const grouped = {};
+          res.all_applicants.data.forEach((item) => {
+            const name = item.name;
+            if (!grouped[name]) {
+              grouped[name] = {
+                candidate_name: name,
+                candidate_id: item.student_id,
+                applications: [],
+              };
+            }
+            grouped[name].applications.push({
+              application_id: item.application_id,
+              job_id: item.job_id,
+              job_title: item.applied_for || item.job_title || "—",
+              status: item.status || "Pending",
+            });
+          });
+          setCandidates(Object.values(grouped));
+        } else setCandidates([]);
+      } catch (err) {
+        console.error("❌ Error fetching candidates:", err);
         setCandidates([]);
       } finally {
         setLoadingCandidates(false);
       }
     };
-
     fetchCandidates();
   }, []);
 
   // =========================================================
-  // 2) DROPDOWN OUTSIDE CLICK
+  // 2) HANDLE OUTSIDE CLICK
   // =========================================================
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (e) => {
       if (
         candidateDropdownRef.current &&
-        !candidateDropdownRef.current.contains(event.target)
-      ) {
+        !candidateDropdownRef.current.contains(e.target)
+      )
         setShowCandidateDropdown(false);
-      }
+      if (
+        applicationDropdownRef.current &&
+        !applicationDropdownRef.current.contains(e.target)
+      )
+        setShowApplicationDropdown(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -155,864 +123,823 @@ const ScheduleInterviews = () => {
   // =========================================================
   // 3) HELPERS
   // =========================================================
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const formatTimeTo12Hour = (time24) => {
-    if (!time24) return "";
-    const [h, m] = time24.split(":");
+  const handleInputChange = (f, v) => setFormData((p) => ({ ...p, [f]: v }));
+  const formatTimeTo12Hour = (t) => {
+    if (!t) return "";
+    const [h, m] = t.split(":");
     const hours = parseInt(h, 10);
     const hour12 = hours % 12 || 12;
     const ampm = hours >= 12 ? "PM" : "AM";
     return `${hour12}:${m} ${ampm}`;
   };
-
-  const handleDateSelect = (date) => {
-    setSelectedDate(date);
-    setFormData((prev) => ({
-      ...prev,
-      date: date.toISOString().split("T")[0],
-    }));
-  };
-
-  const handleCandidateFieldClick = () => {
-    setShowCandidateDropdown(!showCandidateDropdown);
-  };
-
-  // const handleCandidateSelect = (candidate) => {
-  //   setFormData(prev => ({
-  //     ...prev,
-  //     candidates: candidate.name,
-  //     application_id: candidate.application_id
-  //   }))
-  //   setShowCandidateDropdown(false)
-  // }
-const handleCandidateSelect = (candidate) => {
-  setFormData((prev) => ({
-    ...prev,
-    candidates: candidate.candidate_name,
-    candidate_id: candidate.candidate_id,
-    application_id: candidate.application_id,
-  }));
-  setShowCandidateDropdown(false);
-};
-
-
   const buildScheduledAt = () =>
     `${formData.date} ${formData.timeSlot || "00:00"}:00`;
 
-  // =========================================================
-  // 4) SCHEDULE INTERVIEW (calls schedule_interview.php)
-  // =========================================================
-  const handleScheduleInterview = async () => {
-    // Frontend validations
-    if (!formData.application_id) {
-      alert("Please select a candidate.");
-      return;
-    }
-    if (!formData.date || !formData.timeSlot) {
-      alert("Please select date and time.");
-      return;
-    }
-    if (!formData.interviewMode) {
-      alert("Please select interview mode.");
-      return;
-    }
-    if (formData.interviewMode === "offline" && !formData.location.trim()) {
-      alert("Please enter interview location for offline mode.");
-      return;
-    }
+  const handleCandidateSelect = (c) => {
+    setFormData((p) => ({
+      ...p,
+      candidates: c.candidate_name,
+      candidate_id: c.candidate_id,
+      student_id: c.candidate_id,
+      application_id: "",
+      job_id: "",
+      applicationTitle: "",
+    }));
+    setApplications(c.applications || []);
+    setShowCandidateDropdown(false);
+  };
+const handleScheduleInterview = async () => {
+  if (!formData.student_id)
+    return Swal.fire("Missing Candidate", "Please select candidate.", "warning");
+  if (!formData.job_id)
+    return Swal.fire("Missing Job", "Please select a job.", "warning");
+  if (!formData.date || !formData.timeSlot)
+    return Swal.fire("Missing Date/Time", "Select date & time.", "warning");
+  if (!formData.interviewMode)
+    return Swal.fire("Missing Mode", "Select interview mode.", "warning");
+  if (formData.interviewMode === "offline" && !formData.location.trim())
+    return Swal.fire("Missing Location", "Enter offline location.", "warning");
 
-    const selectedCandidate = candidates.find(
-      (c) => c.application_id === formData.application_id
-    );
+  const payload = {
+    student_id: formData.student_id,
+    job_id: formData.job_id,
+    scheduled_at: buildScheduledAt(),
+    mode: formData.interviewMode,
+    location:
+      formData.interviewMode === "offline" ? formData.location : "Online",
+    status: formData.status || "Scheduled",
+    feedback: formData.feedback,
+  };
 
-    if (!selectedCandidate) {
-      alert("Selected candidate not found. Please choose again.");
-      return;
-    }
+  console.log("📤 Payload Sent:", payload);
 
-    const payload = {
-      application_id: Number(formData.application_id),
-      scheduled_at: buildScheduledAt(), // "YYYY-MM-DD HH:MM:00"
-      mode: formData.interviewMode, // "online" / "offline"
-      location:
-        formData.interviewMode === "offline"
-          ? formData.location
-          : "Online Meeting Link",
-      status: "scheduled",
-      feedback: "Initial technical round",
-    };
+  try {
+    const res = await postMethod({
+      apiUrl: apiService.scheduleInterview,
+      payload, // ✅ correct key name
+    });
 
-    try {
-      const response = await postMethod({
-        apiUrl: apiService.scheduleInterview,
-        data: payload,
+    console.log("📥 API Response:", res);
+
+    if (res?.status === true || res?.success === true) {
+      Swal.fire({
+        title: "✅ Interview Scheduled",
+        text: "Interview scheduled successfully!",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
       });
 
-      if (response?.status) {
-        alert("✅ Interview scheduled successfully!");
+      // reset form
+      const dateObj = new Date(formData.date);
+      const formattedDate = `${String(dateObj.getDate()).padStart(2, "0")}-${String(
+        dateObj.getMonth() + 1
+      ).padStart(2, "0")}-${String(dateObj.getFullYear()).slice(-2)}`;
+      const formattedTime = formatTimeTo12Hour(formData.timeSlot);
 
-        // Push into local scheduledInterviews list for UI
-        const dateObj = new Date(formData.date);
-        const formattedDate = `${String(dateObj.getDate()).padStart(
-          2,
-          "0"
-        )}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(
-          dateObj.getFullYear()
-        ).slice(-2)}`;
-        const formattedTime = formatTimeTo12Hour(formData.timeSlot);
-        const interviewType =
-          formData.interviewMode === "online" ? "Virtual Call" : "In-Person";
+      // ✅ Get original date in YYYY-MM-DD format for highlighting
+      const originalDateForHighlight = formData.date;
 
-        const newInterview = {
-          id: response.interview_id || scheduledInterviews.length + 1,
-          candidate: {
-            name: selectedCandidate.name,
-            initials: selectedCandidate.name
-              .split(" ")
-              .map((n) => n[0])
-              .join(""),
-            jobRole: selectedCandidate.jobRole,
-            date: formattedDate,
-          },
-          time: formattedTime,
-          type: interviewType,
-          round: "Round 1",
-          status: "Scheduled",
-          panelMembers: ["Hr manager", "Senior Developer"],
-        };
+      const newInterview = {
+        id: res.interview_id || scheduledInterviews.length + 1,
+        candidate: {
+          name: formData.candidates,
+          initials: formData.candidates
+            .split(" ")
+            .map((n) => n[0])
+            .join(""),
+          jobRole: "—",
+          date: formattedDate,
+          originalDate: originalDateForHighlight, // ✅ Store for highlighting
+        },
+        time: formattedTime,
+        type:
+          formData.interviewMode === "online"
+            ? "Virtual Call"
+            : "In-Person",
+        location: formData.location || "—",
+        status: formData.status,
+        feedback: formData.feedback,
+        panelMembers: ["HR Manager", "Senior Developer"],
+      };
 
-        setScheduledInterviews((prev) => [newInterview, ...prev]);
+      setScheduledInterviews((p) => [newInterview, ...p]);
+      setFormData({
+        candidates: "",
+        candidate_id: "",
+        student_id: "",
+        job_id: "",
+        date: new Date().toISOString().split("T")[0],
+        timeSlot: "",
+        interviewMode: "",
+        location: "",
+        status: "Scheduled",
+        feedback: "",
+      });
+      setSelectedDate(new Date());
+    } else {
+      Swal.fire({
+        title: "❌ Failed",
+        text: res?.message || "Failed to schedule interview.",
+        icon: "error",
+        confirmButtonColor: "#3085d6",
+      });
+    }
+  } catch (err) {
+    console.error("❌ Error scheduling interview:", err);
+    Swal.fire({
+      title: "⚠️ Server Error",
+      text: "Something went wrong while scheduling the interview.",
+      icon: "error",
+      confirmButtonColor: "#d33",
+    });
+  }
+};
 
-        // Reset form
-        setFormData({
-          candidates: "",
-          application_id: "",
-          date: new Date().toISOString().split("T")[0],
-          timeSlot: "",
-          interviewMode: "",
-          location: "",
+// =========================================================
+// 4) FETCH ALL SCHEDULED INTERVIEWS (GET API)
+// =========================================================
+// const fetchScheduledInterviews = async () => {
+//   try {
+//     const res = await getMethod({
+//       apiUrl: apiService.getScheduledInterviews, // ✅ we’ll define this in serviceUrl.js
+//     });
+
+//     console.log("📥 Scheduled Interviews API Response:", res);
+
+//     if ((res?.status === "success" || res?.status === true) && Array.isArray(res?.data)) {
+//     const mapped = res.data.map((item, index) => {
+//   // ✅ Fix date issue properly
+//   let formattedDate = "—";
+//   if (item.date) {
+//     formattedDate = new Date(item.date).toLocaleDateString("en-GB");
+//   } else if (item.scheduled_at) {
+//     formattedDate = new Date(item.scheduled_at).toLocaleDateString("en-GB");
+//   }
+
+//   return {
+//     id: item.interviewId || item.interview_id || index + 1,
+//     candidate: {
+//       name: item.candidateName || item.candidate_name || "—",
+//       initials: (item.candidateName || item.candidate_name || "")
+//         ?.split(" ")
+//         .map((n) => n[0])
+//         .join(""),
+//       jobRole: item.jobTitle || item.job_title || "—",
+//       date: formattedDate, // ✅ properly fixed date
+//     },
+//     time: item.timeSlot || item.time_slot || "—",
+//     type:
+//       item.interviewMode?.toLowerCase() === "online" ||
+//       item.mode?.toLowerCase() === "online"
+//         ? "Virtual Call"
+//         : "In-Person",
+//     location: item.location || "—",
+//     status: item.status || "Scheduled",
+//     feedback: item.feedback || "—",
+//     meetingLink: item.meetingLink || item.meeting_link || "",
+//     scheduledBy: item.scheduledBy || item.scheduled_by || "",
+//   };
+// });
+
+
+//       setScheduledInterviews(mapped);
+//     } else {
+//       setScheduledInterviews([]);
+//       console.warn("⚠️ No scheduled interviews found");
+//     }
+//   } catch (err) {
+//     console.error("❌ Error fetching scheduled interviews:", err);
+//     setScheduledInterviews([]);
+//   }
+// };
+
+// // ✅ Call on mount
+// useEffect(() => {
+//   fetchScheduledInterviews();
+// }, []);
+
+ const fetchScheduledInterviews = async () => {
+    try {
+      const res = await getMethod({
+        apiUrl: apiService.getScheduledInterviews,
+      });
+
+      console.log("📥 Scheduled Interviews API Response:", res);
+
+      if (
+        (res?.status === "success" || res?.status === true) &&
+        Array.isArray(res?.data)
+      ) {
+        const mapped = res.data.map((item, index) => {
+          // ✅ Extract original date for highlighting (YYYY-MM-DD format)
+          let originalDate = null;
+          let formattedDate = "—";
+          
+          const dateValue = item.date || item.scheduled_at;
+          if (dateValue) {
+            try {
+              // ✅ If date is already in YYYY-MM-DD format, use it directly
+              if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}/.test(dateValue)) {
+                // Extract just the date part (YYYY-MM-DD) if there's time included
+                originalDate = dateValue.split(' ')[0].split('T')[0];
+                // Format for display (DD/MM/YYYY)
+                const dateObj = new Date(originalDate + 'T00:00:00');
+                if (!isNaN(dateObj.getTime())) {
+                  formattedDate = dateObj.toLocaleDateString("en-GB");
+                }
+              } else {
+                // Fallback: parse other date formats
+                const dateObj = new Date(dateValue);
+                if (!isNaN(dateObj.getTime())) {
+                  originalDate = dateObj.toISOString().split("T")[0];
+                  formattedDate = dateObj.toLocaleDateString("en-GB");
+                }
+              }
+            } catch (e) {
+              console.warn("Date parsing error:", e);
+            }
+          }
+
+          return {
+            id: item.interviewId || item.interview_id || index + 1,
+            candidate: {
+              name: item.candidateName || item.candidate_name || "—",
+              initials: (item.candidateName || item.candidate_name || "")
+                ?.split(" ")
+                .map((n) => n[0])
+                .join(""),
+              jobRole: item.jobTitle || item.job_title || "—",
+              date: formattedDate,
+              originalDate: originalDate, // ✅ Store for highlighting
+            },
+            time: item.timeSlot || item.time_slot || "—",
+            type:
+              item.interviewMode?.toLowerCase() === "online" ||
+              item.mode?.toLowerCase() === "online"
+                ? "Virtual Call"
+                : "In-Person",
+            location: item.location || "—",
+            status: item.status || "Scheduled",
+            feedback: item.feedback || "—",
+            meetingLink: item.meetingLink || item.meeting_link || "",
+            scheduledBy: item.scheduledBy || item.scheduled_by || "",
+          };
         });
-        setSelectedDate(new Date());
+
+        setScheduledInterviews(mapped);
       } else {
-        alert(`❌ ${response?.message || "Failed to schedule interview."}`);
+        setScheduledInterviews([]);
+        console.warn("⚠️ No scheduled interviews found");
       }
-    } catch (error) {
-      console.error("❌ Error scheduling interview:", error);
-      alert("Server error while scheduling interview.");
+    } catch (err) {
+      console.error("❌ Error fetching scheduled interviews:", err);
+      setScheduledInterviews([]);
     }
   };
 
+  useEffect(() => {
+    fetchScheduledInterviews();
+  }, []);
+
+// ✅ Interview waali dates highlight karne ke liye
+const [highlightedDates, setHighlightedDates] = useState([]);
+
+useEffect(() => {
+  // ✅ Extract dates directly from originalDate field (already in YYYY-MM-DD format)
+  const dates = scheduledInterviews
+    .map((i) => {
+      const date = i.candidate?.originalDate;
+      console.log("🔍 Interview date check:", i.candidate?.name, "->", date);
+      return date;
+    })
+    .filter(Boolean); // Remove null/undefined values
+  
+  console.log("📅 All Highlighted Dates:", dates);
+  console.log("📅 Scheduled Interviews Count:", scheduledInterviews.length);
+  setHighlightedDates(dates);
+}, [scheduledInterviews]);
+
+
   // =========================================================
-  // 5) FILTER SCHEDULED INTERVIEWS (search box)
+  // 5) SEARCH + EDIT INTERVIEW
   // =========================================================
   const filteredInterviews = scheduledInterviews.filter((interview) => {
     const q = searchQuery.toLowerCase();
     return (
       interview.candidate.name.toLowerCase().includes(q) ||
-      interview.candidate.jobRole.toLowerCase().includes(q) ||
       interview.time.toLowerCase().includes(q) ||
-      interview.type.toLowerCase().includes(q) ||
-      interview.round.toLowerCase().includes(q) ||
-      interview.status.toLowerCase().includes(q) ||
-      interview.panelMembers.some((m) => m.toLowerCase().includes(q))
+      interview.status.toLowerCase().includes(q)
     );
   });
 
-  // =========================================================
-  // 6) EDIT INTERVIEW (purely frontend, as in your UI)
-  // =========================================================
+  // const handleEditClick = (interview) => {
+  //   setSelectedInterview(interview);
+  //   const [day, month, year] = interview.candidate.date.split("-");
+  //   const fullYear = "20" + year;
+  //   const formattedDate = `${fullYear}-${month}-${day}`;
+  //   const parseTimeTo24 = (t12) => {
+  //     if (!t12) return "";
+  //     const [time, period] = t12.split(" ");
+  //     const [hh, mm] = time.split(":");
+  //     let h = parseInt(hh, 10);
+  //     if (period === "PM" && h !== 12) h += 12;
+  //     if (period === "AM" && h === 12) h = 0;
+  //     return `${String(h).padStart(2, "0")}:${mm}`;
+  //   };
+
+  //   setEditFormData({
+  //     candidate: interview.candidate.name,
+  //     date: formattedDate,
+  //     timeSlot: parseTimeTo24(interview.time),
+  //     interviewMode: interview.type === "Virtual Call" ? "online" : "offline",
+  //     location: interview.location || "",
+  //     status: interview.status,
+  //     feedback: interview.feedback || "",
+  //   });
+  //   setShowEditModal(true);
+  // };
+
   const handleEditClick = (interview) => {
-    setSelectedInterview(interview);
+  setSelectedInterview(interview);
 
-    const [day, month, year] = interview.candidate.date.split("-");
-    const fullYear = "20" + year;
-    const formattedDate = `${fullYear}-${month}-${day}`;
+  // ✅ safely extract full ISO date string from any format
+  let formattedDate = "";
+  try {
+    if (interview.candidate?.date) {
+      const d = interview.candidate.date;
 
-    const parseTimeTo24Hour = (time12) => {
-      if (!time12) return "";
-      const [time, period] = time12.split(" ");
-      const [hh, mm] = time.split(":");
-      let h = parseInt(hh, 10);
-      if (period === "PM" && h !== 12) h += 12;
-      if (period === "AM" && h === 12) h = 0;
-      return `${String(h).padStart(2, "0")}:${mm}`;
-    };
-
-    setEditFormData({
-      candidate: interview.candidate.name,
-      date: formattedDate,
-      timeSlot: parseTimeTo24Hour(interview.time),
-      interviewMode: interview.type === "Virtual Call" ? "online" : "offline",
-      location: "",
-      round: interview.round,
-      status: interview.status,
-    });
-
-    setShowEditModal(true);
-  };
-
-  const handleEditInputChange = (field, value) => {
-    setEditFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleUpdateInterview = () => {
-    if (!selectedInterview) return;
-
-    if (
-      !editFormData.candidate ||
-      !editFormData.date ||
-      !editFormData.timeSlot
-    ) {
-      alert("Please fill all required fields");
-      return;
-    }
-
-    const dateObj = new Date(editFormData.date);
-    const formattedDate = `${String(dateObj.getDate()).padStart(
-      2,
-      "0"
-    )}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(
-      dateObj.getFullYear()
-    ).slice(-2)}`;
-    const formattedTime = formatTimeTo12Hour(editFormData.timeSlot);
-    const interviewType =
-      editFormData.interviewMode === "online" ? "Virtual Call" : "In-Person";
-
-    const selectedCandidate = candidates.find(
-      (c) => c.name === editFormData.candidate
-    );
-
-    const updated = scheduledInterviews.map((interview) => {
-      if (interview.id === selectedInterview.id) {
-        return {
-          ...interview,
-          candidate: {
-            name: editFormData.candidate,
-            initials: selectedCandidate
-              ? selectedCandidate.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-              : interview.candidate.initials,
-            jobRole: selectedCandidate
-              ? selectedCandidate.jobRole
-              : interview.candidate.jobRole,
-            date: formattedDate,
-          },
-          time: formattedTime,
-          type: interviewType,
-          round: editFormData.round,
-          status: editFormData.status,
-        };
+      if (d.includes("/")) {
+        // dd/mm/yyyy → yyyy-mm-dd
+        const [day, month, year] = d.split("/");
+        formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      } else if (d.includes("-")) {
+        // yyyy-mm-dd or yyyy-mm-ddTHH:mm:ssZ
+        formattedDate = d.split("T")[0];
+      } else {
+        // timestamp fallback
+        formattedDate = new Date(d).toISOString().split("T")[0];
       }
-      return interview;
+    }
+  } catch (e) {
+    formattedDate = "";
+  }
+
+  // ✅ convert 12h → 24h
+  const parseTimeTo24 = (t12) => {
+    if (!t12) return "";
+    const [time, period] = t12.split(" ");
+    const [hh, mm] = time.split(":");
+    let h = parseInt(hh, 10);
+    if (period === "PM" && h !== 12) h += 12;
+    if (period === "AM" && h === 12) h = 0;
+    return `${String(h).padStart(2, "0")}:${mm}`;
+  };
+
+  setEditFormData({
+    candidate: interview.candidate.name,
+    date: formattedDate, // ✅ fixed
+    timeSlot: parseTimeTo24(interview.time),
+    location: interview.location || "",
+    status: interview.status,
+    feedback: interview.feedback || "",
+  });
+
+  setShowEditModal(true);
+};
+
+  const handleEditInputChange = (f, v) =>
+    setEditFormData((p) => ({ ...p, [f]: v }));
+
+
+const handleUpdateInterview = async () => {
+  if (!selectedInterview) return;
+
+  if (!editFormData.date || !editFormData.timeSlot)
+    return Swal.fire("Missing Fields", "Please select date and time.", "warning");
+
+  // build scheduled_at in MySQL format
+  const scheduled_at = `${editFormData.date} ${editFormData.timeSlot}:00`;
+
+  const payload = {
+    interview_id: selectedInterview.id,
+    scheduled_at,
+    status: editFormData.status,
+    feedback: editFormData.feedback,
+  };
+
+  console.log("📤 Update Payload:", payload);
+
+  try {
+    const res = await putMethod({
+      apiUrl: apiService.updateInterview, // ✅ ensure defined in serviceUrl.js
+      payload,
     });
 
-    setScheduledInterviews(updated);
-    setShowEditModal(false);
-    setSelectedInterview(null);
-  };
+    console.log("📥 Update Response:", res);
 
-  const handleCloseEditModal = () => {
-    setShowEditModal(false);
-    setSelectedInterview(null);
-  };
+    if (res?.status === true || res?.status === "success") {
+      Swal.fire({
+        title: "✅ Interview Updated",
+        text: "Interview details have been updated successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      setShowEditModal(false);
+      setSelectedInterview(null);
+
+      // Refresh interviews
+      fetchScheduledInterviews();
+    } else {
+      Swal.fire({
+        title: "❌ Failed",
+        text: res?.message || "Failed to update interview.",
+        icon: "error",
+      });
+    }
+  } catch (err) {
+    console.error("❌ Error updating interview:", err);
+    Swal.fire({
+      title: "⚠️ Server Error",
+      text: "Something went wrong while updating the interview.",
+      icon: "error",
+    });
+  }
+};
+
 
   // =========================================================
-  // 7) RENDER (UI unchanged)
+  // 6) RENDER
   // =========================================================
   return (
     <div className="mt-5">
       {/* Top Section - Calendar and Form */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
-        {/* Calendar Panel */}
+        {/* Calendar */}
         <div className="bg-white rounded-lg border border-gray-200 p-5">
           <div className="mb-4">
-            <h3
-              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-            >
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
               Calendar
             </h3>
             <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
               Select interview date
             </p>
           </div>
-          <Calendar
-            selectedDate={selectedDate}
-            onDateSelect={handleDateSelect}
-          />
+      <Calendar
+  selectedDate={selectedDate}
+  highlightedDates={highlightedDates}  // 🔥 yeh new line add
+  onDateSelect={(d) => {
+    setSelectedDate(d);
+    setFormData((p) => ({
+      ...p,
+      date: d.toISOString().split("T")[0],
+    }));
+  }}
+/>
+
+
         </div>
 
-        {/* Schedule New Interview Panel */}
+        {/* Schedule New Interview */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="mb-6">
-            <h3
-              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-            >
-              Schedule New Interview
-            </h3>
-            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-              Configure interview details and assign panel
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {/* Select Candidate(s) */}
-            <div className="relative" ref={candidateDropdownRef}>
-              {/* 🟩 Candidate Dropdown */}
-              <label
-                className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-              >
-                Select Candidate(s)
-              </label>
-              <button
-                type="button"
-                onClick={handleCandidateFieldClick}
-                className="w-full px-3 py-2 text-left flex items-center justify-between border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <span
-                  className={
-                    formData.candidates
-                      ? `${TAILWIND_COLORS.TEXT_PRIMARY}`
-                      : "text-gray-400"
-                  }
-                >
-                  {formData.candidates ||
-                    (loadingCandidates
-                      ? "Loading candidates..."
-                      : "Choose candidates")}
-                </span>
-                <LuChevronDown
-                  className={`w-4 h-4 text-gray-400 transition-transform ${
-                    showCandidateDropdown ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-
-              {/* Candidate List */}
-              {/* Candidate List */}
-              {showCandidateDropdown && (
-                <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  {candidates.length > 0 ? (
-                    candidates.map((candidate) => (
-                      <button
-                        key={candidate.application_id}
-                        type="button"
-                        onClick={() => handleCandidateSelect(candidate)}
-                        className={`w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors ${
-                          formData.candidates === candidate.candidate_name
-                            ? "bg-primary-10 text-primary"
-                            : `${TAILWIND_COLORS.TEXT_PRIMARY}`
-                        }`}
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                            <span className="text-xs font-medium text-gray-600">
-                              {candidate.candidate_name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")}
-                            </span>
-                          </div>
-                          <div className="flex-1">
-                            <div className="font-medium">
-                              {candidate.candidate_name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {candidate.job_title}
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    ))
-                  ) : (
-                    <div className="px-4 py-3 text-sm text-gray-500">
-                      No applicants found
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* 🆕 Select Application Dropdown (Appears after Candidate selection) */}
-              {formData.candidate_id && (
-                <div className="relative mt-5" ref={applicationDropdownRef}>
-                  <label
-                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-                  >
-                    Select Application
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShowApplicationDropdown(!showApplicationDropdown)
-                    }
-                    className="w-full px-3 py-2 text-left flex items-center justify-between border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <span
-                      className={
-                        formData.application_id
-                          ? `${TAILWIND_COLORS.TEXT_PRIMARY}`
-                          : "text-gray-400"
-                      }
-                    >
-                      {formData.applicationTitle || "Choose application"}
-                    </span>
-                    <LuChevronDown
-                      className={`w-4 h-4 text-gray-400 transition-transform ${
-                        showApplicationDropdown ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-
-                  {/* Dropdown List (static for now) */}
-                  {showApplicationDropdown && (
-                    <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-56 overflow-y-auto">
-                      <button
-                        type="button"
-                        className="w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors text-gray-800"
-                      >
-                        Application #A-101 — Electrician
-                      </button>
-                      <button
-                        type="button"
-                        className="w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors text-gray-800"
-                      >
-                        Application #A-102 — Fitter
-                      </button>
-                      <button
-                        type="button"
-                        className="w-full px-4 py-3 text-left hover:bg-primary-10 transition-colors text-gray-800"
-                      >
-                        Application #A-103 — Welder
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Date & Time */}
-            <div className="flex flex-col md:flex-row md:justify-between">
-              {/* Date */}
-              <div className="relative w-full md:mr-2">
-                <label
-                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-                >
-                  Date
-                </label>
-                <input
-                  type="date"
-                  value={formData.date}
-                  onChange={(e) => handleInputChange("date", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-8 cursor-pointer"
-                />
-              </div>
-
-              {/* Time slot */}
-              <div className="relative w-full md:ml-2 mt-4 md:mt-0">
-                <label
-                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-                >
-                  Time slot
-                </label>
-                <input
-                  type="time"
-                  value={formData.timeSlot}
-                  onChange={(e) =>
-                    handleInputChange("timeSlot", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
-                />
-              </div>
-            </div>
-
-            {/* Interview Mode */}
-            <div>
-              <label
-                className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}
-              >
-                Interview Mode
-              </label>
-              <div className="space-y-3">
-                {/* Online Mode */}
-                <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <input
-                    type="radio"
-                    id="online-mode"
-                    name="interviewMode"
-                    value="online"
-                    checked={formData.interviewMode === "online"}
-                    onChange={(e) =>
-                      handleInputChange("interviewMode", e.target.value)
-                    }
-                    className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
-                  />
-                  <div className="flex items-center space-x-2">
-                    <LuVideo className="w-5 h-5 text-primary" />
-                    <label
-                      htmlFor="online-mode"
-                      className="cursor-pointer flex-1"
-                    >
-                      <div
-                        className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-                      >
-                        Online
-                      </div>
-                      <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                        Virtual call or video conference
-                      </div>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Offline Mode */}
-                <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <input
-                    type="radio"
-                    id="offline-mode"
-                    name="interviewMode"
-                    value="offline"
-                    checked={formData.interviewMode === "offline"}
-                    onChange={(e) =>
-                      handleInputChange("interviewMode", e.target.value)
-                    }
-                    className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
-                  />
-                  <div className="flex items-center space-x-2">
-                    <LuUsers className="w-5 h-5 text-green-600" />
-                    <label
-                      htmlFor="offline-mode"
-                      className="cursor-pointer flex-1"
-                    >
-                      <div
-                        className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-                      >
-                        Offline
-                      </div>
-                      <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                        In-person meeting at office
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Location (show only for offline mode) */}
-            {formData.interviewMode === "offline" && (
-              <div>
-                <label
-                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-                >
-                  Location
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Enter interview location"
-                    value={formData.location}
-                    onChange={(e) =>
-                      handleInputChange("location", e.target.value)
-                    }
-                    className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <LuMapPin
-                    className={`absolute left-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Schedule Interview Button */}
-            <Button
-              onClick={handleScheduleInterview}
-              variant="primary"
-              size="lg"
-              fullWidth
-              icon={<LuCheck className="w-4 h-4" />}
-            >
-              Confirm Schedule
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Scheduled Interviews Panel */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="mb-6">
-          <h3
-            className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-          >
-            Scheduled Interviews
+          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+            Schedule New Interview
           </h3>
           <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-            Upcoming and completed interviews
+            Configure interview details
           </p>
-        </div>
 
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
-            <LuSearch
-              className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`}
-            />
-            <input
-              type="text"
-              placeholder="Search by candidate name, job role, time, status, round..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {filteredInterviews.map((interview) => (
-            <div
-              key={interview.id}
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
+          {/* Candidate Dropdown */}
+          <div className="relative mt-4" ref={candidateDropdownRef}>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Select Candidate
+            </label>
+            <button
+              onClick={() => setShowCandidateDropdown(!showCandidateDropdown)}
+              className="w-full px-3 py-2 text-left border border-gray-300 rounded-lg flex justify-between"
             >
-              {/* Mobile Layout */}
-              <div className="block md:hidden">
-                {/* Candidate Info */}
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span
-                      className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}
-                    >
-                      {interview.candidate.initials}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <h4
-                      className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer hover:text-primary transition-colors`}
-                      onClick={() => handleEditClick(interview)}
-                    >
-                      {interview.candidate.name}
-                    </h4>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                      {interview.candidate.jobRole}
-                    </p>
-                  </div>
-                  <div
-                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${TAILWIND_COLORS.BADGE_SUCCESS}`}
+              {formData.candidates ||
+                (loadingCandidates ? "Loading..." : "Choose candidate")}
+              <LuChevronDown
+                className={`w-4 h-4 ${showCandidateDropdown ? "rotate-180" : ""
+                  }`}
+              />
+            </button>
+            {showCandidateDropdown && (
+              <div className="absolute mt-1 w-full bg-white border rounded-lg shadow max-h-56 overflow-y-auto">
+                {candidates.map((c) => (
+                  <button
+                    key={c.candidate_id}
+                    onClick={() => handleCandidateSelect(c)}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-50"
                   >
-                    {interview.status}
-                  </div>
+                    {c.candidate_name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Application Dropdown */}
+          {formData.candidate_id && (
+            <div className="relative mt-4" ref={applicationDropdownRef}>
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                Select Application
+              </label>
+              <button
+                onClick={() => setShowApplicationDropdown(!showApplicationDropdown)}
+                className="w-full px-3 py-2 text-left border border-gray-300 rounded-lg flex justify-between"
+              >
+                {formData.applicationTitle || "Choose application"}
+                <LuChevronDown
+                  className={`w-4 h-4 ${showApplicationDropdown ? "rotate-180" : ""
+                    }`}
+                />
+              </button>
+              {showApplicationDropdown && (
+                <div className="absolute mt-1 w-full bg-white border rounded-lg shadow max-h-56 overflow-y-auto">
+                  {applications.map((a) => (
+                    <button
+                      key={a.application_id}
+                      onClick={() => {
+                        setFormData((p) => ({
+                          ...p,
+                          application_id: a.application_id,
+                          job_id: a.job_id,
+                          applicationTitle: `${a.job_title}`,
+                        }));
+                        setShowApplicationDropdown(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-50"
+                    >
+                      {a.job_title}
+                    </button>
+                  ))}
                 </div>
+              )}
+            </div>
+          )}
 
-                {/* Interview Details - Mobile */}
-                <div className="space-y-2 mb-3">
-                  <div className="flex items-center justify-between">
-                    <div
-                      className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
-                    >
-                      <LuCalendar className="w-4 h-4" />
-                      <span>{interview.candidate.date}</span>
-                    </div>
-                    <div
-                      className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
-                    >
-                      <LuClock className="w-4 h-4" />
-                      <span>{interview.time}</span>
-                    </div>
-                  </div>
+          {/* Date & Time */}
+          <div className="flex gap-4 mt-4">
+            <div className="w-1/2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                Date
+              </label>
+              <input
+                type="date"
+                value={formData.date}
+                onChange={(e) => handleInputChange("date", e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </div>
+            <div className="w-1/2">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                Time
+              </label>
+              <input
+                type="time"
+                value={formData.timeSlot}
+                onChange={(e) => handleInputChange("timeSlot", e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </div>
+          </div>
 
-                  <div className="flex items-center justify-between">
-                    <a
-                      href="#"
-                      className={`flex items-center space-x-2 text-sm text-primary hover:text-primary-dark transition-colors`}
-                    >
-                      <LuLink className="w-4 h-4" />
-                      <span>Join Meeting</span>
-                    </a>
-                    <div
-                      className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
-                    >
-                      <LuVideo className="w-4 h-4" />
-                      <span>{interview.type}</span>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`flex items-center space-x-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
+          {/* Interview Mode */}
+          <div className="mt-4">
+            <label
+              className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}
+            >
+              Interview Mode
+            </label>
+            <div className="space-y-3">
+              {/* Online Mode */}
+              <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <input
+                  type="radio"
+                  id="online-mode"
+                  name="interviewMode"
+                  value="online"
+                  checked={formData.interviewMode === "online"}
+                  onChange={(e) =>
+                    handleInputChange("interviewMode", e.target.value)
+                  }
+                  className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
+                />
+                <div className="flex items-center space-x-2">
+                  <LuVideo className="w-5 h-5 text-primary" />
+                  <label
+                    htmlFor="online-mode"
+                    className="cursor-pointer flex-1"
                   >
-                    <LuUsers className="w-4 h-4" />
-                    <span>{interview.round}</span>
-                  </div>
-                </div>
-
-                {/* Panel Members - Mobile */}
-                <div>
-                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                    Panel:
-                  </span>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {interview.panelMembers.map((member, index) => (
-                      <span
-                        key={index}
-                        className={`px-2 py-1 bg-gray-100 text-xs ${TAILWIND_COLORS.TEXT_MUTED} rounded`}
-                      >
-                        {member}
-                      </span>
-                    ))}
-                  </div>
+                    <div
+                      className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                    >
+                      Online
+                    </div>
+                    <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      Virtual call or video conference
+                    </div>
+                  </label>
                 </div>
               </div>
 
-              {/* Desktop Layout */}
-              <div className="hidden md:flex items-center justify-between">
-                {/* Candidate Information */}
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                    <span
-                      className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}
-                    >
-                      {interview.candidate.initials}
-                    </span>
-                  </div>
-                  <div>
-                    <h4
-                      className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer hover:text-primary transition-colors inline-block`}
-                      onClick={() => handleEditClick(interview)}
-                    >
-                      {interview.candidate.name}
-                    </h4>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                      {interview.candidate.jobRole}
-                    </p>
-                    <div className="flex items-center space-x-4 mt-1">
-                      <div
-                        className={`flex items-center space-x-1 text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}
-                      >
-                        <LuCalendar className="w-3 h-3" />
-                        <span>{interview.candidate.date}</span>
-                      </div>
-                      <a
-                        href="#"
-                        className={`flex items-center space-x-1 text-xs text-primary hover:text-primary-dark transition-colors`}
-                      >
-                        <LuLink className="w-3 h-3" />
-                        <span>Join Meeting</span>
-                      </a>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {interview.panelMembers.map((member, index) => (
-                        <span
-                          key={index}
-                          className={`px-2 py-1 bg-gray-100 text-xs ${TAILWIND_COLORS.TEXT_MUTED} rounded`}
-                        >
-                          {member}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Interview Details - Desktop */}
-                <div className="flex items-center space-x-6">
-                  <div className="text-center">
+              {/* Offline Mode */}
+              <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <input
+                  type="radio"
+                  id="offline-mode"
+                  name="interviewMode"
+                  value="offline"
+                  checked={formData.interviewMode === "offline"}
+                  onChange={(e) =>
+                    handleInputChange("interviewMode", e.target.value)
+                  }
+                  className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
+                />
+                <div className="flex items-center space-x-2">
+                  <LuUsers className="w-5 h-5 text-green-600" />
+                  <label
+                    htmlFor="offline-mode"
+                    className="cursor-pointer flex-1"
+                  >
                     <div
-                      className={`flex items-center space-x-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}
+                      className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                     >
-                      <LuClock className="w-4 h-4" />
-                      <span>{interview.time}</span>
+                      Offline
                     </div>
-                    <div
-                      className={`flex items-center space-x-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}
-                    >
-                      <LuVideo className="w-4 h-4" />
-                      <span>{interview.type}</span>
+                    <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      In-person meeting at office
                     </div>
-                  </div>
-
-                  <div className="text-center">
-                    <div
-                      className={`flex items-center space-x-1 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}
-                    >
-                      <LuUsers className="w-4 h-4" />
-                      <span>{interview.round}</span>
-                    </div>
-                    <div
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${TAILWIND_COLORS.BADGE_SUCCESS}`}
-                    >
-                      {interview.status}
-                    </div>
-                  </div>
+                  </label>
                 </div>
               </div>
             </div>
-          ))}
+          </div>
+
+
+          {/* Location */}
+          {formData.interviewMode === "offline" && (
+            <div className="mt-4">
+              <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                Location
+              </label>
+              <input
+                type="text"
+                placeholder="Enter interview location"
+                value={formData.location}
+                onChange={(e) => handleInputChange("location", e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg"
+              />
+            </div>
+          )}
+
+          {/* Status */}
+          <div className="mt-4">
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Status
+            </label>
+            <select
+              value={formData.status}
+              onChange={(e) => handleInputChange("status", e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg"
+            >
+              <option value="Scheduled">Scheduled</option>
+              <option value="reschedule">Rescheduled</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+
+          {/* Feedback */}
+          <div className="mt-4">
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Feedback
+            </label>
+            <input
+              type="text"
+              placeholder="Enter feedback"
+              value={formData.feedback}
+              onChange={(e) => handleInputChange("feedback", e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg"
+            />
+          </div>
+
+          <Button
+            onClick={handleScheduleInterview}
+            variant="primary"
+            size="lg"
+            fullWidth
+            icon={<LuCheck className="w-4 h-4" />}
+            className="mt-5"
+          >
+            Confirm Schedule
+          </Button>
         </div>
       </div>
 
-      {/* Edit Interview Modal */}
+      {/* Scheduled Interviews */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+          Scheduled Interviews
+        </h3>
+
+        <div className="mt-4">
+          <div className="relative mb-5">
+            <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by candidate, time, status..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 border rounded-lg"
+            />
+          </div>
+
+          {filteredInterviews.length === 0 && (
+            <p className="text-gray-500 text-sm">No interviews found</p>
+          )}
+          <div className="space-y-4">
+            {filteredInterviews.map((intv) => (
+              <div
+                key={intv.id}
+                className="border p-4 rounded-lg flex justify-between items-center hover:shadow-sm transition"
+              >
+                <div>
+                  <div
+                    className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer`}
+                    onClick={() => handleEditClick(intv)}
+                  >
+                    {intv.candidate.name}
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {intv.candidate.date} • {intv.time} • {intv.type}
+                    {intv.location && intv.location !== "—" && intv.type === "In-Person" && ` • ${intv.location}`}
+                  </p>
+                  {intv.feedback && intv.feedback !== "—" && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      Feedback: {intv.feedback}
+                    </p>
+                  )}
+                </div>
+                <span className="px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium">
+                  {intv.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
-              <h2
-                className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              >
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                 Edit Interview
               </h2>
               <button
-                onClick={handleCloseEditModal}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedInterview(null);
+                }}
               >
-                <LuX size={24} className={TAILWIND_COLORS.TEXT_MUTED} />
+                <LuX size={22} />
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="p-6 space-y-4">
-              {/* Candidate Selection */}
               <div>
-                <label
-                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-                >
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                   Candidate
                 </label>
                 <input
                   type="text"
-                  value={editFormData.candidate}
                   readOnly
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
+                  value={editFormData.candidate}
+                  className="w-full px-3 py-2 border rounded-lg bg-gray-50"
                 />
               </div>
 
-              {/* Date and Time */}
+              {/* Date & Time */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label
-                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-                  >
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     Date
                   </label>
                   <input
                     type="date"
                     value={editFormData.date}
-                    onChange={(e) =>
-                      handleEditInputChange("date", e.target.value)
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => handleEditInputChange("date", e.target.value)}
+                    className="w-full px-3 py-2 border rounded-lg"
                   />
                 </div>
-
                 <div>
-                  <label
-                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-                  >
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     Time
                   </label>
                   <input
@@ -1021,133 +948,63 @@ const handleCandidateSelect = (candidate) => {
                     onChange={(e) =>
                       handleEditInputChange("timeSlot", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border rounded-lg"
                   />
                 </div>
               </div>
 
-              {/* Interview Mode */}
+              {/* Mode */}
               <div>
-                <label
-                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}
-                >
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                   Interview Mode
                 </label>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div className="flex gap-5 mt-2">
+                  <label className="flex items-center gap-2">
                     <input
                       type="radio"
-                      id="edit-online-mode"
-                      name="editInterviewMode"
                       value="online"
                       checked={editFormData.interviewMode === "online"}
                       onChange={(e) =>
                         handleEditInputChange("interviewMode", e.target.value)
                       }
-                      className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                     />
-                    <div className="flex items-center space-x-2">
-                      <LuVideo className="w-5 h-5 text-primary" />
-                      <label
-                        htmlFor="edit-online-mode"
-                        className="cursor-pointer flex-1"
-                      >
-                        <div
-                          className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-                        >
-                          Online
-                        </div>
-                        <div
-                          className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}
-                        >
-                          Virtual call or video conference
-                        </div>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <LuVideo className="text-primary" /> Online
+                  </label>
+                  <label className="flex items-center gap-2">
                     <input
                       type="radio"
-                      id="edit-offline-mode"
-                      name="editInterviewMode"
                       value="offline"
                       checked={editFormData.interviewMode === "offline"}
                       onChange={(e) =>
                         handleEditInputChange("interviewMode", e.target.value)
                       }
-                      className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                     />
-                    <div className="flex items-center space-x-2">
-                      <LuUsers className="w-5 h-5 text-green-600" />
-                      <label
-                        htmlFor="edit-offline-mode"
-                        className="cursor-pointer flex-1"
-                      >
-                        <div
-                          className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-                        >
-                          Offline
-                        </div>
-                        <div
-                          className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}
-                        >
-                          In-person meeting at office
-                        </div>
-                      </label>
-                    </div>
-                  </div>
+                    <LuUsers className="text-green-600" /> Offline
+                  </label>
                 </div>
               </div>
 
-              {/* Location (if offline) */}
+              {/* Location */}
               {editFormData.interviewMode === "offline" && (
                 <div>
-                  <label
-                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-                  >
+                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     Location
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Enter interview location"
-                      value={editFormData.location}
-                      onChange={(e) =>
-                        handleEditInputChange("location", e.target.value)
-                      }
-                      className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <LuMapPin
-                      className={`absolute left-3 top-2.5 w-5 h-5 ${TAILWIND_COLORS.TEXT_MUTED}`}
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    placeholder="Enter location"
+                    value={editFormData.location}
+                    onChange={(e) =>
+                      handleEditInputChange("location", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border rounded-lg"
+                  />
                 </div>
               )}
 
-              {/* Round */}
-              <div>
-                <label
-                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-                >
-                  Round
-                </label>
-                <input
-                  type="text"
-                  value={editFormData.round}
-                  onChange={(e) =>
-                    handleEditInputChange("round", e.target.value)
-                  }
-                  placeholder="Round 1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
               {/* Status */}
               <div>
-                <label
-                  className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-                >
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                   Status
                 </label>
                 <select
@@ -1155,29 +1012,45 @@ const handleCandidateSelect = (candidate) => {
                   onChange={(e) =>
                     handleEditInputChange("status", e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border rounded-lg"
                 >
                   <option value="Scheduled">Scheduled</option>
+                  <option value="reschedule">Rescheduled</option>
                   <option value="Completed">Completed</option>
                   <option value="Cancelled">Cancelled</option>
-                  <option value="Rescheduled">Rescheduled</option>
                 </select>
+              </div>
+
+              {/* Feedback */}
+              <div>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                  Feedback
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter feedback"
+                  value={editFormData.feedback}
+                  onChange={(e) =>
+                    handleEditInputChange("feedback", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border rounded-lg"
+                />
               </div>
             </div>
 
-            {/* Modal Footer */}
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 sticky bottom-0 bg-white">
+            <div className="flex justify-end gap-3 p-6 border-t">
               <Button
-                onClick={handleCloseEditModal}
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedInterview(null);
+                }}
                 variant="secondary"
-                size="md"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleUpdateInterview}
                 variant="primary"
-                size="md"
                 icon={<LuCheck className="w-4 h-4" />}
               >
                 Update Interview
