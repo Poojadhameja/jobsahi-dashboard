@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, lazy, Suspense } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar.jsx";
 import Footer from "../../components/Footer";
 import MeetOurTeam from "../../components/Rounded4Cards.jsx";
-import TrustedByStartups from "../../components/TrustedByStartups";
 import FAQ from "../../components/FAQ";
 import NewsletterSubscription from "../../components/NewsletterSubscription";
 import {
@@ -15,15 +15,15 @@ import {
   FaSearch,
   FaUsers,
   FaBriefcase,
-  FaBuilding,
-  FaGraduationCap,
-  FaChartLine,
-  FaChevronLeft,
-  FaChevronRight
+  FaBuilding
 } from "react-icons/fa";
 import textunderline from "../../assets/website_text_underline.png";
+import { COLOR_CLASSES } from "../../components/colorClasses";
+
+const TrustedByStartups = lazy(() => import("../../components/TrustedByStartups.jsx"));
 
 const About = () => {
+  const navigate = useNavigate();
   // Newsletter subscription state
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -31,19 +31,19 @@ const About = () => {
   // Team members data
   const teamMembers = [
     {
-      name: "Marteen Bryan",
+      name: "Pooja ",
       role: "Product Designer"
     },
     {
-      name: "Natasha Smith", 
+      name: "Aarti", 
       role: "Developer"
     },
     {
-      name: "Kevin Lim",
+      name: "Yuvraj",
       role: "UI Designer"
     },
     {
-      name: "George Mark",
+    name: "Himanshu",
       role: "Product Designer"
     }
   ];
@@ -55,44 +55,6 @@ const About = () => {
     </>
   );
   const teamDescription = "A dedicated crew delivering your career goals:";
-
-  // TrustedByStartups data
-  const testimonials = [
-    {
-      text: "JobSahi has simplified our campus hiring process. We connected with skilled ITI candidates in minutes!",
-      author: "Rahul Verma",
-      position: "HR Manager, Sigma Tools Pvt. Ltd."
-    },
-    {
-      text: "Posting jobs and tracking applications on JobSahi is seamless. It's the go-to platform for technical hiring.",
-      author: "Sunita Singh", 
-      position: "Training & Placement Officer"
-    }
-  ];
-
-  const trustedByStartupsHeaderContent = {
-    title: (
-      <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-        <span className="text-[#A2DDFF]">Trusted</span> By<br />
-        Leading Startups
-      </h2>
-    ),
-    description: (
-      <p className="text-white text-lg leading-relaxed">
-        Join 300+ companies and institutes hiring through JobSahi. From MSMEs to training institutes, trusted by industry leaders to find the right skilled talent fast.
-      </p>
-    ),
-    navigation: (
-      <>
-        <button className="w-12 h-12 border-2 border-white rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#0B537D] transition-all duration-300">
-          <FaChevronLeft className="text-lg" />
-        </button>
-        <button className="w-12 h-12 border-2 border-white rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#0B537D] transition-all duration-300">
-          <FaChevronRight className="text-lg" />
-        </button>
-      </>
-    )
-  };
 
   // FAQ data
   const faqs = [
@@ -141,30 +103,34 @@ const About = () => {
   };
 
   return (
-    <div className="bg-[#00395B] min-h-screen">
+    <div className={`${COLOR_CLASSES.bg.navy} min-h-screen`}>
       <Navbar />
       
       {/* Get To Know About Us Section */}
-      <section className="py-10 bg-[#EAF5FB] mx-4 rounded-[50px] my-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className={`py-10 ${COLOR_CLASSES.bg.surfacePaleBlue} mx-4 lg:mx-8 rounded-[32px] md:rounded-[50px] my-8`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             {/* Top Banner */}
             <div className="mb-5">
-              <div className="inline-block border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-2 rounded-full text-sm font-semibold">
+              <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-6 py-2 rounded-full text-sm font-semibold`}>
                 #1 PORTAL JOB PLATFORM
               </div>
             </div>
 
             {/* Main Heading */}
             <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-12 ">
-              <h1 className="text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 text-[#0B537D] leading-tight">
+              <h1 className={`text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-6 md:mb-8 ${COLOR_CLASSES.text.deepBlue} leading-tight`}>
                 Get To Know About Us
               </h1>
-              <img src={textunderline} alt="" className="w-[30%] h-[15px] md:h-[25px] -mt-10" />
+              <img
+                src={textunderline}
+                alt=""
+                className="w-28 sm:w-36 md:w-48 lg:w-60 h-[10px] md:h-[25px] -mt-6 md:-mt-10"
+              />
             </div>
 
             {/* Description */}
-            <p className="text-gray-700 text-lg ">
+            <p className={`${COLOR_CLASSES.text.neutralSlate} text-lg `}>
               Let's get to know us a little more closely.
             </p>
           </div>
@@ -172,16 +138,16 @@ const About = () => {
       </section>
 
       {/* Video Section */}
-      <section className="py-16 bg-white mx-4 rounded-[50px] my-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className={`py-16 ${COLOR_CLASSES.bg.pureWhite} mx-4 lg:mx-8 rounded-[32px] md:rounded-[50px] my-8`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center">
             <div className="w-full max-w-4xl">
-              <div className="bg-gray-100 rounded-2xl h-96 flex items-center justify-center relative overflow-hidden">
+              <div className={`${COLOR_CLASSES.bg.surfaceSoftBlue} rounded-2xl aspect-[16/9] sm:aspect-[5/3] w-full flex items-center justify-center relative overflow-hidden p-6 sm:p-8`}>
                 <div className="text-center">
-                  <div className="w-20 h-20 bg-[#5C9A24] rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer hover:bg-[#4a7a1d] transition-colors">
-                    <FaPlay className="text-white text-2xl ml-1" />
+                  <div className={`w-20 h-20 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center mx-auto mb-4 cursor-pointer ${COLOR_CLASSES.hoverBg.accentGreenDark} transition-colors`}>
+                    <FaPlay className={`${COLOR_CLASSES.text.pureWhite} text-2xl ml-1`} />
                   </div>
-                  <p className="text-gray-700 text-lg">Watch Our Story</p>
+                  <p className={`${COLOR_CLASSES.text.neutralSlate} text-lg`}>Watch Our Story</p>
                 </div>
               </div>
             </div>
@@ -190,44 +156,44 @@ const About = () => {
       </section>
 
       {/* Statistics Section */}
-      <section className="py-16 bg-white mx-4 rounded-[50px] my-8">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <section className={`py-16 ${COLOR_CLASSES.bg.pureWhite} mx-4 lg:mx-8 rounded-[32px] md:rounded-[50px] my-8`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             {/* Stat 1 */}
             <div className="text-center">
-              <div className="text-5xl md:text-6xl font-semibold text-[#5C9A24] mb-4">
+              <div className={`text-5xl md:text-6xl font-semibold ${COLOR_CLASSES.text.accentGreen} mb-4`}>
                 25K+
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <h3 className={`text-xl font-semibold ${COLOR_CLASSES.text.deepBlue} mb-2`}>
                 Successful Placements
               </h3>
-              <p className="text-gray-700">
+              <p className={COLOR_CLASSES.text.neutralSlate}>
                 Connecting skilled professionals with their ideal roles.
               </p>
             </div>
 
             {/* Stat 2 */}
             <div className="text-center">
-              <div className="text-5xl md:text-6xl font-semibold text-[#5C9A24] mb-4">
+              <div className={`text-5xl md:text-6xl font-semibold ${COLOR_CLASSES.text.accentGreen} mb-4`}>
                 100K
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <h3 className={`text-xl font-semibold ${COLOR_CLASSES.text.deepBlue} mb-2`}>
                 Registered Users
               </h3>
-              <p className="text-gray-700">
+              <p className={COLOR_CLASSES.text.neutralSlate}>
                 A vibrant community of job seekers and recruiters.
               </p>
             </div>
 
             {/* Stat 3 */}
             <div className="text-center">
-              <div className="text-5xl md:text-6xl font-semibold text-[#5C9A24] mb-4">
+              <div className={`text-5xl md:text-6xl font-semibold ${COLOR_CLASSES.text.accentGreen} mb-4`}>
                 30+
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+              <h3 className={`text-xl font-semibold ${COLOR_CLASSES.text.deepBlue} mb-2`}>
                 Industry Partners
               </h3>
-              <p className="text-gray-700">
+              <p className={COLOR_CLASSES.text.neutralSlate}>
                 Trusted by leaders across ITI, polytechnic, government & private sectors.
               </p>
             </div>
@@ -236,46 +202,74 @@ const About = () => {
       </section>
 
       {/* Find The One That's Right For You Section */}
-      <section className="py-16 bg-white mx-4 rounded-[50px] my-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className={`py-16 ${COLOR_CLASSES.bg.pureWhite} mx-4 lg:mx-8 rounded-[32px] md:rounded-[50px] my-8`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Side - Visual Elements */}
-            <div className="relative">
-                {/* Large L-shaped block */}
-                <div className="sm:w-96 sm:h-96 w-60 h-60 bg-blue-100 rounded-3xl relative">
-                  {/* Green Badge */}
-                  <div className="w-[80%]">
-                <div className="flex gap-3">
-                  <div className="flex-1 bg-white rounded-xl p-4 shadow-lg relative">
-                    <input 
-                      type="text" 
-                      placeholder="Trusted Job Vacancies..." 
-                      className="w-full text-gray-700 bg-transparent border-none outline-none text-lg"
+            <div className="relative flex justify-center lg:justify-start">
+              <div className={`w-full max-w-xs sm:max-w-md md:max-w-lg ${COLOR_CLASSES.bg.surfacePaleBlue} rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl`}>
+                <div className="flex flex-col sm:flex-row gap-4 items-stretch">
+                  <div className={`flex-1 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md`}>
+                    <input
+                      type="text"
+                      placeholder="Trusted Job Vacancies..."
+                      className={`w-full ${COLOR_CLASSES.text.neutralSlate} bg-transparent border-none outline-none text-base sm:text-lg`}
                       readOnly
                     />
                   </div>
-                  <button className="w-16 h-16 bg-[#A1E366] rounded-xl flex items-center justify-center shadow-lg relative">
-                    <FaSearch className="text-white text-lg" />
-                    <div className="absolute inset-0 bg-[#A1E366] rounded-xl opacity-30 blur-sm"></div>
+                  <button className={`self-start sm:self-auto w-full sm:w-16 h-12 sm:h-16 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg relative`}>
+                    <FaSearch className={`${COLOR_CLASSES.text.pureWhite} text-lg`} />
+                    <div className={`absolute inset-0 ${COLOR_CLASSES.bg.accentLime} rounded-xl opacity-30 blur-sm`}></div>
                   </button>
                 </div>
-                <div className="absolute border-4 border-white -bottom-10 left-40 sm:-bottom-10 sm:left-72 w-32 h-24 sm:w-48 sm:h-40 bg-blue-100 rounded-2xl"></div>
-              </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className={`flex items-center gap-3 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md`}>
+                    <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center`}>
+                      <FaBriefcase className={`${COLOR_CLASSES.text.pureWhite} text-xl`} />
+                    </div>
+                    <div>
+                      <p className={`${COLOR_CLASSES.text.deepBlue} font-semibold text-base`}>Active Jobs</p>
+                      <p className={`${COLOR_CLASSES.text.neutralSlate} text-sm`}>1,200+ verified listings</p>
+                    </div>
+                  </div>
+                  <div className={`flex items-center gap-3 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md`}>
+                    <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentSky} rounded-full flex items-center justify-center`}>
+                      <FaUsers className={`${COLOR_CLASSES.text.pureWhite} text-xl`} />
+                    </div>
+                    <div>
+                      <p className={`${COLOR_CLASSES.text.deepBlue} font-semibold text-base`}>Talent Network</p>
+                      <p className={`${COLOR_CLASSES.text.neutralSlate} text-sm`}>50K+ motivated seekers</p>
+                    </div>
+                  </div>
+                  <div className={`flex items-center gap-3 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md sm:col-span-2`}>
+                    <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center`}>
+                      <FaBuilding className={`${COLOR_CLASSES.text.pureWhite} text-xl`} />
+                    </div>
+                    <div>
+                      <p className={`${COLOR_CLASSES.text.deepBlue} font-semibold text-base`}>Partner Institutes</p>
+                      <p className={`${COLOR_CLASSES.text.neutralSlate} text-sm`}>Growing across India</p>
+                    </div>
+                  </div>
                 </div>
-                
-                
               </div>
+              <div className={`hidden md:block absolute -bottom-8 -right-6 w-24 h-24 border-4 ${COLOR_CLASSES.border.pureWhite} ${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl`}></div>
+            </div>
 
             {/* Right Side - Content */}
             <div className="space-y-6">
-            <div className="flex flex-col mb-5 md:mb-12 ">
-              <h2 className="text-4xl md:text-5xl font-bold text-[#0B537D] leading-tight">
+            <div className="flex flex-col mb-5 md:mb-12">
+              <h2 className={`text-3xl sm:text-4xl md:text-5xl font-bold ${COLOR_CLASSES.text.deepBlue} leading-tight`}>
               Find The One That's Right For You
               </h2>
-              <img src={textunderline} alt="" className="w-[50%] h-[15px] md:h-[30px] " />
+              <img
+                src={textunderline}
+                alt=""
+                className="w-32 sm:w-40 md:w-52 lg:w-64 h-[12px] md:h-[24px] mt-2 md:mt-3"
+              />
             </div>
 
-              <p className="text-gray-700 text-lg leading-relaxed">
+              <p className={`${COLOR_CLASSES.text.neutralSlate} text-base sm:text-lg leading-relaxed`}>
                 Our intelligent matching engine connects the right talent with the right opportunities, 
                 ensuring successful placements across various industries.
               </p>
@@ -283,37 +277,40 @@ const About = () => {
               {/* Feature List */}
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
-                  <FaCheckCircle className="text-[#5C9A24] text-lg flex-shrink-0" />
-                  <span className="text-gray-800 font-medium">
+                  <FaCheckCircle className={`${COLOR_CLASSES.text.accentGreen} text-lg flex-shrink-0`} />
+                  <span className={`${COLOR_CLASSES.text.deepBlue} font-medium text-sm sm:text-base`}>
                     For Job Seekers - Discover Fresh, Verified Listings.
                   </span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <FaCheckCircle className="text-[#5C9A24] text-lg flex-shrink-0" />
-                  <span className="text-gray-800 font-medium">
+                  <FaCheckCircle className={`${COLOR_CLASSES.text.accentGreen} text-lg flex-shrink-0`} />
+                  <span className={`${COLOR_CLASSES.text.deepBlue} font-medium text-sm sm:text-base`}>
                     For Employers - Tap Into A Motivated Talent Pool.
                   </span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <FaCheckCircle className="text-[#5C9A24] text-lg flex-shrink-0" />
-                  <span className="text-gray-800 font-medium">
+                  <FaCheckCircle className={`${COLOR_CLASSES.text.accentGreen} text-lg flex-shrink-0`} />
+                  <span className={`${COLOR_CLASSES.text.deepBlue} font-medium text-sm sm:text-base`}>
                     For Partners - Access A Platform Built For Scalability.
                   </span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col items-center sm:flex-row gap-4 pt-4">
-                <button className="border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-3 rounded-full font-semibold text-lg hover:bg-[#5C9A24] hover:text-white flex items-center justify-center space-x-3 transition-colors">
+              <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full">
+                <button
+                  className={`w-full sm:w-auto border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-6 py-3 rounded-full font-semibold text-base sm:text-lg ${COLOR_CLASSES.hoverBg.accentGreen} ${COLOR_CLASSES.hoverText.accentGreenDark} flex items-center justify-center space-x-3 transition-colors`}
+                  onClick={() => navigate("/find-job")}
+                >
                   <span>Search Job</span>
-                  <div className="w-8 h-8 bg-[#5C9A24] rounded-full flex items-center justify-center">
-                    <FaArrowRight className="text-white text-sm" />
+                  <div className={`w-8 h-8 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center`}>
+                    <FaArrowRight className={`${COLOR_CLASSES.text.pureWhite} text-sm`} />
                   </div>
                 </button>
-                <button className="text-[#5C9A24] font-semibold text-lg hover:text-[#4a7a1d] transition-colors flex items-center space-x-2">
+                <button className={`w-full sm:w-auto ${COLOR_CLASSES.text.accentGreen} font-semibold text-base sm:text-lg ${COLOR_CLASSES.hoverText.accentGreenDark} transition-colors flex items-center justify-center sm:justify-start space-x-2`}>
                   <span>Post Job</span>
-                  <div className="w-6 h-6 border-2 border-[#5C9A24] rounded-full flex items-center justify-center">
-                    <span className="text-[#5C9A24] text-sm">×</span>
+                  <div className={`w-6 h-6 border-2 ${COLOR_CLASSES.border.accentGreen} rounded-full flex items-center justify-center`}>
+                    <span className={`${COLOR_CLASSES.text.accentGreen} text-sm`}>×</span>
                   </div>
                 </button>
               </div>
@@ -323,59 +320,59 @@ const About = () => {
       </section>
 
       {/* How It's Works Section */}
-      <section className="py-16 mx-4 my-8">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+      <section className="py-16 mx-4 lg:mx-8 my-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className={`text-3xl sm:text-4xl md:text-5xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
               How It's Works?
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
             {/* Step 1: Create Account */}
-            <div className="text-center">
+            <div className={`${COLOR_CLASSES.bg.surfaceSoftBlue} rounded-3xl p-6 sm:p-8 text-center h-full`}>
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <div className="w-16 h-16 bg-[#A1E366] rounded-full flex items-center justify-center relative">
-                  <FaUserPlus className="text-white text-2xl" />
-                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                    <FaCheckCircle className="text-[#A1E366] text-sm" />
+                <div className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center relative`}>
+                  <FaUserPlus className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
+                  <div className={`absolute -top-1 -right-1 w-6 h-6 ${COLOR_CLASSES.bg.pureWhite} rounded-full flex items-center justify-center`}>
+                    <FaCheckCircle className={`${COLOR_CLASSES.text.accentLime} text-sm`} />
                   </div>
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">
+              <h3 className={`text-2xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
                 Create Account
               </h3>
-              <p className="text-gray-300 text-lg leading-relaxed">
+              <p className={`${COLOR_CLASSES.text.neutralBlueGray} text-base sm:text-lg leading-relaxed`}>
                 Sign up quickly using your mobile number or email.
               </p>
             </div>
 
             {/* Step 2: Complete Your Profile */}
-            <div className="text-center">
+            <div className={`${COLOR_CLASSES.bg.surfaceSoftBlue} rounded-3xl p-6 sm:p-8 text-center h-full`}>
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <div className="w-16 h-16 bg-[#A1E366] rounded-full flex items-center justify-center">
-                  <FaFileAlt className="text-white text-2xl" />
+                <div className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center`}>
+                  <FaFileAlt className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">
+              <h3 className={`text-2xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
                 Complete Your Profile
               </h3>
-              <p className="text-gray-300 text-lg leading-relaxed">
+              <p className={`${COLOR_CLASSES.text.neutralBlueGray} text-base sm:text-lg leading-relaxed`}>
                 Upload your resume, education, and skills.
               </p>
             </div>
 
             {/* Step 3: Apply Job Or Hire */}
-            <div className="text-center">
+            <div className={`${COLOR_CLASSES.bg.surfaceSoftBlue} rounded-3xl p-6 sm:p-8 text-center h-full`}>
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <div className="w-16 h-16 bg-[#A1E366] rounded-full flex items-center justify-center">
-                  <FaHandshake className="text-white text-2xl" />
+                <div className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center`}>
+                  <FaHandshake className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-4">
+              <h3 className={`text-2xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
                 Apply Job Or Hire
               </h3>
-              <p className="text-gray-300 text-lg leading-relaxed">
+              <p className={`${COLOR_CLASSES.text.neutralBlueGray} text-base sm:text-lg leading-relaxed`}>
                 Browse listings and apply directly—no middleman.
               </p>
             </div>
@@ -392,10 +389,9 @@ const About = () => {
 
        
         {/* TrustedByStartups */}
-        <TrustedByStartups 
-          testimonials={testimonials} 
-          headerContent={trustedByStartupsHeaderContent}
-        />
+        <Suspense fallback={<div className={`${COLOR_CLASSES.text.pureWhite} text-center py-10`}>Loading testimonials...</div>}>
+          <TrustedByStartups />
+        </Suspense>
 
           {/* FAQ Section */}
           <FAQ 

@@ -1,14 +1,31 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, lazy, Suspense } from 'react'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
-import TrustedByStartups from '../../components/TrustedByStartups'
 import MeetOurTeam from '../../components/Rounded4Cards'
 import FAQ from '../../components/FAQ'
+import { useNavigate } from 'react-router-dom'
 import { FaCalendarAlt, FaUser, FaArrowRight, FaSearch, FaFilter, FaNewspaper, FaBullhorn, FaChartLine, FaBriefcase, FaGraduationCap, FaCog, FaWrench, FaCar, FaBolt, FaHardHat, FaClipboardList, FaPencilAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import textunderline from "../../assets/website_text_underline.png";
 import subscribebg from "../../assets/news_subscribebg.png"
+import govImage from "../../assets/courses/gov.jpg"
+import workerImage from "../../assets/courses/worker.jpg"
+import companyImage from "../../assets/courses/company.jpg"
+import tipsImage from "../../assets/courses/tips.jpg"
+import { WEBSITE_COLOR_CLASSES } from '../../components/colorClasses'
+import { TRUSTED_BY_STARTUPS_DEFAULT_HEADER } from '../../components/TrustedByStartups.jsx'
+
+const TrustedByStartups = lazy(() => import('../../components/TrustedByStartups.jsx'))
+
+const {
+  TEXT: TEXT_COLORS,
+  BORDER: BORDER_COLORS,
+  HOVER_TEXT: HOVER_TEXT_COLORS,
+  HOVER_BG: HOVER_BG_COLORS,
+  GROUP_HOVER: GROUP_HOVER_CLASSES,
+} = WEBSITE_COLOR_CLASSES
 
 const News = () => {
+  const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -151,6 +168,13 @@ const News = () => {
     }
   ]
 
+  const createStatusBadge = (label) => (
+    <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-white/70">
+      <span className="w-2 h-2 rounded-full bg-[#A1E366]" />
+      {label}
+    </div>
+  )
+
   // TrustedByStartups data
   const testimonialsData = [
     {
@@ -176,26 +200,18 @@ const News = () => {
   ]
 
   const headerContent = {
+    ...TRUSTED_BY_STARTUPS_DEFAULT_HEADER,
+    status: createStatusBadge('Education Partners'),
     title: (
-      <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+      <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
         Trusted by Leading
         <span className="block text-[#A1E366]">Educational Institutions</span>
       </h2>
     ),
     description: (
-      <p className="text-gray-200 text-lg leading-relaxed">
+      <p className="text-white/90 text-lg leading-relaxed">
         Join thousands of students, institutions, and employers who trust JobsAhi for career advancement and quality placements in the technical field.
       </p>
-    ),
-    navigation: (
-      <>
-        <button className="w-12 h-12 bg-[#A1E366] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#8bcb4f] transition-colors duration-300">
-          <FaChevronLeft className="text-lg" />
-        </button>
-        <button className="w-12 h-12 bg-[#A1E366] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#8bcb4f] transition-colors duration-300">
-          <FaChevronRight className="text-lg" />
-        </button>
-      </>
     )
   }
 
@@ -214,25 +230,17 @@ const News = () => {
   ]
 
   const platformUpdatesHeader = {
+    ...TRUSTED_BY_STARTUPS_DEFAULT_HEADER,
+    status: createStatusBadge('Product News'),
     title: (
-      <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+      <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
         Platform Updates
       </h2>
     ),
     description: (
-      <p className="text-gray-200 text-lg leading-relaxed">
+      <p className="text-white/90 text-lg leading-relaxed">
         Stay updated with our latest features and improvements to enhance your experience.
       </p>
-    ),
-    navigation: (
-      <>
-        <button className="w-12 h-12 bg-[#A1E366] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#8bcb4f] transition-colors duration-300">
-          <FaChevronLeft className="text-lg" />
-        </button>
-        <button className="w-12 h-12 bg-[#A1E366] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#8bcb4f] transition-colors duration-300">
-          <FaChevronRight className="text-lg" />
-        </button>
-      </>
     )
   }
 
@@ -240,19 +248,23 @@ const News = () => {
   const teamMembers = [
     {
       name: "Govt. Jobs",
-      role: "Central & State technical vacancies"
+      role: "Central & State technical vacancies",
+      image: govImage
     },
     {
       name: "Apprenticeships",
-      role: "ITI/polytechnic skill programs"
+      role: "ITI/polytechnic skill programs",
+      image: workerImage
     },
     {
       name: "Company News",
-      role: "Campus drives & recruitment announcements"
+      role: "Campus drives & recruitment announcements",
+      image: companyImage
     },
     {
       name: "Career Tips",
-      role: "Resumes, interviews & soft skills"
+      role: "Resumes, interviews & soft skills",
+      image: tipsImage
     },
     {
       name: "Jobs & Placements",
@@ -311,7 +323,7 @@ const News = () => {
   const maxSlide = Math.max(0, careerGuidanceData.length - cardsPerView)
 
   // Handle screen size changes
-  React.useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
         setScreenSize('sm')
@@ -326,9 +338,18 @@ const News = () => {
   }, [])
 
   // Reset current slide when screen size changes
-  React.useEffect(() => {
+  useEffect(() => {
     setCurrentSlide(0)
   }, [cardsPerView])
+
+  // Auto navigate slides every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev >= maxSlide ? 0 : prev + 1))
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [maxSlide])
 
   const nextSlide = () => {
     setCurrentSlide((prev) => {
@@ -384,14 +405,14 @@ const News = () => {
           <div className="text-center">
             {/* Top Banner */}
             <div className="mb-5">
-              <div className="inline-block border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-2 rounded-full text-sm font-semibold">
+              <div className={`inline-block border-2 ${BORDER_COLORS.ACCENT_GREEN} ${TEXT_COLORS.ACCENT_GREEN} px-6 py-2 rounded-full text-sm font-semibold`}>
                 #1 PORTAL JOB PLATFORM
               </div>
             </div>
 
             {/* Main Heading */}
             <div className="flex flex-col items-center justify-center text-center mb-5  ">
-              <h1 className="text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 text-[#0B537D] leading-tight">
+              <h1 className={`text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 ${TEXT_COLORS.PRIMARY_DEEP_BLUE} leading-tight`}>
               Latest News & Updates
               </h1>
               <img src={textunderline} alt="" className="w-[30%] h-[15px] md:h-[25px] -mt-10" />
@@ -406,7 +427,7 @@ const News = () => {
       </section>
 
       {/* Search Job Section */}
-      <section className="bg-[#00395B] text-white py-16  ">
+      <section className={`bg-[#00395B] ${TEXT_COLORS.NEUTRAL_WHITE} py-16  `}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             {/* Left Side - White Cards */}
@@ -476,10 +497,14 @@ const News = () => {
 
               {/* Search Job Button */}
               <div className="pt-4">
-                <button className="inline-flex text-white hover:text-[#A1E366] items-center gap-3 bg-transparent border-2 border-[#00395B] px-8 py-4 rounded-xl font-semibold hover:bg-[#00395B] transition-all duration-300 group">
+                <button
+                  type="button"
+                  onClick={() => navigate('/find-job')}
+                  className={`inline-flex ${TEXT_COLORS.NEUTRAL_WHITE} ${HOVER_TEXT_COLORS.ACCENT_LIME} items-center gap-3 bg-transparent border-2 ${BORDER_COLORS.PRIMARY_NAVY} px-8 py-4 rounded-xl font-semibold ${HOVER_BG_COLORS.PRIMARY_NAVY} transition-all duration-300 group`}
+                >
                   <span>Search Job</span>
                   <div className="w-8 h-8 bg-[#A1E366] rounded-full flex items-center justify-center group-hover:bg-white transition-colors duration-300">
-                    <FaArrowRight className="text-sm group-hover:text-[#A1E366]" />
+                    <FaArrowRight className={`text-sm ${TEXT_COLORS.NEUTRAL_WHITE} ${GROUP_HOVER_CLASSES.TEXT_ACCENT_LIME}`} />
                   </div>
                 </button>
               </div>
@@ -493,7 +518,7 @@ const News = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
           {/* Section Header */}
           <div className="text-center mb-12">
-            <h2 className="text-4xl sm:text-5xl font-bold text-[#0B537D] mb-4">
+            <h2 className={`text-4xl sm:text-5xl font-bold ${TEXT_COLORS.PRIMARY_DEEP_BLUE} mb-4`}>
               Career Guidance & Tips
             </h2>
             <p className="text-gray-600 text-lg max-w-3xl mx-auto">
@@ -506,14 +531,14 @@ const News = () => {
             {/* Navigation Arrows */}
             <button
               onClick={prevSlide}
-              className={`md:-mx-5 lg:-mx-16 absolute top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-[#5C9A24] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#4a7d1f] transition-colors duration-300 ${cardsPerView === 1 ? 'left-2' : 'left-4'}`}
+              className={`md:-mx-5 lg:-mx-16 absolute top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-[#5C9A24] ${TEXT_COLORS.NEUTRAL_WHITE} rounded-full flex items-center justify-center shadow-lg hover:bg-[#4a7d1f] transition-colors duration-300 ${cardsPerView === 1 ? 'left-2' : 'left-4'}`}
             >
               <FaChevronLeft className="text-sm md:text-lg" />
             </button>
 
             <button
               onClick={nextSlide}
-              className={`md:-mx-5 lg:-mx-16 absolute top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-[#5C9A24] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#4a7d1f] transition-colors duration-300 ${cardsPerView === 1 ? 'right-2' : 'right-4'}`}
+              className={`md:-mx-5 lg:-mx-16 absolute top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-[#5C9A24] ${TEXT_COLORS.NEUTRAL_WHITE} rounded-full flex items-center justify-center shadow-lg hover:bg-[#4a7d1f] transition-colors duration-300 ${cardsPerView === 1 ? 'right-2' : 'right-4'}`}
             >
               <FaChevronRight className="text-sm md:text-lg" />
             </button>
@@ -576,10 +601,12 @@ const News = () => {
         </div>
 
         {/* Platform Updates Section */}
-        <TrustedByStartups 
-          testimonials={platformUpdatesData}
-          headerContent={platformUpdatesHeader}
-        />
+        <Suspense fallback={<div className="text-white text-center py-10">Loading testimonials...</div>}>
+          <TrustedByStartups 
+            testimonials={platformUpdatesData}
+            headerContent={platformUpdatesHeader}
+          />
+        </Suspense>
         
       </section>
 
@@ -592,7 +619,7 @@ const News = () => {
 
               {/* Header Section */}
               <div className="text-center p-5 mb-8 sm:mb-10 md:mb-12 relative z-10">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#0B537D] mb-3 sm:mb-4 leading-tight">
+                <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold ${TEXT_COLORS.PRIMARY_DEEP_BLUE} mb-3 sm:mb-4 leading-tight`}>
                   Subscribe To Our Job News Alerts
                 </h2>
                 <p className="text-gray-600 text-sm sm:text-base md:text-lg">
@@ -605,7 +632,7 @@ const News = () => {
                 {/* Breaking Vacancy Alerts */}
                 <div className="text-center">
                   <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[#5C9A24] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${TEXT_COLORS.NEUTRAL_WHITE}`} fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                     </svg>
                   </div>
@@ -617,7 +644,7 @@ const News = () => {
                 {/* Job Search Tips */}
                 <div className="text-center">
                   <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[#5C9A24] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${TEXT_COLORS.NEUTRAL_WHITE}`} fill="currentColor" viewBox="0 0 24 24">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
                       <polyline points="14,2 14,8 20,8"/>
                       <line x1="16" y1="13" x2="8" y2="13"/>
@@ -633,7 +660,7 @@ const News = () => {
                 {/* Skill Program Updates */}
                 <div className="text-center sm:col-span-2 md:col-span-1">
                   <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[#5C9A24] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${TEXT_COLORS.NEUTRAL_WHITE}`} fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                     </svg>
                   </div>
@@ -648,7 +675,7 @@ const News = () => {
                 <button className="inline-flex rounded-full items-center gap-2 sm:gap-3 bg-transparent border-2 border-gray-600 text-gray-800 px-4 py-2 font-semibold hover:bg-gray-50 transition-all duration-300 group">
                   <span className="text-sm sm:text-base">Subscribe Now</span>
                   <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-[#5C9A24] rounded-full flex items-center justify-center group-hover:bg-[#4a7d1f] transition-colors duration-300">
-                    <FaArrowRight className="text-xs sm:text-sm text-white" />
+                    <FaArrowRight className={`text-xs sm:text-sm ${TEXT_COLORS.NEUTRAL_WHITE}`} />
                   </div>
                 </button>
               </div>
