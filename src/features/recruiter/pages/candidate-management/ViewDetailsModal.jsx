@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   LuX,
   LuMail,
@@ -7,12 +7,79 @@ import {
   LuCalendar,
   LuFileText,
   LuExternalLink,
+  LuDownload,
+  LuClock,
+  LuVideo,
+  LuBuilding,
 } from "react-icons/lu";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { Button, IconButton } from "../../../../shared/components/Button";
+import Swal from "sweetalert2";
 
-const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
+const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
+  const [scheduleInterview, setScheduleInterview] = useState(false);
+  const [interviewDate, setInterviewDate] = useState("");
+  const [interviewTime, setInterviewTime] = useState("");
+  const [interviewMode, setInterviewMode] = useState("online");
+
   if (!isOpen || !candidate) return null;
+
+  const handleDownloadCV = () => {
+    if (onDownloadCV) {
+      onDownloadCV(candidate);
+    } else {
+      // Fallback download logic
+      const candidateData = `
+        Candidate Information
+        ====================
+        Name: ${candidate.name}
+        Email: ${candidate.email}
+        Phone: ${candidate.phone_number || "Not provided"}
+        Location: ${candidate.location || "Not provided"}
+        Qualification: ${candidate.qualification}
+        Experience: ${candidate.experience || "Not provided"}
+        Skills: ${candidate.skills}
+        Applied For: ${candidate.appliedFor}
+        Applied Date: ${candidate.applied_date || "Not provided"}
+        Status: ${candidate.status}
+      `.trim();
+
+      const blob = new Blob([candidateData], { type: "text/plain" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${candidate.name.replace(/\s+/g, "_")}_CV.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }
+  };
+
+  const handleScheduleInterview = () => {
+    if (!interviewDate || !interviewTime) {
+      Swal.fire({
+        title: "Validation Error",
+        text: "Please select both date and time for the interview",
+        icon: "error",
+      });
+      return;
+    }
+
+    // Here you would call your API to schedule the interview
+    Swal.fire({
+      title: "Success!",
+      text: `Interview scheduled for ${interviewDate} at ${interviewTime} (${interviewMode})`,
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then(() => {
+      // Reset form
+      setScheduleInterview(false);
+      setInterviewDate("");
+      setInterviewTime("");
+      setInterviewMode("online");
+    });
+  };
 
   // ✅ Handle skills safely
   const skills = Array.isArray(candidate.skills)
@@ -68,6 +135,13 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
+            <button
+              onClick={handleDownloadCV}
+              className="flex items-center space-x-2 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+            >
+              <LuDownload className="w-4 h-4" />
+              <span>Download CV</span>
+            </button>
             {candidate.resume_url && (
               <a
                 href={candidate.resume_url}
@@ -249,13 +323,13 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
                     <h4
                       className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                     >
-                      {candidate.education}
+                      {candidate.qualification || candidate.education || "—"}
                     </h4>
                     <p
                       className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}
                     >
                       Verified Candidate:{" "}
-                      {candidate.verified ? "Yes" : "No"}
+                      {candidate.verified === "Yes" || candidate.verified === true ? "Yes" : "No"}
                     </p>
                   </div>
                 </div>
@@ -291,7 +365,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
           </div>
 
           {/* Experience Section */}
-          <div>
+          <div className="mb-6">
             <h3
               className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}
             >
@@ -320,6 +394,129 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate }) => {
               <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>
                 No experience details available.
               </p>
+            )}
+          </div>
+
+          {/* Schedule Interview Section */}
+          <div className="border-t border-gray-200 pt-6">
+            <div className="flex items-center gap-3 mb-4">
+              <input
+                type="radio"
+                id="scheduleInterview"
+                checked={scheduleInterview}
+                onChange={(e) => setScheduleInterview(e.target.checked)}
+                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+              />
+              <label
+                htmlFor="scheduleInterview"
+                className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer`}
+              >
+                Schedule Interview
+              </label>
+            </div>
+
+            {scheduleInterview && (
+              <div className="bg-gray-50 rounded-lg p-6 space-y-4">
+                {/* Date Field */}
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                  >
+                    Interview Date
+                  </label>
+                  <div className="relative">
+                    <LuCalendar
+                      className={`absolute left-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`}
+                      size={20}
+                    />
+                    <input
+                      type="date"
+                      value={interviewDate}
+                      onChange={(e) => setInterviewDate(e.target.value)}
+                      min={new Date().toISOString().split("T")[0]}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Time Slot Field */}
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                  >
+                    Time Slot
+                  </label>
+                  <div className="relative">
+                    <LuClock
+                      className={`absolute left-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`}
+                      size={20}
+                    />
+                    <input
+                      type="time"
+                      value={interviewTime}
+                      onChange={(e) => setInterviewTime(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Mode Selection */}
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                  >
+                    Interview Mode
+                  </label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="interviewMode"
+                        value="online"
+                        checked={interviewMode === "online"}
+                        onChange={(e) => setInterviewMode(e.target.value)}
+                        className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                      />
+                      <div className="flex items-center gap-2">
+                        <LuVideo className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
+                        <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                          Online
+                        </span>
+                      </div>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="interviewMode"
+                        value="offline"
+                        checked={interviewMode === "offline"}
+                        onChange={(e) => setInterviewMode(e.target.value)}
+                        className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                      />
+                      <div className="flex items-center gap-2">
+                        <LuBuilding className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
+                        <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                          Offline
+                        </span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Confirm Button */}
+                <div className="pt-2">
+                  <Button
+                    onClick={handleScheduleInterview}
+                    variant="primary"
+                    size="md"
+                    className="w-full"
+                  >
+                    Confirm Schedule
+                  </Button>
+                </div>
+              </div>
             )}
           </div>
         </div>
