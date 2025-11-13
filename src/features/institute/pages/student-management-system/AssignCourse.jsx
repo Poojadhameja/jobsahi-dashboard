@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { LuCheck, LuEye } from 'react-icons/lu'
+import { LuCheck, LuEye, LuX } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import { Button, PrimaryButton, OutlineButton } from '../../../../shared/components/Button'
 import { getMethod, postMethod } from '../../../../service/api'
@@ -14,31 +14,12 @@ const AssignCourse = () => {
     newBatch: '',
     reason: ''
   })
-
-  // Dummy dropdowns (you can later fetch from API if available)
-  const courses = [
-    'Select Course',
-    'Electrician',
-    'Fitter',
-    'Welder',
-    'Mechanic',
-    'Plumber',
-    'Carpenter',
-    'Painter'
-  ]
-  const batches = [
-    'Select Batch',
-    'ELE-2025-M1',
-    'ELE-2025-M2',
-    'FIT-2025-M1',
-    'FIT-2025-M2',
-    'WEL-2025-M1',
-    'WEL-2025-M2',
-    'MEC-2025-M1',
-    'MEC-2025-M2',
-    'PLU-2025-M1',
-    'PLU-2025-M2'
-  ]
+  const [courseOptions, setCourseOptions] = useState([])
+  const [batchOptions, setBatchOptions] = useState([])
+  const [loadingCourses, setLoadingCourses] = useState(false)
+  const [loadingBatches, setLoadingBatches] = useState(false)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [previewData, setPreviewData] = useState(null)
 
   // 🟢 Fetch students on load
   useEffect(() => {
@@ -65,7 +46,93 @@ const AssignCourse = () => {
     }
 
     fetchStudents()
+    fetchCourses()
   }, [])
+
+  const fetchCourses = async () => {
+    try {
+      setLoadingCourses(true)
+      const resp = await getMethod({ apiUrl: apiService.getCourses })
+      if (resp?.status && Array.isArray(resp.courses)) {
+        const mappedCourses = resp.courses
+          .map((course) => ({
+            id: course.id ?? course.course_id,
+            name: course.title ?? course.course_title ?? course.name ?? 'Untitled Course'
+          }))
+          .filter((course) => course.id)
+        setCourseOptions(mappedCourses)
+      } else {
+        setCourseOptions([])
+        console.warn('No courses found for assignment dropdown', resp)
+      }
+    } catch (err) {
+      console.error('Error fetching courses for assignment:', err)
+      setCourseOptions([])
+    } finally {
+      setLoadingCourses(false)
+    }
+  }
+
+  const fetchBatches = async (courseId) => {
+    const normalizeId = (value) => {
+      if (value === undefined || value === null || value === '') return ''
+      const numeric = Number(value)
+      return Number.isNaN(numeric) ? String(value) : String(numeric)
+    }
+
+    const targetCourseId = normalizeId(courseId)
+
+    if (!targetCourseId) {
+      setBatchOptions([])
+      return
+    }
+
+    const buildCourseParam = (value) => {
+      const numeric = Number(value)
+      return Number.isNaN(numeric) ? value : numeric
+    }
+
+    try {
+      setLoadingBatches(true)
+      const resp = await getMethod({
+        apiUrl: apiService.getBatches,
+        params: { course_id: buildCourseParam(courseId) }
+      })
+
+      const batchesFromResp =
+        (Array.isArray(resp?.batches) && resp.batches) ||
+        (Array.isArray(resp?.data) && resp.data) ||
+        []
+
+      const extractBatchCourseId = (batch) =>
+        batch.course_id ??
+        batch.courseId ??
+        batch.courseID ??
+        batch.course?.course_id ??
+        batch.course?.id ??
+        batch.course ??
+        null
+
+      const mappedBatches = batchesFromResp
+        .filter((batch) => {
+          const batchCourseId = normalizeId(extractBatchCourseId(batch))
+          if (!batchCourseId) return true
+          return batchCourseId === targetCourseId
+        })
+        .map((batch) => ({
+          id: batch.batch_id ?? batch.id,
+          name: batch.batch_name ?? batch.name ?? 'Unnamed Batch'
+        }))
+        .filter((batch) => batch.id)
+
+      setBatchOptions(mappedBatches)
+    } catch (err) {
+      console.error('Error fetching batches for assignment:', err)
+      setBatchOptions([])
+    } finally {
+      setLoadingBatches(false)
+    }
+  }
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -90,6 +157,15 @@ const AssignCourse = () => {
     else setSelectedStudents([])
   }
 
+  const handleCourseSelect = async (courseId) => {
+    setAssignmentData((prev) => ({
+      ...prev,
+      newCourse: courseId,
+      newBatch: '' // reset batch when course changes
+    }))
+    await fetchBatches(courseId)
+  }
+
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setAssignmentData(prev => ({ ...prev, [name]: value }))
@@ -97,17 +173,28 @@ const AssignCourse = () => {
 
   // 🟢 Assign selected students via API
   const handleAssignSelected = async () => {
-    if (selectedStudents.length === 0)
-      return alert('Please select at least one student')
-    if (!assignmentData.newCourse || assignmentData.newCourse === 'Select Course')
-      return alert('Please select a new course')
-    if (!assignmentData.newBatch || assignmentData.newBatch === 'Select Batch')
-      return alert('Please select a new batch')
-    if (!assignmentData.reason.trim())
-      return alert('Please provide a reason for the assignment change')
+    if (selectedStudents.length === 0) {
+      alert('Please select at least one student')
+      return false
+    }
+    if (!assignmentData.newCourse) {
+      alert('Please select a new course')
+      return false
+    }
+    if (!assignmentData.newBatch) {
+      alert('Please select a new batch')
+      return false
+    }
+    if (!assignmentData.reason.trim()) {
+      alert('Please provide a reason for the assignment change')
+      return false
+    }
 
-    const course_id = courses.indexOf(assignmentData.newCourse)
-    const batch_id = batches.indexOf(assignmentData.newBatch)
+    const parsedCourseId = Number(assignmentData.newCourse)
+    const parsedBatchId = Number(assignmentData.newBatch)
+
+    const course_id = Number.isNaN(parsedCourseId) ? assignmentData.newCourse : parsedCourseId
+    const batch_id = Number.isNaN(parsedBatchId) ? assignmentData.newBatch : parsedBatchId
 
     try {
       const payload = {
@@ -126,22 +213,25 @@ const AssignCourse = () => {
         alert(resp.message || 'Students assigned successfully')
       } else {
         alert('Failed: ' + (resp.message || 'Unknown error'))
+        return false
       }
 
       setSelectedStudents([])
       setAssignmentData({ newCourse: '', newBatch: '', reason: '' })
+      return true
     } catch (err) {
       console.error('Error assigning:', err)
       alert('Error assigning students. Check console for details.')
+      return false
     }
   }
 
   const handlePreviewChanges = () => {
     if (selectedStudents.length === 0)
       return alert('Please select at least one student')
-    if (!assignmentData.newCourse || assignmentData.newCourse === 'Select Course')
+    if (!assignmentData.newCourse)
       return alert('Please select a new course')
-    if (!assignmentData.newBatch || assignmentData.newBatch === 'Select Batch')
+    if (!assignmentData.newBatch)
       return alert('Please select a new batch')
 
     const selectedNames = students
@@ -149,7 +239,26 @@ const AssignCourse = () => {
       .map(s => s.name)
       .join(', ')
 
-    alert(`Preview Changes:\n\nStudents: ${selectedNames}\nNew Course: ${assignmentData.newCourse}\nNew Batch: ${assignmentData.newBatch}\nReason: ${assignmentData.reason || 'Not provided'}`)
+    const courseName =
+      courseOptions.find((course) => String(course.id) === String(assignmentData.newCourse))
+        ?.name || 'N/A'
+    const batchName =
+      batchOptions.find((batch) => String(batch.id) === String(assignmentData.newBatch))?.name ||
+      'N/A'
+
+    setPreviewData({
+      studentCount: selectedStudents.length,
+      studentNames: selectedNames,
+      courseName,
+      batchName,
+      reason: assignmentData.reason || 'Not provided'
+    })
+    setIsPreviewOpen(true)
+  }
+
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false)
+    setPreviewData(null)
   }
 
   return (
@@ -217,11 +326,15 @@ const AssignCourse = () => {
               <select
                 name="newCourse"
                 value={assignmentData.newCourse}
-                onChange={handleInputChange}
+                onChange={(e) => handleCourseSelect(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#5B9821]"
+                disabled={loadingCourses}
               >
-                {courses.map((c, i) => (
-                  <option key={i} value={c === 'Select Course' ? '' : c}>{c}</option>
+                <option value="">{loadingCourses ? 'Loading courses...' : 'Select Course'}</option>
+                {courseOptions.map((course) => (
+                  <option key={course.id} value={course.id}>
+                    {course.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -234,9 +347,19 @@ const AssignCourse = () => {
                 value={assignmentData.newBatch}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#5B9821]"
+                disabled={!assignmentData.newCourse || loadingBatches}
               >
-                {batches.map((b, i) => (
-                  <option key={i} value={b === 'Select Batch' ? '' : b}>{b}</option>
+                <option value="">
+                  {!assignmentData.newCourse
+                    ? 'Select course first'
+                    : loadingBatches
+                      ? 'Loading batches...'
+                      : 'Select Batch'}
+                </option>
+                {batchOptions.map((batch) => (
+                  <option key={batch.id} value={batch.id}>
+                    {batch.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -278,14 +401,93 @@ const AssignCourse = () => {
               <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Assignment Summary</h3>
               <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} space-y-1`}>
                 <p><span className="font-medium">Selected Students:</span> {selectedStudents.length}</p>
-                {assignmentData.newCourse && <p><span className="font-medium">New Course:</span> {assignmentData.newCourse}</p>}
-                {assignmentData.newBatch && <p><span className="font-medium">New Batch:</span> {assignmentData.newBatch}</p>}
+                {assignmentData.newCourse && (
+                  <p>
+                    <span className="font-medium">New Course:</span>{' '}
+                    {courseOptions.find((course) => String(course.id) === String(assignmentData.newCourse))?.name || assignmentData.newCourse}
+                  </p>
+                )}
+                {assignmentData.newBatch && (
+                  <p>
+                    <span className="font-medium">New Batch:</span>{' '}
+                    {batchOptions.find((batch) => String(batch.id) === String(assignmentData.newBatch))?.name || assignmentData.newBatch}
+                  </p>
+                )}
                 {assignmentData.reason && <p><span className="font-medium">Reason:</span> {assignmentData.reason}</p>}
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {isPreviewOpen && previewData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Assignment Preview</h2>
+              <button
+                onClick={handleClosePreview}
+                className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-red-600 transition-all duration-200 hover:scale-110 p-1 rounded-full hover:bg-red-50`}
+              >
+                <LuX className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Selected Students</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                  {previewData.studentNames || 'Not available'}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Total: <span className="font-semibold text-gray-700">{previewData.studentCount}</span>
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`${TAILWIND_COLORS.CARD} border border-gray-200 rounded-lg p-4`}>
+                  <p className={`text-xs uppercase tracking-wide ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
+                    New Course
+                  </p>
+                  <p className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                    {previewData.courseName}
+                  </p>
+                </div>
+                <div className={`${TAILWIND_COLORS.CARD} border border-gray-200 rounded-lg p-4`}>
+                  <p className={`text-xs uppercase tracking-wide ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
+                    New Batch
+                  </p>
+                  <p className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                    {previewData.batchName}
+                  </p>
+                </div>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <p className={`text-xs uppercase tracking-wide ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
+                  Assignment Reason
+                </p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{previewData.reason}</p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+              <OutlineButton onClick={handleClosePreview}>Close</OutlineButton>
+              <PrimaryButton
+                onClick={async () => {
+                  const success = await handleAssignSelected()
+                  if (success) {
+                    handleClosePreview()
+                  }
+                }}
+                icon={<LuCheck className="w-4 h-4" />}
+              >
+                Confirm & Assign
+              </PrimaryButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

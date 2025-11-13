@@ -20,7 +20,7 @@ const ViewStudents = () => {
   const [summary, setSummary] = useState({
     total_students: 0,
     active_students: 0,
-    completed_students: 0,
+    Inactive_students: 0,
     total_courses: 0,
   })
   const [loading, setLoading] = useState(false)
@@ -72,7 +72,7 @@ const ViewStudents = () => {
           setSummary({
             total_students: resp.summary.total_students || 0,
             active_students: resp.summary.active_students || 0,
-            completed_students: resp.summary.completed_students || 0,
+            Inactive_students: resp.summary.Inactive_students || 0,
             total_courses: resp.summary.total_courses || 0,
           })
         }
@@ -107,10 +107,6 @@ const fetchStudentDetails = async (studentId) => {
         phone: profile.personal_info.phone_number,
         course: profile.professional_info.trade || "Not Assigned",
         batch: "-",
-        qualification: profile.professional_info.education || "",
-        experience: profile.professional_info.experience?.years || "",
-        skills: (profile.professional_info.skills || "").split(",").map(s => s.trim()).filter(Boolean),
-        projects: (profile.professional_info.projects || []).map(p => p.name || p),
       };
 
       setSelectedStudent(mapped);
@@ -135,26 +131,26 @@ const fetchStudentDetails = async (studentId) => {
 
   // Styling functions
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'Active':
+    switch ((status || '').toLowerCase()) {
+      case 'enrolled':
         return 'bg-green-100 text-green-800 border-green-200'
-      case 'Completed':
+      case 'completed':
         return 'bg-blue-100 text-blue-800 border-blue-200'
-      case 'On Hold':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'dropped':
+        return 'bg-red-100 text-red-800 border-red-200'
       default:
         return `bg-gray-100 ${TAILWIND_COLORS.TEXT_PRIMARY} border-gray-200`
     }
   }
 
   const getStatusDotColor = (status) => {
-    switch (status) {
-      case 'Active':
+    switch ((status || '').toLowerCase()) {
+      case 'enrolled':
         return 'bg-green-500'
-      case 'Completed':
+      case 'completed':
         return 'bg-blue-500'
-      case 'On Hold':
-        return 'bg-yellow-500'
+      case 'dropped':
+        return 'bg-red-500'
       default:
         return 'bg-white'
     }
@@ -163,7 +159,7 @@ const fetchStudentDetails = async (studentId) => {
   // Calculate summary statistics
   const totalStudents = students.length
   const activeStudents = students.filter(s => s.status === 'Active').length
-  const completedStudents = students.filter(s => s.status === 'Completed').length
+  const InactiveStudents = students.filter(s => s.status === 'Inactive').length
   const avgProgress = Math.round(students.reduce((sum, s) => sum + s.progress, 0) / students.length)
 
   // Data for Horizontal4Cards
@@ -179,8 +175,8 @@ const fetchStudentDetails = async (studentId) => {
       icon: <div className="w-3 h-3 bg-green-500 rounded-full"></div>,
     },
     {
-      title: 'Completed',
-      value: summary.completed_students.toString(),
+      title: 'Inactive',
+      value: summary.Inactive_students.toString(),
       icon: <LuCheck className="w-5 h-5" />,
     },
     {
@@ -318,9 +314,9 @@ const updateStudentDetails = async (updatedStudent) => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Status</option>
-              <option value="active">Active</option>
+              <option value="enrolled">Enrolled</option>
               <option value="completed">Completed</option>
-              <option value="on hold">On Hold</option>
+              <option value="dropped">Dropped</option>
             </select>
 
             <select
@@ -533,8 +529,6 @@ const updateStudentDetails = async (updatedStudent) => {
                 course: formData.get('course'),
                 batch: formData.get('batch'),
                 status: formData.get('status'),
-                qualification: formData.get('qualification'),
-                experience: formData.get('experience')
               }
               handleUpdateStudent(updatedStudent)
             }}>
@@ -616,29 +610,12 @@ const updateStudentDetails = async (updatedStudent) => {
                     required
                   >
                     <option value="Active">Active</option>
-                    <option value="Completed">Completed</option>
-                    <option value="On Hold">On Hold</option>
+                    <option value="Inactive">Inactive</option>
+                    {/* <option value="On Hold">On Hold</option> */}
                   </select>
                 </div>
                
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Qualification</label>
-                  <input
-                    type="text"
-                    name="qualification"
-                    defaultValue={selectedStudent.qualification}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Experience</label>
-                  <input
-                    type="text"
-                    name="experience"
-                    defaultValue={selectedStudent.experience}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+               
               </div>
 
               <div className="mt-6 flex justify-end space-x-3">

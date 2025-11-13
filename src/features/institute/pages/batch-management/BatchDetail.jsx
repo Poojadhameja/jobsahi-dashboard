@@ -18,6 +18,11 @@ export default function BatchDetail({ batchData, onBack }) {
   const [instructors, setInstructors] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [selectedBatchForEdit, setSelectedBatchForEdit] = useState(batchData?.batch ?? null)
+  useEffect(() => {
+    setSelectedBatchForEdit(batchData?.batch ?? null)
+  }, [batchData])
+
 
   // ✅ Fetch Batch Details using course_id
   useEffect(() => {
@@ -98,11 +103,39 @@ export default function BatchDetail({ batchData, onBack }) {
   }
 
   const handleEditBatch = () => {
+    setSelectedBatchForEdit(batchData?.batch ?? null)
     setIsEditModalOpen(true)
   }
 
   const handleUpdateBatch = (updatedData) => {
     console.log('Batch updated:', updatedData)
+    setBatchInfo((prev) => {
+      if (!prev) return prev
+
+      const updatedDuration =
+        updatedData?.start_date && updatedData?.end_date
+          ? `${updatedData.start_date} - ${updatedData.end_date}`
+          : prev.duration
+
+      return {
+        ...prev,
+        name: updatedData?.batch_name || updatedData?.name || prev.name,
+        timeSlot: updatedData?.batch_time_slot || prev.timeSlot,
+        duration: updatedDuration,
+      }
+    })
+
+    setSelectedBatchForEdit((prev) =>
+      prev
+        ? {
+            ...prev,
+            ...updatedData,
+            batch_name: updatedData?.batch_name || updatedData?.name || prev.batch_name,
+            batch_time_slot: updatedData?.batch_time_slot || prev.batch_time_slot,
+          }
+        : prev
+    )
+
     setIsEditModalOpen(false)
   }
 
@@ -113,11 +146,16 @@ export default function BatchDetail({ batchData, onBack }) {
 
   const handleSendMessageToAll = () => {
     console.log('Send message to all students in batch:', batchInfo?.name)
-    navigate('/institute/message', {
+    navigate('/institute/messaging-alerts', {
       state: {
-        batchInfo: batchInfo,
-        allStudents: students,
-        isBatchMessage: true,
+        initialTabId: 'send-notice',
+        batchContext: {
+          batchId: batchData?.batch?.batch_id,
+          batchName: batchInfo?.name,
+          courseId: batchData?.courseId,
+          courseTitle: batchData?.courseTitle,
+          studentCount: students.length,
+        },
       },
     })
   }
@@ -451,7 +489,7 @@ export default function BatchDetail({ batchData, onBack }) {
       <EditBatchModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        batchData={batchInfo}
+        batchData={selectedBatchForEdit}
         onUpdate={handleUpdateBatch}
       />
     </div>

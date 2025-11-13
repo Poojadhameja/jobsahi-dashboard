@@ -1,21 +1,81 @@
-import React from 'react'
-import { LuX, LuBuilding, LuCalendar, LuUser, LuClock, LuDollarSign, LuFileText } from 'react-icons/lu'
+import React, { useEffect, useState } from 'react'
+import { LuX, LuFileText } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
 
 const ViewCoursePopup = ({ course, onClose }) => {
+  const [courseData, setCourseData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  // ✅ Fetch single course details from API
+  useEffect(() => {
+    const fetchCourse = async () => {
+      if (!course?.id) return
+      try {
+        setLoading(true)
+        const res = await getMethod({
+          apiUrl: `${apiService.getSingleCourse}?id=${course.id}` // 👈 Backend endpoint
+        })
+
+        if (res?.status && res.course) {
+          setCourseData(res.course)
+        } else {
+          setError(res?.message || 'Failed to fetch course details')
+        }
+      } catch (err) {
+        console.error('❌ Error fetching course:', err)
+        setError('Unable to load course details.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCourse()
+  }, [course])
+
   if (!course) return null
 
-  // 🔹 Parse media if stored as JSON string or comma-separated
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <p className="text-gray-600 font-medium">Loading course details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <p className="text-red-600 font-medium">{error}</p>
+          <button
+            onClick={onClose}
+            className={`mt-4 px-6 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg`}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const c = courseData || {}
+
+  // 🔹 Parse media (safe for both JSON or comma-separated)
   let mediaFiles = []
   try {
-    if (typeof course.media === 'string' && course.media.trim() !== '') {
-      mediaFiles = JSON.parse(course.media)
-      if (!Array.isArray(mediaFiles)) mediaFiles = [course.media]
-    } else if (Array.isArray(course.media)) {
-      mediaFiles = course.media
+    if (typeof c.media === 'string' && c.media.trim() !== '') {
+      mediaFiles = JSON.parse(c.media)
+      if (!Array.isArray(mediaFiles)) mediaFiles = [c.media]
+    } else if (Array.isArray(c.media)) {
+      mediaFiles = c.media
     }
   } catch {
-    mediaFiles = course.media?.split(',').map(m => m.trim()) || []
+    mediaFiles = c.media?.split(',').map(m => m.trim()) || []
   }
 
   return (
@@ -49,7 +109,7 @@ const ViewCoursePopup = ({ course, onClose }) => {
                 <p className="text-sm text-gray-500">Name of the course.</p>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-800">{course.title || 'Not specified'}</p>
+                <p className="text-sm font-medium text-gray-800">{c.title || 'Not specified'}</p>
               </div>
             </div>
 
@@ -65,7 +125,7 @@ const ViewCoursePopup = ({ course, onClose }) => {
                 <div
                   className="text-sm text-gray-800 leading-relaxed"
                   dangerouslySetInnerHTML={{
-                    __html: course.description || 'No description provided.',
+                    __html: c.description || 'No description provided.'
                   }}
                 />
               </div>
@@ -81,7 +141,7 @@ const ViewCoursePopup = ({ course, onClose }) => {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-800">
-                  {course.duration ? `${course.duration} weeks` : 'Not specified'}
+                  {c.duration ? `${c.duration} weeks` : 'Not specified'}
                 </p>
               </div>
             </div>
@@ -95,13 +155,13 @@ const ViewCoursePopup = ({ course, onClose }) => {
                 <p className="text-sm text-gray-500">Relevant skills covered.</p>
               </div>
               <div className="flex-1 flex flex-wrap gap-2">
-                {course.skills && course.skills.length > 0 ? (
-                  course.skills.map((skill, i) => (
+                {c.tagged_skills ? (
+                  c.tagged_skills.split(',').map((skill, i) => (
                     <span
                       key={i}
                       className={`${TAILWIND_COLORS.BADGE_SUCCESS} text-xs font-medium px-2 py-1 rounded-full`}
                     >
-                      {skill}
+                      {skill.trim()}
                     </span>
                   ))
                 ) : (
@@ -120,7 +180,7 @@ const ViewCoursePopup = ({ course, onClose }) => {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-800">
-                  {course.batchLimit || 'Not specified'} Students
+                  {c.batch_limit || 'Not specified'} Students
                 </p>
               </div>
             </div>
@@ -136,12 +196,12 @@ const ViewCoursePopup = ({ course, onClose }) => {
               <div className="flex-1">
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    course.status?.toLowerCase() === 'active'
+                    c.status?.toLowerCase() === 'active'
                       ? 'bg-green-100 text-green-700'
                       : 'bg-gray-100 text-gray-700'
                   }`}
                 >
-                  {course.status || 'Not specified'}
+                  {c.status || 'Not specified'}
                 </span>
               </div>
             </div>
@@ -163,7 +223,7 @@ const ViewCoursePopup = ({ course, onClose }) => {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-800 uppercase">
-                  {course.category || 'Not specified'}
+                  {c.category_name || 'Not specified'}
                 </p>
               </div>
             </div>
@@ -178,7 +238,7 @@ const ViewCoursePopup = ({ course, onClose }) => {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-800">
-                  {course.instructorName || 'Not specified'}
+                  {c.instructor_name || 'Not specified'}
                 </p>
               </div>
             </div>
@@ -193,24 +253,24 @@ const ViewCoursePopup = ({ course, onClose }) => {
               </div>
               <div className="flex-1">
                 <p className="text-2xl font-bold text-[#1A569A]">
-                  ₹{course.fee?.toLocaleString('en-IN') || 'Not specified'}
+                  ₹{c.fee?.toLocaleString('en-IN') || 'Not specified'}
                 </p>
               </div>
             </div>
           </div>
 
           {/* 🔹 Module Info */}
-          {(course.moduleTitle || course.moduleDescription) && (
+          {(c.module_title || c.module_description) && (
             <div className={`${TAILWIND_COLORS.CARD} p-6`}>
               <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>
                 Course Module
               </h3>
               <div className="space-y-3">
                 <h4 className="text-md font-semibold text-gray-800">
-                  {course.moduleTitle || 'Untitled Module'}
+                  {c.module_title || 'Untitled Module'}
                 </h4>
                 <p className="text-sm text-gray-600 leading-relaxed">
-                  {course.moduleDescription || 'No module description available.'}
+                  {c.module_description || 'No module description available.'}
                 </p>
               </div>
             </div>

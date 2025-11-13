@@ -15,6 +15,9 @@ const apiService = {
   updateCourseModule: '/courses/update_course_module.php',
   deleteCourseModule: '/courses/delete_course_module.php',
 
+  getSingleCourse: '/courses/get-course_by_id.php',
+
+
   // Batches
   createBatch: '/batches/create_batch.php',
   getBatches: '/batches/get_batch.php',
@@ -46,10 +49,10 @@ const apiService = {
 
   INSTITUTE_REPORT: "/institute/institute_report.php",
 
-  profile: '/student/profile.php'
+  getInstituteProfile: '/institute/profiles.php',
+  updateInstituteProfile: '/institute/profile_updated.php',
 
-  // get_student_profile: '/student/get_student_profile.php',
-// update_student_profile: '/student/update_student_profile.php',
+
 
 };
 
