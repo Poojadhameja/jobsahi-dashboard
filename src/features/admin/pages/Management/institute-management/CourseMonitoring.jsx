@@ -338,10 +338,10 @@ export default function CourseMonitoring() {
         <EnrollmentTrendsChart />
         
         {/* Enrollment Issue */}
-        <EnrollmentIssueTable />
+        {/* <EnrollmentIssueTable /> */}
         
         {/* Certificate Issuance Status */}
-        <CertificateIssuanceChart />
+        {/* <CertificateIssuanceChart /> */}
       </div>
 
       {/* Course Details Modal */}
