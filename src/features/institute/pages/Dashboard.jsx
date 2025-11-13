@@ -1,4 +1,4 @@
-// import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { 
   LuBookOpen, 
@@ -17,12 +17,236 @@ import {
 } from 'react-icons/lu'
 import { Horizontal4Cards } from '../../../shared/components/metricCard'
 import { TAILWIND_COLORS } from '../../../shared/WebConstant'
+import { getMethod } from '../../../service/api'
+import apiService from '../services/serviceUrl'
 
+// 🔹 Helper: type → color mapping (for recent activities)
+const getActivityColor = (type) => {
+  switch (type) {
+    case 'enrollment':
+      return 'bg-blue-500'
+    case 'certificate':
+      return 'bg-green-500'
+    case 'update':
+      return 'bg-purple-500'
+    default:
+      return 'bg-orange-500'
+  }
+}
+
+// 🔹 Helper: time ago formatting
+const formatTimeAgo = (timestamp) => {
+  if (!timestamp) return ''
+  const date = new Date(timestamp)
+  const now = new Date()
+  const diffMs = now - date
+  const diffMin = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMin / 60)
+  const diffDays = Math.floor(diffHours / 24)
+
+  if (diffMin < 1) return 'Just now'
+  if (diffMin < 60) return `${diffMin} minute${diffMin > 1 ? 's' : ''} ago`
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+  if (diffDays === 1) return '1 day ago'
+  return `${diffDays} days ago`
+}
 
 export default function Dashboard() {
-
   const navigate = useNavigate()
 
+  // 🔹 KEY METRICS STATE (initial UI values as fallback)
+  const [keyMetrics, setKeyMetrics] = useState([
+    {
+      title: 'Total Courses',
+      value: '24',
+      delta: '+2 from last month',
+      icon: <LuBookOpen className="w-5 h-5" />
+    },
+    {
+      title: 'Enrolled Students',
+      value: '1,234',
+      delta: '+15% from last month',
+      icon: <LuUsers className="w-5 h-5" />
+    },
+    {
+      title: 'Certified Students',
+      value: '850',
+      delta: '+8% from last month',
+      icon: <LuTrophy className="w-5 h-5" />
+    },
+    {
+      title: 'Placement Rate',
+      value: '78%',
+      delta: '+5% from last month',
+      icon: <LuTrendingUp className="w-5 h-5" />
+    }
+  ])
+
+  // 🔹 Recent Activities (initial dummy as fallback)
+  const [recentActivities, setRecentActivities] = useState([
+    {
+      id: 1,
+      text: 'New student enrolled in Welder course',
+      time: '2 minutes ago',
+      color: 'bg-blue-500'
+    },
+    {
+      id: 2,
+      text: 'Certificate generated for Priya Sharma',
+      time: '1 hour ago',
+      color: 'bg-green-500'
+    },
+    {
+      id: 3,
+      text: 'Welder course curriculum updated',
+      time: '3 hours ago',
+      color: 'bg-purple-500'
+    },
+    {
+      id: 4,
+      text: 'Monthly report generated successfully',
+      time: '1 day ago',
+      color: 'bg-orange-500'
+    }
+  ])
+
+  // 🔹 Course Statistics (initial dummy as fallback)
+  const [courseStatistics, setCourseStatistics] = useState([
+    {
+      id: 1,
+      course: 'Electrician',
+      value: 82
+    },
+    {
+      id: 2,
+      course: 'Fitter',
+      value: 58
+    },
+    {
+      id: 3,
+      course: 'Welder',
+      value: 44
+    },
+    {
+      id: 4,
+      course: 'Mechanic Diesel',
+      value: 36
+    },
+    {
+      id: 5,
+      course: 'COPA',
+      value: 18
+    }
+  ])
+
+  // 🔹 Staff static (abhi ke liye UI jaisa ka taisa)
+  const staffMembers = [
+    {
+      id: 1,
+      name: 'Amit Verma',
+      designation: 'Head Instructor',
+      department: 'Welding',
+      lastActive: '10 min ago'
+    },
+    {
+      id: 2,
+      name: 'Riya Singh',
+      designation: 'Placement Officer',
+      department: 'Career Services',
+      lastActive: '25 min ago'
+    },
+    {
+      id: 3,
+      name: 'Manish Kumar',
+      designation: 'Course Coordinator',
+      department: 'Automobile',
+      lastActive: 'Today, 9:15 AM'
+    },
+    {
+      id: 4,
+      name: 'Neha Patel',
+      designation: 'Student Counselor',
+      department: 'Student Support',
+      lastActive: '5 min ago'
+    }
+  ]
+
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  // 🔹 API CALL: institute_dashboard_stats.php
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        const res = await getMethod({
+          apiUrl: apiService.dashboardStats // 👈 yaha apna endpoint key use karo
+        })
+
+        // Expect: { status: true, data: { summary, recent_activities, course_statistics } }
+        if (!res?.status || !res.data) {
+          throw new Error(res?.message || 'Failed to load dashboard stats')
+        }
+
+        const { summary, recent_activities, course_statistics } = res.data
+
+        // ✅ 1) UPDATE KEY METRICS (summary)
+        if (summary) {
+          setKeyMetrics((prev) =>
+            prev.map((metric) => {
+              if (metric.title === 'Total Courses') {
+                return { ...metric, value: String(summary.total_courses ?? 0) }
+              }
+              if (metric.title === 'Enrolled Students') {
+                return { ...metric, value: String(summary.enrolled_students ?? 0) }
+              }
+              if (metric.title === 'Certified Students') {
+                return { ...metric, value: String(summary.certified_students ?? 0) }
+              }
+              if (metric.title === 'Placement Rate') {
+                const rate = summary.placement_rate ?? 0
+                return { ...metric, value: `${rate}%` }
+              }
+              return metric
+            })
+          )
+        }
+
+        // ✅ 2) UPDATE RECENT ACTIVITIES
+        if (Array.isArray(recent_activities)) {
+          const mappedActivities = recent_activities.map((item, idx) => ({
+            id: idx + 1,
+            text: item.title,
+            time: formatTimeAgo(item.timestamp),
+            color: getActivityColor(item.type)
+          }))
+          setRecentActivities(mappedActivities)
+        }
+
+        // ✅ 3) UPDATE COURSE STATISTICS
+        if (Array.isArray(course_statistics)) {
+          const mappedStats = course_statistics.map((item, idx) => ({
+            id: idx + 1,
+            course: item.course_title,
+            value: Number(item.completion_rate ?? 0)
+          }))
+          setCourseStatistics(mappedStats)
+        }
+
+      } catch (err) {
+        console.error('Dashboard stats error:', err)
+        setError(err.message || 'Something went wrong')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardStats()
+  }, [])
+
+  // ================== NAV HANDLERS (same as your UI) ==================
   const handleCourseManagement = () => {
     navigate('/institute/course-management')
   }
@@ -63,123 +287,17 @@ export default function Dashboard() {
     navigate('/institute/messaging-alerts')
   }
 
-  // Key metrics data for Horizontal4Cards
-  const keyMetrics = [
-    {
-      title: 'Total Courses',
-      value: '24',
-      delta: '+2 from last month',
-      icon: <LuBookOpen className="w-5 h-5" />
-    },
-    {
-      title: 'Enrolled Students',
-      value: '1,234',
-      delta: '+15% from last month',
-      icon: <LuUsers className="w-5 h-5" />
-    },
-    {
-      title: 'Certified Students',
-      value: '850',
-      delta: '+8% from last month',
-      icon: <LuTrophy className="w-5 h-5" />
-    },
-    {
-      title: 'Placement Rate',
-      value: '78%',
-      delta: '+5% from last month',
-      icon: <LuTrendingUp className="w-5 h-5" />
-    }
-  ]
-
-  // Recent activities data
-  const recentActivities = [
-    {
-      id: 1,
-      text: 'New student enrolled in Welder course',
-      time: '2 minutes ago',
-      color: 'bg-blue-500'
-    },
-    {
-      id: 2,
-      text: 'Certificate generated for Priya Sharma',
-      time: '1 hour ago',
-      color: 'bg-green-500'
-    },
-    {
-      id: 3,
-      text: 'Welder course curriculum updated',
-      time: '3 hours ago',
-      color: 'bg-purple-500'
-    },
-    {
-      id: 4,
-      text: 'Monthly report generated successfully',
-      time: '1 day ago',
-      color: 'bg-orange-500'
-    }
-  ]
-
-  const courseStatistics = [
-    {
-      id: 1,
-      course: 'Electrician',
-      value: 82
-    },
-    {
-      id: 2,
-      course: 'Fitter',
-      value: 58
-    },
-    {
-      id: 3,
-      course: 'Welder',
-      value: 44
-    },
-    {
-      id: 4,
-      course: 'Mechanic Diesel',
-      value: 36
-    },
-    {
-      id: 5,
-      course: 'COPA',
-      value: 18
-    }
-  ]
-
-  const staffMembers = [
-    {
-      id: 1,
-      name: 'Amit Verma',
-      designation: 'Head Instructor',
-      department: 'Welding',
-      lastActive: '10 min ago'
-    },
-    {
-      id: 2,
-      name: 'Riya Singh',
-      designation: 'Placement Officer',
-      department: 'Career Services',
-      lastActive: '25 min ago'
-    },
-    {
-      id: 3,
-      name: 'Manish Kumar',
-      designation: 'Course Coordinator',
-      department: 'Automobile',
-      lastActive: 'Today, 9:15 AM'
-    },
-    {
-      id: 4,
-      name: 'Neha Patel',
-      designation: 'Student Counselor',
-      department: 'Student Support',
-      lastActive: '5 min ago'
-    }
-  ]
-
+  // ================== JSX (UI SAME RAKHA HAI) ==================
   return (
     <div className={`p-2 bg-[#F6FAFF] min-h-screen ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+      {/* Optional small status line */}
+      {loading && (
+        <p className="text-xs text-gray-500 mb-2">Loading latest dashboard data...</p>
+      )}
+      {error && (
+        <p className="text-xs text-red-500 mb-2">Error: {error}</p>
+      )}
+
       {/* Key Metrics Section - Using Horizontal4Cards */}
       <div className="mb-5">
         <Horizontal4Cards data={keyMetrics} />

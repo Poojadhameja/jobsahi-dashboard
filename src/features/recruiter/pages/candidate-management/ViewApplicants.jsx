@@ -53,6 +53,7 @@ const ViewApplicants = () => {
             email: item.email || "N/A",
             phone_number: item.phone_number || "—",
             qualification: item.education || "—",
+            education: item.education || "—",
             skills: Array.isArray(item.skills)
               ? item.skills.join(", ")
               : typeof item.skills === "string"
@@ -216,10 +217,10 @@ const ViewApplicants = () => {
 
   // ---------------- RENDER ----------------
   return (
-    <div className="h-screen overflow-hidden bg-[var(--color-bg-primary)] p-6">
+    <div className="min-h-screen bg-[var(--color-bg-primary)] p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className={`text-3xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className={`text-2xl sm:text-3xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
           View Applicants
         </h1>
 
@@ -234,8 +235,8 @@ const ViewApplicants = () => {
       </div>
 
       {/* Search */}
-      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-6">
-        <div className="relative flex-1 max-w-md">
+      <div className="mb-6">
+        <div className="relative max-w-md">
           <LuSearch
             className={`absolute left-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`}
             size={20}
@@ -245,29 +246,28 @@ const ViewApplicants = () => {
             placeholder="Search candidates by name, email, job, or skills"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none bg-white"
           />
         </div>
       </div>
 
       {/* Data Table */}
-      <CustomDataTable
-        title=""
-        data={paginatedApplicants}
-        showHeader={false}
-        onViewDetails={handleViewDetails}
-        onDownloadCV={handleDownloadCV}
-        onDelete={handleDelete}
-        onReject={handleReject}
-      />
+      <div className="mb-6">
+        <CustomDataTable
+          title=""
+          data={paginatedApplicants}
+          showHeader={false}
+          onViewDetails={handleViewDetails}
+        />
+      </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between mt-6">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
         <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
           Showing {startIndex + 1}–{endIndex} of {totalRecords} applicants
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <NeutralButton
             onClick={() => setCurrentPage(currentPage - 1)}
             disabled={currentPage === 1}
@@ -277,26 +277,28 @@ const ViewApplicants = () => {
             Previous
           </NeutralButton>
 
-          {[1, 2, 3, 4].map((page) =>
-            currentPage === page ? (
-              <Button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                variant="primary"
-                size="sm"
-              >
-                {page}
-              </Button>
-            ) : (
-              <NeutralButton
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                size="sm"
-              >
-                {page}
-              </NeutralButton>
-            )
-          )}
+          {Array.from({ length: Math.ceil(totalRecords / recordsPerPage) }, (_, i) => i + 1)
+            .slice(0, 4)
+            .map((page) =>
+              currentPage === page ? (
+                <Button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  variant="primary"
+                  size="sm"
+                >
+                  {page}
+                </Button>
+              ) : (
+                <NeutralButton
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  size="sm"
+                >
+                  {page}
+                </NeutralButton>
+              )
+            )}
 
           <NeutralButton
             onClick={() => setCurrentPage(currentPage + 1)}
@@ -314,6 +316,7 @@ const ViewApplicants = () => {
         isOpen={isViewModalOpen}
         onClose={handleCloseModal}
         candidate={selectedCandidate}
+        onDownloadCV={handleDownloadCV}
       />
     </div>
   );

@@ -80,9 +80,18 @@ const MeetOurTeam = ({ teamMembers, title, description }) => {
                       )
                       .map((member, index) => (
                         <div key={index} className="text-center">
-                          {/* Profile Image Placeholder */}
-                          <div className="w-32 h-48 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
-                            {/* <div className="w-24 h-32 bg-blue-200 rounded-xl"></div> */}
+                          {/* Profile Image */}
+                          <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-[#5C9A24] shadow-md">
+                            {member.image ? (
+                              <img
+                                src={member.image}
+                                alt={member.name}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-blue-100" />
+                            )}
                           </div>
 
                           {/* Member Name */}

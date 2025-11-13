@@ -2,8 +2,17 @@ import React, { useState } from 'react'
 import Navbar from '../../components/Navbar'
 import Footer from '../../components/Footer'
 import NewsletterSubscription from '../../components/NewsletterSubscription'
-import { FaCalendarAlt, FaUser, FaArrowRight, FaSearch, FaNewspaper, FaBriefcase, FaGraduationCap, FaCog, FaHardHat, FaClipboardList, FaPencilAlt, FaBookOpen, FaFacebookF, FaTwitter, FaLinkedinIn, FaReply, FaArrowLeft } from 'react-icons/fa'
+import { FaArrowRight, FaSearch, FaNewspaper, FaBriefcase, FaGraduationCap, FaCog, FaHardHat, FaClipboardList, FaPencilAlt, FaBookOpen, FaFacebookF, FaTwitter, FaLinkedinIn, FaReply, FaArrowLeft } from 'react-icons/fa'
 import textunderline from "../../assets/website_text_underline.png";
+import { WEBSITE_COLOR_CLASSES } from '../../components/colorClasses'
+
+const {
+  TEXT: TEXT_COLORS,
+  BG: BG_COLORS,
+  BORDER: BORDER_COLORS,
+  HOVER_TEXT: HOVER_TEXT_COLORS,
+  HOVER_BG: HOVER_BG_COLORS,
+} = WEBSITE_COLOR_CLASSES
 
 const Blogs = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -103,6 +112,11 @@ const Blogs = () => {
     { id: 'industry-insights', name: 'Industry Insights', icon: <FaHardHat /> }
   ]
 
+  const placeholderImage = 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=500&h=300&fit=crop'
+
+  const formatCategoryName = (category) =>
+    category.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+
   const featuredBlogs = blogData.filter(blog => blog.featured)
   const filteredBlogs = blogData.filter(blog => {
     const matchesSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -182,31 +196,31 @@ const Blogs = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#00395B]">
+    <div className={`min-h-screen ${BG_COLORS.PRIMARY_NAVY}`}>
       <Navbar />
       
       {/* Hero Section */}
-      <section className="py-10 bg-[#EAF5FB] mx-4 rounded-[50px] my-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className={`py-10 ${BG_COLORS.SURFACE_PALE_BLUE} mx-4 sm:mx-6 lg:mx-10 rounded-3xl sm:rounded-[50px] my-6 sm:my-10`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
           <div className="text-center">
             {/* Top Banner */}
             <div className="mb-5">
-              <div className="inline-block border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-2 rounded-full text-sm font-semibold">
+              <div className={`inline-block border-2 ${BORDER_COLORS.ACCENT_GREEN} ${TEXT_COLORS.ACCENT_GREEN} px-5 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-semibold tracking-wide`}>
                 FOR JOB ASPIRANTS
               </div>
             </div>
 
             {/* Main Heading */}
-            <div className="flex flex-col items-center justify-center text-center mb-5  ">
-              <h1 className="text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 text-[#0B537D] leading-tight">
-              Read Our Blogs & News
+            <div className="flex flex-col items-center justify-center text-center mb-5">
+              <h1 className={`text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-6 md:mb-8 ${TEXT_COLORS.PRIMARY_DEEP_BLUE} leading-tight md:leading-tight`}>
+                Read Our Blogs & News
               </h1>
-              <img src={textunderline} alt="" className="w-[30%] h-[15px] md:h-[25px] -mt-10" />
+              <img src={textunderline} alt="" className="w-2/3 max-w-xs sm:max-w-sm md:max-w-md h-3 md:h-6 -mt-6 md:-mt-10" />
             </div>
 
             {/* Description */}
-            <p className="text-gray-700 text-lg sm:mx-10 lg:mx-28">
-            Stay informed with fresh insights from the ITI, polytechnic, and government job market. Check back regularly for the latest opportunities, expert tips, and platform updates.
+            <p className="text-gray-700 text-sm sm:text-base md:text-lg sm:mx-10 lg:mx-28 max-w-3xl mx-auto">
+              Stay informed with fresh insights from the ITI, polytechnic, and government job market. Check back regularly for the latest opportunities, expert tips, and platform updates.
             </p>
           </div>
         </div>
@@ -215,9 +229,9 @@ const Blogs = () => {
       {/* Conditional Rendering: Blog List or Blog Detail */}
       {!selectedBlog ? (
         /* Main Blog Content Section */
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 ">
+        <section className="py-10 sm:py-16 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 xl:gap-14">
               
               {/* Left Sidebar */}
               <div className="lg:col-span-1">
@@ -231,7 +245,7 @@ const Blogs = () => {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500" />
+                    <FaSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${TEXT_COLORS.ACCENT_GREEN}`} />
                   </div>
                 </div>
 
@@ -239,15 +253,24 @@ const Blogs = () => {
                 <div className="mb-8">
                   <h3 className="text-lg font-bold text-gray-800 mb-4">Recent News</h3>
                   <div className="space-y-4">
-                    {blogData.slice(0, 3).map((blog, index) => (
-                      <div key={blog.id} className="flex items-start space-x-3 pb-4 border-b border-gray-200 last:border-b-0">
-                        <div className="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                    {blogData.slice(0, 3).map((blog) => (
+                      <div key={blog.id} className="flex items-start gap-3 pb-4 border-b border-gray-200 last:border-b-0">
+                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                          <img
+                            src={blog.image || placeholderImage}
+                            alt={blog.title}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
                         <div className="flex-1">
                           <h4 className="text-sm font-medium text-gray-800 leading-tight mb-1">
-                            {blog.title.length > 50 ? blog.title.substring(0, 50) + '...' : blog.title}
+                            {blog.title.length > 60 ? blog.title.substring(0, 60) + '...' : blog.title}
                           </h4>
-                          <p className="text-xs text-gray-500">
-                            {blog.author} • {formatDate(blog.date)}
+                          <p className="text-xs text-gray-500 flex flex-wrap gap-1">
+                            <span>{blog.author}</span>
+                            <span>•</span>
+                            <span>{formatDate(blog.date)}</span>
                           </p>
                         </div>
                       </div>
@@ -256,16 +279,23 @@ const Blogs = () => {
                 </div>
 
                 {/* Tags Section */}
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">Tags</h3>
+                <div className="hidden lg:block">
+                  <h3 className="text-lg font-bold text-gray-800 mb-4">Browse Tags</h3>
                   <div className="flex flex-wrap gap-2">
-                    {['Recruitment', 'Education', 'Tips&Trik', 'Tech', 'Development', 'Design', 'Admin', 'Technology'].map((tag, index) => (
+                    {categories
+                      .filter(category => category.id !== 'all')
+                      .map((category) => (
                       <button
-                        key={index}
-                        className="px-3 py-1 bg-blue-50 text-gray-700 text-sm rounded-lg hover:bg-blue-100 transition-colors"
-                        onClick={() => setSelectedCategory(tag.toLowerCase())}
+                        key={category.id}
+                        type="button"
+                        className={`px-3 py-1 text-sm rounded-lg transition-colors ${
+                          selectedCategory === category.id
+                            ? `${BG_COLORS.ACCENT_GREEN} ${TEXT_COLORS.NEUTRAL_WHITE}`
+                            : 'bg-blue-50 text-gray-700 hover:bg-blue-100'
+                        }`}
+                        onClick={() => setSelectedCategory(category.id)}
                       >
-                        {tag}
+                        {category.name}
                       </button>
                     ))}
                   </div>
@@ -274,48 +304,119 @@ const Blogs = () => {
 
               {/* Main Content Area */}
               <div className="lg:col-span-3">
-                {/* Blog Articles Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  {filteredBlogs.map((blog) => (
-                    <article key={blog.id} className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleBlogClick(blog)}>
-                      {/* Article Image */}
-                      <div className=" m-2 rounded-lg h-48 bg-gray-200 relative overflow-hidden">
-                        <img src="" alt="not available" className="" />
-                        {/* <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-green-500/20"></div> */}
-                      </div>
-                      
-                      {/* Article Content */}
-                      <div className="p-6">
-                        {/* Meta Info */}
-                        <p className="text-sm text-gray-500 mb-2">
-                          {blog.author} • {formatDate(blog.date)}
-                        </p>
-                        
-                        {/* Title */}
-                        <h2 className="text-lg font-bold text-gray-800 mb-3 leading-tight">
-                          {blog.title}
-                        </h2>
-                        
-                        {/* Tags */}
-                        <div className="flex flex-wrap gap-2">
-                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                            {blog.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                          </span>
-                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                            {blog.readTime}
-                          </span>
-                          <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
-                            Featured
-                          </span>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
+                {/* Category Filter */}
+                <div className="mb-8">
+                  <div className="flex items-center justify-between gap-4 mb-3 flex-wrap">
+                    <h3 className="text-xl font-semibold text-gray-800">
+                      Browse by Category
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      Showing {filteredBlogs.length} {filteredBlogs.length === 1 ? 'result' : 'results'}
+                    </p>
+                  </div>
+                  <div className="flex gap-3 overflow-x-auto pb-2 -mx-2 px-2 lg:mx-0 lg:px-0 lg:flex-wrap">
+                    {categories.map((category) => (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => setSelectedCategory(category.id)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-colors ${
+                          selectedCategory === category.id
+                            ? `${BG_COLORS.ACCENT_GREEN} ${TEXT_COLORS.NEUTRAL_WHITE} border-transparent`
+                            : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                        }`}
+                      >
+                        <span className="text-base">{category.icon}</span>
+                        {category.name}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Blog Articles Grid */}
+                {filteredBlogs.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-8 mb-8">
+                    {filteredBlogs.map((blog) => (
+                      <article
+                        key={blog.id}
+                        className="flex flex-col bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all cursor-pointer focus:outline-none focus:ring-4 focus:ring-green-100"
+                        onClick={() => handleBlogClick(blog)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleBlogClick(blog)
+                          }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Read blog ${blog.title}`}
+                      >
+                        {/* Article Image */}
+                        <div className="mx-3 mt-3 rounded-2xl h-48 bg-gray-200 relative overflow-hidden">
+                          <img
+                            src={blog.image || placeholderImage}
+                            alt={blog.title}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                          {/* <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-green-500/20"></div> */}
+                        </div>
+                        
+                        {/* Article Content */}
+                        <div className="flex flex-col flex-1 p-6">
+                          {/* Meta Info */}
+                          <p className="text-sm text-gray-500 mb-2">
+                            {blog.author} • {formatDate(blog.date)}
+                          </p>
+                          
+                          {/* Title */}
+                          <h2 className="text-lg font-bold text-gray-800 mb-2 leading-tight">
+                            {blog.title}
+                          </h2>
+                          <p className="text-sm text-gray-600 mb-4">
+                            {blog.excerpt}
+                          </p>
+                          
+                          {/* Tags */}
+                          <div className="mt-auto flex flex-wrap gap-2">
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                              {formatCategoryName(blog.category)}
+                            </span>
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                              {blog.readTime}
+                            </span>
+                            {blog.featured && (
+                              <span className={`${TEXT_COLORS.ACCENT_GREEN} bg-green-50 border border-green-100 px-2 py-1 text-xs rounded font-semibold`}>
+                                Featured
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center bg-blue-50 border border-blue-100 rounded-3xl p-10 mb-8">
+                    <FaNewspaper className="text-4xl text-blue-400 mb-4" />
+                    <h4 className="text-xl font-semibold text-gray-800 mb-2">No blogs found</h4>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Try adjusting your search or pick a different category to explore more stories.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchTerm('')
+                        setSelectedCategory('all')
+                      }}
+                      className={`${BG_COLORS.ACCENT_GREEN} ${TEXT_COLORS.NEUTRAL_WHITE} px-5 py-2 rounded-full font-medium ${HOVER_BG_COLORS.ACCENT_GREEN_DARKER} transition-colors`}
+                    >
+                      Reset filters
+                    </button>
+                  </div>
+                )}
 
                 {/* Pagination */}
                 <div className="flex items-center justify-center space-x-4">
-                  <button className="w-10 h-10 flex items-center justify-center text-green-500 hover:bg-green-50 rounded-full transition-colors">
+                  <button className={`w-10 h-10 flex items-center justify-center ${TEXT_COLORS.ACCENT_GREEN} hover:bg-green-50 rounded-full transition-colors`}>
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
@@ -326,7 +427,7 @@ const Blogs = () => {
                       key={page}
                       className={`w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium transition-colors ${
                         page === 1
-                          ? 'bg-green-500 text-white'
+                          ? `${BG_COLORS.ACCENT_GREEN} ${TEXT_COLORS.NEUTRAL_WHITE}`
                           : 'text-gray-600 hover:bg-gray-100'
                       }`}
                     >
@@ -334,7 +435,7 @@ const Blogs = () => {
                     </button>
                   ))}
                   
-                  <button className="w-10 h-10 flex items-center justify-center text-green-500 hover:bg-green-50 rounded-full transition-colors">
+                  <button className={`w-10 h-10 flex items-center justify-center ${TEXT_COLORS.ACCENT_GREEN} hover:bg-green-50 rounded-full transition-colors`}>
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                     </svg>
@@ -362,65 +463,87 @@ const Blogs = () => {
               <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 leading-tight">
                 {selectedBlog.title}
               </h1>
-              <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+              <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mb-6">
                 <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-                  {selectedBlog.category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  {formatCategoryName(selectedBlog.category)}
                 </span>
-                <span>{formatDate(selectedBlog.date)}</span>
-                <span>By {selectedBlog.author}</span>
+                <span className="flex items-center gap-2">
+                  {formatDate(selectedBlog.date)}
+                </span>
+                <span className="flex items-center gap-2">
+                  By {selectedBlog.author}
+                </span>
               </div>
             </div>
 
             {/* Main Article Image */}
-            <div className="w-full h-64 md:h-80 bg-gray-200 rounded-lg mb-8"></div>
+            <div className="w-full h-64 md:h-80 bg-gray-200 rounded-lg mb-8 overflow-hidden">
+              <img
+                src={selectedBlog.image || placeholderImage}
+                alt={selectedBlog.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
 
             {/* Article Content */}
             <div className="prose prose-lg max-w-none mb-8">
               <p className="text-gray-700 leading-relaxed mb-6">
-                Creating a strong resume is the first step toward landing your dream job—whether you're from ITI, polytechnic, or pursuing a government role. A well-crafted resume highlights your strengths, skills, and the value you bring to the table.
+                {selectedBlog.content}
               </p>
 
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Prepare Well, Perform Better</h2>
-              
-              <p className="text-gray-700 leading-relaxed mb-4">
-                Once you're shortlisted, the next step is preparation. Whether it's a written exam or interview, remember:
-              </p>
-
-              <ul className="list-disc list-inside text-gray-700 mb-6 space-y-2">
-                <li>Review the job description carefully</li>
-                <li>Practice mock tests</li>
-                <li>Prepare for common technical and HR questions</li>
-                <li>Be confident and polite</li>
-              </ul>
-
-              {/* Quote Section */}
-              <div className="bg-[#0B537D] rounded-lg p-8 my-8 text-center">
-                <blockquote className="text-2xl font-bold text-[#A1E366] mb-4">
-                  "Everything Is Designed. Few Things Are Designed Well"
-                </blockquote>
-                <cite className="text-white text-lg">Ryan Gigs - Senior Designer</cite>
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="bg-blue-50 rounded-xl p-6">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-3">Key Takeaways</h2>
+                  <ul className="list-disc list-inside text-gray-700 space-y-2 text-base">
+                    <li>Understand the fundamentals before you specialize</li>
+                    <li>Build a portfolio that showcases real-world projects</li>
+                    <li>Stay updated on industry trends and certifications</li>
+                    <li>Network with mentors and peers regularly</li>
+                  </ul>
+                </div>
+                <div className="bg-green-50 rounded-xl p-6">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-3">Next Steps</h2>
+                  <ul className="list-disc list-inside text-gray-700 space-y-2 text-base">
+                    <li>Schedule focused study sessions each week</li>
+                    <li>Practice with mock interviews or tests</li>
+                    <li>Tailor your resume to each opportunity</li>
+                    <li>Follow up on applications with confidence</li>
+                  </ul>
+                </div>
               </div>
 
-              <p className="text-gray-700 leading-relaxed">
-                Your resume is your ticket to the job market. Keep it updated, be honest about your achievements, and always present your strengths professionally.
-              </p>
+              {/* Quote Section */}
+              <div className={`${BG_COLORS.PRIMARY_DEEP_BLUE} rounded-lg p-8 my-8 text-center`}>
+                <blockquote className={`text-2xl font-bold ${TEXT_COLORS.ACCENT_LIME} mb-4`}>
+                  "Everything Is Designed. Few Things Are Designed Well"
+                </blockquote>
+                <cite className={`${TEXT_COLORS.NEUTRAL_WHITE} text-lg`}>Ryan Gigs - Senior Designer</cite>
+              </div>
             </div>
 
             {/* Footer Meta Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 py-6 border-t border-b border-gray-200 mb-8">
-              <div className="text-sm text-gray-600">
-                Tag: Developer, App
+              <div className="text-sm text-gray-600 flex flex-wrap items-center gap-2">
+                <span className="font-semibold text-gray-700">Tags:</span>
+                <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700">
+                  {formatCategoryName(selectedBlog.category)}
+                </span>
+                {selectedBlog.featured && (
+                  <span className="px-3 py-1 rounded-full bg-green-50 text-green-700">
+                    Featured Story
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-gray-600">Share</span>
                 <div className="flex gap-3">
-                  <button className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 transition-colors">
+                  <button className={`w-8 h-8 ${BG_COLORS.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT_COLORS.NEUTRAL_WHITE} ${HOVER_BG_COLORS.ACCENT_GREEN_DARKER} transition-colors`}>
                     <FaFacebookF className="text-sm" />
                   </button>
-                  <button className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 transition-colors">
+                  <button className={`w-8 h-8 ${BG_COLORS.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT_COLORS.NEUTRAL_WHITE} ${HOVER_BG_COLORS.ACCENT_GREEN_DARKER} transition-colors`}>
                     <FaTwitter className="text-sm" />
                   </button>
-                  <button className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white hover:bg-green-600 transition-colors">
+                  <button className={`w-8 h-8 ${BG_COLORS.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT_COLORS.NEUTRAL_WHITE} ${HOVER_BG_COLORS.ACCENT_GREEN_DARKER} transition-colors`}>
                     <FaLinkedinIn className="text-sm" />
                   </button>
                 </div>
@@ -438,7 +561,7 @@ const Blogs = () => {
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-bold text-gray-800">{comment.author}</h4>
-                        <button className="text-green-500 text-sm hover:text-green-600 transition-colors">
+                        <button className={`${TEXT_COLORS.ACCENT_GREEN} text-sm ${HOVER_TEXT_COLORS.ACCENT_GREEN_DARK} transition-colors`}>
                           Reply <FaReply className="inline ml-1 text-xs" />
                         </button>
                       </div>
@@ -451,8 +574,8 @@ const Blogs = () => {
             </div>
 
             {/* Leave A Comment Form */}
-            <div className="bg-green-50 p-8 rounded-lg">
-              <h3 className="text-xl font-bold text-green-800 mb-6">Leave A Comment</h3>
+            <div className={`${BG_COLORS.SURFACE_SOFT_GREEN} p-8 rounded-lg`}>
+              <h3 className={`text-xl font-bold ${TEXT_COLORS.ACCENT_GREEN_DARK} mb-6`}>Leave A Comment</h3>
               
               <form onSubmit={handleCommentSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -492,7 +615,7 @@ const Blogs = () => {
                 </div>
                 <button
                   type="submit"
-                  className="bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors flex items-center gap-2 shadow-lg"
+                  className={`${BG_COLORS.ACCENT_GREEN} ${TEXT_COLORS.NEUTRAL_WHITE} px-6 py-3 rounded-lg font-semibold ${HOVER_BG_COLORS.ACCENT_GREEN_DARKER} transition-colors flex items-center gap-2 shadow-lg`}
                 >
                   Post Comment
                   <FaArrowRight className="text-sm" />

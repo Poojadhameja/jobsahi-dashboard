@@ -52,6 +52,8 @@ const apiService = {
   getInstituteProfile: '/institute/profiles.php',
   updateInstituteProfile: '/institute/profile_updated.php',
 
+  get_student_profile: '/student/get_profile.php',           // you referenced in code
+  update_student: '/institute/update_student.php',  
 
 
 };

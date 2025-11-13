@@ -3,7 +3,7 @@ import { LuUsers, LuCheck, LuClock, LuDownload, LuSearch, LuEye, LuPencil, LuMes
 import { Horizontal4Cards } from '../../../../shared/components/metricCard'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Button, { IconButton } from '../../../../shared/components/Button'
-import { getMethod } from '../../../../service/api'
+import { getMethod, putMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
 
 const ViewStudents = () => {
@@ -15,6 +15,27 @@ const ViewStudents = () => {
   const [showEditPopup, setShowEditPopup] = useState(false)
   const [showDeletePopup, setShowDeletePopup] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState(null)
+
+
+  const fetchBatchesByCourse = async (course_id) => {
+    try {
+      if (!course_id) return [];
+  
+      const resp = await getMethod({
+        apiUrl: `${apiService.get_batches}?course_id=${course_id}`,
+      });
+  
+      if (resp?.status && resp.batches) {
+        return resp.batches;
+      }
+    } catch (e) {
+      console.error("Batch fetch error:", e);
+    }
+  
+    return [];
+  };
+  
+
   
   const [students, setStudents] = useState([])  // ✅ will come from API
   const [summary, setSummary] = useState({
@@ -66,7 +87,13 @@ const ViewStudents = () => {
       console.log("ViewStudents API response:", resp)
   
       if (resp?.status) {
-        setStudents(resp.data || [])
+        setStudents(
+          (resp.data || []).map((s) => ({
+            ...s,
+            student_id: s.student_id || s.id || s.user_id, // choose correct id from backend
+          }))
+        );
+        
   
         if (resp.summary) {
           setSummary({
@@ -260,29 +287,64 @@ const fetchStudentDetails = async (studentId) => {
   }
 
   // ✅ Update student data to backend
-const updateStudentDetails = async (updatedStudent) => {
-  try {
-    const resp = await getMethod({
-      apiUrl: `${apiService.update_student_profile}?id=${updatedStudent.id}`,
-      data: updatedStudent, // if using POST, change to postMethod
-    });
-
-    console.log("Edit student API response:", resp);
-
-    if (resp?.status || resp?.success) {
-      // reflect change locally
-      setStudents(prev =>
-        prev.map(s => s.id === updatedStudent.id ? updatedStudent : s)
+  const updateStudentDetails = async (updatedStudent) => {
+    try {
+      // FIND STUDENT BY NAME
+      const foundStudent = students.find(
+        (s) =>
+          s.name.trim().toLowerCase() ===
+          updatedStudent.name.trim().toLowerCase()
       );
-      setShowEditPopup(false);
-      setSelectedStudent(null);
-    } else {
-      alert(resp?.message || "Failed to update student");
+  
+      if (!foundStudent) {
+        alert("Student not found by name");
+        return;
+      }
+  
+      if (!foundStudent.student_id) {
+        console.error("❌ Missing student_id:", foundStudent);
+        alert("Invalid student record. student_id missing.");
+        return;
+      }
+  
+      // FINAL PAYLOAD
+      const payload = {
+        student_id: Number(foundStudent.student_id),
+        batch_id: updatedStudent.batch,
+        status: updatedStudent.status,
+      };
+  
+      console.log("📤 Sending Payload:", payload);
+  
+      // CALL API
+      const resp = await putMethod({
+        apiUrl: apiService.update_student,
+        payload: payload,
+      });
+  
+      console.log("Update Response:", resp);
+  
+      if (resp?.status) {
+        setStudents((prev) =>
+          prev.map((s) =>
+            s.student_id === foundStudent.student_id
+              ? { ...s, batch: updatedStudent.batch, status: updatedStudent.status }
+              : s
+          )
+        );
+  
+        setShowEditPopup(false);
+        setSelectedStudent(null);
+      } else {
+        alert(resp?.message || "Failed to update student");
+      }
+    } catch (error) {
+      console.error("Update error:", error);
     }
-  } catch (error) {
-    console.error("Update student error:", error);
-  }
-};
+  };
+  
+  
+  
 
 
   return (
@@ -502,142 +564,152 @@ const updateStudentDetails = async (updatedStudent) => {
         </div>
       )}
 
-      {/* Edit Student Popup */}
-      {showEditPopup && selectedStudent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Student - {selectedStudent.name}</h2>
-              <IconButton
-                label="Close edit student"
-                onClick={handleClosePopups}
-                variant="unstyled"
-                className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary`}
-              >
-                <LuX className="w-6 h-6" />
-              </IconButton>
-            </div>
-            
-            <form onSubmit={(e) => {
-              e.preventDefault()
-              const formData = new FormData(e.target)
-              const updatedStudent = {
-                ...selectedStudent,
-                name: formData.get('name'),
-                email: formData.get('email'),
-                phone: formData.get('phone'),
-                course: formData.get('course'),
-                batch: formData.get('batch'),
-                status: formData.get('status'),
-              }
-              handleUpdateStudent(updatedStudent)
-            }}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Name</label>
-                  <input
-                    type="text"
-                    name="name"
-                    defaultValue={selectedStudent.name}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Email</label>
-                  <input
-                    type="email"
-                    name="email"
-                    defaultValue={selectedStudent.email}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Phone</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    defaultValue={selectedStudent.phone}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Course</label>
-                  <select
-                    name="course"
-                    defaultValue={selectedStudent.course || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  >
-                    <option value="" disabled>Select course</option>
-                    {courseOptions.map((course) => (
-                      <option key={course} value={course}>
-                        {course}
-                      </option>
-                    ))}
-                    {selectedStudent.course && !courseOptions.includes(selectedStudent.course) && (
-                      <option value={selectedStudent.course}>{selectedStudent.course}</option>
-                    )}
-                  </select>
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Batch</label>
-                  <select
-                    name="batch"
-                    defaultValue={selectedStudent.batch || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  >
-                    <option value="" disabled>Select batch</option>
-                    {batchOptions.map((batch) => (
-                      <option key={batch} value={batch}>
-                        {batch}
-                      </option>
-                    ))}
-                    {selectedStudent.batch && !batchOptions.includes(selectedStudent.batch) && (
-                      <option value={selectedStudent.batch}>{selectedStudent.batch}</option>
-                    )}
-                  </select>
-                </div>
-                <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Status</label>
-                  <select
-                    name="status"
-                    defaultValue={selectedStudent.status}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                    {/* <option value="On Hold">On Hold</option> */}
-                  </select>
-                </div>
-               
-               
-              </div>
+{/* Edit Student Popup */}
+{showEditPopup && selectedStudent && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Edit Student - {selectedStudent.name}</h2>
+        <IconButton
+          label="Close edit student"
+          onClick={handleClosePopups}
+          variant="unstyled"
+          className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary`}
+        >
+          <LuX className="w-6 h-6" />
+        </IconButton>
+      </div>
 
-              <div className="mt-6 flex justify-end space-x-3">
-                <Button
-                  type="button"
-                  onClick={handleClosePopups}
-                  variant="neutral"
-                  className={TAILWIND_COLORS.TEXT_PRIMARY}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                >
-                  Update Student
-                </Button>
-              </div>
-            </form>
+      {/* ✅ updated submit logic with API */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+
+          const updatedStudent = {
+            ...selectedStudent,
+            batch: formData.get("batch"),
+            status: formData.get("status"),
+          };
+
+          updateStudentDetails(updatedStudent);
+        }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          {/* Name */}
+          <div>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              Name
+            </label>
+            <input
+              type="text"
+              value={selectedStudent.name}
+              disabled
+              readOnly
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              Email
+            </label>
+            <input
+              type="email"
+              value={selectedStudent.email}
+              disabled
+              readOnly
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              Phone
+            </label>
+            <input
+              type="tel"
+              value={selectedStudent.phone}
+              disabled
+              readOnly
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+            />
+          </div>
+
+          {/* Course */}
+          <div>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              Course
+            </label>
+            <select
+              value={selectedStudent.course}
+              disabled
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
+            >
+              <option>{selectedStudent.course}</option>
+            </select>
+          </div>
+
+          {/* Batch (editable) */}
+          <div>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              Batch
+            </label>
+            <select
+              name="batch"
+              defaultValue={selectedStudent.batch || ""}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            >
+              <option value="" disabled>Select batch</option>
+              {batchOptions.map((batch) => (
+                <option key={batch} value={batch}>
+                  {batch}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Status (editable) */}
+          <div>
+            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+              Status
+            </label>
+            <select
+              name="status"
+              defaultValue={selectedStudent.status}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            >
+              <option value="Enrolled">Enrolled</option>
+              <option value="Completed">Completed</option>
+              <option value="Dropped">Dropped</option>
+            </select>
           </div>
         </div>
-      )}
+
+        {/* Buttons */}
+        <div className="mt-6 flex justify-end space-x-3">
+          <Button
+            type="button"
+            onClick={handleClosePopups}
+            variant="neutral"
+            className={TAILWIND_COLORS.TEXT_PRIMARY}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary">
+            Update Student
+          </Button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
 
       {/* Delete Confirmation Popup */}
       {showDeletePopup && selectedStudent && (

@@ -125,34 +125,61 @@ export default function EmployerManagement() {
           payload: {
           },
         };
-
         var response = await getMethod(data);
         console.log('Employer API Response:', response)
+        // if (response.status === 'success' || response.status === true) {
+        //   // Map API response to required format
+        //   const formatted = response.data.map((item, index) => ({
+        //     id: item.user_id, // or just use index+1 if you want serial id
+        //     email: item.email,
+        //     role: item.role,
+        //     profile_id: item.profile.profile_id,
+        //     company_name: item.profile.company_name,
+        //   }));
+
+        //   const pendingFormatted = response.data
+        //   .filter((item) => item.profile.admin_action !== "approved")
+        //   .map((item, index) => ({
+        //     id: item.user_id, // or just use index+1 if you want serial id
+        //     email: item.email,
+        //     role: item.role,
+        //     profile_id: item.profile.profile_id,
+        //     company_name: item.profile.company_name,
+        //   }));
+
+        //   setEmployers(formatted);
+        //   setPendingApprovalEmployers(pendingFormatted);
+        //   setTotalEmployerCount(response.total_count);
+        //   setPendingApprovalsCount(pendingFormatted.length);
+        // } 
         if (response.status === 'success' || response.status === true) {
-          // Map API response to required format
-          const formatted = response.data.map((item, index) => ({
-            id: item.user_id, // or just use index+1 if you want serial id
-            email: item.email,
-            role: item.role,
-            profile_id: item.profile.profile_id,
-            company_name: item.profile.company_name,
-          }));
+  const formatted = response.data.map((item) => ({
+    id: item.user_id,
+    email: item.email,
+    role: item.role,
+    user_name: item.user_name,
+    phone_number: item.phone_number,
+    profile_id: item.profile.profile_id,
+    company_name: item.profile.company_name,
+    company_logo: item.profile.company_logo,
+    industry: item.profile.industry,
+    website: item.profile.website,
+    location: item.profile.location,
+    admin_action: item.profile.status,
+    created_at: item.profile.applied_date,
+  }));
 
-          const pendingFormatted = response.data
-          .filter((item) => item.profile.admin_action !== "approved")
-          .map((item, index) => ({
-            id: item.user_id, // or just use index+1 if you want serial id
-            email: item.email,
-            role: item.role,
-            profile_id: item.profile.profile_id,
-            company_name: item.profile.company_name,
-          }));
+  // ✅ Pending = not approved
+  const pendingFormatted = formatted.filter(
+    (emp) => emp.admin_action !== "approved"
+  );
 
-          setEmployers(formatted);
-          setPendingApprovalEmployers(pendingFormatted);
-          setTotalEmployerCount(response.total_count);
-          setPendingApprovalsCount(pendingFormatted.length);
-        } else {
+  setEmployers(formatted);
+  setPendingApprovalEmployers(pendingFormatted);
+  setTotalEmployerCount(response.total_count);
+  setPendingApprovalsCount(pendingFormatted.length);
+} 
+else {
           Swal.fire({
             title: "Failed",
             text: response.message || "Failed to retrieve employers",
@@ -319,7 +346,7 @@ export default function EmployerManagement() {
 
       {/* Conditional Content Rendering */}
       {activeView === 'approve-reject' && (
-        <PendingRecruiterApprovals employers={pendingApprovalEmployers} />
+        <PendingRecruiterApprovals employers={employers} />
       )}
 
       {activeView === 'job-tracking' && (

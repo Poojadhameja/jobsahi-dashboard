@@ -1,14 +1,17 @@
-﻿  import React, { useState, useEffect } from "react";
-  import Navbar from "../../components/Navbar";
-  import Footer from "../../components/Footer";
-  import BrowseJobByCategory from "../../components/UI8Cards.jsx";
-  import TrustedByStartups from "../../components/TrustedByStartups";
-  import FAQ from "../../components/FAQ";
-  import NewsletterSubscription from "../../components/NewsletterSubscription";
-  import { colors } from "../../../../shared/colors.js";
-  import uploadresumebg from "../../assets/uploadresumebg.png";
+﻿import React, { useState, useEffect, lazy, Suspense } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import BrowseJobByCategory from "../../components/UI8Cards.jsx";
+import FAQ from "../../components/FAQ";
+import NewsletterSubscription from "../../components/NewsletterSubscription";
+import { WEBSITE_COLOR_CLASSES } from "../../components/colorClasses";
+import uploadresumebg from "../../assets/uploadresumebg.png";
+import homebanner from "../../assets/homebanner.jpg";
 
-  import textunderline from "../../assets/website_text_underline.png";
+import textunderline from "../../assets/website_text_underline.png";
+
+const TrustedByStartups = lazy(() => import("../../components/TrustedByStartups.jsx"));
 
   import {
     FaMapMarkerAlt,
@@ -31,9 +34,24 @@
     FaChevronLeft,
     FaChevronRight,
     FaPlus,
+    FaBolt,
+    FaFire,
+    FaCogs,
+    FaIndustry,
+    FaTools,
+    FaSnowflake,
+    FaHandsHelping,
   } from "react-icons/fa";
 
   const home = () => {
+  const navigate = useNavigate();
+  const {
+    BG,
+    TEXT,
+    BORDER,
+    HOVER_BG,
+    HOVER_TEXT,
+  } = WEBSITE_COLOR_CLASSES;
     const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [email, setEmail] = useState("");
@@ -59,6 +77,13 @@
 
     const handleUploadClick = () => {
       document.getElementById('fileInput').click();
+    };
+
+    const navigateToFindJob = () => {
+      navigate('/find-job');
+      if (typeof window !== 'undefined') {
+        window.scrollTo(0, 0);
+      }
     };
 
     useEffect(() => {
@@ -171,54 +196,74 @@
       setCurrentSlide(index);
     };
 
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => {
+          const totalSlides = Math.ceil(blogPosts.length / (isMobile ? 1 : 3));
+          if (totalSlides === 0) return 0;
+          return (prev + 1) % totalSlides;
+        });
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }, [isMobile, blogPosts.length]);
+
+    useEffect(() => {
+      const totalSlides = getTotalSlides();
+      setCurrentSlide((prev) => {
+        if (totalSlides === 0) return 0;
+        return prev % totalSlides;
+      });
+    }, [isMobile]);
+
     const jobCategories = [
       {
         title: 'Electrician Jobs',
         count: 68,
         subject: "Jobs Available",
-        icon: FaWrench
+        icon: FaBolt
       },
       {
         title: 'Welder Jobs',
         count: 45,
         subject: "Jobs Available",
-        icon: FaWrench
+        icon: FaFire
       },
       {
         title: 'Fitter Jobs',
         count: 52,
         subject: "Jobs Available",
-        icon: FaWrench
+        icon: FaCogs
       },
       {
         title: 'CNC Operator',
         count: 38,
         subject: "Jobs Available",
-        icon: FaWrench
+        icon: FaIndustry
       },
       {
         title: 'Plumber Jobs',
         count: 29,
         subject: "Jobs Available",
-        icon: FaWrench
+        icon: FaTools
       },
       {
         title: 'AC Technician',
         count: 41,
         subject: "Jobs Available",
-        icon: FaWrench
+        icon: FaSnowflake
       },
       {
         title: 'Helper / Assistant',
         count: 67,
         subject: "Jobs Available",
-        icon: FaWrench
+        icon: FaHandsHelping
       },
       {
         title: 'Machine Maintenance',
         count: 34,
         subject: "Jobs Available",
-        icon: FaWrench
+        icon: FaCogs
       }
     ];
 
@@ -226,7 +271,7 @@
       title: (
         <>
           {/* <h2 className="text-4xl md:text-5xl font-semibold text-white leading-tight"> */}
-            Browse <span className="text-[#A2DDFF]">The Job</span> <br /> By <span className="text-[#A2DDFF]">Category</span>
+            Browse <span className={TEXT.ACCENT_SKY}>The Job</span> <br /> By <span className={TEXT.ACCENT_SKY}>Category</span>
           {/* </h2> */}
         </>
       ),
@@ -236,46 +281,13 @@
         </>
       ),
       cta: (
-        <>
-          Explore Your Field And Start Applying Today.
-        </>
-      )
-    };
-
-    const testimonials = [
-      {
-        text: "JobSahi has simplified our campus hiring process. We connected with skilled ITI candidates in minutes!",
-        author: "Rahul Verma",
-        position: "HR Manager, Sigma Tools Pvt. Ltd."
-      },
-      {
-        text: "Posting jobs and tracking applications on JobSahi is seamless. It's the go-to platform for technical hiring.",
-        author: "Sunita Singh", 
-        position: "Training & Placement Officer"
-      }
-    ];
-
-    const trustedByStartupsHeaderContent = {
-      title: (
-        <h2 className="text-4xl md:text-5xl font-bold text-white leading-tight">
-          <span className="text-[#A2DDFF]">Trusted</span> By<br />
-          Leading Startups
-        </h2>
-      ),
-      description: (
-        <p className="text-white text-lg leading-relaxed">
-          Join 300+ companies and institutes hiring through JobSahi. From MSMEs to training institutes, trusted by industry leaders to find the right skilled talent fast.
-        </p>
-      ),
-      navigation: (
-        <>
-          <button className="w-12 h-12 border-2 border-white rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#0B537D] transition-all duration-300">
-            <FaChevronLeft className="text-lg" />
-          </button>
-          <button className="w-12 h-12 border-2 border-white rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#0B537D] transition-all duration-300">
-            <FaChevronRight className="text-lg" />
-          </button>
-        </>
+        <button
+          onClick={navigateToFindJob}
+          className="inline-flex items-center text-[#A1E366] text-lg font-semibold border border-[#A1E366] rounded-full px-5 py-2 hover:bg-[#A1E366] hover:text-[#00395B] transition-colors duration-200"
+        >
+          <span>Explore Your Field And Start Applying Today</span>
+          <FaArrowRight className="ml-2 text-sm" />
+        </button>
       )
     };
 
@@ -293,24 +305,24 @@
     };
 
     return (
-      <div className="bg-[#00395B]">
+      <div className={BG.PRIMARY_NAVY}>
         <Navbar />
 
         {/* Herosection */}
-        <section className="min-h-screen bg-[#EAF5FB] mx-4 rounded-[50px] relative overflow-hidden">
+        <section className={`min-h-screen ${BG.SURFACE_PALE_BLUE} mx-4 rounded-[50px] relative overflow-hidden`}>
           <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
             {/* hero first section */}
             <div className="">
               {/* Top Banner */}
               <div className="text-center mb-12">
-                <div className="inline-block border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-2 rounded-full text-sm font-semibold">
+                <div className={`inline-block border-2 ${BORDER.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} px-6 py-2 rounded-full text-sm font-semibold`}>
                   #1 PORTAL JOB PLATFORM
                 </div>
               </div>
 
               {/* Main Headline */}
               <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-12 ">
-                <h1 className="text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 text-[#0B537D] leading-tight">
+                <h1 className={`text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 ${TEXT.PRIMARY_DEEP_BLUE} leading-tight`}>
                   The Easiest Way To Get Your New Job
                 </h1>
                 <img src={textunderline} alt="" className="w-[40%] h-[15px] md:h-[35px] -mt-10" />
@@ -323,7 +335,7 @@
                   jobs, apprenticeships, and courses. Start your career journey
                   with just one click.
                 </p>
-                <p className="text-lg text-[#0B537D] font-medium">
+                <p className={`text-lg ${TEXT.PRIMARY_DEEP_BLUE} font-medium`}>
                   अपना शहर और ट्रेड चुनें और नई नौकरी की शुरुआत करें!
                 </p>
               </div>
@@ -334,40 +346,65 @@
               <div className="sm:bg-white sm:rounded-full p-3 md:px-10 sm:shadow-lg">
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                   {/* Location Filter */}
-                  <div className="flex items-center gap-3 cursor-pointer flex-1 min-w-0">
-                    <FaMapMarkerAlt className="text-[#5C9A24] text-xl flex-shrink-0" />
+                  <div
+                    className="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
+                    onClick={navigateToFindJob}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        navigateToFindJob();
+                      }
+                    }}
+                  >
+                    <FaMapMarkerAlt className={`${TEXT.ACCENT_GREEN} text-xl flex-shrink-0`} />
                     <div className="flex items-center justify-between gap-5">
-                      <p className="text-sm text-[#5C9A24] mb-1 font-medium">
+                      <p className={`text-sm ${TEXT.ACCENT_GREEN} mb-1 font-medium`}>
                         Location
                       </p>
                       {/* <div className="flex items-center justify-between"> */}
                       {/* <span className="text-gray-700 font-medium truncate">Select Location</span> */}
-                      <FaChevronDown className="text-[#5C9A24] text-sm flex-shrink-0 ml-2" />
+                      <FaChevronDown className={`${TEXT.ACCENT_GREEN} text-sm flex-shrink-0 ml-2`} />
                       {/* </div> */}
                     </div>
                   </div>
 
                   {/* Vertical Divider */}
-                  <div className="hidden lg:block w-px h-12 bg-[#5C9A24]"></div>
+                  <div className={`hidden lg:block w-px h-12 ${BG.ACCENT_GREEN}`}></div>
 
                   {/* Category Filter */}
-                  <div className="flex items-center gap-3 cursor-pointer flex-1 min-w-0">
-                    <FaBriefcase className="text-[#5C9A24] text-xl flex-shrink-0" />
+                  <div
+                    className="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
+                    onClick={navigateToFindJob}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        navigateToFindJob();
+                      }
+                    }}
+                  >
+                    <FaBriefcase className={`${TEXT.ACCENT_GREEN} text-xl flex-shrink-0`} />
                     <div className="flex items-center justify-between gap-5">
-                      <p className="text-sm text-[#5C9A24] mb-1 font-medium">
+                      <p className={`text-sm ${TEXT.ACCENT_GREEN} mb-1 font-medium`}>
                         Category
                       </p>
                       {/* <div className="flex items-center justify-between"> */}
                       {/* <span className="text-[#5C9A24] font-medium truncate">Select Category</span> */}
-                      <FaChevronDown className="text-[#5C9A24] text-sm flex-shrink-0 ml-2" />
+                      <FaChevronDown className={`${TEXT.ACCENT_GREEN} text-sm flex-shrink-0 ml-2`} />
                       {/* </div> */}
                     </div>
                   </div>
 
                   {/* Search Button */}
-                  <button className="hover:bg-[#5C9A24] text-[#5C9A24] border-2 border-[#5C9A24] hover:text-white rounded-full px-5 py-2 font-semibold text-lg flex items-center justify-center space-x-2 ">
+                  <button
+                    onClick={navigateToFindJob}
+                    className={`${HOVER_BG.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} border-2 ${BORDER.ACCENT_GREEN} hover:text-white rounded-full px-5 py-2 font-semibold text-lg flex items-center justify-center space-x-2 `}
+                  >
                     <span>नौकरी खोजें</span>
-                    <div className="w-6 h-6 bg-[#5C9A24] rounded-full flex items-center justify-center">
+                    <div className={`w-6 h-6 ${BG.ACCENT_GREEN} rounded-full flex items-center justify-center`}>
                       <FaSearch className="text-white text-sm" />
                     </div>
                   </button>
@@ -376,7 +413,14 @@
             </div>
 
             {/* hero bottom section */}
-            <div className=""></div>
+            <div className="flex justify-center mt-12">
+              <img
+                src={homebanner}
+                alt="Student giving thumbs up"
+                className="w-full rounded-[30px] object-cover shadow-xl"
+                loading="lazy"
+              />
+            </div>
           </div>
         </section>
 
@@ -396,7 +440,7 @@
                 {/* Main Content */}
                 <div className="text-center relative  ">
                 <div className="mb-8">
-                    <div className="inline-block bg-[#5C9A24] text-white px-8 py-3 rounded-full font-bold text-sm">
+                    <div className={`inline-block ${BG.ACCENT_GREEN} text-white px-8 py-3 rounded-full font-bold text-sm`}>
                       #1 PORTAL JOB PLATFORM
                     </div>
                   </div>
@@ -405,9 +449,9 @@
                   {/* Main Heading */}
                   <h2 className="text-4xl md:text-5xl font-semibold text-gray-800 mb-6 leading-tight">
                     Upload Your{' '}
-                    <span className="text-[#0B537D]">Resume</span> &<br />
+                    <span className={TEXT.PRIMARY_DEEP_BLUE}>Resume</span> &<br />
                     Get{' '}
-                    <span className="text-[#0B537D]">Matched Instantly</span>
+                    <span className={TEXT.PRIMARY_DEEP_BLUE}>Matched Instantly</span>
                   </h2>
 
                   {/* Descriptive Text */}
@@ -416,7 +460,7 @@
                       Don't wait! Just upload your resume and let<br />
                       JobSahi find the perfect job for you.
                     </p>
-                    <p className="text-[#0B537D] text-lg font-medium">
+                    <p className={`text-lg font-medium ${TEXT.PRIMARY_DEEP_BLUE}`}>
                       हर महीने लाखों ITI छात्र ऐसे ही नौकरी पाते हैं
                     </p>
                     <div className="font-bold mt-2 text-gray-700 ">नीचे अपना रिज़्यूमे अपलोड करें</div>
@@ -433,10 +477,10 @@
                     />
                     <button 
                       onClick={handleUploadClick}
-                      className="border-2 border-[#5C9A24] text-[#5C9A24] px-4 py-2 rounded-full font-semibold text-lg hover:bg-[#5C9A24] hover:text-white flex items-center space-x-3"
+                      className={`border-2 ${BORDER.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} px-4 py-2 rounded-full font-semibold text-lg ${HOVER_BG.ACCENT_GREEN} hover:text-white flex items-center space-x-3`}
                     >
                       <span>Upload CV</span>
-                      <div className="w-8 h-8 bg-[#5C9A24] rounded-full flex items-center justify-center">
+                      <div className={`w-8 h-8 ${BG.ACCENT_GREEN} rounded-full flex items-center justify-center`}>
                         <FaUpload className="text-white text-sm" />
                       </div>
                     </button>
@@ -469,10 +513,10 @@
                 {/* Large L-shaped block */}
                 <div className="sm:w-80 sm:h-80 w-60 h-60 bg-blue-100 rounded-3xl relative">
                   {/* Green Badge */}
-                  <div className="absolute border-4 border-white -top-4 -left-4 bg-[#A1E366] rounded-2xl p-6">
+                  <div className={`absolute border-4 border-white -top-4 -left-4 ${BG.ACCENT_LIME} rounded-2xl p-6`}>
                     <div className="text-center">
                       <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mx-auto mb-2">
-                        <div className="w-4 h-4 bg-[#A1E366] rounded-full"></div>
+                        <div className={`w-4 h-4 ${BG.ACCENT_LIME} rounded-full`}></div>
                       </div>
                       <p className="text-black font-bold text-sm">Top No. 1</p>
                       <p className="text-black text-xs">Portal Job Web</p>
@@ -490,9 +534,9 @@
                 {/* Main Heading */}
                 <h2 className="text-4xl md:text-5xl font-semibold leading-tight">
                   Find{" "}
-                  <span className="text-[#0B537D]">The One</span>{" "}
+                  <span className={TEXT.PRIMARY_DEEP_BLUE}>The One</span>{" "}
                   That's{" "}
-                  <span className="text-[#0B537D]">Right For You</span>
+                  <span className={TEXT.PRIMARY_DEEP_BLUE}>Right For You</span>
                 </h2>
 
                 {/* Descriptive Text */}
@@ -503,24 +547,27 @@
                 {/* Feature List */}
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <FaCheckCircle className="text-[#5C9A24] text-lg flex-shrink-0" />
+                    <FaCheckCircle className={`${TEXT.ACCENT_GREEN} text-lg flex-shrink-0`} />
                     <span className="text-gray-800 font-medium">Fast & Simple Job Search Experience</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <FaCheckCircle className="text-[#5C9A24] text-lg flex-shrink-0" />
+                    <FaCheckCircle className={`${TEXT.ACCENT_GREEN} text-lg flex-shrink-0`} />
                     <span className="text-gray-800 font-medium">Top Job Listings Across Industries</span>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <FaCheckCircle className="text-[#5C9A24] text-lg flex-shrink-0" />
+                    <FaCheckCircle className={`${TEXT.ACCENT_GREEN} text-lg flex-shrink-0`} />
                     <span className="text-gray-800 font-medium">Secure And Trusted Application Process</span>
                   </div>
                 </div>
 
                 {/* Search Job Button */}
                 <div className="pt-4">
-                  <button className="border-2 border-[#5C9A24] text-[#5C9A24] px-4 py-2 rounded-full font-semibold text-lg hover:bg-[#5C9A24] hover:text-white flex items-center space-x-3 ">
+                  <button
+                    onClick={navigateToFindJob}
+                    className={`border-2 ${BORDER.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} px-4 py-2 rounded-full font-semibold text-lg ${HOVER_BG.ACCENT_GREEN} hover:text-white flex items-center space-x-3 `}
+                  >
                     <span>Search Job</span>
-                    <div className="w-8 h-8 bg-[#5C9A24] rounded-full flex items-center justify-center">
+                    <div className={`w-8 h-8 ${BG.ACCENT_GREEN} rounded-full flex items-center justify-center`}>
                       <FaArrowRight className="text-white text-sm" />
                     </div>
                   </button>
@@ -534,7 +581,7 @@
         <section className="py-10 bg-white">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-[#0B537D] mb-4">
+              <h2 className={`text-4xl md:text-5xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-4`}>
                 How It Works
               </h2>
             </div>
@@ -543,11 +590,11 @@
               {/* Step 1: Create Account */}
               <div className="text-center">
                 <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-[#A1E366] rounded-full flex items-center justify-center">
+                  <div className={`w-12 h-12 md:w-16 md:h-16 ${BG.ACCENT_LIME} rounded-full flex items-center justify-center`}>
                     <FaUserPlus className="text-white text-2xl md:text-4xl" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-[#0B537D] mb-2">
+                <h3 className={`text-2xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-2`}>
                   Create Account
                 </h3>
                 <p className="text-gray-600 text-lg leading-relaxed">
@@ -558,11 +605,11 @@
               {/* Step 2: Complete Your Profile */}
               <div className="text-center">
                 <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-[#A1E366] rounded-full flex items-center justify-center">
+                  <div className={`w-12 h-12 md:w-16 md:h-16 ${BG.ACCENT_LIME} rounded-full flex items-center justify-center`}>
                     <FaFileAlt className="text-white text-2xl md:text-4xl" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-[#0B537D] mb-4">
+                <h3 className={`text-2xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-4`}>
                   Complete Your Profile
                 </h3>
                 <p className="text-gray-600 text-lg leading-relaxed">
@@ -573,11 +620,11 @@
               {/* Step 3: Apply Job Or Hire */}
               <div className="text-center">
                 <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <div className="w-12 h-12 md:w-16 md:h-16 bg-[#A1E366] rounded-full flex items-center justify-center">
+                  <div className={`w-12 h-12 md:w-16 md:h-16 ${BG.ACCENT_LIME} rounded-full flex items-center justify-center`}>
                     <FaHandshake className="text-white text-2xl md:text-4xl" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-[#0B537D] mb-4">
+                <h3 className={`text-2xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-4`}>
                   Apply Job Or Hire
                 </h3>
                 <p className="text-gray-600 text-lg leading-relaxed">
@@ -589,10 +636,9 @@
         </section>
 
         {/* TrustedStartups */}
-        <TrustedByStartups 
-          testimonials={testimonials} 
-          headerContent={trustedByStartupsHeaderContent}
-        />
+        <Suspense fallback={<div className="text-white text-center py-10">Loading testimonials...</div>}>
+          <TrustedByStartups />
+        </Suspense>
 
         {/* BlogInterested */}
         <section className="py-16 bg-white">
@@ -600,7 +646,7 @@
             <div className="text-center mb-12">
               <h2 className="text-4xl md:text-5xl font-semibold mb-4">
                 <span className="">Blog You</span>
-                <span className="text-[#0B537D]"> Might Be Interested In</span>
+                <span className={TEXT.PRIMARY_DEEP_BLUE}> Might Be Interested In</span>
               </h2>
               <p className="text-gray-700 text-lg max-w-2xl mx-auto">
                 Together with useful notifications, collaboration, insights, and improvement tip lorem etc.
@@ -612,14 +658,14 @@
               {/* Navigation Arrows */}
               <button 
                 onClick={prevSlide}
-                className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white border-2 border-[#5C9A24] rounded-full flex items-center justify-center text-[#5C9A24] hover:bg-[#5C9A24] hover:text-white transition-all duration-300 shadow-lg"
+                className={`absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white border-2 ${BORDER.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT.ACCENT_GREEN} ${HOVER_BG.ACCENT_GREEN} hover:text-white transition-all duration-300 shadow-lg`}
               >
                 <FaChevronLeft className="text-lg" />
               </button>
               
               <button 
                 onClick={nextSlide}
-                className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white border-2 border-[#5C9A24] rounded-full flex items-center justify-center text-[#5C9A24] hover:bg-[#5C9A24] hover:text-white transition-all duration-300 shadow-lg"
+                className={`absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white border-2 ${BORDER.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT.ACCENT_GREEN} ${HOVER_BG.ACCENT_GREEN} hover:text-white transition-all duration-300 shadow-lg`}
               >
                 <FaChevronRight className="text-lg" />
               </button>
@@ -676,7 +722,7 @@
                     key={index}
                     onClick={() => goToSlide(index)}
                     className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                      index === currentSlide ? 'bg-[#5C9A24]' : 'bg-gray-300'
+                      index === currentSlide ? BG.ACCENT_GREEN : 'bg-gray-300'
                     }`}
                   />
                 ))}

@@ -1,108 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
-import {
-  FaEllipsisV,
-  FaEye,
-  FaDownload,
-  FaEdit,
-  FaTrash,
-  FaUserCheck,
-} from "react-icons/fa";
+import React, { useState } from "react";
+import { FaEye } from "react-icons/fa";
 import { LuMail } from "react-icons/lu";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
-
-// 🔹 Custom Dropdown Menu Component
-const CustomDropdownMenu = ({
-  isOpen,
-  onClose,
-  onViewDetails,
-  onDownloadCV,
-  onEdit,
-  onDelete,
-  onShortlist,
-  row,
-}) => {
-  const dropdownRef = useRef(null);
-
-  // 🔹 Close menu when clicked outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div
-      ref={dropdownRef}
-      className="absolute right-0 top-full mt-2 w-44 bg-white rounded-md shadow-lg border border-gray-200 z-[9999] transition-all duration-150 ease-in-out"
-      style={{ transform: "translateY(5px)" }}
-    >
-      <div className="">
-        <button
-          onClick={() => {
-            onViewDetails(row);
-            onClose();
-          }}
-          className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100`}
-        >
-          <FaEye className={`w-4 h-4 mr-3 ${TAILWIND_COLORS.TEXT_MUTED}`} />
-          View Details
-        </button>
-        <button
-          onClick={() => {
-            onEdit(row);
-            onClose();
-          }}
-          className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100`}
-        >
-          <FaEdit className={`w-4 h-4 mr-3 ${TAILWIND_COLORS.TEXT_MUTED}`} />
-          Edit
-        </button>
-        <button
-          onClick={() => {
-            onShortlist(row);
-            onClose();
-          }}
-          className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100`}
-        >
-          <FaUserCheck className={`w-4 h-4 mr-3 ${TAILWIND_COLORS.TEXT_MUTED}`} />
-          Shortlist
-        </button>
-        <button
-          onClick={() => {
-            onDownloadCV(row);
-            onClose();
-          }}
-          className={`flex items-center w-full px-4 py-2 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100`}
-        >
-          <FaDownload className={`w-4 h-4 mr-3 ${TAILWIND_COLORS.TEXT_MUTED}`} />
-          Download CV
-        </button>
-        <button
-          onClick={() => {
-            onDelete(row);
-            onClose();
-          }}
-          className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-        >
-          <FaTrash className="w-4 h-4 mr-3 text-red-500" />
-          Delete
-        </button>
-      </div>
-    </div>
-  );
-};
 
 // 🔹 Main CustomDataTable Component
 const CustomDataTable = ({
@@ -112,12 +11,7 @@ const CustomDataTable = ({
   className = "",
   showHeader = true,
   onViewDetails = () => {},
-  onDownloadCV = () => {},
-  onEdit = () => {},
-  onDelete = () => {},
-  onShortlist = () => {},
 }) => {
-  const [openDropdown, setOpenDropdown] = useState(null);
   const [selectedRows, setSelectedRows] = useState([]);
 
   // 🔹 Row Selection Logic
@@ -166,7 +60,7 @@ const CustomDataTable = ({
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto overflow-visible bg-white border border-gray-200 rounded-lg shadow-sm">
+      <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg shadow-sm">
         <table className="w-full border-collapse">
           <thead className="bg-gray-50">
             <tr>
@@ -236,30 +130,35 @@ const CustomDataTable = ({
                   </td>
 
                   {/* Qualification */}
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                    {row.qualification}
+                  <td className={`px-6 py-4 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} max-w-xs`}>
+                    <div className="line-clamp-2">{row.qualification}</div>
                   </td>
 
                   {/* Skills */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-wrap gap-1">
+                  <td className="px-6 py-4">
+                    <div className="flex flex-wrap gap-1 max-w-xs">
                       {(Array.isArray(row.skills)
                         ? row.skills
-                        : row.skills.split(", ")
-                      ).map((skill, skillIndex) => (
+                        : typeof row.skills === 'string' ? row.skills.split(", ").filter(s => s.trim()) : []
+                      ).slice(0, 3).map((skill, skillIndex) => (
                         <span
                           key={skillIndex}
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                         >
-                          {skill}
+                          {skill.trim()}
                         </span>
                       ))}
+                      {((Array.isArray(row.skills) ? row.skills : typeof row.skills === 'string' ? row.skills.split(", ").filter(s => s.trim()) : [])).length > 3 && (
+                        <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                          +{((Array.isArray(row.skills) ? row.skills : typeof row.skills === 'string' ? row.skills.split(", ").filter(s => s.trim()) : [])).length - 3}
+                        </span>
+                      )}
                     </div>
                   </td>
 
                   {/* Applied For */}
-                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                    {row.appliedFor}
+                  <td className={`px-6 py-4 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} max-w-xs`}>
+                    <div className="line-clamp-1">{row.appliedFor}</div>
                   </td>
 
                   {/* Status */}
@@ -274,31 +173,15 @@ const CustomDataTable = ({
                   </td>
 
                   {/* Actions */}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium relative overflow-visible">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center justify-end">
-                      <div className="relative">
-                        <button
-                          onClick={() =>
-                            setOpenDropdown(
-                              openDropdown === rowIndex ? null : rowIndex
-                            )
-                          }
-                          className={`p-1 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary`}
-                        >
-                          <FaEllipsisV className="w-4 h-4" />
-                        </button>
-
-                        <CustomDropdownMenu
-                          isOpen={openDropdown === rowIndex}
-                          onClose={() => setOpenDropdown(null)}
-                          onViewDetails={onViewDetails}
-                          onDownloadCV={onDownloadCV}
-                          onEdit={onEdit}
-                          onDelete={onDelete}
-                          onShortlist={onShortlist}
-                          row={row}
-                        />
-                      </div>
+                      <button
+                        onClick={() => onViewDetails(row)}
+                        className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
+                      >
+                        <FaEye className="w-4 h-4" />
+                        View Details
+                      </button>
                     </div>
                   </td>
                 </tr>

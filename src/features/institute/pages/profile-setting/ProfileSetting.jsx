@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { LuBuilding2, LuUsers, LuSettings } from "react-icons/lu";
 import { MatrixCard } from "../../../../shared/components/metricCard";
 import { PillNavigation } from "../../../../shared/components/navigation";
@@ -9,6 +9,17 @@ import NotificationPreferences from "./NotificationPreferences";
 
 const ProfileSetting = () => {
   const [activeTab, setActiveTab] = useState(0);
+  const [previousTab, setPreviousTab] = useState(null);
+
+  const handleTabChange = useCallback((index) => {
+    if (index === activeTab) return;
+    setPreviousTab(activeTab);
+    setActiveTab(index);
+  }, [activeTab]);
+
+  const handleReturnToPreviousTab = useCallback(() => {
+    setActiveTab(previousTab ?? 0);
+  }, [previousTab]);
 
   const tabs = [
     {
@@ -27,7 +38,9 @@ const ProfileSetting = () => {
       id: "notification-preferences",
       label: "Notification Preferences",
       icon: LuSettings,
-      component: <NotificationPreferences />
+      component: (
+        <NotificationPreferences onBack={handleReturnToPreviousTab} />
+      )
     }
   ];
 
@@ -45,7 +58,7 @@ const ProfileSetting = () => {
         <PillNavigation
           tabs={tabs}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
           className={TAILWIND_COLORS.TEXT_PRIMARY}
         />
       </div>
