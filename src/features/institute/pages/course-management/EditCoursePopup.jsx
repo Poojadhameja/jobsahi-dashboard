@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { LuX, LuPlus } from 'react-icons/lu'
 import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import { putMethod } from '../../../../service/api'
+import { getMethod, putMethod } from '../../../../service/api' // ✅ getMethod add
 import apiService from '../../services/serviceUrl'
 
 const EditCoursePopup = ({ course, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     courseTitle: '',
     duration: '',
-    category: '',
+    category: '', // ✅ yaha ab category_id (string) store hoga
     description: '',
     taggedSkills: '',
     batchLimit: '',
@@ -22,42 +22,110 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
     moduleDescription: ''
   })
 
+  const [categories, setCategories] = useState([]) // ✅ backend categories
   const [selectedMedia, setSelectedMedia] = useState([])
   const [validationErrors, setValidationErrors] = useState({})
 
+  // ✅ Step 1: Fetch categories from backend
   useEffect(() => {
-    if (course) {
-      // Parse media
-      let parsedMedia = []
+    const fetchCategories = async () => {
       try {
-        if (typeof course.media === 'string' && course.media.trim() !== '') {
-          parsedMedia = JSON.parse(course.media)
-          if (!Array.isArray(parsedMedia)) parsedMedia = course.media.split(',').map(m => m.trim())
-        } else if (Array.isArray(course.media)) {
-          parsedMedia = course.media
-        }
-      } catch {
-        parsedMedia = course.media ? course.media.split(',').map(m => m.trim()) : []
-      }
-
-        setFormData({
-          courseTitle: course.title || '',
-          duration: course.duration || '',
-          category: course.category || '',
-          description: course.description || '',
-          taggedSkills: course.skills ? course.skills.join(', ') : '',
-          batchLimit: course.batchLimit || '',
-          courseStatus: course.status || 'Active',
-          instructorName: course.instructorName || '',
-          mode: course.mode || '',
-          fee: course.fee || '',
-          certificationAllowed: !!course.certificationAllowed,
-          moduleTitle: course.moduleTitle || '',
-          moduleDescription: course.moduleDescription || ''
+        const res = await getMethod({
+          apiUrl: apiService.getCourseCategories // 👈 isko ensure karo: yahi URL get_course_category.php pe point kare
         })
-      setSelectedMedia(parsedMedia)
+
+        if (res?.status && Array.isArray(res.categories)) {
+          setCategories(res.categories)
+        } else {
+          console.error('Failed to load categories:', res)
+          setCategories([])
+        }
+      } catch (err) {
+        console.error('Error fetching categories:', err)
+        setCategories([])
+      }
     }
-  }, [course])
+
+    fetchCategories()
+  }, [])
+
+  // ✅ Step 2: Pre-fill form from course prop
+  useEffect(() => {
+    if (!course) return
+
+    // ---- media parse ----
+    let parsedMedia = []
+    try {
+      if (typeof course.media === 'string' && course.media.trim() !== '') {
+        const temp = JSON.parse(course.media)
+        if (Array.isArray(temp)) {
+          parsedMedia = temp
+        } else {
+          parsedMedia = course.media.split(',').map(m => m.trim())
+        }
+      } else if (Array.isArray(course.media)) {
+        parsedMedia = course.media
+      }
+    } catch {
+      parsedMedia = course.media
+        ? course.media.split(',').map(m => m.trim())
+        : []
+    }
+
+    // ---- category handle (prefer ID) ----
+    let categoryValue = ''
+    if (course.category_id) {
+      categoryValue = String(course.category_id) // ✅ direct ID
+    } else if (course.categoryId) {
+      categoryValue = String(course.categoryId)
+    } else if (course.category && categories.length) {
+      // optional: match by name if needed
+      const match = categories.find(
+        c =>
+          c.category_name.toLowerCase() ===
+          String(course.category).toLowerCase()
+      )
+      if (match) categoryValue = String(match.id)
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      courseTitle: course.title || '',
+      duration: course.duration || '',
+      category: categoryValue || '', // ✅ store id as string
+      description: course.description || '',
+      taggedSkills: Array.isArray(course.skills)
+        ? course.skills.join(', ')
+        : course.tagged_skills || '',
+      batchLimit: course.batch_limit || course.batchLimit || '',
+      courseStatus: course.status || 'Active',
+      instructorName:
+        course.instructor_name || course.instructorName || '',
+      mode: course.mode || '',
+      fee: course.fee || '',
+      certificationAllowed:
+        course.certification_allowed === 1 ||
+        course.certificationAllowed === true,
+      moduleTitle: course.module_title || course.moduleTitle || '',
+      moduleDescription:
+        course.module_description || course.moduleDescription || ''
+    }))
+
+    setSelectedMedia(
+      Array.isArray(parsedMedia)
+        ? parsedMedia.map((m, index) =>
+            typeof m === 'string'
+              ? {
+                  id: `${index}-${m}`,
+                  name: m,
+                  url: '',
+                  type: ''
+                }
+              : m
+          )
+        : []
+    )
+  }, [course, categories])
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -92,6 +160,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
         : `${TAILWIND_COLORS.BORDER} focus:ring-[#5C9A24]`
     }`
 
+  // ✅ Step 3: Save (no manual category mapping)
   const handleSave = async () => {
     const required = [
       'courseTitle',
@@ -105,8 +174,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
     ]
     const errors = {}
     required.forEach(f => {
-      if (!formData[f] || formData[f].toString().trim() === '')
+      if (!formData[f] || formData[f].toString().trim() === '') {
         errors[f] = 'This field is required'
+      }
     })
     if (Object.keys(errors).length) {
       setValidationErrors(errors)
@@ -119,16 +189,8 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
       description: formData.description,
       duration: parseInt(formData.duration),
       fee: parseFloat(formData.fee),
-      category_id:
-        formData.category.toLowerCase() === 'technical'
-          ? 1
-          : formData.category.toLowerCase() === 'non-technical'
-          ? 2
-          : formData.category.toLowerCase() === 'vocational'
-          ? 3
-          : formData.category.toLowerCase() === 'professional'
-          ? 4
-          : 0,
+      // ✅ category direct as ID (from select)
+      category_id: formData.category ? parseInt(formData.category) : 0,
       tagged_skills: formData.taggedSkills,
       batch_limit: parseInt(formData.batchLimit),
       status: formData.courseStatus,
@@ -139,7 +201,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
       module_description: formData.moduleDescription || '',
       media:
         selectedMedia && selectedMedia.length > 0
-          ? selectedMedia.map(m => m.name).join(', ')
+          ? selectedMedia.map(m => m.name || m).join(', ')
           : '',
       admin_action: 'approved'
     }
@@ -149,8 +211,8 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
         apiUrl: `${apiService.updateCourse}?id=${course.id}`,
         payload
       })
+
       if (res?.status) {
-        // alert('✅ Course updated successfully!')
         onSave(payload)
         onClose()
       } else {
@@ -184,7 +246,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
         <div className="p-6 space-y-6 overflow-y-auto flex-1">
           {/* Basic Information */}
           <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>
+            <h3
+              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}
+            >
               Basic Information
             </h3>
 
@@ -196,7 +260,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               <input
                 type="text"
                 value={formData.courseTitle}
-                onChange={e => handleInputChange('courseTitle', e.target.value)}
+                onChange={e =>
+                  handleInputChange('courseTitle', e.target.value)
+                }
                 className={getInputClass('courseTitle')}
                 placeholder="e.g. Assistant Electrician"
               />
@@ -210,7 +276,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               <input
                 type="number"
                 value={formData.duration}
-                onChange={e => handleInputChange('duration', e.target.value)}
+                onChange={e =>
+                  handleInputChange('duration', e.target.value)
+                }
                 className={getInputClass('duration')}
                 placeholder="e.g. 12"
               />
@@ -238,7 +306,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               <input
                 type="text"
                 value={formData.taggedSkills}
-                onChange={e => handleInputChange('taggedSkills', e.target.value)}
+                onChange={e =>
+                  handleInputChange('taggedSkills', e.target.value)
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#5C9A24]"
                 placeholder="e.g. Wiring, Safety Measures"
               />
@@ -252,7 +322,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               <input
                 type="number"
                 value={formData.batchLimit}
-                onChange={e => handleInputChange('batchLimit', e.target.value)}
+                onChange={e =>
+                  handleInputChange('batchLimit', e.target.value)
+                }
                 className={getInputClass('batchLimit')}
                 placeholder="e.g. 30"
               />
@@ -265,7 +337,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               </label>
               <select
                 value={formData.courseStatus}
-                onChange={e => handleInputChange('courseStatus', e.target.value)}
+                onChange={e =>
+                  handleInputChange('courseStatus', e.target.value)
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
                 <option value="Active">Active</option>
@@ -277,29 +351,34 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
 
           {/* Additional Settings */}
           <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>
+            <h3
+              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}
+            >
               Additional Settings
             </h3>
 
-            {/* Category */}
+            {/* Category (Dynamic) */}
             <div className="mb-5">
               <label className="block text-sm font-semibold text-gray-700 mb-1">
                 CATEGORY <span className="text-red-500">*</span>
               </label>
               <select
                 value={formData.category}
-                onChange={e => handleInputChange('category', e.target.value)}
+                onChange={e =>
+                  handleInputChange('category', e.target.value)
+                }
                 className={getInputClass('category')}
               >
                 <option value="">Select category</option>
-                <option value="Technical">Technical</option>
-                <option value="Non-Technical">Non-Technical</option>
-                <option value="Vocational">Vocational</option>
-                <option value="Professional">Professional</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={String(cat.id)}>
+                    {cat.category_name}
+                  </option>
+                ))}
               </select>
             </div>
 
-            {/* fee */}
+            {/* Fee */}
             <div className="mb-5">
               <label className="block text-sm font-semibold text-gray-700 mb-1">
                 fee <span className="text-red-500">*</span>
@@ -321,7 +400,12 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               <input
                 type="text"
                 value={formData.instructorName}
-                onChange={e => handleInputChange('instructorName', e.target.value)}
+                onChange={e =>
+                  handleInputChange(
+                    'instructorName',
+                    e.target.value
+                  )
+                }
                 className={getInputClass('instructorName')}
                 placeholder="e.g. Rajeev Kumar"
               />
@@ -344,7 +428,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
 
           {/* Module */}
           <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>
+            <h3
+              className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}
+            >
               Course Module
             </h3>
             <div className="mb-5">
@@ -354,7 +440,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               <input
                 type="text"
                 value={formData.moduleTitle}
-                onChange={e => handleInputChange('moduleTitle', e.target.value)}
+                onChange={e =>
+                  handleInputChange('moduleTitle', e.target.value)
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 placeholder="e.g. Introduction to Basics"
               />
@@ -367,7 +455,12 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               <textarea
                 rows="4"
                 value={formData.moduleDescription}
-                onChange={e => handleInputChange('moduleDescription', e.target.value)}
+                onChange={e =>
+                  handleInputChange(
+                    'moduleDescription',
+                    e.target.value
+                  )
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 placeholder="Enter module description"
               ></textarea>
@@ -400,14 +493,16 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {selectedMedia.map(media => (
                       <div
-                        key={media.id || media.name}
+                        key={media.id || media.name || media}
                         className="flex items-center justify-between bg-gray-50 rounded-lg p-2"
                       >
                         <span className="text-sm text-gray-700 truncate">
                           {media.name || media}
                         </span>
                         <button
-                          onClick={() => handleRemoveMedia(media.id)}
+                          onClick={() =>
+                            handleRemoveMedia(media.id)
+                          }
                           className="text-red-500 hover:text-red-700"
                         >
                           <LuX className="w-4 h-4" />

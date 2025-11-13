@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import { useLocation } from 'react-router-dom'
 import { LuBell, LuSend, LuFileText, LuLightbulb } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
@@ -9,9 +10,10 @@ import AutoAlerts from './AutoAlerts'
 import ComingSoonPopup from '../../../../shared/components/ComingSoon'
 
 export default function MessagingAlerts() {
-  const [activeTab, setActiveTab] = useState(0)
+  const location = useLocation()
 
-  const tabs = [
+  const tabs = useMemo(
+    () => [
     {
       id: 'send-notice',
       label: 'Send Notice',
@@ -30,7 +32,32 @@ export default function MessagingAlerts() {
       icon: LuLightbulb,
       component: <AutoAlerts />
     }
-  ]
+    ],
+    []
+  )
+
+  const resolveTabIndex = useCallback(
+    (state) => {
+      if (state?.initialTabId) {
+        const idx = tabs.findIndex((tab) => tab.id === state.initialTabId)
+        if (idx !== -1) return idx
+      }
+
+      if (typeof state?.activeTabIndex === 'number') {
+        const boundedIdx = Math.max(0, Math.min(tabs.length - 1, state.activeTabIndex))
+        return boundedIdx
+      }
+
+      return 0
+    },
+    [tabs]
+  )
+
+  const [activeTab, setActiveTab] = useState(() => resolveTabIndex(location.state))
+
+  useEffect(() => {
+    setActiveTab(resolveTabIndex(location.state))
+  }, [location.state, resolveTabIndex])
 
   return (
     <div className="space-y-5">
