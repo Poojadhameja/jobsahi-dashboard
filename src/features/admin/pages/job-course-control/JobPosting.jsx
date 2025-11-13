@@ -296,73 +296,7 @@ const JobPosting = () => {
         </div>
 
         {/* Manual promotion */}
-        <div className={`${TAILWIND_COLORS.CARD} p-6`} data-section="manual-promotion">
-          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Manual promotion</h3>
-          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Boost visibility for selected jobs.</p>
-
-          <div className="mt-4">
-            <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>Job ID</label>
-              <input
-              type="text"
-              placeholder="e.g. J-103"
-              value={promotionJobId}
-              onChange={(e) => setPromotionJobId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-              />
-            </div>
-
-          <div className="mt-5">
-            <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Promotion Options</div>
-
-            {/* Top Ribbon Toggle */}
-            <div className="flex items-center justify-between py-2">
-              <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Top Ribbon</span>
-              <button
-                type="button"
-                onClick={() => setTopRibbonEnabled(!topRibbonEnabled)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  topRibbonEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
-                }`}
-                style={{
-                  backgroundColor: topRibbonEnabled ? COLORS.GREEN_PRIMARY : undefined,
-                  focusRingColor: topRibbonEnabled ? COLORS.GREEN_PRIMARY : undefined
-                }}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
-                    topRibbonEnabled ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-
-            {/* Priority Listing Toggle */}
-            <div className="flex items-center justify-between py-2">
-              <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Priority Listing</span>
-              <button
-                type="button"
-                onClick={() => setPriorityListingEnabled(!priorityListingEnabled)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  priorityListingEnabled ? '' : 'bg-gray-200 focus:ring-gray-400'
-                }`}
-                style={{
-                  backgroundColor: priorityListingEnabled ? COLORS.GREEN_PRIMARY : undefined,
-                  focusRingColor: priorityListingEnabled ? COLORS.GREEN_PRIMARY : undefined
-                }}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ease-in-out ${
-                    priorityListingEnabled ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <Button onClick={handleManualPromotion} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Promote Job</Button>
-          </div>
-        </div>
+       
       </div>
 
       {/* Flagged Post Details Modal */}
