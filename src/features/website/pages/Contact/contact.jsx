@@ -45,38 +45,17 @@ const Contact = () => {
       <Navbar />
 
       {/* Header Section */}
-<<<<<<< HEAD
-      <section className="py-10 bg-[#EAF5FB] mx-4 rounded-[50px] my-8">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center">
-            {/* Top Banner */}
-            <div className="mb-5">
-              <div className="inline-block border-2 border-[#5C9A24] text-[#5C9A24] px-6 py-2 rounded-full text-sm font-semibold">
-=======
       <section className={`py-10 ${COLOR_CLASSES.bg.surfacePaleBlue} mx-4 rounded-[40px] sm:rounded-[50px] my-8 border-t-4 border-l-4 border-r-4 ${COLOR_CLASSES.border.deepBlue}`}>
         <div className="max-w-[90%] mx-auto px-6">
           <div className="text-center">
             {/* Top Banner */}
             <div className="mb-6">
               <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-6 py-2 rounded-full text-xs sm:text-sm font-semibold tracking-wide`}>
->>>>>>> 96e921496a3e305fa2311400f7e5458b342ed079
                 #1 PORTAL JOB PLATFORM
               </div>
             </div>
 
             {/* Main Heading */}
-<<<<<<< HEAD
-            <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-12 ">
-              <h1 className="text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 text-[#0B537D] leading-tight">
-              Feel Free To Contact Us
-              </h1>
-              <img src={textunderline} alt="" className="w-[30%] h-[15px] md:h-[25px] -mt-10" />
-            </div>
-
-            {/* Description */}
-            <p className="text-gray-700 text-lg ">
-            Get the latest news, updates and tips.
-=======
             <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-10">
               <h1 className={`text-3xl sm:text-5xl md:text-6xl lg:px-24 font-bold mb-6 ${COLOR_CLASSES.text.deepBlue} leading-tight`}>
                 Feel Free To <span className="relative inline-block">
@@ -89,7 +68,6 @@ const Contact = () => {
             {/* Description */}
             <p className="text-gray-700 text-base sm:text-lg max-w-2xl mx-auto">
               We would love to hear from you! Share your questions, feedback, or collaboration ideas and our team will reach out shortly.
->>>>>>> 96e921496a3e305fa2311400f7e5458b342ed079
             </p>
           </div>
         </div>
