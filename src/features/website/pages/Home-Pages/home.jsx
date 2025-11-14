@@ -41,6 +41,8 @@ import {
   FaTools,
   FaSnowflake,
   FaHandsHelping,
+  FaUser,
+  FaStar,
 } from "react-icons/fa";
 
 const Home = () => {
@@ -403,64 +405,98 @@ const Home = () => {
           </div>
 
           {/* Illustration Area */}
-          <div className="relative w-full flex justify-center mt-4 mb-10 md:mb-16 lg:mb-20 px-2 md:px-0">
-            <div className="relative w-full max-w-6xl">
-              {/* Left green bubbles */}
-              <div className="absolute -top-2 md:-top-3 left-0 md:left-4 z-20">
-                <div className="relative w-[120px] h-[120px] md:w-[140px] md:h-[140px]">
-                  <div className="absolute top-0 left-0 w-16 h-16 md:w-20 md:h-20 bg-[#CFF49A] rounded-full opacity-90 shadow-lg" />
-                  <div className="absolute top-3 left-4 w-16 h-16 md:w-20 md:h-20 bg-[#CFF49A] rounded-full opacity-70 shadow-lg" />
-                  <div className="absolute top-6 left-8 w-16 h-16 md:w-20 md:h-20 bg-[#CFF49A] rounded-full opacity-60 shadow-lg" />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 md:w-10 md:h-10 bg-[#8CD63E] rounded-full flex items-center justify-center shadow-xl">
-                    <FaPlus className="text-white text-base" />
+          <div className="relative w-full flex justify-center mt-8 mb-16 md:mb-24 lg:mb-28 px-4 md:px-6">
+            <div className="relative w-full max-w-6xl mx-auto">
+              {/* Left green bubbles - horizontally aligned design with improved spacing */}
+              <div className="absolute -top-2 md:-top-3 left-4 md:left-6 z-20 animate-fade-in">
+                <div className="relative flex items-center">
+                  {/* First pill - overlapping */}
+                  <div className="w-14 h-9 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-3 md:-mr-4" />
+                  {/* Second pill - overlapping */}
+                  <div className="w-14 h-9 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-3 md:-mr-4" />
+                  {/* Third pill - overlapping */}
+                  <div className="w-14 h-9 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-2 md:-mr-3" />
+                  {/* Plus icon circle */}
+                  <div className="w-9 h-9 md:w-11 md:h-11 bg-[#8CD63E] rounded-full flex items-center justify-center shadow-[0_4px_15px_rgba(140,214,62,0.4)] ring-2 ring-white/50">
+                    <FaPlus className="text-white text-xs md:text-sm" />
                   </div>
                 </div>
               </div>
 
-              {/* Main white chat box */}
-              <div className="w-full h-[220px] sm:h-[250px] md:h-[280px] lg:h-[300px] bg-white rounded-2xl md:rounded-3xl shadow-[0_4px_25px_rgba(0,0,0,0.08)] relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-transparent" />
+              {/* Main white chat box with enhanced gradients */}
+              <div className="w-full h-[250px] sm:h-[300px] md:h-[340px] lg:h-[380px] bg-white rounded-3xl md:rounded-[2.5rem] shadow-[0_15px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-gray-100/50">
+                {/* Layered gradients for depth */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-blue-50/30 to-transparent" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(207,244,154,0.12),_transparent_65%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(140,214,62,0.08),_transparent_50%)]" />
+                {/* Subtle pattern overlay */}
+                <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(45deg,_transparent_25%,_rgba(0,0,0,0.05)_25%,_rgba(0,0,0,0.05)_50%,_transparent_50%,_transparent_75%,_rgba(0,0,0,0.05)_75%)] bg-[length:20px_20px]" />
               </div>
 
-              {/* Right robot mini chat */}
-              <div className="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 z-20 hidden md:block">
-                <div className="bg-white rounded-2xl shadow-lg p-4 border border-gray-100 w-[150px] md:w-[170px]">
-                  <div className="flex items-start gap-2">
-                    <div className="w-7 h-7 md:w-8 md:h-8 bg-[#00395B] rounded-full flex items-center justify-center">
-                      <FaRobot className="text-white text-xs md:text-sm" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="h-2 bg-gray-200 rounded mb-2" />
-                      <div className="h-2 bg-gray-200 rounded w-3/4" />
-                    </div>
+              {/* Right side white box with improved styling */}
+              <div className="absolute top-12 md:top-16 right-4 md:right-8 z-20 hidden md:block animate-slide-in-right">
+                <div className="w-[200px] md:w-[240px] h-[180px] md:h-[220px] bg-white rounded-3xl shadow-[0_15px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-gray-100/50">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-blue-50/30 to-transparent" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(207,244,154,0.1),_transparent_70%)]" />
+                </div>
+              </div>
+
+              {/* Top-right tag - light green speech bubble with enhanced design */}
+              <div className="absolute -top-4 md:-top-6 right-4 md:right-8 bg-gradient-to-br from-[#CFF49A] to-[#B8E87A] text-gray-800 px-5 md:px-7 py-2.5 md:py-3 rounded-2xl md:rounded-3xl text-xs md:text-sm font-semibold shadow-[0_8px_25px_rgba(207,244,154,0.4)] z-30 border border-[#8CD63E]/40 backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(207,244,154,0.5)] transition-all duration-300">
+                <p className="leading-tight drop-shadow-sm">
+                  Let&apos;s Find Your Opportunity
+                  <br />
+                  <span className="text-[#4A7C0F]">To Grow</span>
+                </p>
+              </div>
+
+              {/* Right gear/cog icon - positioned near right edge with animation */}
+              <div className="absolute top-[65%] md:top-[58%] right-4 md:right-6 z-30 hidden md:block animate-float">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-[#00395B] to-[#002A42] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,57,91,0.4)] relative ring-4 ring-white/70 hover:ring-white/90 transition-all duration-300 hover:scale-110 hover:shadow-[0_15px_40px_rgba(0,57,91,0.5)]">
+                  <FaCogs className="text-white text-xl md:text-2xl drop-shadow-md animate-spin-slow" />
+                </div>
+              </div>
+
+              {/* Bottom-left tag - light green speech bubble with enhanced styling */}
+              <div className="absolute -bottom-8 md:-bottom-10 left-4 md:left-6 bg-gradient-to-br from-[#CFF49A] to-[#B8E87A] border-2 border-[#8CD63E] px-5 md:px-7 py-3 md:py-4 rounded-2xl md:rounded-3xl shadow-[0_10px_30px_rgba(207,244,154,0.4)] z-30 hover:shadow-[0_12px_35px_rgba(207,244,154,0.5)] transition-all duration-300">
+                <p className="text-[#4A7C0F] text-sm md:text-base font-bold leading-tight drop-shadow-sm">
+                  Start Your Career With{" "}
+                  <span className="relative inline-block">
+                    JobSahi
+                    <svg
+                      className="absolute -bottom-1 left-0 w-full"
+                      height="4"
+                      viewBox="0 0 100 4"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M 0,2 Q 15,0.5 30,2 T 60,2 Q 75,3.5 90,2 T 100,2"
+                        stroke="#8CD63E"
+                        strokeWidth="3"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </p>
+              </div>
+
+              {/* Center play button with text to the right - enhanced design */}
+              <div className="absolute -bottom-14 md:-bottom-16 left-1/2 -translate-x-1/2 z-30 flex flex-col sm:flex-row items-center gap-3 md:gap-5">
+                <button
+                  onClick={navigateToFindJob}
+                  className="cursor-pointer group flex-shrink-0 focus:outline-none focus:ring-4 focus:ring-[#8CD63E]/30 rounded-full transition-all duration-300"
+                  aria-label="Search Jobs"
+                >
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-[72px] md:h-[72px] bg-gradient-to-br from-[#00395B] to-[#002A42] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,57,91,0.4)] group-hover:scale-110 group-hover:shadow-[0_15px_40px_rgba(0,57,91,0.6)] transition-all duration-300 group-active:scale-95">
+                    <FaPlay className="text-white text-lg sm:text-xl md:text-2xl ml-1 drop-shadow-md" />
                   </div>
-                </div>
-              </div>
-
-              {/* Top-right tag */}
-              <div className="absolute -top-5 md:-top-6 right-3 md:right-6 bg-[#E8F9D2] text-[#4A7C0F] px-4 py-1.5 rounded-full text-xs md:text-sm font-medium shadow-sm z-30">
-                Let&apos;s Find Your Opportunity To Grow
-              </div>
-
-              {/* Bottom-left tag */}
-              <div className="absolute -bottom-7 md:-bottom-9 left-2 md:left-4 bg-white border-2 border-[#8CD63E] px-4 md:px-5 py-2.5 rounded-xl md:rounded-2xl shadow-sm z-30">
-                <p className="text-[#4A7C0F] text-xs md:text-sm font-semibold leading-tight">
-                  Start Your Career <br /> With JobSahi
+                </button>
+                <p className="text-sm md:text-base font-semibold text-[#8CD63E] whitespace-nowrap text-center sm:text-left drop-shadow-sm">
+                  Search Jobs, Give Skill Tests, Get Hired
                 </p>
               </div>
-
-              {/* Center play button */}
-              <button
-                onClick={navigateToFindJob}
-                className="absolute -bottom-12 md:-bottom-14 left-1/2 -translate-x-1/2 z-30 cursor-pointer group text-center"
-              >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[#00395B] rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300">
-                  <FaPlay className="text-white text-base sm:text-lg md:text-xl ml-0.5 sm:ml-1" />
-                </div>
-                <p className="mt-2 md:mt-3 text-center text-xs md:text-sm font-medium text-[#00395B] whitespace-nowrap">
-                  Search Jobs, Give Skill Tests, Get Hired.
-                </p>
-              </button>
             </div>
           </div>
         </div>

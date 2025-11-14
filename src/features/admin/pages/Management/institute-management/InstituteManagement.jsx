@@ -21,6 +21,7 @@ import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 
 export default function InstituteManagement() {
   const [activeTab, setActiveTab] = useState(0)
+  const [previousTab, setPreviousTab] = useState(0)
   const [institutes, setInstitutes] = useState([])
   const [pendingApprovalInstitutes, setPendingApprovalInstitutes] = useState([])
   const [totalInstituteCount, setTotalInstituteCount] = useState('0')
@@ -141,7 +142,12 @@ export default function InstituteManagement() {
       <PillNavigation 
         tabs={navigationTabs}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(newTab) => {
+          if (newTab !== activeTab) {
+            setPreviousTab(activeTab)
+            setActiveTab(newTab)
+          }
+        }}
       />
 
       {/* Conditional Content */}
@@ -162,7 +168,7 @@ export default function InstituteManagement() {
       )}
 
       {activeTab === 4 && (
-        <MessageInstitute />
+        <MessageInstitute onBack={() => setActiveTab(previousTab)} />
       )}
      </div>
   )
