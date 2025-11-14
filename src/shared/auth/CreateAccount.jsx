@@ -152,8 +152,7 @@ export default function CreateAccount() {
         office_address: form.officeAddress,
         company_logo: form.companyLogo,
         gst_pan: form.gstPan,
-        company_website: form.companyWebsite,
-        designation: form.designation
+        company_website: form.companyWebsite
       }
     } else if (role === 'Institute') {
       payload = {
@@ -390,29 +389,16 @@ export default function CreateAccount() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Website / LinkedIn Page*</label>
-                    <input
-                      type="url"
-                      value={form.companyWebsite}
-                      onChange={update('companyWebsite')}
-                      required
-                      placeholder="Enter company website or LinkedIn page"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Designation / Role in Company*</label>
-                    <input
-                      type="text"
-                      value={form.designation}
-                      onChange={update('designation')}
-                      required
-                      placeholder="Enter your designation"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Website / LinkedIn Page*</label>
+                  <input
+                    type="url"
+                    value={form.companyWebsite}
+                    onChange={update('companyWebsite')}
+                    required
+                    placeholder="Enter company website or LinkedIn page"
+                    className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                  />
                 </div>
 
                 <div>

@@ -27,6 +27,28 @@ export default function CreateCourse() {
     }
     fetchCategories()
   }, [])
+
+  // Fetch instructors/faculty list
+  useEffect(() => {
+    const fetchInstructors = async () => {
+      try {
+        setLoadingInstructors(true)
+        const res = await getMethod({ apiUrl: apiService.getFaculty })
+        if (res?.status && Array.isArray(res.data)) {
+          setInstructors(res.data)
+        } else {
+          console.warn('⚠️ No instructors found or invalid response:', res)
+          setInstructors([])
+        }
+      } catch (error) {
+        console.error('❌ Error fetching instructors:', error)
+        setInstructors([])
+      } finally {
+        setLoadingInstructors(false)
+      }
+    }
+    fetchInstructors()
+  }, [])
   
   const navigate = useNavigate()
   const { addCourse } = useCourseContext()
@@ -50,6 +72,8 @@ export default function CreateCourse() {
   const [categories, setCategories] = useState([])
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
   const [newCategory, setNewCategory] = useState('')
+  const [instructors, setInstructors] = useState([])
+  const [loadingInstructors, setLoadingInstructors] = useState(false)
 
   const handleBack = () => {
     navigate('/institute/course-management')
@@ -451,18 +475,27 @@ export default function CreateCourse() {
                 <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   INSTRUCTOR NAME <span className="text-red-500">*</span>
                 </label>
-                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter the full name of the course instructor.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select the instructor for this course.</p>
               </div>
               <div className="flex-1">
-                <input 
-                  type="text" 
+                <select 
                   value={formData.instructorName}
                   onChange={(e) => handleInputChange('instructorName', e.target.value)}
                   className={getInputClassName('instructorName')}
-                  placeholder="e.g. Rajeev Kumar"
-                />
+                  disabled={loadingInstructors}
+                >
+                  <option value="">{loadingInstructors ? 'Loading instructors...' : 'Select instructor'}</option>
+                  {instructors.map((instructor, index) => (
+                    <option key={instructor.id || index} value={instructor.name}>
+                      {instructor.name}
+                    </option>
+                  ))}
+                </select>
                 {validationErrors.instructorName && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.instructorName}</p>
+                )}
+                {!loadingInstructors && instructors.length === 0 && (
+                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>No instructors available. Please add instructors first.</p>
                 )}
               </div>
             </div>
