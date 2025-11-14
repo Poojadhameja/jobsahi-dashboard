@@ -1,7 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { LuPlus, LuSearch, LuFilter, LuPencil, LuTrash2, LuUserPlus } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+
+// ✅ API helpers + endpoints
+import { getMethod, postMethod, putMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
 
 export default function StaffManagement() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -14,93 +18,111 @@ export default function StaffManagement() {
     name: '',
     email: '',
     phone: '',
-    role: 'Instructor'                // TODO: Add role
+    role: '' // No default - user must select
   })
 
-  // Mock data for instructors (matching the image)
-  const [instructors, setInstructors] = useState([
-    {
-      id: 1,
-      name: 'Prof. Rajesh',
-      email: 'sarah.johnson@institute.edu',
-      phone: '8833938882',
-      role: 'Instructor',
-      status: 'Active'
-    },
-    {
-      id: 2,
-      name: 'Prof. Michael Chen',
-      email: 'sarah.johnson@institute.edu',
-      phone: '9876543210',
-      role: 'Instructor',
-      status: 'Active'
-    },
-    {
-      id: 3,
-      name: 'Lisa Rodriguez',
-      email: 'lisa.rodriguez@institute.edu',
-      phone: '7654321098',
-      role: 'Instructor',
-      status: 'Active'
-    },
-    {
-      id: 4,
-      name: 'Prof. Rajesh',
-      email: 'sarah.johnson@institute.edu',
-      phone: '8765432109',
-      role: 'Instructor',
-      status: 'Active'
-    },
-    {
-      id: 5,
-      name: 'Prof. Michael Chen',
-      email: 'sarah.johnson@institute.edu',
-      phone: '9012345678',
-      role: 'Instructor',
-      status: 'Active'
-    },
-    {
-      id: 6,
-      name: 'Lisa Rodriguez',
-      email: 'lisa.rodriguez@institute.edu',
-      phone: '8901234567',
-      role: 'Instructor',
-      status: 'Active'
-    },
-    {
-      id: 7,
-      name: 'Prof. Rajesh',
-      email: 'sarah.johnson@institute.edu',
-      phone: '7890123456',
-      role: 'Instructor',
-      status: 'Active'
-    },
-    {
-      id: 8,
-      name: 'Prof. Michael Chen',
-      email: 'sarah.johnson@institute.edu',
-      phone: '9123456780',
-      role: 'Instructor',
-      status: 'Active'
-    },
-    {
-      id: 9,
-      name: 'Lisa Rodriguez',
-      email: 'lisa.rodriguez@institute.edu',
-      phone: '8234567890',
-      role: 'Instructor',
-      status: 'Active'
-    }
-  ])
+  // ✅ API data state
+  const [instructors, setInstructors] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  // Initialize with database enum roles to ensure they're always available
+  const [availableRoles, setAvailableRoles] = useState(['faculty', 'admin'])
+  const [loadingRoles, setLoadingRoles] = useState(false)
 
-  const filteredInstructors = instructors.filter(instructor =>
+  // -------------------------------
+  // Helpers: map API → UI object
+  // -------------------------------
+  const mapApiFacultyToInstructor = (row) => ({
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone || '',
+    role: row.role || 'faculty', // Use role from backend, default to 'faculty'
+    status:
+      row.admin_action === 'approved'
+        ? 'Active'
+        : row.admin_action === 'pending'
+        ? 'Pending'
+        : 'Inactive'
+  })
+
+  // -------------------------------
+  // GET: Faculty list
+  // -------------------------------
+  const fetchFaculty = async () => {
+    try {
+      setIsLoading(true)
+      const res = await getMethod({
+        apiUrl: apiService.getFaculty
+        // if later you want backend search, pass params here
+      })
+
+      if (res?.status && Array.isArray(res.data)) {
+        const list = res.data.map(mapApiFacultyToInstructor)
+        setInstructors(list)
+      } else {
+        setInstructors([])
+      }
+    } catch (err) {
+      console.error('Error fetching faculty list:', err)
+      setInstructors([])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // ✅ Fetch available roles from backend
+  // Database enum values: 'faculty', 'admin' (from faculty_users table schema)
+  // Always show all available roles from database enum, not just what's in existing data
+  const databaseRoles = ['faculty', 'admin']
+  
+  const fetchRoles = async () => {
+    try {
+      setLoadingRoles(true)
+      
+      // Always start with database enum roles to ensure they're always available
+      let allRoles = [...databaseRoles]
+      
+      // Try to get roles from faculty API response to see if backend provides additional roles
+      const res = await getMethod({ apiUrl: apiService.getFaculty })
+      
+      if (res?.status && Array.isArray(res.data)) {
+        // Extract unique roles from faculty data
+        const uniqueRoles = [...new Set(res.data.map(f => f.role).filter(Boolean))]
+        
+        // Combine database enum roles with any additional roles from API
+        // This ensures all enum values are always available, plus any extras
+        allRoles = [...new Set([...databaseRoles, ...uniqueRoles])]
+      }
+      
+      // Always set roles - never clear them
+      setAvailableRoles(allRoles)
+    } catch (err) {
+      console.error('Error fetching roles:', err)
+      // Fallback to database enum values - always available
+      setAvailableRoles(databaseRoles)
+    } finally {
+      setLoadingRoles(false)
+    }
+  }
+
+  // load on first render
+  useEffect(() => {
+    fetchFaculty()
+    fetchRoles()
+  }, [])
+
+  const filteredInstructors = instructors.filter((instructor) =>
     instructor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     instructor.email.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // Handler functions
+  // -------------------------------
+  // UI Handlers (Add/Edit/Delete)
+  // -------------------------------
   const handleAddInstructor = () => {
-    setFormData({ name: '', email: '', phone: '', role: 'Instructor' })
+    setFormData({ name: '', email: '', phone: '', role: '' }) // No default role - user must select
+    setEditingInstructor(null)
     setShowAddModal(true)
   }
 
@@ -109,8 +131,8 @@ export default function StaffManagement() {
     setFormData({
       name: instructor.name,
       email: instructor.email,
-      phone: instructor.phone,                // TODO: Add phone number
-      role: instructor.role                // TODO: Add role
+      phone: instructor.phone,
+      role: instructor.role
     })
     setShowEditModal(true)
   }
@@ -120,31 +142,86 @@ export default function StaffManagement() {
     setShowDeleteModal(true)
   }
 
-  const handleSaveInstructor = () => {
-    if (editingInstructor) {
-      // Update existing instructor
-      setInstructors(prev => prev.map(inst => 
-        inst.id === editingInstructor.id 
-          ? { ...inst, ...formData }
-          : inst
-      ))
-      setShowEditModal(false)
-      setEditingInstructor(null)
-    } else {
-      // Add new instructor
-      const newInstructor = {
-        id: Math.max(...instructors.map(i => i.id)) + 1,
-        ...formData,
-        status: 'Active'
-      }
-      setInstructors(prev => [...prev, newInstructor])
-      setShowAddModal(false)
+  // -------------------------------
+  // CREATE / UPDATE via API
+  // -------------------------------
+  const handleSaveInstructor = async () => {
+    // simple required validation; backend will still validate
+    if (!formData.name.trim() || !formData.email.trim() || !formData.role) {
+      alert('Please fill all required fields including Role')
+      return
     }
-    setFormData({ name: '', email: '', phone: '',   role: 'Instructor' })
+
+    setIsSaving(true)
+    try {
+      if (editingInstructor) {
+        // ✅ UPDATE (PUT) - update_faculty_user.php
+        const payload = {
+          id: editingInstructor.id,
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          role: formData.role // Use the selected role, no default fallback
+          // admin_action only from admin side if needed
+        }
+
+        const res = await putMethod({
+          apiUrl: apiService.updateFaculty,
+          payload: payload
+        })
+
+        if (res?.status && res.data) {
+          const updated = mapApiFacultyToInstructor(res.data)
+          setInstructors((prev) =>
+            prev.map((inst) => (inst.id === updated.id ? updated : inst))
+          )
+          // Refresh faculty list to get latest data
+          await fetchFaculty()
+          // Roles are always available from database enum, no need to reset
+        }
+
+        setShowEditModal(false)
+        setEditingInstructor(null)
+      } else {
+        // ✅ CREATE (POST) - create_faculty_user.php
+        const payload = {
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          role: formData.role // Use the selected role, no default fallback
+        }
+
+        const res = await postMethod({
+          apiUrl: apiService.createFaculty,
+          payload: payload
+        })
+
+        if (res?.status && res.data) {
+          const created = mapApiFacultyToInstructor(res.data)
+          setInstructors((prev) => [created, ...prev])
+          // Refresh faculty list to get latest data
+          await fetchFaculty()
+          // Roles are always available from database enum, no need to reset
+        }
+
+        setShowAddModal(false)
+      }
+
+      setFormData({ name: '', email: '', phone: '', role: '' })
+    } catch (err) {
+      console.error('Error saving faculty:', err)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleConfirmDelete = () => {
-    setInstructors(prev => prev.filter(inst => inst.id !== deletingInstructor.id))
+    // ❗ No delete API given, so just remove from current list
+    if (deletingInstructor) {
+      setInstructors((prev) =>
+        prev.filter((inst) => inst.id !== deletingInstructor.id)
+      )
+    }
     setShowDeleteModal(false)
     setDeletingInstructor(null)
   }
@@ -155,20 +232,19 @@ export default function StaffManagement() {
     setShowDeleteModal(false)
     setEditingInstructor(null)
     setDeletingInstructor(null)
-    setFormData({ name: '', email: '', phone: '', role: 'Instructor' })
+    setFormData({ name: '', email: '', phone: '', role: '' })
   }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    
-    // Validate phone number to only accept 10 digits
+
     if (name === 'phone') {
-      const numericValue = value.replace(/\D/g, '') // Remove non-numeric characters
+      const numericValue = value.replace(/\D/g, '')
       if (numericValue.length <= 10) {
-        setFormData(prev => ({ ...prev, [name]: numericValue }))
+        setFormData((prev) => ({ ...prev, [name]: numericValue }))
       }
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }))
+      setFormData((prev) => ({ ...prev, [name]: value }))
     }
   }
 
@@ -186,6 +262,7 @@ export default function StaffManagement() {
             variant="secondary"
             size="md"
             icon={<LuPlus className="w-4 h-4" />}
+            disabled={isLoading || isSaving}
           >
             Add Instructor
           </Button>
@@ -230,10 +307,10 @@ export default function StaffManagement() {
                   {/* Avatar Placeholder */}
                   <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
                     <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm font-medium`}>
-                      {instructor.name.split(' ').map(n => n[0]).join('')}
+                      {instructor.name.split(' ').map((n) => n[0]).join('')}
                     </span>
                   </div>
-                  
+
                   {/* Instructor Info */}
                   <div>
                     <h3 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{instructor.name}</h3>
@@ -271,7 +348,7 @@ export default function StaffManagement() {
         </div>
 
         {/* Empty State */}
-        {filteredInstructors.length === 0 && (
+        {filteredInstructors.length === 0 && !isLoading && (
           <div className="text-center py-12">
             <LuUserPlus className={`mx-auto h-12 w-12 ${TAILWIND_COLORS.TEXT_MUTED}`} />
             <h3 className={`mt-2 text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>No instructors found</h3>
@@ -285,6 +362,7 @@ export default function StaffManagement() {
                   variant="secondary"
                   size="md"
                   icon={<LuPlus className="w-4 h-4" />}
+                  disabled={isSaving}
                 >
                   Add Instructor
                 </Button>
@@ -301,7 +379,7 @@ export default function StaffManagement() {
             <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
               {editingInstructor ? 'Edit Instructor' : 'Add New Instructor'}
             </h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
@@ -316,7 +394,7 @@ export default function StaffManagement() {
                   placeholder="Enter instructor name"
                 />
               </div>
-              
+
               <div>
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
                   Email
@@ -330,7 +408,7 @@ export default function StaffManagement() {
                   placeholder="Enter email address"
                 />
               </div>
-              
+
               <div>
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
                   Phone Number
@@ -346,30 +424,41 @@ export default function StaffManagement() {
                   placeholder="Enter 10-digit phone number"
                 />
               </div>
-              
+
               <div>
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
-                  Role
+                  Role <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="role"
-                  value={formData.role}
+                  value={formData.role || ''}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                  disabled={loadingRoles || isSaving}
+                  required
+                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary ${TAILWIND_COLORS.TEXT_PRIMARY} ${(loadingRoles || isSaving) ? 'opacity-50 cursor-not-allowed' : ''} ${!formData.role ? 'border-red-300' : ''}`}
                 >
-                  <option value="Instructor">Instructor</option>
-                  <option value="Professor">Professor</option>
-                  <option value="Assistant Professor">Assistant Professor</option>
-                  <option value="Lab Instructor">Lab Instructor</option>
+                  <option value="">{loadingRoles ? 'Loading roles...' : 'Select role'}</option>
+                  {availableRoles.map((role) => (
+                    <option key={role} value={role}>
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </option>
+                  ))}
                 </select>
+                {!loadingRoles && availableRoles.length === 0 && (
+                  <p className="text-xs text-gray-500 mt-1">No roles available</p>
+                )}
+                {!formData.role && (
+                  <p className="text-xs text-red-500 mt-1">Please select a role</p>
+                )}
               </div>
             </div>
-            
+
             <div className="flex justify-end space-x-3 mt-6">
               <Button
                 onClick={handleCancelModal}
                 variant="light"
                 size="md"
+                disabled={isSaving}
               >
                 Cancel
               </Button>
@@ -377,6 +466,7 @@ export default function StaffManagement() {
                 onClick={handleSaveInstructor}
                 variant="primary"
                 size="md"
+                disabled={isSaving}
               >
                 {editingInstructor ? 'Update' : 'Add'} Instructor
               </Button>
@@ -392,17 +482,18 @@ export default function StaffManagement() {
             <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
               Confirm Delete
             </h3>
-            
+
             <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
-              Are you sure you want to delete <strong>{deletingInstructor?.name}</strong>? 
+              Are you sure you want to delete <strong>{deletingInstructor?.name}</strong>?
               This action cannot be undone.
             </p>
-            
+
             <div className="flex justify-end space-x-3">
               <Button
                 onClick={handleCancelModal}
                 variant="light"
                 size="md"
+                disabled={isSaving}
               >
                 Cancel
               </Button>
@@ -410,6 +501,7 @@ export default function StaffManagement() {
                 onClick={handleConfirmDelete}
                 variant="danger"
                 size="md"
+                disabled={isSaving}
               >
                 Delete
               </Button>
