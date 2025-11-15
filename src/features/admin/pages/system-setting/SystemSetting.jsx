@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../../../../shared/WebConstant.js'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import { MatrixCard } from '../../../../shared/components/metricCard.jsx'
+import ComingSoonPopup from '../../../../shared/components/ComingSoon.jsx'
 import CMSEditor from './CmsEditor'
 import SEOSetting from './SeoSetting'
 import BrandingConfig from './BrandingConfig'
@@ -84,6 +85,9 @@ export default function SystemSetting() {
       <div className="mt-8">
         {renderTabContent()}
       </div>
+
+      {/* Coming Soon Popup */}
+      <ComingSoonPopup />
     </div>
   )
 }

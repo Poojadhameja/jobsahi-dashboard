@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 import Button from '../../../../../shared/components/Button'
 import DynamicButton from '../../../../../shared/components/DynamicButton'
+import ComingSoonPopup from '../../../../../shared/components/ComingSoon'
 
 // Message Specific Institute Component
 function MessageSpecificInstitute() {
@@ -200,6 +201,11 @@ function MessageSpecificInstitute() {
   )
 }
 
-export default function MessageInstitute() {
-  return <MessageSpecificInstitute />
+export default function MessageInstitute({ onBack }) {
+  return (
+    <ComingSoonPopup 
+      onClose={onBack}
+      fallbackPath="/admin/dashboard" 
+    />
+  )
 }

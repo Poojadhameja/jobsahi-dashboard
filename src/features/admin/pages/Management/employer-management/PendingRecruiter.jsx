@@ -78,8 +78,8 @@ function StatusBadge({ status }) {
     status === "approved"
       ? "bg-green-100 text-green-800"
       : status === "rejected"
-      ? "bg-red-100 text-red-800"
-      : "bg-yellow-100 text-yellow-800";
+        ? "bg-red-100 text-red-800"
+        : "bg-yellow-100 text-yellow-800";
   return (
     <span className={`px-3 py-1 text-xs font-semibold rounded-full ${cls}`}>
       {toTitle(status)}
@@ -202,7 +202,10 @@ function ApprovalCard({
         </div>
 
         {/* Right Actions */}
+        {/* Right Actions */}
         <div className="flex flex-col space-y-2 ml-4 shrink-0">
+
+          {/* REVIEW BUTTON (unchanged) */}
           <Button
             onClick={onReview}
             variant="light"
@@ -211,23 +214,43 @@ function ApprovalCard({
           >
             Review
           </Button>
+
+          {/* APPROVE BUTTON */}
           <Button
             onClick={onApprove}
             variant="success"
             size="sm"
             icon={<LuCheck size={16} />}
+            className={
+              status === "approved"
+                ? "opacity-50 cursor-not-allowed"
+                : status === "pending"
+                  ? "!bg-green-600 text-white"
+                  : "!bg-green-500 text-white"
+            }
+            disabled={status === "approved"}
           >
             Approve
           </Button>
+
+          {/* REJECT BUTTON */}
           <Button
             onClick={onReject}
             variant="danger"
             size="sm"
             icon={<LuX size={16} />}
+            className={
+              status === "rejected"
+                ? "opacity-50 cursor-not-allowed"
+                : "!bg-red-500 text-white"
+            }
+            disabled={status === "rejected"}
           >
             Reject
           </Button>
+
         </div>
+
       </div>
     </div>
   );
@@ -634,43 +657,43 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
       </div>
 
       {/* ✅ Cards */}
-    {/* Cards */}
-<div className="space-y-4">
-  {items.map((c) => (
-    <ApprovalCard
-      key={c.id}
-      company={c.company_name}
-      recruiter={c.user_name}
-      email={c.email}
-      phone={c.phone_number}
-      website={c.website}
-      industry={c.industry}
-      appliedDate={
-        c.applied_date ? new Date(c.applied_date).toLocaleDateString() : "N/A"
-      }
-      last_modified={
-        c.last_modified ? new Date(c.last_modified).toLocaleDateString() : "N/A"
-      }
-      documents={["Business License", "Tax Certificate", "Company Profile"]}
-      status={c.status}
+      {/* Cards */}
+      <div className="space-y-4">
+        {items.map((c) => (
+          <ApprovalCard
+            key={c.id}
+            company={c.company_name}
+            recruiter={c.user_name}
+            email={c.email}
+            phone={c.phone_number}
+            website={c.website}
+            industry={c.industry}
+            appliedDate={
+              c.applied_date ? new Date(c.applied_date).toLocaleDateString() : "N/A"
+            }
+            last_modified={
+              c.last_modified ? new Date(c.last_modified).toLocaleDateString() : "N/A"
+            }
+            documents={["Business License", "Tax Certificate", "Company Profile"]}
+            status={c.status}
 
-      // ✅ FIXED LINE ↓↓↓
-      onReview={() => {
-        console.log("🟢 Review Clicked:", c);
-        openReview(c);
-      }}
+            // ✅ FIXED LINE ↓↓↓
+            onReview={() => {
+              console.log("🟢 Review Clicked:", c);
+              openReview(c);
+            }}
 
-      onApprove={() => handleApprove(c.uid)}
-      onReject={() => handleReject(c.uid)}
-    />
-  ))}
+            onApprove={() => handleApprove(c.uid)}
+            onReject={() => handleReject(c.uid)}
+          />
+        ))}
 
-  {items.length === 0 && (
-    <div className="bg-white rounded-lg border border-dashed p-8 text-center">
-      <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>No recruiters found.</p>
-    </div>
-  )}
-</div>
+        {items.length === 0 && (
+          <div className="bg-white rounded-lg border border-dashed p-8 text-center">
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>No recruiters found.</p>
+          </div>
+        )}
+      </div>
 
 
       {/* ✅ Review Modal */}

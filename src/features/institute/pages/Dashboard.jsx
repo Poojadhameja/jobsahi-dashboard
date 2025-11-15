@@ -139,8 +139,8 @@ export default function Dashboard() {
     }
   ])
 
-  // 🔹 Staff static (abhi ke liye UI jaisa ka taisa)
-  const staffMembers = [
+  // 🔹 Staff Members State (initial dummy as fallback)
+  const [staffMembers, setStaffMembers] = useState([
     {
       id: 1,
       name: 'Amit Verma',
@@ -169,10 +169,12 @@ export default function Dashboard() {
       department: 'Student Support',
       lastActive: '5 min ago'
     }
-  ]
+  ])
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [staffLoading, setStaffLoading] = useState(false)
+  const [instituteName, setInstituteName] = useState('Brightorial')
 
   // 🔹 API CALL: institute_dashboard_stats.php
   useEffect(() => {
@@ -246,6 +248,72 @@ export default function Dashboard() {
     fetchDashboardStats()
   }, [])
 
+  // 🔹 API CALL: get_faculty_users.php
+  useEffect(() => {
+    const fetchFaculty = async () => {
+      try {
+        setStaffLoading(true)
+
+        const res = await getMethod({
+          apiUrl: apiService.getFaculty
+        })
+
+        // Expect: { status: true, data: [faculty objects] }
+        if (!res?.status || !Array.isArray(res.data)) {
+          throw new Error(res?.message || 'Failed to load faculty data')
+        }
+
+        // ✅ MAP FACULTY DATA TO STAFF MEMBERS FORMAT
+        const mappedStaff = res.data.map((faculty) => ({
+          id: faculty.id,
+          name: faculty.name || 'N/A',
+          designation: faculty.role === 'faculty' ? 'Faculty' : faculty.role || 'Staff',
+          department: faculty.institute_data?.institute_name || 'Institute',
+          lastActive: faculty.email || 'N/A',
+          email: faculty.email,
+          phone: faculty.phone
+        }))
+
+        setStaffMembers(mappedStaff)
+
+      } catch (err) {
+        console.error('Faculty fetch error:', err)
+        // Keep fallback data on error
+      } finally {
+        setStaffLoading(false)
+      }
+    }
+
+    fetchFaculty()
+  }, [])
+
+  // 🔹 API CALL: getInstituteProfile - Fetch Institute Name
+  useEffect(() => {
+    const fetchInstituteName = async () => {
+      try {
+        const res = await getMethod({
+          apiUrl: apiService.getInstituteProfile
+        })
+
+        if (res?.success) {
+          let profile = null
+
+          if (res?.data?.profiles?.length) profile = res.data.profiles[0]
+          else if (res?.data) profile = res.data
+
+          if (profile?.institute_info?.institute_name) {
+            setInstituteName(profile.institute_info.institute_name)
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching institute name:', err)
+        // Keep default 'Brightorial' on error
+      }
+    }
+
+    fetchInstituteName()
+  }, [])
+
   // ================== NAV HANDLERS (same as your UI) ==================
   const handleCourseManagement = () => {
     navigate('/institute/course-management')
@@ -305,7 +373,7 @@ export default function Dashboard() {
 
       {/* Greeting Section */}
       <div className="mb-5">
-        <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Hi! Brightorial</h1>
+        <h1 className={`text-2xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Hi! {instituteName}</h1>
       </div>
 
       {/* Quick Actions and Recent Activities */}
@@ -381,7 +449,7 @@ export default function Dashboard() {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
           <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Course Statistics</h2>
 
-          <div className="space-y-4">
+          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
             {courseStatistics.map((stat) => (
               <div
                 key={stat.id}
@@ -408,32 +476,48 @@ export default function Dashboard() {
             <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Staff Management</h2>
             <button
               type="button"
-              onClick={() => navigate('/institute/staff-management')}
+              onClick={() => navigate('/institute/profile-setting')}
               className="text-sm font-semibold text-[#2563EB] hover:text-[#1E4ECB]"
             >
               View All
             </button>
           </div>
 
-          <div className="space-y-4">
-            {staffMembers.map((staff) => (
-              <div
-                key={staff.id}
-                className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm"
-              >
-                <div className="flex flex-col gap-3">
-                  <div>
-                    <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-lg font-semibold`}>{staff.name}</p>
-                    <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>
-                      {staff.designation} · {staff.department}
-                    </p>
-                    <p className="text-xs text-[#94A3B8] mt-1">Last active: {staff.lastActive}</p>
+          {staffLoading ? (
+            <div className="text-center py-8">
+              <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>Loading staff members...</p>
+            </div>
+          ) : (
+            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+              {staffMembers.length > 0 ? (
+                staffMembers.map((staff) => (
+                  <div
+                    key={staff.id}
+                    className="rounded-lg border border-gray-100 bg-white p-4 shadow-sm"
+                  >
+                    <div className="flex flex-col gap-3">
+                      <div>
+                        <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-lg font-semibold`}>{staff.name}</p>
+                        <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>
+                          {staff.designation} · {staff.department}
+                        </p>
+                        {staff.email && (
+                          <p className="text-xs text-[#94A3B8] mt-1">Email: {staff.email}</p>
+                        )}
+                        {staff.phone && (
+                          <p className="text-xs text-[#94A3B8]">Phone: {staff.phone}</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>No staff members found</p>
                 </div>
-
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -38,7 +38,7 @@ export default function InstituteProfile() {
        VALIDATIONS (UNCHANGED)
   ---------------------------------------- */
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  const validatePhone = (phone) => /^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/\s/g, ''))
+  const validatePhone = (phone) => /^[0-9]{10}$/.test(phone.replace(/\s/g, ''))
   const validateWebsite = (url) => { try { new URL(url); return true } catch { return false } }
 
   const validateForm = () => {
@@ -56,7 +56,7 @@ export default function InstituteProfile() {
     else if (!validateEmail(formData.email)) e.email = 'Invalid email'
 
     if (!formData.phone.trim()) e.phone = 'Phone required'
-    else if (!validatePhone(formData.phone)) e.phone = 'Invalid phone number'
+    else if (!validatePhone(formData.phone)) e.phone = 'Phone number must be exactly 10 digits'
 
     if (!formData.website.trim()) e.website = 'Website required'
     else if (!validateWebsite(formData.website)) e.website = 'Invalid URL'
@@ -71,10 +71,23 @@ export default function InstituteProfile() {
         INPUT CHANGE HANDLER
   ---------------------------------------- */
   const handleInputChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value
-    }))
+    // Special handling for phone field - only numbers and max 10 digits
+    if (field === 'phone') {
+      // Remove all non-numeric characters
+      const numericValue = value.replace(/\D/g, '')
+      // Limit to 10 digits
+      const limitedValue = numericValue.slice(0, 10)
+      
+      setFormData((prev) => ({
+        ...prev,
+        [field]: limitedValue
+      }))
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value
+      }))
+    }
 
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: '' }))
@@ -568,10 +581,11 @@ export default function InstituteProfile() {
               type="tel"
               value={formData.phone}
               onChange={(e) => handleInputChange('phone', e.target.value)}
+              maxLength={10}
               className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} ${
                 errors.phone ? 'border-error' : TAILWIND_COLORS.BORDER
               }`}
-              placeholder="Enter phone number"
+              placeholder="Enter 10 digit phone number"
             />
             {errors.phone && <p className="text-xs text-error mt-1">{errors.phone}</p>}
           </div>

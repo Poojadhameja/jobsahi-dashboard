@@ -12,6 +12,7 @@ import RevenueDashboard from './RevenueDashboard'
 import OrderHistory from './OrderHistory'
 import SubscriptionPlan from './SubscriptionPlan'
 import FeaturedContent from './FeaturedContent'
+import ComingSoonPopup from '../../../../shared/components/ComingSoon.jsx'
 
 export default function BusinessRevenue() {
     const [activeTab, setActiveTab] = useState(0)
@@ -68,6 +69,9 @@ export default function BusinessRevenue() {
                 {activeTab === 2 && <SubscriptionPlan />}
                 {activeTab === 3 && <FeaturedContent />}
             </div>
+
+            {/* Coming Soon Popup */}
+            <ComingSoonPopup />
         </div>
     )
 }
