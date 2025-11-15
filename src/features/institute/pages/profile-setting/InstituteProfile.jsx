@@ -276,13 +276,22 @@ export default function InstituteProfile() {
         setSaveStatus('success')
         setIsFormValid(true)
         setTimeout(() => setSaveStatus(null), 3000)
+        
+        // Show success popup
+        alert('Institute profile updated successfully!')
       } else {
         console.error('Update failed:', res?.message || 'Unknown error')
         setSaveStatus('error')
+        
+        // Show error popup
+        alert(res?.message || 'Failed to update institute profile. Please try again.')
       }
     } catch (error) {
       console.error('Error updating profile:', error)
       setSaveStatus('error')
+      
+      // Show error popup for unexpected errors
+      alert('Something went wrong. Please try again.')
     } finally {
       setIsSaving(false)
     }

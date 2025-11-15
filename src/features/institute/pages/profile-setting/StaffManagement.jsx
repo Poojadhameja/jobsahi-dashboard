@@ -178,6 +178,13 @@ export default function StaffManagement() {
           // Refresh faculty list to get latest data
           await fetchFaculty()
           // Roles are always available from database enum, no need to reset
+          
+          // Show success popup
+          alert('Instructor updated successfully!')
+        } else {
+          // Show error popup if update failed
+          alert(res?.message || 'Failed to update instructor. Please try again.')
+          return
         }
 
         setShowEditModal(false)
@@ -202,6 +209,13 @@ export default function StaffManagement() {
           // Refresh faculty list to get latest data
           await fetchFaculty()
           // Roles are always available from database enum, no need to reset
+          
+          // Show success popup
+          alert('Instructor added successfully!')
+        } else {
+          // Show error popup if create failed
+          alert(res?.message || 'Failed to add instructor. Please try again.')
+          return
         }
 
         setShowAddModal(false)
@@ -210,6 +224,8 @@ export default function StaffManagement() {
       setFormData({ name: '', email: '', phone: '', role: '' })
     } catch (err) {
       console.error('Error saving faculty:', err)
+      // Show error popup for unexpected errors
+      alert('Something went wrong. Please try again.')
     } finally {
       setIsSaving(false)
     }
