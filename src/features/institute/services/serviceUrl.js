@@ -14,7 +14,6 @@ const apiService = {
   getCourseModule: '/courses/get_course_module.php',
   updateCourseModule: '/courses/update_course_module.php',
   deleteCourseModule: '/courses/delete_course_module.php',
-
   getSingleCourse: '/courses/get-course_by_id.php',
 
 
