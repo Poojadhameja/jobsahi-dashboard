@@ -5,10 +5,18 @@ const Calendar = ({
   selectedDate = new Date(),
   onDateSelect,
   interviewDates = [],
+   highlightedDates = [],
   className = "",
   variant = "default", // ✅ 'default' or 'recruiter'
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date()); // Current visible month
+  
+  // Debug: Log highlightedDates when it changes
+  React.useEffect(() => {
+    if (highlightedDates.length > 0) {
+      console.log("📅 Calendar received highlightedDates:", highlightedDates);
+    }
+  }, [highlightedDates]);
 
   const months = [
     "January",
@@ -74,6 +82,23 @@ const Calendar = ({
     return interviewDates.includes(date.getDate());
   };
 
+  // 🆕 naya logic - full date compare karne ke liye (safe rename)
+const hasHighlightedInterview = (date) => {
+  if (!date) return false;
+  // ✅ Use local date to avoid timezone issues (YYYY-MM-DD format)
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const dateStr = `${year}-${month}-${day}`;
+  const isHighlighted = highlightedDates.includes(dateStr);
+  // Debug log for dates 11-15 (where interviews are)
+  if (date.getDate() >= 11 && date.getDate() <= 15) {
+    console.log(`📆 Calendar check: ${dateStr} in [${highlightedDates.join(', ')}] = ${isHighlighted}`);
+  }
+  return isHighlighted;
+};
+
+
   const daysInMonth = getDaysInMonth(currentDate);
 
   return (
@@ -116,6 +141,8 @@ const Calendar = ({
         {daysInMonth.map((date, index) => {
           const selected = isSelected(date);
           const interview = hasInterview(date);
+          const highlighted = hasHighlightedInterview(date);
+
           const today = isToday(date);
 
           // ✅ Different visual logic for recruiter variant
@@ -127,6 +154,9 @@ const Calendar = ({
                 return "bg-blue-600 text-white font-bold border border-blue-600";
               if (interview)
                 return "bg-blue-100 text-blue-700 font-semibold border border-blue-300";
+                if (highlighted)
+  return "bg-blue-100 text-blue-700 font-semibold border border-blue-300";
+
             }
 
             // default variant look

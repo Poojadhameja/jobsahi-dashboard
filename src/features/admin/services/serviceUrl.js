@@ -5,7 +5,11 @@ const service = {
     institutesList: '/admin/list_institutes.php',
 
     updateEmployer: '/employer/update_recruiter_profile.php',
-    updateInstitute: '/institute/profile_updated.php'
+    updateInstitute: '/institute/profile_updated.php',
+
+    //management
+
+    adminInstituteManagement: '/admin/admin_institute_management.php',
 
 }
 

@@ -116,13 +116,13 @@ const CourseOversight = () => {
             >
               Approve Selected
             </Button>
-            <Button 
+            {/* <Button 
               onClick={handleBulkCourseFeature} 
               variant="outline" 
               size="md"
             >
               Feature Selected
-            </Button>
+            </Button> */}
           </div>
         </div>
 
@@ -242,30 +242,7 @@ const CourseOversight = () => {
         </div>
       </div>
 
-      {/* Top-Rated Courses */}
-      <div className={`${TAILWIND_COLORS.CARD} p-6`}>
-        <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Top-Rated Courses</h3>
-        
-        <div className="flex items-center gap-4 mb-4">
-          <label className="text-sm font-medium text-gray-700">Minimum Rating:</label>
-          <input
-            type="number"
-            min="0"
-            max="5"
-            step="0.1"
-            value={minTopRated}
-            onChange={(e) => setMinTopRated(Number(e.target.value))}
-            className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-          />
-          <Button onClick={handleTagTopRated} variant="primary" size="md">
-            Tag as Featured
-          </Button>
-        </div>
-
-        <p className="text-sm text-gray-600">
-          Courses with rating ≥ {minTopRated} will be tagged as featured
-        </p>
-      </div>
+     
     </div>
   );
 };

@@ -7,463 +7,551 @@ import FAQ from "../../components/FAQ";
 import NewsletterSubscription from "../../components/NewsletterSubscription";
 import { WEBSITE_COLOR_CLASSES } from "../../components/colorClasses";
 import uploadresumebg from "../../assets/uploadresumebg.png";
-import homebanner from "../../assets/homebanner.jpg";
-
 import textunderline from "../../assets/website_text_underline.png";
 
-const TrustedByStartups = lazy(() => import("../../components/TrustedByStartups.jsx"));
+const TrustedByStartups = lazy(() =>
+  import("../../components/TrustedByStartups.jsx")
+);
 
-  import {
-    FaMapMarkerAlt,
-    FaBriefcase,
-    FaSearch,
-    FaUpload,
-    FaFileAlt,
-    FaCheckCircle,
-    FaGraduationCap,
-    FaUsers,
-    FaChartLine,
-    FaHandshake,
-    FaUserPlus,
-    FaPlay,
-    FaCalendarAlt,
-    FaArrowRight,
-    FaChevronDown,
-    FaRobot,
-    FaWrench,
-    FaChevronLeft,
-    FaChevronRight,
-    FaPlus,
-    FaBolt,
-    FaFire,
-    FaCogs,
-    FaIndustry,
-    FaTools,
-    FaSnowflake,
-    FaHandsHelping,
-  } from "react-icons/fa";
+import {
+  FaMapMarkerAlt,
+  FaBriefcase,
+  FaSearch,
+  FaUpload,
+  FaFileAlt,
+  FaCheckCircle,
+  FaGraduationCap,
+  FaUsers,
+  FaChartLine,
+  FaHandshake,
+  FaUserPlus,
+  FaPlay,
+  FaCalendarAlt,
+  FaArrowRight,
+  FaChevronDown,
+  FaRobot,
+  FaWrench,
+  FaChevronLeft,
+  FaChevronRight,
+  FaPlus,
+  FaBolt,
+  FaFire,
+  FaCogs,
+  FaIndustry,
+  FaTools,
+  FaSnowflake,
+  FaHandsHelping,
+  FaUser,
+  FaStar,
+} from "react-icons/fa";
 
-  const home = () => {
+const Home = () => {
   const navigate = useNavigate();
-  const {
-    BG,
-    TEXT,
-    BORDER,
-    HOVER_BG,
-    HOVER_TEXT,
-  } = WEBSITE_COLOR_CLASSES;
-    const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false);
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [email, setEmail] = useState("");
-    const [isSubscribed, setIsSubscribed] = useState(false);
-    const [isMobile, setIsMobile] = useState(false);
-    const [selectedFile, setSelectedFile] = useState(null);
+  const { BG, TEXT, BORDER, HOVER_BG, HOVER_TEXT } = WEBSITE_COLOR_CLASSES;
 
-    const handleSubscribe = (email) => {
-      console.log('Subscribed with email:', email);
-      setIsSubscribed(true);
-      setEmail("");
-      setTimeout(() => setIsSubscribed(false), 3000);
+  const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [email, setEmail] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleSubscribe = (emailValue) => {
+    console.log("Subscribed with email:", emailValue);
+    setIsSubscribed(true);
+    setEmail("");
+    setTimeout(() => setIsSubscribed(false), 3000);
+  };
+
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      console.log("Selected file:", file.name);
+    }
+  };
+
+  const handleUploadClick = () => {
+    const input = document.getElementById("fileInput");
+    if (input) input.click();
+  };
+
+  const navigateToFindJob = () => {
+    navigate("/find-job");
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 850);
     };
 
-    const handleFileSelect = (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        setSelectedFile(file);
-        console.log('Selected file:', file.name);
-        // Here you can add additional logic like file validation, upload to server, etc.
-      }
-    };
+    handleResize(); // initial
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-    const handleUploadClick = () => {
-      document.getElementById('fileInput').click();
-    };
+  const faqs = [
+    {
+      question: "How do I create an account on JOBSAHI?",
+      answer:
+        'Creating an account is simple! Just click on the "Sign Up" button, fill in your basic information, verify your email, and you\'re ready to start your job search journey.',
+    },
+    {
+      question: "Is JOBSAHI free for students?",
+      answer:
+        "Yes, JOBSAHI is completely free for ITI and Polytechnic students. We believe in providing equal opportunities for all students to access quality job opportunities.",
+    },
+    {
+      question: "What types of jobs are available on JOBSAHI?",
+      answer:
+        "We offer a wide range of job opportunities including engineering positions, technical roles, manufacturing jobs, healthcare positions, and many more across various industries.",
+    },
+    {
+      question: "How does the job matching work?",
+      answer:
+        "Our AI-powered system analyzes your profile, skills, and preferences to match you with relevant job opportunities. The more complete your profile, the better the matches.",
+    },
+    {
+      question: "Can I apply for jobs directly through JOBSAHI?",
+      answer:
+        "Yes! You can apply for jobs directly through our platform. Simply browse jobs, click apply, and your application will be sent to the employer.",
+    },
+    {
+      question: "How do I update my resume on JOBSAHI?",
+      answer:
+        "You can easily update your resume by going to your profile settings and uploading a new version. We recommend keeping your resume updated with your latest skills and experience.",
+    },
+  ];
 
-    const navigateToFindJob = () => {
-      navigate('/find-job');
-      if (typeof window !== 'undefined') {
-        window.scrollTo(0, 0);
-      }
-    };
+  const blogPosts = [
+    {
+      title: "strategies for success: customer engagement art copy",
+      excerpt:
+        "Discover the most in-demand skills that will boost your career prospects...",
+      author: "John Doe",
+      date: "March 20, 2024",
+      category: "Design",
+      location: "New York",
+      tags: ["Design", "Marketing", "Creative"],
+    },
+    {
+      title: "How to Prepare for Technical Interviews",
+      excerpt:
+        "A comprehensive guide to ace your technical interviews and land your dream job...",
+      author: "Jane Smith",
+      date: "March 18, 2024",
+      category: "Interview Tips",
+      location: "London",
+      tags: ["Career", "Interview", "Skills"],
+    },
+    {
+      title: "Polytechnic vs ITI: Which Path is Right for You?",
+      excerpt:
+        "Compare the benefits and career opportunities of both educational paths...",
+      author: "Mike Johnson",
+      date: "March 15, 2024",
+      category: "Education",
+      location: "Delhi",
+      tags: ["Education", "Career", "Guidance"],
+    },
+    {
+      title: "Digital Marketing Trends for 2024",
+      excerpt:
+        "Stay ahead with the latest digital marketing strategies and trends...",
+      author: "Sarah Wilson",
+      date: "March 12, 2024",
+      category: "Marketing",
+      location: "Mumbai",
+      tags: ["Marketing", "Digital", "Trends"],
+    },
+    {
+      title: "Building a Strong Professional Network",
+      excerpt:
+        "Learn how to build meaningful professional relationships that advance your career...",
+      author: "David Brown",
+      date: "March 10, 2024",
+      category: "Networking",
+      location: "Bangalore",
+      tags: ["Networking", "Career", "Professional"],
+    },
+  ];
 
-    useEffect(() => {
-      const handleResize = () => {
-        setIsMobile(window.innerWidth < 850);
-      };
-      
-      handleResize(); // Set initial value
-      window.addEventListener('resize', handleResize);
-      
-      return () => window.removeEventListener('resize', handleResize);
-    }, []);
+  const getTotalSlides = () => {
+    return Math.ceil(blogPosts.length / (isMobile ? 1 : 3));
+  };
 
-    const faqs = [
-      {
-        question: "How do I create an account on JOBSAHI?",
-        answer:
-          'Creating an account is simple! Just click on the "Sign Up" button, fill in your basic information, verify your email, and you\'re ready to start your job search journey.',
-      },
-      {
-        question: "Is JOBSAHI free for students?",
-        answer:
-          "Yes, JOBSAHI is completely free for ITI and Polytechnic students. We believe in providing equal opportunities for all students to access quality job opportunities.",
-      },
-      {
-        question: "What types of jobs are available on JOBSAHI?",
-        answer:
-          "We offer a wide range of job opportunities including engineering positions, technical roles, manufacturing jobs, healthcare positions, and many more across various industries.",
-      },
-      {
-        question: "How does the job matching work?",
-        answer:
-          "Our AI-powered system analyzes your profile, skills, and preferences to match you with relevant job opportunities. The more complete your profile, the better the matches.",
-      },
-      {
-        question: "Can I apply for jobs directly through JOBSAHI?",
-        answer:
-          "Yes! You can apply for jobs directly through our platform. Simply browse jobs, click apply, and your application will be sent to the employer.",
-      },
-      {
-        question: "How do I update my resume on JOBSAHI?",
-        answer:
-          "You can easily update your resume by going to your profile settings and uploading a new version. We recommend keeping your resume updated with your latest skills and experience.",
-      },
-    ];
+  const nextSlide = () => {
+    const totalSlides = getTotalSlides();
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  };
 
-    const blogPosts = [
-      {
-        title: "strategies for success: customer engagement art copy",
-        excerpt: "Discover the most in-demand skills that will boost your career prospects...",
-        author: "John Doe",
-        date: "March 20, 2024",
-        category: "Design",
-        location: "New York",
-        tags: ["Design", "Marketing", "Creative"]
-      },
-      {
-        title: "How to Prepare for Technical Interviews",
-        excerpt: "A comprehensive guide to ace your technical interviews and land your dream job...",
-        author: "Jane Smith",
-        date: "March 18, 2024",
-        category: "Interview Tips",
-        location: "London",
-        tags: ["Career", "Interview", "Skills"]
-      },
-      {
-        title: "Polytechnic vs ITI: Which Path is Right for You?",
-        excerpt: "Compare the benefits and career opportunities of both educational paths...",
-        author: "Mike Johnson",
-        date: "March 15, 2024",
-        category: "Education",
-        location: "Delhi",
-        tags: ["Education", "Career", "Guidance"]
-      },
-      {
-        title: "Digital Marketing Trends for 2024",
-        excerpt: "Stay ahead with the latest digital marketing strategies and trends...",
-        author: "Sarah Wilson",
-        date: "March 12, 2024",
-        category: "Marketing",
-        location: "Mumbai",
-        tags: ["Marketing", "Digital", "Trends"]
-      },
-      {
-        title: "Building a Strong Professional Network",
-        excerpt: "Learn how to build meaningful professional relationships that advance your career...",
-        author: "David Brown",
-        date: "March 10, 2024",
-        category: "Networking",
-        location: "Bangalore",
-        tags: ["Networking", "Career", "Professional"]
-      }
-    ];
+  const prevSlide = () => {
+    const totalSlides = getTotalSlides();
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  };
 
-    const getTotalSlides = () => {
-      return Math.ceil(blogPosts.length / (isMobile ? 1 : 3));
-    };
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
 
-    const nextSlide = () => {
-      const totalSlides = getTotalSlides();
-      setCurrentSlide((prev) => (prev + 1) % totalSlides);
-    };
-
-    const prevSlide = () => {
-      const totalSlides = getTotalSlides();
-      setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
-    };
-
-    const goToSlide = (index) => {
-      setCurrentSlide(index);
-    };
-
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentSlide((prev) => {
-          const totalSlides = Math.ceil(blogPosts.length / (isMobile ? 1 : 3));
-          if (totalSlides === 0) return 0;
-          return (prev + 1) % totalSlides;
-        });
-      }, 5000);
-
-      return () => clearInterval(interval);
-    }, [isMobile, blogPosts.length]);
-
-    useEffect(() => {
-      const totalSlides = getTotalSlides();
+  useEffect(() => {
+    const interval = setInterval(() => {
       setCurrentSlide((prev) => {
+        const totalSlides = Math.ceil(blogPosts.length / (isMobile ? 1 : 3));
         if (totalSlides === 0) return 0;
-        return prev % totalSlides;
+        return (prev + 1) % totalSlides;
       });
-    }, [isMobile]);
+    }, 5000);
 
-    const jobCategories = [
-      {
-        title: 'Electrician Jobs',
-        count: 68,
-        subject: "Jobs Available",
-        icon: FaBolt
-      },
-      {
-        title: 'Welder Jobs',
-        count: 45,
-        subject: "Jobs Available",
-        icon: FaFire
-      },
-      {
-        title: 'Fitter Jobs',
-        count: 52,
-        subject: "Jobs Available",
-        icon: FaCogs
-      },
-      {
-        title: 'CNC Operator',
-        count: 38,
-        subject: "Jobs Available",
-        icon: FaIndustry
-      },
-      {
-        title: 'Plumber Jobs',
-        count: 29,
-        subject: "Jobs Available",
-        icon: FaTools
-      },
-      {
-        title: 'AC Technician',
-        count: 41,
-        subject: "Jobs Available",
-        icon: FaSnowflake
-      },
-      {
-        title: 'Helper / Assistant',
-        count: 67,
-        subject: "Jobs Available",
-        icon: FaHandsHelping
-      },
-      {
-        title: 'Machine Maintenance',
-        count: 34,
-        subject: "Jobs Available",
-        icon: FaCogs
-      }
-    ];
+    return () => clearInterval(interval);
+  }, [isMobile, blogPosts.length]);
 
-    const browseJobHeaderContent = {
-      title: (
-        <>
-          {/* <h2 className="text-4xl md:text-5xl font-semibold text-white leading-tight"> */}
-            Browse <span className={TEXT.ACCENT_SKY}>The Job</span> <br /> By <span className={TEXT.ACCENT_SKY}>Category</span>
-          {/* </h2> */}
-        </>
-      ),
-      description: (
-        <>
-          Find Jobs That Match Your Technical Skills — Electrician, Welder, Fitter, Machinist & More.
-        </>
-      ),
-      cta: (
-        <button
-          onClick={navigateToFindJob}
-          className="inline-flex items-center text-[#A1E366] text-lg font-semibold border border-[#A1E366] rounded-full px-5 py-2 hover:bg-[#A1E366] hover:text-[#00395B] transition-colors duration-200"
-        >
-          <span>Explore Your Field And Start Applying Today</span>
-          <FaArrowRight className="ml-2 text-sm" />
-        </button>
-      )
-    };
+  useEffect(() => {
+    const totalSlides = getTotalSlides();
+    setCurrentSlide((prev) => {
+      if (totalSlides === 0) return 0;
+      return prev % totalSlides;
+    });
+  }, [isMobile]);
 
-    const faqHeaderContent = {
-      title: (
-        <>
-          We've Got The Answers
-        </>
-      ),
-      description: "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor"
-    };
+  const jobCategories = [
+    {
+      title: "Electrician Jobs",
+      count: 68,
+      subject: "Jobs Available",
+      icon: FaBolt,
+    },
+    {
+      title: "Welder Jobs",
+      count: 45,
+      subject: "Jobs Available",
+      icon: FaFire,
+    },
+    {
+      title: "Fitter Jobs",
+      count: 52,
+      subject: "Jobs Available",
+      icon: FaCogs,
+    },
+    {
+      title: "CNC Operator",
+      count: 38,
+      subject: "Jobs Available",
+      icon: FaIndustry,
+    },
+    {
+      title: "Plumber Jobs",
+      count: 29,
+      subject: "Jobs Available",
+      icon: FaTools,
+    },
+    {
+      title: "AC Technician",
+      count: 41,
+      subject: "Jobs Available",
+      icon: FaSnowflake,
+    },
+    {
+      title: "Helper / Assistant",
+      count: 67,
+      subject: "Jobs Available",
+      icon: FaHandsHelping,
+    },
+    {
+      title: "Machine Maintenance",
+      count: 34,
+      subject: "Jobs Available",
+      icon: FaCogs,
+    },
+  ];
 
-    const newsletterHeaderContent = {
-      title: "Get Fresh Job Openings, Apprenticeships, And Career Tips Straight To Your Inbox."
-    };
+  const browseJobHeaderContent = {
+    title: (
+      <>
+        Browse <span className={TEXT.ACCENT_SKY}>The Job</span> <br /> By{" "}
+        <span className={TEXT.ACCENT_SKY}>Category</span>
+      </>
+    ),
+    description: (
+      <>
+        Find Jobs That Match Your Technical Skills — Electrician, Welder,
+        Fitter, Machinist &amp; More.
+      </>
+    ),
+    cta: (
+      <button
+        onClick={navigateToFindJob}
+        className="inline-flex items-center text-[#A1E366] text-lg font-semibold border border-[#A1E366] rounded-full px-5 py-2 hover:bg-[#A1E366] hover:text-[#00395B] transition-colors duration-200"
+      >
+        <span>Explore Your Field And Start Applying Today</span>
+        <FaArrowRight className="ml-2 text-sm" />
+      </button>
+    ),
+  };
 
-    return (
-      <div className={BG.PRIMARY_NAVY}>
-        <Navbar />
+  const faqHeaderContent = {
+    title: <>We've Got The Answers</>,
+    description:
+      "Lorem Ipsum Dolor Sit Amet, Consectetur Adipiscing Elit, Sed Do Eiusmod Tempor",
+  };
 
-        {/* Herosection */}
-        <section className={`min-h-screen ${BG.SURFACE_PALE_BLUE} mx-4 rounded-[50px] relative overflow-hidden`}>
-          <div className="max-w-7xl mx-auto px-6 py-8 relative z-10">
-            {/* hero first section */}
-            <div className="">
-              {/* Top Banner */}
-              <div className="text-center mb-12">
-                <div className={`inline-block border-2 ${BORDER.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} px-6 py-2 rounded-full text-sm font-semibold`}>
-                  #1 PORTAL JOB PLATFORM
-                </div>
-              </div>
+  const newsletterHeaderContent = {
+    title:
+      "Get Fresh Job Openings, Apprenticeships, And Career Tips Straight To Your Inbox.",
+  };
 
-              {/* Main Headline */}
-              <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-12 ">
-                <h1 className={`text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 ${TEXT.PRIMARY_DEEP_BLUE} leading-tight`}>
-                  The Easiest Way To Get Your New Job
-                </h1>
-                <img src={textunderline} alt="" className="w-[40%] h-[15px] md:h-[35px] -mt-10" />
-              </div>
+  return (
+    <div className={BG.PRIMARY_NAVY}>
+      <Navbar />
 
-              {/* Description */}
-              <div className="text-center mb-10 max-w-5xl mx-auto">
-                <p className="text-lg font-light mb-6 leading-relaxed">
-                  Every month, over 5 lakh ITI students use JobSahi to explore
-                  jobs, apprenticeships, and courses. Start your career journey
-                  with just one click.
-                </p>
-                <p className={`text-lg ${TEXT.PRIMARY_DEEP_BLUE} font-medium`}>
-                  अपना शहर और ट्रेड चुनें और नई नौकरी की शुरुआत करें!
-                </p>
-              </div>
-            </div>
-
-            {/* Search Bar */}
-            <div className="max-w-4xl mx-auto mb-20">
-              <div className="sm:bg-white sm:rounded-full p-3 md:px-10 sm:shadow-lg">
-                <div className="flex flex-col sm:flex-row items-center gap-4">
-                  {/* Location Filter */}
-                  <div
-                    className="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
-                    onClick={navigateToFindJob}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        navigateToFindJob();
-                      }
-                    }}
-                  >
-                    <FaMapMarkerAlt className={`${TEXT.ACCENT_GREEN} text-xl flex-shrink-0`} />
-                    <div className="flex items-center justify-between gap-5">
-                      <p className={`text-sm ${TEXT.ACCENT_GREEN} mb-1 font-medium`}>
-                        Location
-                      </p>
-                      {/* <div className="flex items-center justify-between"> */}
-                      {/* <span className="text-gray-700 font-medium truncate">Select Location</span> */}
-                      <FaChevronDown className={`${TEXT.ACCENT_GREEN} text-sm flex-shrink-0 ml-2`} />
-                      {/* </div> */}
-                    </div>
-                  </div>
-
-                  {/* Vertical Divider */}
-                  <div className={`hidden lg:block w-px h-12 ${BG.ACCENT_GREEN}`}></div>
-
-                  {/* Category Filter */}
-                  <div
-                    className="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
-                    onClick={navigateToFindJob}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        navigateToFindJob();
-                      }
-                    }}
-                  >
-                    <FaBriefcase className={`${TEXT.ACCENT_GREEN} text-xl flex-shrink-0`} />
-                    <div className="flex items-center justify-between gap-5">
-                      <p className={`text-sm ${TEXT.ACCENT_GREEN} mb-1 font-medium`}>
-                        Category
-                      </p>
-                      {/* <div className="flex items-center justify-between"> */}
-                      {/* <span className="text-[#5C9A24] font-medium truncate">Select Category</span> */}
-                      <FaChevronDown className={`${TEXT.ACCENT_GREEN} text-sm flex-shrink-0 ml-2`} />
-                      {/* </div> */}
-                    </div>
-                  </div>
-
-                  {/* Search Button */}
-                  <button
-                    onClick={navigateToFindJob}
-                    className={`${HOVER_BG.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} border-2 ${BORDER.ACCENT_GREEN} hover:text-white rounded-full px-5 py-2 font-semibold text-lg flex items-center justify-center space-x-2 `}
-                  >
-                    <span>नौकरी खोजें</span>
-                    <div className={`w-6 h-6 ${BG.ACCENT_GREEN} rounded-full flex items-center justify-center`}>
-                      <FaSearch className="text-white text-sm" />
-                    </div>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* hero bottom section */}
-            <div className="flex justify-center mt-12">
-              <img
-                src={homebanner}
-                alt="Student giving thumbs up"
-                className="w-full rounded-[30px] object-cover shadow-xl"
-                loading="lazy"
-              />
+      {/* HERO SECTION – Figma Accurate */}
+      <section className="min-h-screen bg-[#E7F3FD] mx-4 rounded-[50px] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 py-12 relative">
+          {/* Top Tag */}
+          <div className="text-center mb-8">
+            <div className="inline-block border-2 border-[#9EDB47] text-[#9EDB47] px-6 py-2 rounded-full text-sm font-semibold">
+              #1 PORTAL JOB PLATFORM
             </div>
           </div>
-        </section>
 
-        {/* BrowseJob */}
-        <BrowseJobByCategory 
-          jobCategories={jobCategories} 
-          headerContent={browseJobHeaderContent}
-        />
+          {/* Heading & underline */}
+          <div className="text-center mb-12">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[#00395B] leading-tight mb-4">
+              The Easiest Way To Get Your New Job
+            </h1>
+            <img
+              src={textunderline}
+              alt=""
+              className="w-[45%] max-w-sm h-[15px] md:h-[25px] lg:h-[30px] mx-auto -mt-4"
+            />
+          </div>
 
-        {/* UploadResume */}
-        <section className="my-5 md:my-10 ">
-          <div className="max-w-7xl mx-auto ">
-            <div className="relative">
-              {/* Main Card */}
-              <div className=" shadow-2xl relative overflow-hidden">
-                <img src={uploadresumebg} alt="" className="absolute w-full h-full" />
-                {/* Main Content */}
-                <div className="text-center relative  ">
-                <div className="mb-8">
-                    <div className={`inline-block ${BG.ACCENT_GREEN} text-white px-8 py-3 rounded-full font-bold text-sm`}>
-                      #1 PORTAL JOB PLATFORM
-                    </div>
+          {/* Description */}
+          <div className="text-center mb-16 max-w-4xl mx-auto">
+            <p className="text-base md:text-lg font-light mb-4 leading-relaxed text-gray-700">
+              Every month, over 5 lakh ITI students use JobSahi to explore jobs,
+              apprenticeships, and courses. Start your career journey with just
+              one click.
+            </p>
+            <p className="text-base md:text-lg text-[#00395B] font-medium">
+              अपना शहर और ट्रेड चुनें और नई नौकरी की शुरुआत करें!
+            </p>
+          </div>
+
+          {/* Search Bar */}
+          <div className="w-full max-w-4xl mx-auto mb-20">
+            <div className="bg-white rounded-full shadow-xl px-5 md:px-7 py-3 flex flex-col sm:flex-row items-center gap-4">
+              {/* Location */}
+              <div
+                className="flex-1 flex items-center gap-3 cursor-pointer w-full"
+                onClick={navigateToFindJob}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    navigateToFindJob();
+                  }
+                }}
+              >
+                <FaMapMarkerAlt className="text-[#8CD63E] text-lg md:text-xl" />
+                <div className="flex items-center justify-between flex-1">
+                  <p className="text-sm md:text-base text-[#8CD63E] font-medium">
+                    Location
+                  </p>
+                  <FaChevronDown className="text-[#8CD63E] text-xs md:text-sm" />
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="hidden md:block w-px h-9 bg-[#8CD63E]" />
+
+              {/* Category */}
+              <div
+                className="flex-1 flex items-center gap-3 cursor-pointer w-full"
+                onClick={navigateToFindJob}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    navigateToFindJob();
+                  }
+                }}
+              >
+                <FaBriefcase className="text-[#8CD63E] text-lg md:text-xl" />
+                <div className="flex items-center justify-between flex-1">
+                  <p className="text-sm md:text-base text-[#8CD63E] font-medium">
+                    Category
+                  </p>
+                  <FaChevronDown className="text-[#8CD63E] text-xs md:text-sm" />
+                </div>
+              </div>
+
+              {/* Search Button */}
+              <button
+                onClick={navigateToFindJob}
+                className="w-full sm:w-auto border-2 border-[#8CD63E] text-[#8CD63E] hover:bg-[#8CD63E] hover:text-white rounded-full px-5 md:px-6 py-2 md:py-2.5 font-semibold text-base md:text-lg flex items-center justify-center gap-2 transition-colors duration-200"
+              >
+                <span>नौकरी खोजें</span>
+                <span className="w-6 h-6 bg-[#8CD63E] rounded-full flex items-center justify-center">
+                  <FaSearch className="text-white text-xs md:text-sm" />
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Illustration Area */}
+          <div className="relative w-full flex justify-center mt-8 mb-16 md:mb-24 lg:mb-28 px-4 md:px-6">
+            <div className="relative w-full max-w-6xl mx-auto">
+              {/* Left green bubbles - horizontally aligned design with improved spacing */}
+              <div className="absolute -top-2 md:-top-3 left-4 md:left-6 z-20 animate-fade-in">
+                <div className="relative flex items-center">
+                  {/* First pill - overlapping */}
+                  <div className="w-14 h-9 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-3 md:-mr-4" />
+                  {/* Second pill - overlapping */}
+                  <div className="w-14 h-9 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-3 md:-mr-4" />
+                  {/* Third pill - overlapping */}
+                  <div className="w-14 h-9 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-2 md:-mr-3" />
+                  {/* Plus icon circle */}
+                  <div className="w-9 h-9 md:w-11 md:h-11 bg-[#8CD63E] rounded-full flex items-center justify-center shadow-[0_4px_15px_rgba(140,214,62,0.4)] ring-2 ring-white/50">
+                    <FaPlus className="text-white text-xs md:text-sm" />
                   </div>
+                </div>
+              </div>
 
-                <div className="pb-10 my-10">
+              {/* Main white chat box with enhanced gradients */}
+              <div className="w-full h-[250px] sm:h-[300px] md:h-[340px] lg:h-[380px] bg-white rounded-3xl md:rounded-[2.5rem] shadow-[0_15px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-gray-100/50">
+                {/* Layered gradients for depth */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-blue-50/30 to-transparent" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,_rgba(207,244,154,0.12),_transparent_65%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,_rgba(140,214,62,0.08),_transparent_50%)]" />
+                {/* Subtle pattern overlay */}
+                <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(45deg,_transparent_25%,_rgba(0,0,0,0.05)_25%,_rgba(0,0,0,0.05)_50%,_transparent_50%,_transparent_75%,_rgba(0,0,0,0.05)_75%)] bg-[length:20px_20px]" />
+              </div>
+
+              {/* Right side white box with improved styling */}
+              <div className="absolute top-12 md:top-16 right-4 md:right-8 z-20 hidden md:block animate-slide-in-right">
+                <div className="w-[200px] md:w-[240px] h-[180px] md:h-[220px] bg-white rounded-3xl shadow-[0_15px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-gray-100/50">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-blue-50/30 to-transparent" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(207,244,154,0.1),_transparent_70%)]" />
+                </div>
+              </div>
+
+              {/* Top-right tag - light green speech bubble with enhanced design */}
+              <div className="absolute -top-4 md:-top-6 right-4 md:right-8 bg-gradient-to-br from-[#CFF49A] to-[#B8E87A] text-gray-800 px-5 md:px-7 py-2.5 md:py-3 rounded-2xl md:rounded-3xl text-xs md:text-sm font-semibold shadow-[0_8px_25px_rgba(207,244,154,0.4)] z-30 border border-[#8CD63E]/40 backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(207,244,154,0.5)] transition-all duration-300">
+                <p className="leading-tight drop-shadow-sm">
+                  Let&apos;s Find Your Opportunity
+                  <br />
+                  <span className="text-[#4A7C0F]">To Grow</span>
+                </p>
+              </div>
+
+              {/* Right gear/cog icon - positioned near right edge with animation */}
+              <div className="absolute top-[65%] md:top-[58%] right-4 md:right-6 z-30 hidden md:block animate-float">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-[#00395B] to-[#002A42] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,57,91,0.4)] relative ring-4 ring-white/70 hover:ring-white/90 transition-all duration-300 hover:scale-110 hover:shadow-[0_15px_40px_rgba(0,57,91,0.5)]">
+                  <FaCogs className="text-white text-xl md:text-2xl drop-shadow-md animate-spin-slow" />
+                </div>
+              </div>
+
+              {/* Bottom-left tag - light green speech bubble with enhanced styling */}
+              <div className="absolute -bottom-8 md:-bottom-10 left-4 md:left-6 bg-gradient-to-br from-[#CFF49A] to-[#B8E87A] border-2 border-[#8CD63E] px-5 md:px-7 py-3 md:py-4 rounded-2xl md:rounded-3xl shadow-[0_10px_30px_rgba(207,244,154,0.4)] z-30 hover:shadow-[0_12px_35px_rgba(207,244,154,0.5)] transition-all duration-300">
+                <p className="text-[#4A7C0F] text-sm md:text-base font-bold leading-tight drop-shadow-sm">
+                  Start Your Career With{" "}
+                  <span className="relative inline-block">
+                    JobSahi
+                    <svg
+                      className="absolute -bottom-1 left-0 w-full"
+                      height="4"
+                      viewBox="0 0 100 4"
+                      preserveAspectRatio="none"
+                    >
+                      <path
+                        d="M 0,2 Q 15,0.5 30,2 T 60,2 Q 75,3.5 90,2 T 100,2"
+                        stroke="#8CD63E"
+                        strokeWidth="3"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </p>
+              </div>
+
+              {/* Center play button with text to the right - enhanced design */}
+              <div className="absolute -bottom-14 md:-bottom-16 left-1/2 -translate-x-1/2 z-30 flex flex-col sm:flex-row items-center gap-3 md:gap-5">
+                <button
+                  onClick={navigateToFindJob}
+                  className="cursor-pointer group flex-shrink-0 focus:outline-none focus:ring-4 focus:ring-[#8CD63E]/30 rounded-full transition-all duration-300"
+                  aria-label="Search Jobs"
+                >
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-[72px] md:h-[72px] bg-gradient-to-br from-[#00395B] to-[#002A42] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,57,91,0.4)] group-hover:scale-110 group-hover:shadow-[0_15px_40px_rgba(0,57,91,0.6)] transition-all duration-300 group-active:scale-95">
+                    <FaPlay className="text-white text-lg sm:text-xl md:text-2xl ml-1 drop-shadow-md" />
+                  </div>
+                </button>
+                <p className="text-sm md:text-base font-semibold text-[#8CD63E] whitespace-nowrap text-center sm:text-left drop-shadow-sm">
+                  Search Jobs, Give Skill Tests, Get Hired
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Browse Job */}
+      <BrowseJobByCategory
+        jobCategories={jobCategories}
+        headerContent={browseJobHeaderContent}
+      />
+
+      {/* Upload Resume */}
+      <section className="my-5 md:my-10 ">
+        <div className="max-w-7xl mx-auto ">
+          <div className="relative">
+            {/* Main Card */}
+            <div className="shadow-2xl relative overflow-hidden rounded-3xl">
+              <img src={uploadresumebg} alt="" className="absolute w-full h-full object-cover" />
+              {/* Main Content */}
+              <div className="text-center relative px-4 py-10 md:py-16">
+                <div className="mb-8">
+                  <div
+                    className={`inline-block ${BG.ACCENT_GREEN} text-white px-8 py-3 rounded-full font-bold text-sm`}
+                  >
+                    #1 PORTAL JOB PLATFORM
+                  </div>
+                </div>
+
+                <div className="pb-6 md:pb-10 my-6 md:my-10">
                   {/* Main Heading */}
-                  <h2 className="text-4xl md:text-5xl font-semibold text-gray-800 mb-6 leading-tight">
-                    Upload Your{' '}
-                    <span className={TEXT.PRIMARY_DEEP_BLUE}>Resume</span> &<br />
-                    Get{' '}
-                    <span className={TEXT.PRIMARY_DEEP_BLUE}>Matched Instantly</span>
+                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-800 mb-6 leading-tight">
+                    Upload Your{" "}
+                    <span className={TEXT.PRIMARY_DEEP_BLUE}>Resume</span> &amp;
+                    <br />
+                    Get{" "}
+                    <span className={TEXT.PRIMARY_DEEP_BLUE}>
+                      Matched Instantly
+                    </span>
                   </h2>
 
                   {/* Descriptive Text */}
                   <div className="max-w-2xl mx-auto mb-8">
-                    <p className="text-gray-700 text-lg mb-4">
-                      Don't wait! Just upload your resume and let<br />
+                    <p className="text-gray-700 text-base md:text-lg mb-4">
+                      Don&apos;t wait! Just upload your resume and let
+                      <br />
                       JobSahi find the perfect job for you.
                     </p>
-                    <p className={`text-lg font-medium ${TEXT.PRIMARY_DEEP_BLUE}`}>
+                    <p
+                      className={`text-lg font-medium ${TEXT.PRIMARY_DEEP_BLUE}`}
+                    >
                       हर महीने लाखों ITI छात्र ऐसे ही नौकरी पाते हैं
                     </p>
-                    <div className="font-bold mt-2 text-gray-700 ">नीचे अपना रिज़्यूमे अपलोड करें</div>
+                    <div className="font-bold mt-2 text-gray-700">
+                      नीचे अपना रिज़्यूमे अपलोड करें
+                    </div>
                   </div>
 
                   {/* Upload Button */}
@@ -475,17 +563,19 @@ const TrustedByStartups = lazy(() => import("../../components/TrustedByStartups.
                       onChange={handleFileSelect}
                       className="hidden"
                     />
-                    <button 
+                    <button
                       onClick={handleUploadClick}
                       className={`border-2 ${BORDER.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} px-4 py-2 rounded-full font-semibold text-lg ${HOVER_BG.ACCENT_GREEN} hover:text-white flex items-center space-x-3`}
                     >
                       <span>Upload CV</span>
-                      <div className={`w-8 h-8 ${BG.ACCENT_GREEN} rounded-full flex items-center justify-center`}>
+                      <div
+                        className={`w-8 h-8 ${BG.ACCENT_GREEN} rounded-full flex items-center justify-center`}
+                      >
                         <FaUpload className="text-white text-sm" />
                       </div>
                     </button>
                   </div>
-                  
+
                   {/* Selected File Display */}
                   {selectedFile && (
                     <div className="flex justify-center mt-4">
@@ -498,257 +588,288 @@ const TrustedByStartups = lazy(() => import("../../components/TrustedByStartups.
                     </div>
                   )}
                 </div>
-                </div>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* RightForYou */}
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              {/* Left Side - Abstract Shapes */}
-              <div className="relative">
-                {/* Large L-shaped block */}
-                <div className="sm:w-80 sm:h-80 w-60 h-60 bg-blue-100 rounded-3xl relative">
-                  {/* Green Badge */}
-                  <div className={`absolute border-4 border-white -top-4 -left-4 ${BG.ACCENT_LIME} rounded-2xl p-6`}>
-                    <div className="text-center">
-                      <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mx-auto mb-2">
-                        <div className={`w-4 h-4 ${BG.ACCENT_LIME} rounded-full`}></div>
-                      </div>
-                      <p className="text-black font-bold text-sm">Top No. 1</p>
-                      <p className="text-black text-xs">Portal Job Web</p>
+      {/* Right For You */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Abstract Shapes */}
+            <div className="relative flex justify-center lg:justify-start">
+              <div className="sm:w-80 sm:h-80 w-60 h-60 bg-blue-100 rounded-3xl relative">
+                {/* Green Badge */}
+                <div className="absolute border-4 border-white -top-4 -left-4 bg-[#CFF49A] rounded-2xl p-5 shadow-md">
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mx-auto mb-2">
+                      <div className="w-4 h-4 bg-[#CFF49A] rounded-full" />
                     </div>
+                    <p className="text-black font-bold text-sm">Top No. 1</p>
+                    <p className="text-black text-xs">Portal Job Web</p>
+                  </div>
+                </div>
+
                 {/* Smaller rectangular block */}
-                <div className="absolute border-4 border-white -bottom-40 left-40 sm:-bottom-56 sm:left-56 w-32 h-24 bg-blue-200 rounded-2xl"></div>
-                  </div>
+                <div className="absolute border-4 border-white -bottom-20 left-32 sm:-bottom-24 sm:left-48 w-32 h-24 bg-blue-200 rounded-2xl shadow-md" />
+              </div>
+            </div>
+
+            {/* Right Content */}
+            <div className="space-y-8">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">
+                Find{" "}
+                <span className={TEXT.PRIMARY_DEEP_BLUE}>The One</span> That&apos;s{" "}
+                <span className={TEXT.PRIMARY_DEEP_BLUE}>Right For You</span>
+              </h2>
+
+              <p className="text-gray-700 text-lg leading-relaxed">
+                With JobSahi, searching for the perfect job is quick, easy, and
+                tailored to your skills.
+              </p>
+
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <FaCheckCircle
+                    className={`${TEXT.ACCENT_GREEN} text-lg flex-shrink-0`}
+                  />
+                  <span className="text-gray-800 font-medium">
+                    Fast &amp; Simple Job Search Experience
+                  </span>
                 </div>
-                
-                
+                <div className="flex items-center space-x-3">
+                  <FaCheckCircle
+                    className={`${TEXT.ACCENT_GREEN} text-lg flex-shrink-0`}
+                  />
+                  <span className="text-gray-800 font-medium">
+                    Top Job Listings Across Industries
+                  </span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <FaCheckCircle
+                    className={`${TEXT.ACCENT_GREEN} text-lg flex-shrink-0`}
+                  />
+                  <span className="text-gray-800 font-medium">
+                    Secure And Trusted Application Process
+                  </span>
+                </div>
               </div>
 
-              {/* Right Side - Content */}
-              <div className="space-y-8">
-                {/* Main Heading */}
-                <h2 className="text-4xl md:text-5xl font-semibold leading-tight">
-                  Find{" "}
-                  <span className={TEXT.PRIMARY_DEEP_BLUE}>The One</span>{" "}
-                  That's{" "}
-                  <span className={TEXT.PRIMARY_DEEP_BLUE}>Right For You</span>
-                </h2>
-
-                {/* Descriptive Text */}
-                <p className="text-gray-700 text-lg leading-relaxed">
-                  With JobSahi, searching for the perfect job is quick, easy, and tailored to your skills.
-                </p>
-
-                {/* Feature List */}
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <FaCheckCircle className={`${TEXT.ACCENT_GREEN} text-lg flex-shrink-0`} />
-                    <span className="text-gray-800 font-medium">Fast & Simple Job Search Experience</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <FaCheckCircle className={`${TEXT.ACCENT_GREEN} text-lg flex-shrink-0`} />
-                    <span className="text-gray-800 font-medium">Top Job Listings Across Industries</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <FaCheckCircle className={`${TEXT.ACCENT_GREEN} text-lg flex-shrink-0`} />
-                    <span className="text-gray-800 font-medium">Secure And Trusted Application Process</span>
-                  </div>
-                </div>
-
-                {/* Search Job Button */}
-                <div className="pt-4">
-                  <button
-                    onClick={navigateToFindJob}
-                    className={`border-2 ${BORDER.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} px-4 py-2 rounded-full font-semibold text-lg ${HOVER_BG.ACCENT_GREEN} hover:text-white flex items-center space-x-3 `}
+              <div className="pt-4">
+                <button
+                  onClick={navigateToFindJob}
+                  className={`border-2 ${BORDER.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} px-4 py-2 rounded-full font-semibold text-lg ${HOVER_BG.ACCENT_GREEN} hover:text-white flex items-center space-x-3`}
+                >
+                  <span>Search Job</span>
+                  <div
+                    className={`w-8 h-8 ${BG.ACCENT_GREEN} rounded-full flex items-center justify-center`}
                   >
-                    <span>Search Job</span>
-                    <div className={`w-8 h-8 ${BG.ACCENT_GREEN} rounded-full flex items-center justify-center`}>
-                      <FaArrowRight className="text-white text-sm" />
-                    </div>
-                  </button>
-                </div>
+                    <FaArrowRight className="text-white text-sm" />
+                  </div>
+                </button>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* HowItWorks */}
-        <section className="py-10 bg-white">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <h2 className={`text-4xl md:text-5xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-4`}>
-                How It Works
-              </h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              {/* Step 1: Create Account */}
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <div className={`w-12 h-12 md:w-16 md:h-16 ${BG.ACCENT_LIME} rounded-full flex items-center justify-center`}>
-                    <FaUserPlus className="text-white text-2xl md:text-4xl" />
-                  </div>
-                </div>
-                <h3 className={`text-2xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-2`}>
-                  Create Account
-                </h3>
-                <p className="text-gray-600 text-lg leading-relaxed">
-                  It's super easy to sign up and begin your job journey.
-                </p>
-              </div>
-
-              {/* Step 2: Complete Your Profile */}
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <div className={`w-12 h-12 md:w-16 md:h-16 ${BG.ACCENT_LIME} rounded-full flex items-center justify-center`}>
-                    <FaFileAlt className="text-white text-2xl md:text-4xl" />
-                  </div>
-                </div>
-                <h3 className={`text-2xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-4`}>
-                  Complete Your Profile
-                </h3>
-                <p className="text-gray-600 text-lg leading-relaxed">
-                  Fill in your details to get noticed by employers faster.
-                </p>
-              </div>
-
-              {/* Step 3: Apply Job Or Hire */}
-              <div className="text-center">
-                <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <div className={`w-12 h-12 md:w-16 md:h-16 ${BG.ACCENT_LIME} rounded-full flex items-center justify-center`}>
-                    <FaHandshake className="text-white text-2xl md:text-4xl" />
-                  </div>
-                </div>
-                <h3 className={`text-2xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-4`}>
-                  Apply Job Or Hire
-                </h3>
-                <p className="text-gray-600 text-lg leading-relaxed">
-                  Apply to jobs that match your skills or post a job if you're an employer.
-                </p>
-              </div>
-            </div>
+      {/* How It Works */}
+      <section className="py-10 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2
+              className={`text-4xl md:text-5xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-4`}
+            >
+              How It Works
+            </h2>
           </div>
-        </section>
 
-        {/* TrustedStartups */}
-        <Suspense fallback={<div className="text-white text-center py-10">Loading testimonials...</div>}>
-          <TrustedByStartups />
-        </Suspense>
-
-        {/* BlogInterested */}
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-semibold mb-4">
-                <span className="">Blog You</span>
-                <span className={TEXT.PRIMARY_DEEP_BLUE}> Might Be Interested In</span>
-              </h2>
-              <p className="text-gray-700 text-lg max-w-2xl mx-auto">
-                Together with useful notifications, collaboration, insights, and improvement tip lorem etc.
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-2">
+                <div
+                  className={`w-12 h-12 md:w-16 md:h-16 ${BG.ACCENT_LIME} rounded-full flex items-center justify-center`}
+                >
+                  <FaUserPlus className="text-white text-2xl md:text-4xl" />
+                </div>
+              </div>
+              <h3
+                className={`text-2xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-2`}
+              >
+                Create Account
+              </h3>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                It&apos;s super easy to sign up and begin your job journey.
               </p>
             </div>
 
-            {/* Carousel Container */}
-            <div className="relative">
-              {/* Navigation Arrows */}
-              <button 
-                onClick={prevSlide}
-                className={`absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white border-2 ${BORDER.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT.ACCENT_GREEN} ${HOVER_BG.ACCENT_GREEN} hover:text-white transition-all duration-300 shadow-lg`}
-              >
-                <FaChevronLeft className="text-lg" />
-              </button>
-              
-              <button 
-                onClick={nextSlide}
-                className={`absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white border-2 ${BORDER.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT.ACCENT_GREEN} ${HOVER_BG.ACCENT_GREEN} hover:text-white transition-all duration-300 shadow-lg`}
-              >
-                <FaChevronRight className="text-lg" />
-              </button>
-
-              {/* Blog Cards Carousel */}
-              <div className="overflow-hidden px-5">
-                <div 
-                  className="flex transition-transform duration-500 ease-in-out"
-                  style={{ transform: `translateX(-${currentSlide * (100 / (isMobile ? 1 : 3))}%)` }}
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-2">
+                <div
+                  className={`w-12 h-12 md:w-16 md:h-16 ${BG.ACCENT_LIME} rounded-full flex items-center justify-center`}
                 >
-                  {blogPosts.map((post, index) => (
-                    <div key={index} className="w-full md:w-1/3 flex-shrink-0 px-3">
-                      <article className="w-full bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
-                        {/* Image Placeholder */}
-                        <div className="h-48 bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-500">Blog Image</span>
-                        </div>
-                        
-                        <div className="p-6">
-                          {/* Metadata */}
-                          <div className="flex items-center text-sm text-gray-500 mb-3">
-                            <span>{post.location}</span>
-                            <span className="mx-2">•</span>
-                            <span>{post.date}</span>
-                          </div>
-
-                          {/* Title/Excerpt */}
-                          <h3 className="text-lg font-medium text-gray-800 mb-4 leading-tight">
-                            {post.title}
-                          </h3>
-
-                          {/* Tags */}
-                          <div className="flex flex-wrap gap-2">
-                            {post.tags.map((tag, tagIndex) => (
-                              <span 
-                                key={tagIndex}
-                                className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </article>
-                    </div>
-                  ))}
+                  <FaFileAlt className="text-white text-2xl md:text-4xl" />
                 </div>
               </div>
+              <h3
+                className={`text-2xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-4`}
+              >
+                Complete Your Profile
+              </h3>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Fill in your details to get noticed by employers faster.
+              </p>
+            </div>
 
-              {/* Pagination Dots */}
-              <div className="flex justify-center mt-8 space-x-2">
-                {Array.from({ length: getTotalSlides() }).map((_, index) => (
-                  <button
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-2">
+                <div
+                  className={`w-12 h-12 md:w-16 md:h-16 ${BG.ACCENT_LIME} rounded-full flex items-center justify-center`}
+                >
+                  <FaHandshake className="text-white text-2xl md:text-4xl" />
+                </div>
+              </div>
+              <h3
+                className={`text-2xl font-bold ${TEXT.PRIMARY_DEEP_BLUE} mb-4`}
+              >
+                Apply Job Or Hire
+              </h3>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Apply to jobs that match your skills or post a job if you&apos;re
+                an employer.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trusted By Startups */}
+      <Suspense
+        fallback={
+          <div className="text-white text-center py-10">
+            Loading testimonials...
+          </div>
+        }
+      >
+        <TrustedByStartups />
+      </Suspense>
+
+      {/* Blog Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-semibold mb-4">
+              <span>Blog You</span>{" "}
+              <span className={TEXT.PRIMARY_DEEP_BLUE}>
+                Might Be Interested In
+              </span>
+            </h2>
+            <p className="text-gray-700 text-lg max-w-2xl mx-auto">
+              Together with useful notifications, collaboration, insights, and
+              improvement tip lorem etc.
+            </p>
+          </div>
+
+          <div className="relative">
+            {/* Arrows */}
+            <button
+              onClick={prevSlide}
+              className={`absolute left-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white border-2 ${BORDER.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT.ACCENT_GREEN} ${HOVER_BG.ACCENT_GREEN} hover:text-white transition-all duration-300 shadow-lg`}
+            >
+              <FaChevronLeft className="text-lg" />
+            </button>
+
+            <button
+              onClick={nextSlide}
+              className={`absolute right-0 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white border-2 ${BORDER.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT.ACCENT_GREEN} ${HOVER_BG.ACCENT_GREEN} hover:text-white transition-all duration-300 shadow-lg`}
+            >
+              <FaChevronRight className="text-lg" />
+            </button>
+
+            {/* Cards */}
+            <div className="overflow-hidden px-5">
+              <div
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{
+                  transform: `translateX(-${
+                    currentSlide * (100 / (isMobile ? 1 : 3))
+                  }%)`,
+                }}
+              >
+                {blogPosts.map((post, index) => (
+                  <div
                     key={index}
-                    onClick={() => goToSlide(index)}
-                    className={`w-2 h-2 rounded-full transition-colors duration-300 ${
-                      index === currentSlide ? BG.ACCENT_GREEN : 'bg-gray-300'
-                    }`}
-                  />
+                    className="w-full md:w-1/3 flex-shrink-0 px-3"
+                  >
+                    <article className="w-full bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
+                      <div className="h-48 bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-500">Blog Image</span>
+                      </div>
+
+                      <div className="p-6">
+                        <div className="flex items-center text-sm text-gray-500 mb-3">
+                          <span>{post.location}</span>
+                          <span className="mx-2">•</span>
+                          <span>{post.date}</span>
+                        </div>
+
+                        <h3 className="text-lg font-medium text-gray-800 mb-4 leading-tight">
+                          {post.title}
+                        </h3>
+
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags.map((tag, tagIndex) => (
+                            <span
+                              key={tagIndex}
+                              className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </article>
+                  </div>
                 ))}
               </div>
             </div>
+
+            {/* Dots */}
+            <div className="flex justify-center mt-8 space-x-2">
+              {Array.from({ length: getTotalSlides() }).map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                    index === currentSlide ? BG.ACCENT_GREEN : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* GotAnswers */}
-        <FAQ 
-          faqs={faqs} 
-          headerContent={faqHeaderContent} 
-        />
+      {/* FAQ */}
+      <FAQ faqs={faqs} headerContent={faqHeaderContent} />
 
-        {/* Subscribe */}
-        <NewsletterSubscription 
-          headerContent={newsletterHeaderContent}
-          onSubscribe={handleSubscribe}
-          email={email}
-          setEmail={setEmail}
-          isSubscribed={isSubscribed}
-        />
+      {/* Newsletter */}
+      <NewsletterSubscription
+        headerContent={newsletterHeaderContent}
+        onSubscribe={handleSubscribe}
+        email={email}
+        setEmail={setEmail}
+        isSubscribed={isSubscribed}
+      />
 
-        <Footer />
-      </div>
-    );
-  };
+      <Footer />
+    </div>
+  );
+};
 
-  export default home;
+export default Home;

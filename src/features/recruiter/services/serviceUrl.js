@@ -20,9 +20,11 @@ const service = {
 
     getRecentApplicants: "/employer/get_recent_applicants.php",
 
-    //inetvriew schedule
+    //interview schedule
 
     scheduleInterview: "/applications/schedule_interview.php",
+    getScheduledInterviews: "/applications/schedule_interview.php",
+updateInterview: "/applications/update_interview.php",
 
     //report 
     recruiterAnalyticsReports: "/employer/recruiter_analytics_reports.php",
