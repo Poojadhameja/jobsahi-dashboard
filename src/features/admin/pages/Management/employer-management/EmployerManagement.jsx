@@ -175,9 +175,15 @@ export default function EmployerManagement() {
   );
 
   setEmployers(formatted);
-  setPendingApprovalEmployers(pendingFormatted);
-  setTotalEmployerCount(response.total_count);
-  setPendingApprovalsCount(pendingFormatted.length);
+  // setPendingApprovalEmployers(pendingFormatted);
+  // setTotalEmployerCount(response.total_count);
+  // setPendingApprovalsCount(pendingFormatted.length);
+    if (response.summary) {
+    setTotalEmployerCount(response.summary.total_employers || 0);
+    setPendingApprovalsCount(response.summary.pending_approvals || 0);
+    setActiveJobsCount(response.summary.active_jobs || 0);
+    setMonthlyRevenue(response.summary.monthly_revenue || 0);
+  }
 } 
 else {
           Swal.fire({

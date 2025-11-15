@@ -52,6 +52,9 @@ function AdvancedFilters({
   onFilterChange,
   onClearAll,
   onApplyFilter,
+  courseList = [],
+  tradeList = [],
+  skillsList = [],
 }) {
   return (
     <div className="bg-white border border-[var(--color-primary)28] rounded-lg p-6">
@@ -63,35 +66,52 @@ function AdvancedFilters({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        
+        {/* TRADE FILTER */}
         <div className="space-y-2">
-          <label
-            className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-          >
-            Courses
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+            Trade
           </label>
           <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            value={filters.course || "all"}
-            onChange={(e) =>
-              onFilterChange({ ...filters, course: e.target.value })
-            }
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            value={filters.trade || "all"}
+            onChange={(e) => onFilterChange({ ...filters, trade: e.target.value })}
           >
-            <option value="all">All Courses</option>
-            <option value="electrician">Electrician</option>
-            <option value="plumber">Plumber</option>
-            <option value="carpenter">Carpenter</option>
-            <option value="welder">Welder</option>
+            <option value="all">All Trades</option>
+            {tradeList.map((t, index) => (
+              <option key={index} value={t}>
+                {t}
+              </option>
+            ))}
           </select>
         </div>
 
+        {/* COURSES FILTER */}
         <div className="space-y-2">
-          <label
-            className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+            Courses
+          </label>
+          <select
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            value={filters.course || "all"}
+            onChange={(e) => onFilterChange({ ...filters, course: e.target.value })}
           >
+            <option value="all">All Courses</option>
+            {courseList.map((c, index) => (
+              <option key={index} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* PLACEMENT FILTER */}
+        <div className="space-y-2">
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Placement Status
           </label>
           <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
             value={filters.placementStatus || "all"}
             onChange={(e) =>
               onFilterChange({ ...filters, placementStatus: e.target.value })
@@ -105,45 +125,22 @@ function AdvancedFilters({
           </select>
         </div>
 
+        {/* SKILLS FILTER */}
         <div className="space-y-2">
-          <label
-            className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-          >
+          <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Skills
           </label>
           <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
             value={filters.skills || "all"}
-            onChange={(e) =>
-              onFilterChange({ ...filters, skills: e.target.value })
-            }
+            onChange={(e) => onFilterChange({ ...filters, skills: e.target.value })}
           >
             <option value="all">All Skills</option>
-            <option value="react">React</option>
-            <option value="java">Java</option>
-            <option value="python">Python</option>
-            <option value="javascript">JavaScript</option>
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label
-            className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-          >
-            Experience
-          </label>
-          <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            value={filters.experience || "all"}
-            onChange={(e) =>
-              onFilterChange({ ...filters, experience: e.target.value })
-            }
-          >
-            <option value="all">All Experience</option>
-            <option value="0-1">0-1 years</option>
-            <option value="1-3">1-3 years</option>
-            <option value="3-5">3-5 years</option>
-            <option value="5+">5+ years</option>
+            {skillsList.map((skill, index) => (
+              <option key={index} value={skill}>
+                {skill}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -163,6 +160,7 @@ function AdvancedFilters({
     </div>
   );
 }
+
 
 // Skills Tags Component
 function SkillsTags({ skills }) {
@@ -1424,9 +1422,15 @@ export default function StudentManagement() {
             (item) => item.profile_info.admin_action === "approved"
           );
 
-          setTotalStudentCount(response.count);
-          setVerifiedProfileCount(pendingFormatted.length);
+          // setTotalStudentCount(response.count);
+          // setVerifiedProfileCount(pendingFormatted.length);
           setStudents(formatted);
+          if (response.summary) {
+  setTotalStudentCount(response.summary.total_students || 0);
+  setVerifiedProfileCount(response.summary.verified_profiles || 0);
+  setPlacementReadyCount(response.summary.placement_ready || 0);
+  setPlacedSuccessCount(response.summary.successfully_placed || 0);
+}
         } else {
           Swal.fire({
             title: "Failed",
