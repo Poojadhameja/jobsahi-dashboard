@@ -1,6 +1,6 @@
 import React from 'react'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
-import { Button } from '../../../../../shared/components/Button.jsx'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { Button } from '../../../../../shared/components/Button'
 
 // Certificate Issuance Table Component
 function CertificateIssuanceTable() {

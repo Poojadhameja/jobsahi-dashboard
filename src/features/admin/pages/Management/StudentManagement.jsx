@@ -1310,14 +1310,18 @@ function StudentTable({
                     <div className="flex flex-wrap gap-1">
                       {student.applied_jobs
                         .slice(0, 3)
-                        .map((jobTitle, index) => (
-                          <span
-                            key={index}
-                            className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
-                          >
-                            {jobTitle}
-                          </span>
-                        ))}
+                        .map((job, index) => {
+                          // Handle both object and string formats
+                          const jobTitle = typeof job === 'object' && job !== null ? (job.job_title || job.title || JSON.stringify(job)) : job;
+                          return (
+                            <span
+                              key={index}
+                              className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
+                            >
+                              {jobTitle}
+                            </span>
+                          );
+                        })}
                       {student.applied_jobs.length > 3 && (
                         <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
                           +{student.applied_jobs.length - 3} more
@@ -1614,7 +1618,7 @@ export default function StudentManagement() {
       Region: student.region,
       Skills: Array.isArray(student.skills) ? student.skills.join(", ") : "",
       "Applied Jobs": Array.isArray(student.applied_jobs)
-        ? student.applied_jobs.join(", ")
+        ? student.applied_jobs.map(job => typeof job === 'object' && job !== null ? (job.job_title || job.title || 'N/A') : job).join(", ")
         : student.applied_jobs || "No Applications",
       "Application Count": Array.isArray(student.applied_jobs)
         ? student.applied_jobs.length

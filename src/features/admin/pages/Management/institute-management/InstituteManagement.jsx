@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import Swal from 'sweetalert2'
 import { MatrixCard } from '../../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../../shared/components/navigation'
@@ -16,7 +16,7 @@ import CertificateIssuance from './CertificateIssuance'
 import MessageInstitute from './MessageInstitute'
 import { getMethod } from '../../../../../service/api'
 import apiService from '../../../../admin/services/serviceUrl'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 
 
 export default function InstituteManagement() {
@@ -42,11 +42,11 @@ export default function InstituteManagement() {
           if (response.status === 'success' || response.status === true) {
             // Map API response to required format
             const formatted = response.data.map((item, index) => ({
-              id: item.user_info.user_id, // or just use index+1 if you want serial id
-              name: item.user_info.user_name,
+              id: item.user_info.user_id,
+              name: item.user_info.user_name, // User name
               email: item.user_info.email,
               phone: item.user_info.phone_number,
-              institute_id:item.profile_info.institute_id,
+              institute_id: item.profile_info.institute_id,
               institute_name: item.profile_info.institute_name,
               institute_type: item.profile_info.institute_type,
               website: item.profile_info.website,
@@ -61,7 +61,8 @@ export default function InstituteManagement() {
               accreditation: item.profile_info.accreditation ? item.profile_info.accreditation.split(",").map((s) => s.trim()) : [],
               established_year: item.profile_info.established_year,    
               location: item.profile_info.location,
-              courses_offered: item.profile_info.courses_offered ? item.profile_info.courses_offered.split(",").map((c) => c.trim()) : [],
+              courses: item.courses || [], // Courses array from API response
+              courses_offered: item.courses ? item.courses.map(c => c.title || c.course_name || c.name).filter(Boolean) : (item.profile_info.courses_offered ? item.profile_info.courses_offered.split(",").map((c) => c.trim()) : []),
               status: item.profile_info.admin_action,
               created_at: item.profile_info.created_at,
               modified_at: item.profile_info.modified_at,
@@ -71,11 +72,11 @@ export default function InstituteManagement() {
             const pendingFormatted = response.data
             .filter((item) => item.profile_info.admin_action !== "approved")
             .map((item, index) => ({
-              id: item.user_info.user_id, // or just use index+1 if you want serial id
-              name: item.user_info.user_name,
+              id: item.user_info.user_id,
+              name: item.user_info.user_name, // User name
               email: item.user_info.email,
               phone: item.user_info.phone_number,
-              institute_id:item.profile_info.institute_id,
+              institute_id: item.profile_info.institute_id,
               institute_name: item.profile_info.institute_name,
               institute_type: item.profile_info.institute_type,
               website: item.profile_info.website,
@@ -90,7 +91,8 @@ export default function InstituteManagement() {
               accreditation: item.profile_info.accreditation ? item.profile_info.accreditation.split(",").map((s) => s.trim()) : [],
               established_year: item.profile_info.established_year,    
               location: item.profile_info.location,
-              courses_offered: item.profile_info.courses_offered ? item.profile_info.courses_offered.split(",").map((c) => c.trim()) : [],
+              courses: item.courses || [], // Courses array from API response
+              courses_offered: item.courses ? item.courses.map(c => c.title || c.course_name || c.name).filter(Boolean) : (item.profile_info.courses_offered ? item.profile_info.courses_offered.split(",").map((c) => c.trim()) : []),
               status: item.profile_info.admin_action,
               created_at: item.profile_info.created_at,
               modified_at: item.profile_info.modified_at,
@@ -152,7 +154,7 @@ export default function InstituteManagement() {
 
       {/* Conditional Content */}
       {activeTab === 0 && (
-        <PendingInstituteApprovals institutes={pendingApprovalInstitutes} />
+        <PendingInstituteApprovals institutes={institutes} />
       )}
 
       {activeTab === 1 && (

@@ -13,8 +13,8 @@ import {
   LuGlobe
 } from 'react-icons/lu'
 import { HiDotsVertical } from 'react-icons/hi'
-import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
-import { Button } from '../../../../../shared/components/Button.jsx'
+import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
+import { Button } from '../../../../../shared/components/Button'
 
 // Placement Ready Students Table Component
 function PlacementReadyStudentsTable() {
