@@ -11,16 +11,22 @@ import {
   LuClock,
   LuVideo,
   LuBuilding,
+  LuLink,
 } from "react-icons/lu";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { Button, IconButton } from "../../../../shared/components/Button";
 import Swal from "sweetalert2";
+import { postMethod } from "../../../../service/api";
+import apiService from "../../services/serviceUrl";
 
 const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
   const [scheduleInterview, setScheduleInterview] = useState(false);
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
   const [interviewMode, setInterviewMode] = useState("online");
+  const [interviewLocation, setInterviewLocation] = useState("");
+  const [interviewFeedback, setInterviewFeedback] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen || !candidate) return null;
 
@@ -56,7 +62,8 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
     }
   };
 
-  const handleScheduleInterview = () => {
+  const handleScheduleInterview = async () => {
+    // Validation
     if (!interviewDate || !interviewTime) {
       Swal.fire({
         title: "Validation Error",
@@ -66,19 +73,100 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
       return;
     }
 
-    // Here you would call your API to schedule the interview
-    Swal.fire({
-      title: "Success!",
-      text: `Interview scheduled for ${interviewDate} at ${interviewTime} (${interviewMode})`,
-      icon: "success",
-      confirmButtonText: "OK",
-    }).then(() => {
-      // Reset form
-      setScheduleInterview(false);
-      setInterviewDate("");
-      setInterviewTime("");
-      setInterviewMode("online");
-    });
+    if (!interviewLocation) {
+      Swal.fire({
+        title: "Validation Error",
+        text: interviewMode === "online" 
+          ? "Please provide the meeting link/URL" 
+          : "Please provide the interview location/address",
+        icon: "error",
+      });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // Combine date and time into scheduled_at format (YYYY-MM-DD HH:MM:SS)
+      const scheduledAt = `${interviewDate} ${interviewTime}:00`;
+
+      // Get job_id and student_id from candidate
+      // Try multiple possible field names
+      const jobId = candidate.job_id || candidate.jobId || candidate.applied_job_id;
+      const studentId = candidate.student_id || candidate.studentId || candidate.user_id || candidate.id;
+
+      // console.log("🔍 Candidate object:", candidate);
+      // console.log("🔍 Extracted job_id:", jobId);
+      // console.log("🔍 Extracted student_id:", studentId);
+
+      if (!jobId || !studentId) {
+        console.error("❌ Missing IDs - Full candidate object:", candidate);
+        Swal.fire({
+          title: "Error",
+          text: `Job ID or Student ID is missing. Job ID: ${jobId || 'N/A'}, Student ID: ${studentId || 'N/A'}. Please check the candidate data.`,
+          icon: "error",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Prepare payload according to API
+      const payload = {
+        job_id: jobId,
+        student_id: studentId,
+        scheduled_at: scheduledAt,
+        mode: interviewMode === "online" ? "Online" : "Offline",
+        location: interviewLocation,
+        status: "scheduled",
+        feedback: interviewFeedback || "Initial screening interview."
+      };
+
+      console.log("📅 Schedule Interview Payload:", payload);
+
+      // Call API
+      const response = await postMethod({
+        apiUrl: apiService.scheduleInterview,
+        payload: payload
+      });
+
+      console.log("📅 Schedule Interview Response:", response);
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true;
+
+      if (isSuccess) {
+        Swal.fire({
+          title: "Success!",
+          text: `Interview scheduled for ${interviewDate} at ${interviewTime} (${interviewMode})`,
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          // Reset form
+          setScheduleInterview(false);
+          setInterviewDate("");
+          setInterviewTime("");
+          setInterviewMode("online");
+          setInterviewLocation("");
+          setInterviewFeedback("");
+          // Optionally close modal or refresh data
+          if (onClose) onClose();
+        });
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: response?.message || "Failed to schedule interview. Please try again.",
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      console.error("❌ Schedule Interview Error:", error);
+      Swal.fire({
+        title: "Error",
+        text: error?.message || "Something went wrong. Please try again.",
+        icon: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // ✅ Handle skills safely
@@ -476,7 +564,10 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
                         name="interviewMode"
                         value="online"
                         checked={interviewMode === "online"}
-                        onChange={(e) => setInterviewMode(e.target.value)}
+                        onChange={(e) => {
+                          setInterviewMode(e.target.value);
+                          setInterviewLocation(""); // Clear location when mode changes
+                        }}
                         className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                       />
                       <div className="flex items-center gap-2">
@@ -492,7 +583,10 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
                         name="interviewMode"
                         value="offline"
                         checked={interviewMode === "offline"}
-                        onChange={(e) => setInterviewMode(e.target.value)}
+                        onChange={(e) => {
+                          setInterviewMode(e.target.value);
+                          setInterviewLocation(""); // Clear location when mode changes
+                        }}
                         className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                       />
                       <div className="flex items-center gap-2">
@@ -505,6 +599,52 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
                   </div>
                 </div>
 
+                {/* Location Field */}
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                  >
+                    {interviewMode === "online" ? "Meeting Link/URL" : "Interview Location/Address"}
+                  </label>
+                  <div className="relative">
+                    {interviewMode === "online" ? (
+                      <LuLink
+                        className={`absolute left-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`}
+                        size={20}
+                      />
+                    ) : (
+                      <LuMapPin
+                        className={`absolute left-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`}
+                        size={20}
+                      />
+                    )}
+                    <input
+                      type="text"
+                      value={interviewLocation}
+                      onChange={(e) => setInterviewLocation(e.target.value)}
+                      placeholder={interviewMode === "online" ? "https://meet.example.com/xyz" : "Enter interview address"}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Feedback Field */}
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                  >
+                    Feedback/Notes (Optional)
+                  </label>
+                  <textarea
+                    value={interviewFeedback}
+                    onChange={(e) => setInterviewFeedback(e.target.value)}
+                    placeholder="Initial screening interview."
+                    rows={3}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+                  />
+                </div>
+
                 {/* Confirm Button */}
                 <div className="pt-2">
                   <Button
@@ -512,8 +652,9 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
                     variant="primary"
                     size="md"
                     className="w-full"
+                    disabled={isSubmitting}
                   >
-                    Confirm Schedule
+                    {isSubmitting ? "Scheduling..." : "Confirm Schedule"}
                   </Button>
                 </div>
               </div>
