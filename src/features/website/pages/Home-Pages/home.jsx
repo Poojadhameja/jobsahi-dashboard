@@ -8,6 +8,7 @@ import NewsletterSubscription from "../../components/NewsletterSubscription";
 import { WEBSITE_COLOR_CLASSES } from "../../components/colorClasses";
 import uploadresumebg from "../../assets/uploadresumebg.png";
 import textunderline from "../../assets/website_text_underline.png";
+import { COLOR_CLASSES } from "../../components/colorClasses";
 
 const TrustedByStartups = lazy(() =>
   import("../../components/TrustedByStartups.jsx")
@@ -312,7 +313,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-6 py-12 relative">
           {/* Top Tag */}
           <div className="text-center mb-8">
-            <div className="inline-block border-2 border-[#9EDB47] text-[#9EDB47] px-6 py-2 rounded-full text-sm font-semibold">
+            <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-6 py-2 rounded-full text-sm font-semibold`}>
               #1 PORTAL JOB PLATFORM
             </div>
           </div>
