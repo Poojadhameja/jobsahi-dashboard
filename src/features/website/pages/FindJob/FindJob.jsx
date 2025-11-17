@@ -12,6 +12,7 @@ import {
   getWebsiteColor,
   getWebsiteColorClass,
 } from '../../components/colorClasses'
+import { COLOR_CLASSES } from "../../components/colorClasses";
 
 const EMPLOYMENT_FILTERS = ['Part Time', 'Full Time', 'Remote', 'Internship', 'Freelance']
 const CATEGORY_FILTERS = ['Creative Design', 'Development', 'Marketing', 'Customer Care', 'Customer Service', 'Finance']
@@ -588,9 +589,11 @@ const FindJob = ({ onClose }) => {
       {/* Hero Section */}
       <div className={`py-16 rounded-[50px] ${colorClass('BG.SURFACE_PALE_BLUE')} mx-4 my-8`}>
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-block rounded-full px-4 py-2 mb-6" style={{ backgroundColor: colorHex('SURFACE.SOFT_GREEN'), border: `1px solid ${colorHex('ACCENT.GREEN')}` }}>
-            <span className="font-semibold text-sm" style={{ color: colorHex('ACCENT.GREEN_DARK') }}>#1 PORTAL JOB PLATFORM</span>
-          </div>
+        <div className="mb-5">
+              <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-6 py-2 rounded-full text-sm font-semibold`}>
+                #1 PORTAL JOB PLATFORM
+              </div>
+            </div>
 
           <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-12">
             <h1 className={`text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 ${colorClass('TEXT.PRIMARY_DEEP_BLUE')} leading-tight`}>

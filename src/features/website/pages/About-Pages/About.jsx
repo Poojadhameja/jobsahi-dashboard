@@ -324,13 +324,13 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
             <h2 className={`text-3xl sm:text-4xl md:text-5xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
-              How It's Works?
+              How It Works?
             </h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
             {/* Step 1: Create Account */}
-            <div className={`${COLOR_CLASSES.bg.surfaceSoftBlue} rounded-3xl p-6 sm:p-8 text-center h-full`}>
+            <div className=" p-6 sm:p-8 text-center h-full">
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <div className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center relative`}>
                   <FaUserPlus className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
@@ -342,13 +342,13 @@ const About = () => {
               <h3 className={`text-2xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
                 Create Account
               </h3>
-              <p className={`${COLOR_CLASSES.text.neutralBlueGray} text-base sm:text-lg leading-relaxed`}>
+              <p className="text-white sm:text-lg font-light">
                 Sign up quickly using your mobile number or email.
               </p>
             </div>
 
             {/* Step 2: Complete Your Profile */}
-            <div className={`${COLOR_CLASSES.bg.surfaceSoftBlue} rounded-3xl p-6 sm:p-8 text-center h-full`}>
+            <div className=" p-6 sm:p-8 text-center h-full">
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <div className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center`}>
                   <FaFileAlt className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
@@ -357,13 +357,13 @@ const About = () => {
               <h3 className={`text-2xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
                 Complete Your Profile
               </h3>
-              <p className={`${COLOR_CLASSES.text.neutralBlueGray} text-base sm:text-lg leading-relaxed`}>
+              <p className="text-white sm:text-lg font-light">
                 Upload your resume, education, and skills.
               </p>
             </div>
 
             {/* Step 3: Apply Job Or Hire */}
-            <div className={`${COLOR_CLASSES.bg.surfaceSoftBlue} rounded-3xl p-6 sm:p-8 text-center h-full`}>
+            <div className=" p-6 sm:p-8 text-center h-full">
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <div className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center`}>
                   <FaHandshake className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
@@ -372,7 +372,7 @@ const About = () => {
               <h3 className={`text-2xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
                 Apply Job Or Hire
               </h3>
-              <p className={`${COLOR_CLASSES.text.neutralBlueGray} text-base sm:text-lg leading-relaxed`}>
+              <p className="text-white sm:text-lg font-light">
                 Browse listings and apply directly—no middleman.
               </p>
             </div>

@@ -81,7 +81,7 @@ const MeetOurTeam = ({ teamMembers, title, description }) => {
                       .map((member, index) => (
                         <div key={index} className="text-center">
                           {/* Profile Image */}
-                          <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 border-[#5C9A24] shadow-md">
+                          <div className="w-28 h-40 mx-auto mb-4 rounded-full overflow-hidden  shadow-md">
                             {member.image ? (
                               <img
                                 src={member.image}
