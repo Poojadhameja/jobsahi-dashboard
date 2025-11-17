@@ -5,6 +5,7 @@ import Login from './shared/auth/Login.jsx'
 import CreateAccount from './shared/auth/CreateAccount.jsx'
 import RoleRoute from './RoleRoute.jsx'
 import ForgotPassword from './shared/auth/ForgotPassword.jsx'
+import ScrollToTop from './shared/components/ScrollToTop.jsx'
 
 const AdminRoutes = lazy(() => import('./features/admin/routes.jsx'))
 const RecruiterRoutes = lazy(() => import('./features/recruiter/routes.jsx'))
@@ -15,6 +16,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <Router>
+        <ScrollToTop />
         <Suspense fallback={<div className="p-8">Loading...</div>}>
           <Routes>
             <Route path="/*" element={<WebsiteRoutes />} />
