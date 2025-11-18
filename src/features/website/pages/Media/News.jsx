@@ -316,6 +316,7 @@ const News = () => {
   // Determine cards per view based on screen size
   const getCardsPerView = () => {
     if (screenSize === 'sm') return 1
+    if (screenSize === 'md') return 2
     return 3
   }
   
@@ -325,8 +326,10 @@ const News = () => {
   // Handle screen size changes
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) {
+      if (window.innerWidth < 640) {
         setScreenSize('sm')
+      } else if (window.innerWidth < 1024) {
+        setScreenSize('md')
       } else {
         setScreenSize('lg')
       }
@@ -400,26 +403,26 @@ const News = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="py-10 bg-[#EAF5FB] mx-4 rounded-[50px] my-8">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="py-6 sm:py-8 md:py-10 bg-[#EAF5FB] mx-2 sm:mx-4 rounded-[30px] sm:rounded-[40px] md:rounded-[50px] my-4 sm:my-6 md:my-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
           <div className="text-center">
             {/* Top Banner */}
-            <div className="mb-5">
-              <div className={`inline-block border-2 ${BORDER_COLORS.ACCENT_GREEN} ${TEXT_COLORS.ACCENT_GREEN} px-6 py-2 rounded-full text-sm font-semibold`}>
+            <div className="mb-3 sm:mb-4 md:mb-5">
+              <div className={`inline-block border-2 ${BORDER_COLORS.ACCENT_GREEN} ${TEXT_COLORS.ACCENT_GREEN} px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold`}>
                 #1 PORTAL JOB PLATFORM
               </div>
             </div>
 
             {/* Main Heading */}
-            <div className="flex flex-col items-center justify-center text-center mb-5  ">
-              <h1 className={`text-4xl sm:text-5xl md:text-7xl lg:px-20 font-bold mb-8 ${TEXT_COLORS.PRIMARY_DEEP_BLUE} leading-tight`}>
+            <div className="flex flex-col items-center justify-center text-center mb-4 sm:mb-5">
+              <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl px-4 sm:px-8 md:px-12 lg:px-20 font-bold mb-6 sm:mb-7 md:mb-8 ${TEXT_COLORS.PRIMARY_DEEP_BLUE} leading-tight`}>
               Latest News & Updates
               </h1>
-              <img src={textunderline} alt="" className="w-[30%] h-[15px] md:h-[25px] -mt-10" />
+              <img src={textunderline} alt="" className="w-[40%] sm:w-[35%] md:w-[30%] h-[12px] sm:h-[15px] md:h-[20px] lg:h-[25px] -mt-6 sm:-mt-8 md:-mt-10" />
             </div>
 
             {/* Description */}
-            <p className="text-gray-700 text-lg sm:mx-10 lg:mx-28">
+            <p className="text-gray-700 text-base sm:text-lg px-4 sm:px-6 md:px-10 lg:px-28">
             Stay informed with fresh insights from the ITI, polytechnic, and government job market. Check back regularly for the latest opportunities, expert tips, and platform updates.
             </p>
           </div>
@@ -427,84 +430,79 @@ const News = () => {
       </section>
 
       {/* Search Job Section */}
-      <section className={`bg-[#00395B] ${TEXT_COLORS.NEUTRAL_WHITE} py-16  `}>
+      <section className={`bg-[#00395B] ${TEXT_COLORS.NEUTRAL_WHITE} py-8 sm:py-12 md:py-16`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-start">
             {/* Left Side - White Cards */}
-            <div className="relative">
+            <div className="relative flex justify-center lg:justify-start">
                 {/* Large L-shaped block */}
-                <div className="sm:w-96 sm:h-96 w-60 h-60 bg-blue-100 rounded-3xl relative">
+                <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 bg-blue-100 rounded-2xl sm:rounded-3xl relative">
                   {/* Green Badge */}
-                  {/* <div className="w-[30%]"> */}
-                <div className="w-fit flex flex-col items-center -m-2 p-4 bg-[#5C9A24] border-8 border-[#00395B] rounded-xl shadow-lg relative">
+                <div className="w-fit flex flex-col items-center -m-1 sm:-m-2 p-2 sm:p-3 md:p-4 bg-[#5C9A24] border-4 sm:border-6 md:border-8 border-[#00395B] rounded-lg sm:rounded-xl shadow-lg relative">
                   <img src="" alt="icon" className="" />
-                  <p className="">Top No. 1 </p>
-                  <p className="font-light text-sm">Portal Job Web </p>
+                  <p className="text-xs sm:text-sm md:text-base font-medium">Top No. 1 </p>
+                  <p className="font-light text-[10px] sm:text-xs md:text-sm">Portal Job Web </p>
                 </div>
-                {/* <div className="absolute border-4 border-white -bottom-10 left-40 sm:-bottom-10 sm:left-72 w-32 h-24 sm:w-48 sm:h-40 bg-blue-100 rounded-2xl"></div> */}
-              {/* </div> */}
                 </div> 
-                
-                
               </div>
 
             {/* Right Side - News Snippets */}
-            <div className="space-y-6  ">
+            <div className="space-y-4 sm:space-y-5 md:space-y-6">
               {/* News Snippet 1 */}
-              <div className="flex items-start gap-4 ">
-                <div className="w-6 h-6 bg-[#A1E366] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[#A1E366] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
                 </div>
                 <div>
-                  <h3 className=" font-bold text-lg mb-2 ">
+                  <h3 className="font-bold text-base sm:text-lg mb-1.5 sm:mb-2">
                     Govt. Apprenticeship Drive Extended - 5,000 More Vacancies!
                   </h3>
-                  <p className="text-sm leading-relaxed">
+                  <p className="text-xs sm:text-sm leading-relaxed">
                     Discover How The Government Has Launched 5,000 New Apprenticeship Posts For ITI Graduates. Learn Who's Eligible, The Timeline, And How To Apply.
                   </p>
                 </div>
               </div>
 
               {/* News Snippet 2 */}
-              <div className="flex items-start gap-4">
-                <div className="w-6 h-6 bg-[#A1E366] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[#A1E366] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
                 </div>
                 <div>
-                  <h3 className=" font-bold text-lg mb-2">
+                  <h3 className="font-bold text-base sm:text-lg mb-1.5 sm:mb-2">
                     Polytechnic Campus Hiring Trends 2025
                   </h3>
-                  <p className=" text-sm leading-relaxed">
+                  <p className="text-xs sm:text-sm leading-relaxed">
                     Analysis Of Emerging Industries And Which States Are Hosting The Most On-Campus Recruitment Drives.
                   </p>
                 </div>
               </div>
 
               {/* News Snippet 3 */}
-              <div className="flex items-start gap-4">
-                <div className="w-6 h-6 bg-[#A1E366] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-[#A1E366] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
                 </div>
                 <div>
-                  <h3 className=" font-bold text-lg mb-2">
+                  <h3 className="font-bold text-base sm:text-lg mb-1.5 sm:mb-2">
                     Success Story: From ITI To Engineer In 6 Months
                   </h3>
-                  <p className=" text-sm leading-relaxed">
+                  <p className="text-xs sm:text-sm leading-relaxed">
                     Read How Priya Sharma Leveraged JobsAhi's Resume Tools And Interview Resources To Land A Full-Time Mechanical Engineering Role.
                   </p>
                 </div>
               </div>
 
               {/* Search Job Button */}
-              <div className="pt-4">
+              <div className="pt-2 sm:pt-3 md:pt-4">
                 <button
                   type="button"
                   onClick={() => navigate('/find-job')}
-                  className={`inline-flex ${TEXT_COLORS.NEUTRAL_WHITE} ${HOVER_TEXT_COLORS.ACCENT_LIME} items-center gap-3 bg-transparent border-2 ${BORDER_COLORS.PRIMARY_NAVY} px-8 py-4 rounded-xl font-semibold ${HOVER_BG_COLORS.PRIMARY_NAVY} transition-all duration-300 group`}
+                  className={`inline-flex ${TEXT_COLORS.NEUTRAL_WHITE} ${HOVER_TEXT_COLORS.ACCENT_LIME} items-center gap-2 sm:gap-3 bg-transparent border-2 ${BORDER_COLORS.PRIMARY_NAVY} px-6 sm:px-7 md:px-8 py-3 sm:py-3.5 md:py-4 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base ${HOVER_BG_COLORS.PRIMARY_NAVY} transition-all duration-300 group`}
                 >
                   <span>Search Job</span>
-                  <div className="w-8 h-8 bg-[#A1E366] rounded-full flex items-center justify-center group-hover:bg-white transition-colors duration-300">
-                    <FaArrowRight className={`text-sm ${TEXT_COLORS.NEUTRAL_WHITE} ${GROUP_HOVER_CLASSES.TEXT_ACCENT_LIME}`} />
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-[#A1E366] rounded-full flex items-center justify-center group-hover:bg-white transition-colors duration-300">
+                    <FaArrowRight className={`text-xs sm:text-sm ${TEXT_COLORS.NEUTRAL_WHITE} ${GROUP_HOVER_CLASSES.TEXT_ACCENT_LIME}`} />
                   </div>
                 </button>
               </div>
@@ -514,33 +512,33 @@ const News = () => {
       </section>
 
       {/* Career Guidance & Tips Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+      <section className="py-10 sm:py-12 md:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 sm:pb-10">
           {/* Section Header */}
-          <div className="text-center mb-12">
-            <h2 className={`text-4xl sm:text-5xl font-bold ${TEXT_COLORS.PRIMARY_DEEP_BLUE} mb-4`}>
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h2 className={`text-3xl sm:text-4xl md:text-5xl font-bold ${TEXT_COLORS.PRIMARY_DEEP_BLUE} mb-3 sm:mb-4`}>
               Career Guidance & Tips
             </h2>
-            <p className="text-gray-600 text-lg max-w-3xl mx-auto">
+            <p className="text-gray-600 text-base sm:text-lg max-w-3xl mx-auto px-4">
               Together with useful notifications, collaboration, insights, and improvement tips to help you succeed in your technical career.
             </p>
           </div>
 
           {/* Carousel Container */}
-          <div className="relative ">
+          <div className="relative">
             {/* Navigation Arrows */}
             <button
               onClick={prevSlide}
-              className={`md:-mx-5 lg:-mx-16 absolute top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-[#5C9A24] ${TEXT_COLORS.NEUTRAL_WHITE} rounded-full flex items-center justify-center shadow-lg hover:bg-[#4a7d1f] transition-colors duration-300 ${cardsPerView === 1 ? 'left-2' : 'left-4'}`}
+              className={`md:-mx-5 lg:-mx-16 absolute top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-[#5C9A24] ${TEXT_COLORS.NEUTRAL_WHITE} rounded-full flex items-center justify-center shadow-lg hover:bg-[#4a7d1f] transition-colors duration-300 ${cardsPerView === 1 ? 'left-1 sm:left-2' : cardsPerView === 2 ? 'left-2 sm:left-4' : 'left-4'}`}
             >
-              <FaChevronLeft className="text-sm md:text-lg" />
+              <FaChevronLeft className="text-xs sm:text-sm md:text-lg" />
             </button>
 
             <button
               onClick={nextSlide}
-              className={`md:-mx-5 lg:-mx-16 absolute top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-[#5C9A24] ${TEXT_COLORS.NEUTRAL_WHITE} rounded-full flex items-center justify-center shadow-lg hover:bg-[#4a7d1f] transition-colors duration-300 ${cardsPerView === 1 ? 'right-2' : 'right-4'}`}
+              className={`md:-mx-5 lg:-mx-16 absolute top-1/2 transform -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-[#5C9A24] ${TEXT_COLORS.NEUTRAL_WHITE} rounded-full flex items-center justify-center shadow-lg hover:bg-[#4a7d1f] transition-colors duration-300 ${cardsPerView === 1 ? 'right-1 sm:right-2' : cardsPerView === 2 ? 'right-2 sm:right-4' : 'right-4'}`}
             >
-              <FaChevronRight className="text-sm md:text-lg" />
+              <FaChevronRight className="text-xs sm:text-sm md:text-lg" />
             </button>
 
             {/* Cards Container */}
@@ -550,10 +548,10 @@ const News = () => {
                 style={{ transform: `translateX(-${currentSlide * (100 / cardsPerView)}%)` }}
               >
                 {careerGuidanceData.map((item, index) => (
-                  <div key={item.id} className={`${cardsPerView === 1 ? 'w-full' : 'w-1/3'} flex-shrink-0 px-3`}>
-                    <div className="bg-gray-50 rounded-2xl overflow-hidden shadow-lg border border-blue-100 hover:shadow-xl transition-shadow duration-300 ">
+                  <div key={item.id} className={`${cardsPerView === 1 ? 'w-full' : cardsPerView === 2 ? 'w-1/2' : 'w-1/3'} flex-shrink-0 px-2 sm:px-3`}>
+                    <div className="bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg border border-blue-100 hover:shadow-xl transition-shadow duration-300">
                       {/* Image Placeholder */}
-                      <div className="h-48 bg-gray-200 relative overflow-hidden flex items-center justify-center">
+                      <div className="h-40 sm:h-44 md:h-48 bg-gray-200 relative overflow-hidden flex items-center justify-center">
                         {item.image ? (
                           <img
                             src={item.image}
@@ -561,19 +559,19 @@ const News = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="text-gray-400 text-center p-4">
-                            <div className="text-4xl mb-2">📋</div>
-                            <div className="text-sm font-medium">Career Tips</div>
+                          <div className="text-gray-400 text-center p-3 sm:p-4">
+                            <div className="text-3xl sm:text-4xl mb-2">📋</div>
+                            <div className="text-xs sm:text-sm font-medium">Career Tips</div>
                           </div>
                         )}
                       </div>
                       
                       {/* Content */}
-                      <div className="p-6">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2 leading-tight">
+                      <div className="p-4 sm:p-5 md:p-6">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1.5 sm:mb-2 leading-tight">
                           {item.title}
                         </h3>
-                        <p className="text-gray-600 text-sm leading-relaxed">
+                        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
                           {item.description}
                         </p>
                       </div>
@@ -584,12 +582,12 @@ const News = () => {
             </div>
 
             {/* Pagination Dots */}
-            <div className="flex justify-center mt-6 md:mt-8 space-x-2">
+            <div className="flex justify-center mt-4 sm:mt-6 md:mt-8 space-x-1.5 sm:space-x-2">
               {Array.from({ length: maxSlide + 1 }, (_, index) => (
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-colors duration-300 ${
+                  className={`w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 rounded-full transition-colors duration-300 ${
                     index === currentSlide 
                       ? 'bg-[#5C9A24]' 
                       : 'bg-gray-300 hover:bg-gray-400'
@@ -611,40 +609,40 @@ const News = () => {
       </section>
 
         {/* Subscribe To Our Job News Alerts Section */}
-        <section className="py-8  bg-[#00395B]">
-          <div className="max-w-[90%] sm:max-w-[85%] md:max-w-[75%] lg:max-w-[70%] relative sm:mx-auto px-4 sm:px-6 lg:px-8">
-            <img src={subscribebg} alt="" className="absolute h-full w-full object-cover rounded-3xl" />
+        <section className="py-6 sm:py-8 bg-[#00395B]">
+          <div className="max-w-[95%] sm:max-w-[90%] md:max-w-[85%] lg:max-w-[75%] xl:max-w-[70%] relative mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+            <img src={subscribebg} alt="" className="absolute h-full w-full object-cover rounded-2xl sm:rounded-3xl" />
             {/* Main Card */}
-            <div className="relative p-6 sm:p-8 md:p-10 lg:p-12">
+            <div className="relative p-4 sm:p-6 md:p-8 lg:p-10 xl:p-12">
 
               {/* Header Section */}
-              <div className="text-center p-5 mb-8 sm:mb-10 md:mb-12 relative z-10">
-                <h2 className={`text-2xl sm:text-3xl md:text-4xl font-bold ${TEXT_COLORS.PRIMARY_DEEP_BLUE} mb-3 sm:mb-4 leading-tight`}>
+              <div className="text-center p-3 sm:p-4 md:p-5 mb-6 sm:mb-8 md:mb-10 lg:mb-12 relative z-10">
+                <h2 className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold ${TEXT_COLORS.PRIMARY_DEEP_BLUE} mb-2 sm:mb-3 md:mb-4 leading-tight px-2`}>
                   Subscribe To Our Job News Alerts
                 </h2>
-                <p className="text-gray-600 text-sm sm:text-base md:text-lg">
+                <p className="text-gray-600 text-xs sm:text-sm md:text-base lg:text-lg px-2">
                   Enter Your Email Or Mobile Number To Receive:
                 </p>
               </div>
 
               {/* Features Section */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-10 relative z-10">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-6 sm:mb-8 md:mb-10 relative z-10">
                 {/* Breaking Vacancy Alerts */}
                 <div className="text-center">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[#5C9A24] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <svg className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${TEXT_COLORS.NEUTRAL_WHITE}`} fill="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-[#5C9A24] rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 md:mb-4">
+                    <svg className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 ${TEXT_COLORS.NEUTRAL_WHITE}`} fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                     </svg>
                   </div>
-                  <h3 className="text-gray-800 text-sm sm:text-base md:text-lg font-medium">
+                  <h3 className="text-gray-800 text-xs sm:text-sm md:text-base lg:text-lg font-medium px-2">
                     Breaking Vacancy Alerts
                   </h3>
                 </div>
 
                 {/* Job Search Tips */}
                 <div className="text-center">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[#5C9A24] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <svg className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${TEXT_COLORS.NEUTRAL_WHITE}`} fill="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-[#5C9A24] rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 md:mb-4">
+                    <svg className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 ${TEXT_COLORS.NEUTRAL_WHITE}`} fill="currentColor" viewBox="0 0 24 24">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
                       <polyline points="14,2 14,8 20,8"/>
                       <line x1="16" y1="13" x2="8" y2="13"/>
@@ -652,30 +650,30 @@ const News = () => {
                       <polyline points="10,9 9,9 8,9"/>
                     </svg>
                   </div>
-                  <h3 className="text-gray-800 text-sm sm:text-base md:text-lg font-medium">
+                  <h3 className="text-gray-800 text-xs sm:text-sm md:text-base lg:text-lg font-medium px-2">
                     Job Search Tips
                   </h3>
                 </div>
 
                 {/* Skill Program Updates */}
                 <div className="text-center sm:col-span-2 md:col-span-1">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[#5C9A24] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                    <svg className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 ${TEXT_COLORS.NEUTRAL_WHITE}`} fill="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 bg-[#5C9A24] rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3 md:mb-4">
+                    <svg className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 ${TEXT_COLORS.NEUTRAL_WHITE}`} fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                     </svg>
                   </div>
-                  <h3 className="text-gray-800 text-sm sm:text-base md:text-lg font-medium">
+                  <h3 className="text-gray-800 text-xs sm:text-sm md:text-base lg:text-lg font-medium px-2">
                     Skill Program Updates
                   </h3>
                 </div>
               </div>
 
               {/* Subscribe Button */}
-              <div className="text-center relative z-10 mb-5">
-                <button className="inline-flex rounded-full items-center gap-2 sm:gap-3 bg-transparent border-2 border-gray-600 text-gray-800 px-4 py-2 font-semibold hover:bg-gray-50 transition-all duration-300 group">
-                  <span className="text-sm sm:text-base">Subscribe Now</span>
-                  <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-[#5C9A24] rounded-full flex items-center justify-center group-hover:bg-[#4a7d1f] transition-colors duration-300">
-                    <FaArrowRight className={`text-xs sm:text-sm ${TEXT_COLORS.NEUTRAL_WHITE}`} />
+              <div className="text-center relative z-10 mb-3 sm:mb-4 md:mb-5">
+                <button className="inline-flex rounded-full items-center gap-2 sm:gap-3 bg-transparent border-2 border-gray-600 text-gray-800 px-3 sm:px-4 py-1.5 sm:py-2 font-semibold text-xs sm:text-sm md:text-base hover:bg-gray-50 transition-all duration-300 group">
+                  <span>Subscribe Now</span>
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-[#5C9A24] rounded-full flex items-center justify-center group-hover:bg-[#4a7d1f] transition-colors duration-300">
+                    <FaArrowRight className={`text-[10px] sm:text-xs md:text-sm ${TEXT_COLORS.NEUTRAL_WHITE}`} />
                   </div>
                 </button>
               </div>

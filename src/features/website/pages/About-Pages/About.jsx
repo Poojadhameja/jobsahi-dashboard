@@ -15,7 +15,8 @@ import {
   FaSearch,
   FaUsers,
   FaBriefcase,
-  FaBuilding
+  FaBuilding,
+  FaCube
 } from "react-icons/fa";
 import textunderline from "../../assets/website_text_underline.png";
 import { COLOR_CLASSES } from "../../components/colorClasses";
@@ -207,53 +208,34 @@ const About = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Side - Visual Elements */}
             <div className="relative flex justify-center lg:justify-start">
-              <div className={`w-full max-w-xs sm:max-w-md md:max-w-lg ${COLOR_CLASSES.bg.surfacePaleBlue} rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl`}>
-                <div className="flex flex-col sm:flex-row gap-4 items-stretch">
-                  <div className={`flex-1 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md`}>
-                    <input
-                      type="text"
-                      placeholder="Trusted Job Vacancies..."
-                      className={`w-full ${COLOR_CLASSES.text.neutralSlate} bg-transparent border-none outline-none text-base sm:text-lg`}
-                      readOnly
-                    />
-                  </div>
-                  <button className={`self-start sm:self-auto w-full sm:w-16 h-12 sm:h-16 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg relative`}>
+              <div className="w-full max-w-md space-y-6">
+                {/* Search Bar with Button */}
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="text"
+                    placeholder="Trusted Job Vacancies...."
+                    className={`flex-1 ${COLOR_CLASSES.bg.pureWhite} rounded-xl px-4 py-3 ${COLOR_CLASSES.text.neutralSlate} shadow-md border-none outline-none text-base placeholder:text-[#8C9BA0]`}
+                    readOnly
+                  />
+                  <button className={`w-14 h-14 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow`}>
                     <FaSearch className={`${COLOR_CLASSES.text.pureWhite} text-lg`} />
-                    <div className={`absolute inset-0 ${COLOR_CLASSES.bg.accentLime} rounded-xl opacity-30 blur-sm`}></div>
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className={`flex items-center gap-3 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md`}>
-                    <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center`}>
-                      <FaBriefcase className={`${COLOR_CLASSES.text.pureWhite} text-xl`} />
-                    </div>
-                    <div>
-                      <p className={`${COLOR_CLASSES.text.deepBlue} font-semibold text-base`}>Active Jobs</p>
-                      <p className={`${COLOR_CLASSES.text.neutralSlate} text-sm`}>1,200+ verified listings</p>
-                    </div>
+                {/* Content Blocks Container */}
+                <div className="relative">
+                  {/* Large Grey Block */}
+                  <div className={`w-full h-60 sm:h-80 ${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl shadow-md`}></div>
+                  
+                  {/* Green Badge with Cube Icon */}
+                  <div className={`absolute -top-4 -left-4 w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg`}>
+                    <FaCube className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
                   </div>
-                  <div className={`flex items-center gap-3 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md`}>
-                    <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentSky} rounded-full flex items-center justify-center`}>
-                      <FaUsers className={`${COLOR_CLASSES.text.pureWhite} text-xl`} />
-                    </div>
-                    <div>
-                      <p className={`${COLOR_CLASSES.text.deepBlue} font-semibold text-base`}>Talent Network</p>
-                      <p className={`${COLOR_CLASSES.text.neutralSlate} text-sm`}>50K+ motivated seekers</p>
-                    </div>
-                  </div>
-                  <div className={`flex items-center gap-3 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md sm:col-span-2`}>
-                    <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center`}>
-                      <FaBuilding className={`${COLOR_CLASSES.text.pureWhite} text-xl`} />
-                    </div>
-                    <div>
-                      <p className={`${COLOR_CLASSES.text.deepBlue} font-semibold text-base`}>Partner Institutes</p>
-                      <p className={`${COLOR_CLASSES.text.neutralSlate} text-sm`}>Growing across India</p>
-                    </div>
-                  </div>
+
+                  {/* Smaller Grey Block */}
+                  <div className={`absolute -bottom-6 -right-6 w-32 h-24 ${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl shadow-md`}></div>
                 </div>
               </div>
-              <div className={`hidden md:block absolute -bottom-8 -right-6 w-24 h-24 border-4 ${COLOR_CLASSES.border.pureWhite} ${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl`}></div>
             </div>
 
             {/* Right Side - Content */}
