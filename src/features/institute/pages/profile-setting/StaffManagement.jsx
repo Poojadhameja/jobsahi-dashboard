@@ -26,7 +26,7 @@ export default function StaffManagement() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   // Initialize with database enum roles to ensure they're always available
-  const [availableRoles, setAvailableRoles] = useState(['faculty', 'admin'])
+  const [availableRoles, setAvailableRoles] = useState(['faculty'])
   const [loadingRoles, setLoadingRoles] = useState(false)
 
   // -------------------------------
@@ -72,9 +72,9 @@ export default function StaffManagement() {
   }
 
   // ✅ Fetch available roles from backend
-  // Database enum values: 'faculty', 'admin' (from faculty_users table schema)
+  // Database enum values: 'faculty' (from faculty_users table schema)
   // Always show all available roles from database enum, not just what's in existing data
-  const databaseRoles = ['faculty', 'admin']
+  const databaseRoles = ['faculty']
   
   const fetchRoles = async () => {
     try {
@@ -178,6 +178,13 @@ export default function StaffManagement() {
           // Refresh faculty list to get latest data
           await fetchFaculty()
           // Roles are always available from database enum, no need to reset
+          
+          // Show success popup
+          alert('Instructor updated successfully!')
+        } else {
+          // Show error popup if update failed
+          alert(res?.message || 'Failed to update instructor. Please try again.')
+          return
         }
 
         setShowEditModal(false)
@@ -202,6 +209,13 @@ export default function StaffManagement() {
           // Refresh faculty list to get latest data
           await fetchFaculty()
           // Roles are always available from database enum, no need to reset
+          
+          // Show success popup
+          alert('Instructor added successfully!')
+        } else {
+          // Show error popup if create failed
+          alert(res?.message || 'Failed to add instructor. Please try again.')
+          return
         }
 
         setShowAddModal(false)
@@ -210,6 +224,8 @@ export default function StaffManagement() {
       setFormData({ name: '', email: '', phone: '', role: '' })
     } catch (err) {
       console.error('Error saving faculty:', err)
+      // Show error popup for unexpected errors
+      alert('Something went wrong. Please try again.')
     } finally {
       setIsSaving(false)
     }

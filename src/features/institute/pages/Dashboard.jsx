@@ -476,7 +476,7 @@ export default function Dashboard() {
             <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Staff Management</h2>
             <button
               type="button"
-              onClick={() => navigate('/institute/profile-setting')}
+              onClick={() => navigate('/institute/profile-setting/staff-management')}
               className="text-sm font-semibold text-[#2563EB] hover:text-[#1E4ECB]"
             >
               View All

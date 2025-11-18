@@ -88,20 +88,61 @@ export default function CreateCourse() {
     setNewCategory('')
   }
 
-  const handleAddCategory = () => {
-    if (newCategory.trim()) {
-      const categoryName = newCategory.trim()
-      if (categories.includes(categoryName)) {
-        alert('This category already exists!')
-        return
-      }
-      setCategories(prev => [...prev, categoryName])
-      handleInputChange('category', categoryName)
-      setShowAddCategoryModal(false)
-      setNewCategory('')
-      alert(`✅ Category "${categoryName}" added successfully!`)
-    } else {
+  const handleAddCategory = async () => {
+    if (!newCategory.trim()) {
       alert('Please enter a category name.')
+      return
+    }
+
+    const categoryName = newCategory.trim()
+    
+    // Check if category already exists in the list
+    const categoryExists = categories.some(cat => 
+      (typeof cat === 'string' ? cat : cat.category_name) === categoryName
+    )
+    
+    if (categoryExists) {
+      alert('This category already exists!')
+      return
+    }
+
+    try {
+      // Call API to create category
+      console.log('Creating category with payload:', { category_name: categoryName })
+      console.log('API URL:', apiService.createCourseCategory)
+      
+      const res = await postMethod({
+        apiUrl: apiService.createCourseCategory,
+        payload: {
+          category_name: categoryName
+        }
+      })
+
+      console.log('Category API Response:', res)
+
+      // Check for success - API returns { success: true, message: "...", data: {...} }
+      // After respChanges, it should have status: 'success' and success: true
+      if (res?.success === true || res?.status === 'success' || res?.status === true) {
+        // Add the new category to the list (use the response data if available)
+        const newCategoryData = res?.data || { id: Date.now(), category_name: categoryName }
+        setCategories(prev => [...prev, newCategoryData])
+        handleInputChange('category', categoryName)
+        setShowAddCategoryModal(false)
+        setNewCategory('')
+        alert(`✅ Category "${categoryName}" added successfully!`)
+      } else {
+        // Show the actual error message from API
+        // postMethod returns { status: false, message: '...', data: [] } on error
+        const errorMessage = res?.message || res?.error?.message || 'Failed to create category. Please try again.'
+        console.error('Category creation failed - Full response:', res)
+        alert(`❌ ${errorMessage}`)
+      }
+    } catch (err) {
+      console.error('Exception in handleAddCategory:', err)
+      // This catch block should rarely execute since postMethod catches errors
+      // But if it does, show the error
+      const errorMessage = err?.response?.data?.message || err?.message || 'Something went wrong while creating the category.'
+      alert(`❌ ${errorMessage}`)
     }
   }
 

@@ -300,7 +300,7 @@ const fetchStudentDetails = async (studentId) => {
         alert("Student not found by name");
         return;
       }
-  
+      
       if (!foundStudent.student_id) {
         console.error("❌ Missing student_id:", foundStudent);
         alert("Invalid student record. student_id missing.");

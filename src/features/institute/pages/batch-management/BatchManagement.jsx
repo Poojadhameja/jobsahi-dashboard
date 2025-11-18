@@ -18,38 +18,6 @@ export default function BatchManagement() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // ✅ Fetch all courses + batch stats from API
-  const fetchCourses = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const token = localStorage.getItem('token') // JWT stored on login
-      const response = await getMethod({
-        apiUrl: apiService.courseByBatch
-      })
-      if (response.status && response.courses) {
-        const mapped = response.courses.map((c) => ({
-          id: c.course_id,
-          title: c.course_title,
-          instructor: c.instructor_name,
-          totalBatches: c.total_batches,
-          activeBatches: c.active_batches,
-          progress: c.overall_progress || 0,
-          admin_action: c.admin_action,
-        }))
-        setCourses(mapped)
-      } else {
-        setCourses([])
-        setError('No courses found')
-      }
-    } catch (err) {
-      console.error('Error fetching courses:', err)
-      setError('Failed to load data')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
     let isSubscribed = true
     
@@ -61,16 +29,30 @@ export default function BatchManagement() {
           apiUrl: apiService.courseByBatch
         })
         if (isSubscribed) {
-          if (response.status && response.courses) {
-            const mapped = response.courses.map((c) => ({
-              id: c.course_id,
-              title: c.course_title,
-              instructor: c.instructor_name,
-              totalBatches: c.total_batches,
-              activeBatches: c.active_batches,
-              progress: c.overall_progress || 0,
-              admin_action: c.admin_action,
-            }))
+          // Handle response structure: { status: true, courses: [...], count: number, message: string }
+          if (response.status && Array.isArray(response.courses)) {
+            console.log('API Response:', response)
+            const mapped = response.courses.map((c) => {
+              // Handle admin_action - normalize to lowercase
+              let adminAction = c.admin_action
+              if (adminAction !== null && adminAction !== undefined) {
+                adminAction = String(adminAction).toLowerCase().trim()
+              }
+              // Default to 'pending' only if truly missing
+              adminAction = adminAction || 'pending'
+              
+              return {
+                id: c.course_id,
+                title: c.course_title,
+                instructor: c.instructor_name,
+                fee: c.fee || 0,
+                totalBatches: c.total_batches || 0,
+                activeBatches: c.active_batches || 0,
+                progress: c.overall_progress || 0,
+                admin_action: adminAction,
+              }
+            })
+            console.log('Mapped courses:', mapped)
             setCourses(mapped)
           } else {
             setCourses([])
