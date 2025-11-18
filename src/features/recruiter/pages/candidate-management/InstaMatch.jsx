@@ -45,7 +45,7 @@ const InstaMatch = ({ onComingSoonClose }) => {
       name: "Rajesh Kumar",
       role: "Senior Frontend Developer",
       location: "Balaghat, Madhya Pradesh",
-      education: "Satpuda ITI college",
+      education: "Satpuda sssITI college",
       experience: "5+ Year",
       aiMatch: 95,
       status: "Interviewed",

@@ -27,6 +27,28 @@ export default function CreateCourse() {
     }
     fetchCategories()
   }, [])
+
+  // Fetch instructors/faculty list
+  useEffect(() => {
+    const fetchInstructors = async () => {
+      try {
+        setLoadingInstructors(true)
+        const res = await getMethod({ apiUrl: apiService.getFaculty })
+        if (res?.status && Array.isArray(res.data)) {
+          setInstructors(res.data)
+        } else {
+          console.warn('⚠️ No instructors found or invalid response:', res)
+          setInstructors([])
+        }
+      } catch (error) {
+        console.error('❌ Error fetching instructors:', error)
+        setInstructors([])
+      } finally {
+        setLoadingInstructors(false)
+      }
+    }
+    fetchInstructors()
+  }, [])
   
   const navigate = useNavigate()
   const { addCourse } = useCourseContext()
@@ -50,6 +72,8 @@ export default function CreateCourse() {
   const [categories, setCategories] = useState([])
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
   const [newCategory, setNewCategory] = useState('')
+  const [instructors, setInstructors] = useState([])
+  const [loadingInstructors, setLoadingInstructors] = useState(false)
 
   const handleBack = () => {
     navigate('/institute/course-management')
@@ -64,20 +88,61 @@ export default function CreateCourse() {
     setNewCategory('')
   }
 
-  const handleAddCategory = () => {
-    if (newCategory.trim()) {
-      const categoryName = newCategory.trim()
-      if (categories.includes(categoryName)) {
-        alert('This category already exists!')
-        return
-      }
-      setCategories(prev => [...prev, categoryName])
-      handleInputChange('category', categoryName)
-      setShowAddCategoryModal(false)
-      setNewCategory('')
-      alert(`✅ Category "${categoryName}" added successfully!`)
-    } else {
+  const handleAddCategory = async () => {
+    if (!newCategory.trim()) {
       alert('Please enter a category name.')
+      return
+    }
+
+    const categoryName = newCategory.trim()
+    
+    // Check if category already exists in the list
+    const categoryExists = categories.some(cat => 
+      (typeof cat === 'string' ? cat : cat.category_name) === categoryName
+    )
+    
+    if (categoryExists) {
+      alert('This category already exists!')
+      return
+    }
+
+    try {
+      // Call API to create category
+      console.log('Creating category with payload:', { category_name: categoryName })
+      console.log('API URL:', apiService.createCourseCategory)
+      
+      const res = await postMethod({
+        apiUrl: apiService.createCourseCategory,
+        payload: {
+          category_name: categoryName
+        }
+      })
+
+      console.log('Category API Response:', res)
+
+      // Check for success - API returns { success: true, message: "...", data: {...} }
+      // After respChanges, it should have status: 'success' and success: true
+      if (res?.success === true || res?.status === 'success' || res?.status === true) {
+        // Add the new category to the list (use the response data if available)
+        const newCategoryData = res?.data || { id: Date.now(), category_name: categoryName }
+        setCategories(prev => [...prev, newCategoryData])
+        handleInputChange('category', categoryName)
+        setShowAddCategoryModal(false)
+        setNewCategory('')
+        alert(`✅ Category "${categoryName}" added successfully!`)
+      } else {
+        // Show the actual error message from API
+        // postMethod returns { status: false, message: '...', data: [] } on error
+        const errorMessage = res?.message || res?.error?.message || 'Failed to create category. Please try again.'
+        console.error('Category creation failed - Full response:', res)
+        alert(`❌ ${errorMessage}`)
+      }
+    } catch (err) {
+      console.error('Exception in handleAddCategory:', err)
+      // This catch block should rarely execute since postMethod catches errors
+      // But if it does, show the error
+      const errorMessage = err?.response?.data?.message || err?.message || 'Something went wrong while creating the category.'
+      alert(`❌ ${errorMessage}`)
     }
   }
 
@@ -119,7 +184,9 @@ export default function CreateCourse() {
       module_description = newModule.description.trim()
     }
 
-    
+    // Find category ID from categories array
+    const selectedCategory = categories.find(cat => cat.category_name === formData.category)
+    const categoryId = selectedCategory ? selectedCategory.id : null
 
     try {
       let res
@@ -130,7 +197,7 @@ export default function CreateCourse() {
         formDataToSend.append('description', formData.description.trim())
         formDataToSend.append('duration', formData.duration.trim())
         formDataToSend.append('fee', parseFloat(formData.fee))
-        formDataToSend.append('category_id', categoryIdMap[formData.category] || null)
+        formDataToSend.append('category_id', categoryId)
         formDataToSend.append('tagged_skills', formData.taggedSkills.trim())
         formDataToSend.append('batch_limit', parseInt(formData.batchLimits))
         formDataToSend.append('status', formData.courseStatus)
@@ -154,7 +221,7 @@ export default function CreateCourse() {
           description: formData.description.trim(),
           duration: formData.duration.trim(),
           fee: parseFloat(formData.fee),
-          category_id: categoryIdMap[formData.category] || null,
+          category_id: categoryId,
           tagged_skills: formData.taggedSkills.trim(),
           batch_limit: parseInt(formData.batchLimits),
           status: formData.courseStatus,
@@ -449,18 +516,27 @@ export default function CreateCourse() {
                 <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                   INSTRUCTOR NAME <span className="text-red-500">*</span>
                 </label>
-                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter the full name of the course instructor.</p>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select the instructor for this course.</p>
               </div>
               <div className="flex-1">
-                <input 
-                  type="text" 
+                <select 
                   value={formData.instructorName}
                   onChange={(e) => handleInputChange('instructorName', e.target.value)}
                   className={getInputClassName('instructorName')}
-                  placeholder="e.g. Rajeev Kumar"
-                />
+                  disabled={loadingInstructors}
+                >
+                  <option value="">{loadingInstructors ? 'Loading instructors...' : 'Select instructor'}</option>
+                  {instructors.map((instructor, index) => (
+                    <option key={instructor.id || index} value={instructor.name}>
+                      {instructor.name}
+                    </option>
+                  ))}
+                </select>
                 {validationErrors.instructorName && (
                   <p className="text-red-500 text-sm mt-1">{validationErrors.instructorName}</p>
+                )}
+                {!loadingInstructors && instructors.length === 0 && (
+                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>No instructors available. Please add instructors first.</p>
                 )}
               </div>
             </div>

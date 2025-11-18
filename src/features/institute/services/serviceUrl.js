@@ -14,7 +14,6 @@ const apiService = {
   getCourseModule: '/courses/get_course_module.php',
   updateCourseModule: '/courses/update_course_module.php',
   deleteCourseModule: '/courses/delete_course_module.php',
-
   getSingleCourse: '/courses/get-course_by_id.php',
 
 
@@ -29,6 +28,7 @@ const apiService = {
   getFaculty: '/faculty/get_faculty_users.php',
   updateFaculty: '/faculty/update_faculty_user.php',
   getCourseCategories: '/courses/get_course_category.php',
+  createCourseCategory: "/courses/create_course_category.php",
 
   // Course & Batch Relations
   courseByBatch: '/institute/course_by_batch.php',
@@ -49,10 +49,8 @@ const apiService = {
 
   INSTITUTE_REPORT: "/institute/institute_report.php",
 
-  getInstituteProfile: '/institute/profiles.php',
-  updateInstituteProfile: '/institute/profile_updated.php',
-
-
+  getInstituteProfile: '/institute/profile.php',
+  updateInstituteProfile: '/institute/institute_profile_updated.php',
 
 };
 

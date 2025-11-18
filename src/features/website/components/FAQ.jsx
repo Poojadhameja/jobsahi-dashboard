@@ -9,7 +9,7 @@ const FAQ = ({ faqs = [], headerContent }) => {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center px-6 bg-gray-50">
+    <section className="min-h-screen flex items-center justify-center px-6 bg-white">
       <div className="max-w-4xl mx-auto w-full">
         {/* Header Section */}
         {headerContent && (

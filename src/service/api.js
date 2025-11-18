@@ -98,13 +98,13 @@ export const putMethod = async (data) => {
     const headers = getHeaders();
     console.log('🌐 PUT Request:', {
       url: backendHost + data.apiUrl,
-      payload: data.payload
+      payload: data.payload || data.data
     });
 
     const respData = await axios({
       method: 'put',
       url: backendHost + data.apiUrl,
-      data: data.payload || {},
+      data: data.payload || data.data || {},
       headers
     });
 
@@ -116,6 +116,52 @@ export const putMethod = async (data) => {
       status: false,
       message: err.response?.data?.message || 'Update failed',
       data: []
+    };
+  }
+};
+
+/**
+ * 🟢 PUT MULTIPART method (for file uploads with PUT requests)
+ */
+export const putMultipart = async (data) => {
+  try {
+    const token = localStorage.getItem("authToken");
+    const headers = {
+      "Content-Type": "multipart/form-data",
+    };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+
+    console.log("🌐 PUT Multipart Request:", {
+      url: backendHost + data.apiUrl,
+      data: data.data instanceof FormData ? "[FormData]" : data.data,
+      token: token ? `${token.substring(0, 15)}...` : "No token",
+    });
+
+    const respData = await axios({
+      method: "put",
+      url: backendHost + data.apiUrl,
+      data: data.data, // ✅ This must be FormData
+      headers,
+    });
+
+    const response = respChanges(respData.data);
+    response.httpStatus = respData.status;
+    console.log("✅ PUT Multipart Response:", response);
+    return response;
+  } catch (err) {
+    console.error("❌ PUT Multipart Error:", {
+      message: err.message,
+      response: err.response?.data,
+      url: backendHost + data.apiUrl,
+    });
+
+    return {
+      status: false,
+      message:
+        err.response?.data?.message ||
+        err.message ||
+        "Something went wrong during file upload.",
+      data: [],
     };
   }
 };

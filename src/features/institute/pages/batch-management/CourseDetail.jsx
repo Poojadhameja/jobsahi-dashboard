@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { LuArrowLeft, LuEye, LuPencil } from 'react-icons/lu'
+import { LuArrowLeft, LuEye, LuPencil, LuChevronLeft, LuChevronRight } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import CentralizedDataTable from '../../../../shared/components/CentralizedDataTable'
@@ -21,6 +21,8 @@ export default function CourseDetail({ courseData, onBack }) {
   const [isCoursePopupOpen, setIsCoursePopupOpen] = useState(false)
   const [selectedCourseForView, setSelectedCourseForView] = useState(null)
   const [availableCourses, setAvailableCourses] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 3
 
   // ✅ Fetch course details from /institute/course_by_batch.php?id={courseId}
   const fetchCourseDetail = async () => {
@@ -100,6 +102,11 @@ export default function CourseDetail({ courseData, onBack }) {
     fetchAvailableCourses()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseData?.id, courseData?.course_id])
+
+  // Reset to page 1 when available courses change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [availableCourses.length])
 
   if (loading) {
     return <div className="p-4 text-center text-gray-500">Loading course details...</div>
@@ -392,7 +399,7 @@ export default function CourseDetail({ courseData, onBack }) {
             <div className="text-2xl font-bold text-indigo-600">
               {batchData.reduce((t, b) => t + (b.totalStudents || 0), 0)}
             </div>
-            <div className="text-sm text-gray-500">Max Capacity</div>
+            <div className="text-sm text-gray-500">Batch completed</div>
           </div>
         </div>
       </div>
@@ -426,44 +433,102 @@ export default function CourseDetail({ courseData, onBack }) {
           Other courses available in our institute
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {availableCourses.map((course) => (
-            <div
-              key={course.id}
-              className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <LuEye className="w-5 h-5 text-blue-600" />
+        {/* Calculate pagination */}
+        {(() => {
+          const totalPages = Math.ceil(availableCourses.length / itemsPerPage)
+          const startIndex = (currentPage - 1) * itemsPerPage
+          const endIndex = startIndex + itemsPerPage
+          const paginatedCourses = availableCourses.slice(startIndex, endIndex)
+
+          return (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paginatedCourses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-300 hover:border-blue-300"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <LuEye className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                        {course.admin_action === 'approved' ? 'Available' : 'Pending'}
+                      </span>
+                    </div>
+                    <h3
+                      className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                    >
+                      {course.title}
+                    </h3>
+                    <p
+                      className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}
+                    >
+                      {course.description?.slice(0, 100) || 'No description available'}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-lg font-bold">
+                        ₹{course.fee || 0}
+                      </span>
+                      <button
+                        className={`${TAILWIND_COLORS.BADGE_SUCCESS} hover:text-blue-800 text-sm font-medium`}
+                        onClick={() => handleOpenCoursePopup(course)}
+                      >
+                        View Details →
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
+                  <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                    Showing {startIndex + 1}–{Math.min(endIndex, availableCourses.length)} of {availableCourses.length} courses
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      variant="outline"
+                      size="sm"
+                      icon={<LuChevronLeft className="w-4 h-4" />}
+                      className={`border-gray-300 ${TAILWIND_COLORS.TEXT_MUTED} hover:bg-gray-50 disabled:opacity-50`}
+                    >
+                      Previous
+                    </Button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        variant={page === currentPage ? "primary" : "outline"}
+                        size="sm"
+                        className={
+                          page === currentPage
+                            ? ""
+                            : `border-gray-300 ${TAILWIND_COLORS.TEXT_MUTED} hover:bg-gray-50`
+                        }
+                      >
+                        {page}
+                      </Button>
+                    ))}
+                    <Button
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      variant="outline"
+                      size="sm"
+                      iconRight={<LuChevronRight className="w-4 h-4" />}
+                      className={`border-gray-300 ${TAILWIND_COLORS.TEXT_MUTED} hover:bg-gray-50 disabled:opacity-50`}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 </div>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-                  {course.admin_action === 'approved' ? 'Available' : 'Pending'}
-                </span>
-              </div>
-              <h3
-                className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              >
-                {course.title}
-              </h3>
-              <p
-                className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}
-              >
-                {course.description?.slice(0, 100) || 'No description available'}
-              </p>
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-bold">
-                  ₹{course.fee || 0}
-                </span>
-                <button
-                  className={`${TAILWIND_COLORS.BADGE_SUCCESS} hover:text-blue-800 text-sm font-medium`}
-                  onClick={() => handleOpenCoursePopup(course)}
-                >
-                  View Details →
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+              )}
+            </>
+          )
+        })()}
       </div>
 
       <EditBatchModal

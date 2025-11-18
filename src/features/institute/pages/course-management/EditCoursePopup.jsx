@@ -25,6 +25,8 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
   const [categories, setCategories] = useState([]) // ✅ backend categories
   const [selectedMedia, setSelectedMedia] = useState([])
   const [validationErrors, setValidationErrors] = useState({})
+  const [instructors, setInstructors] = useState([])
+  const [loadingInstructors, setLoadingInstructors] = useState(false)
 
   // ✅ Step 1: Fetch categories from backend
   useEffect(() => {
@@ -47,6 +49,28 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
     }
 
     fetchCategories()
+  }, [])
+
+  // ✅ Fetch instructors/faculty list
+  useEffect(() => {
+    const fetchInstructors = async () => {
+      try {
+        setLoadingInstructors(true)
+        const res = await getMethod({ apiUrl: apiService.getFaculty })
+        if (res?.status && Array.isArray(res.data)) {
+          setInstructors(res.data)
+        } else {
+          console.warn('⚠️ No instructors found or invalid response:', res)
+          setInstructors([])
+        }
+      } catch (error) {
+        console.error('❌ Error fetching instructors:', error)
+        setInstructors([])
+      } finally {
+        setLoadingInstructors(false)
+      }
+    }
+    fetchInstructors()
   }, [])
 
   // ✅ Step 2: Pre-fill form from course prop
@@ -397,8 +421,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               <label className="block text-sm font-semibold text-gray-700 mb-1">
                 INSTRUCTOR NAME <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
+              <select
                 value={formData.instructorName}
                 onChange={e =>
                   handleInputChange(
@@ -407,8 +430,18 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
                   )
                 }
                 className={getInputClass('instructorName')}
-                placeholder="e.g. Rajeev Kumar"
-              />
+                disabled={loadingInstructors}
+              >
+                <option value="">{loadingInstructors ? 'Loading instructors...' : 'Select instructor'}</option>
+                {instructors.map((instructor, index) => (
+                  <option key={instructor.id || index} value={instructor.name}>
+                    {instructor.name}
+                  </option>
+                ))}
+              </select>
+              {!loadingInstructors && instructors.length === 0 && (
+                <p className="text-xs text-gray-500 mt-1">No instructors available. Please add instructors first.</p>
+              )}
             </div>
 
             {/* Mode */}
