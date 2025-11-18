@@ -10,6 +10,19 @@ const service = {
     //management
 
     adminInstituteManagement: '/admin/admin_institute_management.php',
+    getJobCourseDashboardStats: '/admin/get_job_course_dashboard_stats.php',
+
+    //job flags
+    flagJob: '/admin/flag_job.php',
+    resolveJobFlag: '/admin/resolve_job_flag.php',
+    getJobFlags: '/admin/get_job_flags.php',
+
+    //course categories
+    getCourseCategory: '/courses/get_course_category.php',
+    createCourseCategory: '/courses/create_course_category.php',
+
+    //employer ratings
+    getEmployerRatings: '/admin/get_employer_feedback.php',
 
 }
 

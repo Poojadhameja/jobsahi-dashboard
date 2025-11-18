@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 import Button from '../../../../../shared/components/Button'
 import { getMethod } from '../../../../../service/api'
@@ -400,11 +400,7 @@ export default function CourseMonitoring() {
   const [loading, setLoading] = useState(true)
 
   // Fetch data from API
-  useEffect(() => {
-    fetchCourseData()
-  }, [])
-
-  const fetchCourseData = async () => {
+  const fetchCourseData = useCallback(async () => {
     try {
       setLoading(true)
       const response = await getMethod({ 
@@ -493,7 +489,11 @@ export default function CourseMonitoring() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchCourseData()
+  }, [fetchCourseData])
 
   const handleViewCourse = (course) => {
     setSelectedCourse(course)

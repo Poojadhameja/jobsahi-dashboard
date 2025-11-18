@@ -6,7 +6,7 @@ const JobDetails = ({ job, onClose, onApplyJob }) => {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4" 
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4" 
       style={{ 
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         position: 'fixed',
@@ -18,7 +18,7 @@ const JobDetails = ({ job, onClose, onApplyJob }) => {
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto relative no-scrollbar"
+        className="bg-white rounded-lg max-w-6xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto relative no-scrollbar"
         onClick={(e) => e.stopPropagation()}
         style={{ 
           scrollbarWidth: 'none', 
@@ -26,13 +26,13 @@ const JobDetails = ({ job, onClose, onApplyJob }) => {
           WebkitScrollbar: 'none'
         }}
       >
-        <div className="flex">
+        <div className="flex flex-col lg:flex-row">
           {/* Main Content */}
-          <div className="flex-1 p-8">
+          <div className="flex-1 p-4 sm:p-6 lg:p-8">
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-1 right-1 text-gray-500 hover:text-gray-700 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+              className="absolute top-1 right-1 text-gray-500 hover:text-gray-700 w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors z-10"
             >
               <svg 
                 width="16" 
@@ -50,41 +50,41 @@ const JobDetails = ({ job, onClose, onApplyJob }) => {
             </button>
 
             {/* Description */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>Description</h2>
-              <p className="text-gray-600 leading-relaxed">{job.description}</p>
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4" style={{ color: 'var(--color-text-primary)' }}>Description</h2>
+              <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{job.description}</p>
             </div>
 
             {/* Responsibility */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>Responsibility</h2>
-              <ul className="space-y-3">
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4" style={{ color: 'var(--color-text-primary)' }}>Responsibility</h2>
+              <ul className="space-y-2 sm:space-y-3">
                 {job.responsibilities?.map((responsibility, index) => (
-                  <li key={index} className="flex items-start space-x-3">
-                    <FaCheck className="w-5 h-5 mt-1 flex-shrink-0" style={{ color: 'var(--color-secondary)' }} />
-                    <span className="text-gray-600">{responsibility}</span>
+                  <li key={index} className="flex items-start space-x-2 sm:space-x-3">
+                    <FaCheck className="w-4 h-4 sm:w-5 sm:h-5 mt-1 flex-shrink-0" style={{ color: 'var(--color-secondary)' }} />
+                    <span className="text-gray-600 text-sm sm:text-base">{responsibility}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Who You Are */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>Who You Are</h2>
-              <ul className="space-y-3">
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4" style={{ color: 'var(--color-text-primary)' }}>Who You Are</h2>
+              <ul className="space-y-2 sm:space-y-3">
                 {job.requirements?.map((requirement, index) => (
-                  <li key={index} className="flex items-start space-x-3">
-                    <FaCheck className="w-5 h-5 mt-1 flex-shrink-0" style={{ color: 'var(--color-secondary)' }} />
-                    <span className="text-gray-600">{requirement}</span>
+                  <li key={index} className="flex items-start space-x-2 sm:space-x-3">
+                    <FaCheck className="w-4 h-4 sm:w-5 sm:h-5 mt-1 flex-shrink-0" style={{ color: 'var(--color-secondary)' }} />
+                    <span className="text-gray-600 text-sm sm:text-base">{requirement}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Perks & Benefits */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>Perks & Benefits</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="mb-6 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4" style={{ color: 'var(--color-text-primary)' }}>Perks & Benefits</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {job.benefits?.map((benefit, index) => {
                   // Map icon names to components
                   const iconMap = {
@@ -97,13 +97,13 @@ const JobDetails = ({ job, onClose, onApplyJob }) => {
                   const IconComponent = iconMap[benefit.icon] || FaCheck
                   
                   return (
-                    <div key={index} className="flex items-start space-x-4">
-                      <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--color-secondary-10)' }}>
-                        <IconComponent className="w-6 h-6" style={{ color: 'var(--color-secondary)' }} />
+                    <div key={index} className="flex items-start space-x-3 sm:space-x-4">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'var(--color-secondary-10)' }}>
+                        <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: 'var(--color-secondary)' }} />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg mb-2" style={{ color: 'var(--color-text-primary)' }}>{benefit.title}</h3>
-                        <p className="text-gray-600 text-sm">{benefit.description}</p>
+                        <h3 className="font-semibold text-base sm:text-lg mb-1 sm:mb-2" style={{ color: 'var(--color-text-primary)' }}>{benefit.title}</h3>
+                        <p className="text-gray-600 text-xs sm:text-sm">{benefit.description}</p>
                       </div>
                     </div>
                   )
@@ -113,23 +113,23 @@ const JobDetails = ({ job, onClose, onApplyJob }) => {
           </div>
 
           {/* Sidebar */}
-          <div className="w-80 p-6">
+          <div className="w-full lg:w-80 p-4 sm:p-6 border-t lg:border-t-0 lg:border-l border-gray-200">
             {/* Light Blue Background Section */}
-            <div className="p-6 rounded-lg mb-6" style={{ backgroundColor: 'var(--color-primary-10)' }}>
+            <div className="p-4 sm:p-6 rounded-lg mb-4 sm:mb-6" style={{ backgroundColor: 'var(--color-primary-10)' }}>
               {/* Company Info */}
-              <div className="text-center mb-6">
+              <div className="text-center mb-4 sm:mb-6">
                 <div 
-                  className="w-20 h-20 rounded-full flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center text-white font-bold text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"
                   style={{ backgroundColor: job.logoColor }}
                 >
                   {job.logo}
                 </div>
-                <h3 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{job.company}</h3>
+                <h3 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>{job.company}</h3>
               </div>
 
               {/* Job Details */}
-              <div className="space-y-4 mb-6">
-                <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                   <div>
                     <span className="text-gray-500">Salary</span>
                     <p className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{job.salary}</p>
@@ -158,13 +158,13 @@ const JobDetails = ({ job, onClose, onApplyJob }) => {
               </div>
 
               {/* Skills */}
-              <div className="mb-6">
-                <h4 className="font-semibold mb-3" style={{ color: 'var(--color-text-primary)' }}>Skills</h4>
-                <div className="flex flex-wrap gap-2">
+              <div className="mb-4 sm:mb-6">
+                <h4 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base" style={{ color: 'var(--color-text-primary)' }}>Skills</h4>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {job.skills.map((skill, index) => (
                     <span 
                       key={index}
-                      className="px-3 py-1 text-sm font-medium rounded-full bg-gray-200 text-gray-700"
+                      className="px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full bg-gray-200 text-gray-700"
                     >
                       {skill}
                     </span>
@@ -173,9 +173,9 @@ const JobDetails = ({ job, onClose, onApplyJob }) => {
               </div>
 
               {/* Quick Info Subsection */}
-              <div className="p-4 rounded-lg mb-6">
-                <h4 className="font-semibold mb-3" style={{ color: 'var(--color-text-primary)' }}>Quick Info</h4>
-                <div className="space-y-2 text-sm">
+              <div className="p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
+                <h4 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base" style={{ color: 'var(--color-text-primary)' }}>Quick Info</h4>
+                <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                   <div className="flex justify-between">
                     <span style={{ color: 'var(--color-text-muted)' }}>Posted:</span>
                     <span style={{ color: 'var(--color-text-primary)' }}>{job.postedOn}</span>
@@ -193,7 +193,7 @@ const JobDetails = ({ job, onClose, onApplyJob }) => {
 
               {/* Apply Button */}
               <button
-                className="w-full py-3 font-semibold rounded-lg transition-colors"
+                className="w-full py-2.5 sm:py-3 font-semibold rounded-lg transition-colors text-sm sm:text-base"
                 style={{ 
                   color: 'var(--color-bg-white)',
                   backgroundColor: 'var(--color-secondary)'
