@@ -194,7 +194,7 @@ export default function CourseDetail({ courseData, onBack }) {
   const batchColumns = [
     { key: 'batchName', header: 'Batch Name' },
     { key: 'schedule', header: 'Time Schedule' },
-    { key: 'totalStudents', header: 'Total Students' },
+    // { key: 'totalStudents', header: 'Total Students' },
     { key: 'enrolledStudents', header: 'Enrolled Students' },
     {
       key: 'status',
