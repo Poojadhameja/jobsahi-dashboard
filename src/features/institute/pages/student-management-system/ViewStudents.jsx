@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { LuUsers, LuCheck, LuClock, LuDownload, LuSearch, LuEye, LuPencil, LuMessageSquare, LuTrash2, LuX } from 'react-icons/lu'
+import { LuUsers, LuCheck, LuClock, LuDownload, LuSearch, LuEye, LuPencil, LuMessageSquare, LuX } from 'react-icons/lu'
 import { Horizontal4Cards } from '../../../../shared/components/metricCard'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Button, { IconButton } from '../../../../shared/components/Button'
@@ -10,10 +10,8 @@ const ViewStudents = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [courseFilter, setCourseFilter] = useState('all')
-  const [selectedStudents, setSelectedStudents] = useState([])
   const [showViewPopup, setShowViewPopup] = useState(false)
   const [showEditPopup, setShowEditPopup] = useState(false)
-  const [showDeletePopup, setShowDeletePopup] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState(null)
 
 
@@ -261,21 +259,6 @@ const fetchStudentDetails = async (studentId) => {
   })
   
 
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedStudents(filteredStudents.map(s => s.id))
-    } else {
-      setSelectedStudents([])
-    }
-  }
-
-  const handleSelectStudent = (studentId, checked) => {a
-    if (checked) {
-      setSelectedStudents([...selectedStudents, studentId])
-    } else {
-      setSelectedStudents(selectedStudents.filter(id => id !== studentId))
-    }
-  }
 
   // Popup handlers
   const handleViewStudent = (student) => {
@@ -301,26 +284,12 @@ const fetchStudentDetails = async (studentId) => {
   
     setShowEditPopup(true);
   };
-  
-  const handleDeleteStudent = (student) => {
-    setSelectedStudent(student)
-    setShowDeletePopup(true)
-  }
 
   const handleClosePopups = () => {
     setShowViewPopup(false)
     setShowEditPopup(false)
-    setShowDeletePopup(false)
     setSelectedStudent(null)
     setBatchOptions([]) // Clear batches when closing popup
-  }
-
-  const handleConfirmDelete = () => {
-    if (selectedStudent) {
-      setStudents(students.filter(s => s.id !== selectedStudent.id))
-      setShowDeletePopup(false)
-      setSelectedStudent(null)
-    }
   }
 
   const handleUpdateStudent = (updatedStudent) => {
@@ -500,14 +469,6 @@ const fetchStudentDetails = async (studentId) => {
           <table className="w-full">
             <thead className="bg-white border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-left">
-                  <input
-                    type="checkbox"
-                    checked={selectedStudents.length === filteredStudents.length && filteredStudents.length > 0}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                </th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student</th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course & Batch</th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
@@ -517,14 +478,6 @@ const fetchStudentDetails = async (studentId) => {
             <tbody className="divide-y divide-gray-200">
               {filteredStudents.map((student) => (
                 <tr key={student.id} className="hover:bg-white">
-                  <td className="px-6 py-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedStudents.includes(student.id)}
-                      onChange={(e) => handleSelectStudent(student.id, e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       <div className="w-6 h-6 bg-gray-300 rounded-full mr-3 flex-shrink-0"></div>
@@ -556,14 +509,6 @@ const fetchStudentDetails = async (studentId) => {
                       >
                         <LuPencil className="w-4 h-4" />
                       </button>
-                      <IconButton
-                        label="Delete student"
-                        onClick={() => handleDeleteStudent(student)}
-                        variant="light"
-                        className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-red-600 border border-gray-300 rounded-md transition-colors`}
-                      >
-                        <LuTrash2 className="w-4 h-4" />
-                      </IconButton>
                     </div>
                   </td>
                 </tr>
@@ -842,45 +787,6 @@ const fetchStudentDetails = async (studentId) => {
 )}
 
 
-      {/* Delete Confirmation Popup */}
-      {showDeletePopup && selectedStudent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-                <LuTrash2 className="w-6 h-6 text-red-600" />
-              </div>
-              <div>
-                <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Delete Student</h2>
-                <p className={TAILWIND_COLORS.TEXT_MUTED}>This action cannot be undone.</p>
-              </div>
-            </div>
-            
-            <div className="mb-6">
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
-                Are you sure you want to delete <span className="font-semibold">{selectedStudent.name}</span>? 
-                This will permanently remove all their data from the system.
-              </p>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={handleClosePopups}
-                variant="neutral"
-                className={TAILWIND_COLORS.TEXT_PRIMARY}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmDelete}
-                variant="danger"
-              >
-                Delete Student
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
