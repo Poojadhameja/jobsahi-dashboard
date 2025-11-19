@@ -45,28 +45,28 @@ const Contact = () => {
       <Navbar />
 
       {/* Header Section */}
-      <section className={`py-10 ${COLOR_CLASSES.bg.surfacePaleBlue} mx-4 rounded-[40px] sm:rounded-[50px] my-8 border-t-4 border-l-4 border-r-4 ${COLOR_CLASSES.border.deepBlue}`}>
-        <div className="max-w-[90%] mx-auto px-6">
+      <section className={`py-6 sm:py-8 md:py-10 ${COLOR_CLASSES.bg.surfacePaleBlue} mx-2 sm:mx-4 rounded-[30px] sm:rounded-[40px] md:rounded-[50px] my-4 sm:my-6 md:my-8 border-t-4 border-l-4 border-r-4 ${COLOR_CLASSES.border.deepBlue} overflow-hidden`}>
+        <div className="max-w-[95%] sm:max-w-[90%] mx-auto px-3 sm:px-4 md:px-6">
           <div className="text-center">
             {/* Top Banner */}
-            <div className="mb-6">
-              <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-6 py-2 rounded-full text-xs sm:text-sm font-semibold tracking-wide`}>
+            <div className="mb-4 sm:mb-6">
+              <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs md:text-sm font-semibold tracking-wide`}>
                 #1 PORTAL JOB PLATFORM
               </div>
             </div>
 
             {/* Main Heading */}
-            <div className="flex flex-col items-center justify-center text-center mb-5 md:mb-10">
-              <h1 className={`text-3xl sm:text-5xl md:text-6xl lg:px-24 font-bold mb-6 ${COLOR_CLASSES.text.deepBlue} leading-tight`}>
+            <div className="flex flex-col items-center justify-center text-center mb-4 sm:mb-5 md:mb-10">
+              <h1 className={`text-xl sm:text-2xl md:text-3xl lg:text-5xl xl:text-6xl px-2 sm:px-4 md:px-8 lg:px-24 font-bold mb-3 sm:mb-4 md:mb-6 ${COLOR_CLASSES.text.deepBlue} leading-tight`}>
                 Feel Free To <span className="relative inline-block">
                   Contact Us
-                  <img src={textunderline} alt="underline" className="absolute -bottom-2 left-0 w-full h-3 sm:h-4 object-contain" />
+                  <img src={textunderline} alt="underline" className="absolute -bottom-1 sm:-bottom-2 left-0 w-full h-2 sm:h-3 md:h-4 object-contain" />
                 </span>
               </h1>
             </div>
 
             {/* Description */}
-            <p className="text-gray-700 text-base sm:text-lg max-w-2xl mx-auto">
+            <p className="text-gray-700 text-xs sm:text-sm md:text-base lg:text-lg max-w-2xl mx-auto px-1">
               We would love to hear from you! Share your questions, feedback, or collaboration ideas and our team will reach out shortly.
             </p>
           </div>
@@ -74,71 +74,71 @@ const Contact = () => {
       </section>
 
       {/* Contact Info Section */}
-      <section className="py-16 bg-white">
-          <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center">
+      <section className="py-6 sm:py-8 md:py-12 lg:py-16 bg-white overflow-hidden">
+          <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center">
           {/* Left visuals */}
-          <div className="relative">
-            <div className="sm:w-96 sm:h-96 w-60 h-60 bg-blue-100 rounded-3xl relative">
-              <div className="w-[80%]">
-                <div className="flex gap-3">
-                  <div className="flex-1 bg-white rounded-xl p-4 shadow-lg relative">
+          <div className="relative mb-6 lg:mb-0">
+            <div className="w-56 h-56 sm:w-60 sm:h-60 md:w-80 md:h-80 lg:w-96 lg:h-96 bg-blue-100 rounded-3xl relative">
+              <div className="w-[85%] sm:w-[80%]">
+                <div className="flex gap-2 sm:gap-3">
+                  <div className="flex-1 bg-white rounded-xl p-2.5 sm:p-3 md:p-4 shadow-lg relative min-w-0">
                     <input 
                       type="text" 
                       placeholder="Contact Us..." 
-                      className="w-full text-gray-700 bg-transparent border-none outline-none text-lg"
+                      className="w-full text-gray-700 bg-transparent border-none outline-none text-xs sm:text-sm md:text-base lg:text-lg placeholder:text-xs sm:placeholder:text-sm md:placeholder:text-base"
                       readOnly
                     />
                   </div>
-                  <button className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg relative`}>
-                      <FaPhone className="text-white text-lg" />
+                  <button className={`w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg relative flex-shrink-0`}>
+                      <FaPhone className="text-white text-xs sm:text-sm md:text-base lg:text-lg" />
                     <div className={`absolute inset-0 ${COLOR_CLASSES.bg.accentLime} rounded-xl opacity-30 blur-sm`}></div>
                   </button>
                 </div>
-                <div className="absolute border-4 border-white -bottom-10 left-40 sm:-bottom-10 sm:left-72 w-32 h-24 sm:w-48 sm:h-40 bg-blue-100 rounded-2xl"></div>
+                <div className="absolute border-4 border-white -bottom-6 sm:-bottom-8 md:-bottom-10 left-12 sm:left-16 md:left-40 lg:left-72 w-20 h-16 sm:w-24 sm:h-20 md:w-32 md:h-24 lg:w-48 lg:h-40 bg-blue-100 rounded-2xl"></div>
               </div>
             </div>
           </div>
 
           {/* Right content */}
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+          <div className="w-full">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-3 sm:mb-4 md:mb-6">
               Contact Us For Your Any Help & Needs.
             </h2>
-            <p className="text-gray-600 mb-10 leading-relaxed">
+            <p className="text-gray-600 mb-5 sm:mb-6 md:mb-8 lg:mb-10 leading-relaxed text-xs sm:text-sm md:text-base">
               We highly value your feedback and inquiries at Jobsahi. Whether you have questions about our services, require assistance, or are interested in exploring potential collaborations.
             </p>
 
-            <div className="space-y-6">
+            <div className="space-y-3 sm:space-y-4 md:space-y-6">
               {/* Email */}
-                <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center text-white`}>
-                  <FaEnvelope />
+                <div className="flex items-center space-x-2.5 sm:space-x-3 md:space-x-4">
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center text-white flex-shrink-0`}>
+                  <FaEnvelope className="text-xs sm:text-sm md:text-base" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-800">Email</h3>
-                  <p className="text-gray-600">hello@jobsahi.com</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base md:text-lg text-gray-800">Email</h3>
+                  <p className="text-gray-600 text-xs sm:text-sm md:text-base break-words">hello@jobsahi.com</p>
                 </div>
               </div>
 
               {/* Call */}
-              <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center text-white`}>
-                  <FaPhone />
+              <div className="flex items-center space-x-2.5 sm:space-x-3 md:space-x-4">
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center text-white flex-shrink-0`}>
+                  <FaPhone className="text-xs sm:text-sm md:text-base" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-800">Call Support</h3>
-                  <p className="text-gray-600">+91-98765-43210</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base md:text-lg text-gray-800">Call Support</h3>
+                  <p className="text-gray-600 text-xs sm:text-sm md:text-base break-words">+91-98765-43210</p>
                 </div>
               </div>
 
               {/* Website */}
-              <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center text-white`}>
-                  <FaGlobe />
+              <div className="flex items-center space-x-2.5 sm:space-x-3 md:space-x-4">
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center text-white flex-shrink-0`}>
+                  <FaGlobe className="text-xs sm:text-sm md:text-base" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-800">Website Link</h3>
-                  <p className="text-gray-600">www.jobsahi.com</p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-semibold text-sm sm:text-base md:text-lg text-gray-800">Website Link</h3>
+                  <p className="text-gray-600 text-xs sm:text-sm md:text-base break-words">www.jobsahi.com</p>
                 </div>
               </div>
             </div>
@@ -147,21 +147,21 @@ const Contact = () => {
       </section>
 
       {/* Contact Form Section */}
-      <section className={`py-20 ${COLOR_CLASSES.bg.surfacePaleBlue}`}>
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className={`text-3xl md:text-4xl font-bold ${COLOR_CLASSES.text.accentGreen} mb-10`}>
+      <section className={`py-8 sm:py-12 md:py-16 lg:py-20 ${COLOR_CLASSES.bg.surfacePaleBlue}`}>
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 text-center">
+          <h2 className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold ${COLOR_CLASSES.text.accentGreen} mb-5 sm:mb-6 md:mb-8 lg:mb-10 px-2`}>
             Do You Have Any Questions? Let Us Know!
           </h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
             <input type="text" name="name" value={formData.name} onChange={handleInputChange}
-              placeholder="Your name here" className="w-full px-6 py-4 border rounded-xl" required />
+              placeholder="Your name here" className="w-full px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 border rounded-xl text-xs sm:text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-green-500" required />
             <input type="email" name="email" value={formData.email} onChange={handleInputChange}
-              placeholder="Your email here" className="w-full px-6 py-4 border rounded-xl" required />
+              placeholder="Your email here" className="w-full px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 border rounded-xl text-xs sm:text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-green-500" required />
             <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange}
-              placeholder="Your Number here" className="w-full px-6 py-4 border rounded-xl" required />
+              placeholder="Your Number here" className="w-full px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 border rounded-xl text-xs sm:text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-green-500" required />
             <textarea name="message" value={formData.message} onChange={handleInputChange}
-              placeholder="Tell us about your messages" rows={5} className="w-full px-6 py-4 border rounded-xl" required />
-            <button type="submit" className={`${COLOR_CLASSES.bg.accentGreen} text-white px-8 py-3 rounded-xl ${COLOR_CLASSES.hoverBg.accentGreenDeepest}`}>
+              placeholder="Tell us about your messages" rows={4} className="w-full px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 border rounded-xl text-xs sm:text-sm md:text-base resize-none focus:outline-none focus:ring-2 focus:ring-green-500" required />
+            <button type="submit" className={`${COLOR_CLASSES.bg.accentGreen} text-white px-5 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-xl ${COLOR_CLASSES.hoverBg.accentGreenDeepest} text-xs sm:text-sm md:text-base font-semibold w-full sm:w-auto transition-all duration-200`}>
               Submit Message
             </button>
           </form>

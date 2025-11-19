@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   LuEye, 
   LuUser,
@@ -15,57 +15,179 @@ import {
 import { HiDotsVertical } from 'react-icons/hi'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 import { Button } from '../../../../../shared/components/Button'
+import { getMethod } from '../../../../../service/api'
+import apiService from '../../../../admin/services/serviceUrl'
 
 // Placement Ready Students Table Component
 function PlacementReadyStudentsTable() {
   const [studentCVModal, setStudentCVModal] = useState({ isOpen: false, student: null })
+  const [studentData, setStudentData] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // Handle View Details
-  const handleViewDetails = (student) => {
+  // Fetch data from API
+  const fetchPlacementStudents = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await getMethod({ 
+        apiUrl: apiService.adminInstituteManagement 
+      })
+
+      console.log('📊 Placement Students API Response:', response)
+
+      // Check if response is successful
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+      
+      if (isSuccess && response) {
+        // Extract placement ready students from API response - check all possible paths
+        let students = null
+        
+        if (response.data?.placement_ready_students) {
+          students = response.data.placement_ready_students
+        } else if (response.placement_ready_students) {
+          students = response.placement_ready_students
+        } else if (response.data?.data?.placement_ready_students) {
+          students = response.data.data.placement_ready_students
+        } else {
+          students = []
+        }
+        
+        console.log('👥 Placement Ready Students:', students)
+        
+        // Map API data to component format
+        if (Array.isArray(students) && students.length > 0) {
+          const mappedStudents = students.map((student, index) => ({
+            id: student.id || student.student_id || student.user_id || index,
+            name: student.student_name || student.name || 'N/A',
+            courseField: student.course_name || student.course || 'N/A',
+            courseDegree: student.degree || student.qualification || '',
+            jobTitle: student.job_title || '',
+            companyName: student.company_name || '',
+            placementDrive: student.placement_drive || student.placement_date || 'N/A',
+            status: student.status || 'Eligible',
+            // Keep all original data for view details
+            ...student
+          }))
+          
+          console.log('✅ Mapped Students:', mappedStudents)
+          setStudentData(mappedStudents)
+        } else {
+          console.warn('⚠️ No placement ready students found')
+          setStudentData([])
+        }
+      } else {
+        console.error('❌ Failed to fetch placement students:', response?.message)
+        setStudentData([])
+      }
+    } catch (error) {
+      console.error('❌ Error fetching placement students:', error)
+      setStudentData([])
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchPlacementStudents()
+  }, [fetchPlacementStudents])
+
+  // Handle View Details - Fetch student details by ID
+  const handleViewDetails = async (student) => {
+    try {
+      // Show loading state
+      setStudentCVModal({ isOpen: true, student: { ...student, loading: true } })
+      
+      // Call API with student ID - use profile_id as student ID
+      const studentId = student.id || student.student_id || student.user_id || student.profile_id
+      
+      if (!studentId) {
+        console.error('❌ Student ID not found')
+        setStudentCVModal({ isOpen: true, student })
+        return
+      }
+
+      console.log('🔍 Fetching student details for ID:', studentId)
+      
+      const response = await getMethod({
+        apiUrl: `${apiService.studentsList}?id=${studentId}`
+      })
+
+      console.log('📊 Student Details API Response:', response)
+
+      // Check if response is successful
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+      
+      if (isSuccess && response?.data) {
+        // Find the specific student from response
+        let studentDetails = null
+        
+        // If response.data is an array, find by ID (check both user_id and profile_id)
+        if (Array.isArray(response.data)) {
+          studentDetails = response.data.find(s => {
+            const userId = s.user_info?.user_id
+            const profileId = s.profile_info?.profile_id
+            return userId == studentId || profileId == studentId || s.id == studentId || s.user_id == studentId
+          })
+        } else if (response.data.user_info || response.data.profile_info) {
+          // If single student object
+          studentDetails = response.data
+        }
+
+        if (studentDetails) {
+          // Extract user_info and profile_info properly
+          const userInfo = studentDetails.user_info || {}
+          const profileInfo = studentDetails.profile_info || {}
+          
+          // Map API response to component format - use actual API data only
+          const mappedStudent = {
+            id: userInfo.user_id || profileInfo.profile_id || studentId,
+            name: userInfo.user_name || student.name || '',
+            email: userInfo.email || '',
+            phone: userInfo.phone_number || '',
+            profile_id: profileInfo.profile_id || '',
+            courseField: profileInfo.trade || student.courseField || '',
+            courseDegree: profileInfo.education || student.courseDegree || '',
+            skills: profileInfo.skills 
+              ? profileInfo.skills.split(",").map((s) => s.trim()).filter(Boolean)
+              : [],
+            resume: profileInfo.resume || '',
+            certificates: profileInfo.certificates || '',
+            portfolio: profileInfo.portfolio_link || '',
+            linkedin: profileInfo.linkedin_url || '',
+            dob: profileInfo.dob || '',
+            gender: profileInfo.gender || '',
+            job_type: profileInfo.job_type || '',
+            region: profileInfo.location || '',
+            bio: profileInfo.bio || '',
+            experience: profileInfo.experience || '',
+            graduation_year: profileInfo.graduation_year || '',
+            cgpa: profileInfo.cgpa || '',
+            // Keep placement data from original student
+            jobTitle: student.jobTitle || '',
+            companyName: student.companyName || '',
+            placementDrive: student.placementDrive || '',
+            status: student.status || ''
+          }
+          
+          console.log('✅ Mapped Student Details:', mappedStudent)
+          setStudentCVModal({ isOpen: true, student: mappedStudent })
+        } else {
+          console.warn('⚠️ Student details not found in response')
+          setStudentCVModal({ isOpen: true, student })
+        }
+      } else {
+        console.error('❌ Failed to fetch student details:', response?.message)
+        setStudentCVModal({ isOpen: true, student })
+      }
+    } catch (error) {
+      console.error('❌ Error fetching student details:', error)
+      // Still show modal with existing data
     setStudentCVModal({ isOpen: true, student })
+    }
   }
 
   const handleCloseViewDetails = () => {
     setStudentCVModal({ isOpen: false, student: null })
   }
-
-  const studentData = [
-    {
-      name: "Emily Wilson",
-      courseField: "Computer Science",
-      courseDegree: "M.Sc.",
-      placementDrive: "05 Mar, 2024",
-      status: "Placed"
-    },
-    {
-      name: "Daniel Brown",
-      courseField: "Business Administration",
-      courseDegree: "MBA",
-      placementDrive: "12 Feb, 2024",
-      status: "Eligible"
-    },
-    {
-      name: "Jessica Taylor",
-      courseField: "Business Administration",
-      courseDegree: "MBA",
-      placementDrive: "25 Jan, 2024",
-      status: "Placed"
-    },
-    {
-      name: "David Lee",
-      courseField: "Data Science",
-      courseDegree: "M.Sc.",
-      placementDrive: "08 Dec, 2023",
-      status: "Eligible"
-    },
-    {
-      name: "Sophia Martinez",
-      courseField: "Data Science",
-      courseDegree: "M.Sc.",
-      placementDrive: "15 Nov, 2023",
-      status: "Placed"
-    }
-  ]
 
   // Action Dropdown Component
   const ActionDropdown = ({ student, onViewDetails }) => {
@@ -116,6 +238,37 @@ function PlacementReadyStudentsTable() {
   const StudentCVModal = ({ student, isOpen, onClose }) => {
     if (!isOpen || !student) return null
 
+    // Show loading state
+    if (student.loading) {
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-5xl w-full p-8">
+            <div className="flex items-center justify-center py-8">
+              <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>Loading student details...</p>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // Handle download - open in new tab without white screen
+    const handleDownload = (url, filename) => {
+      if (!url) return
+      
+      // Open in new tab for viewing/downloading
+      const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+      if (!newWindow) {
+        // If popup blocked, fallback to direct link
+        const link = document.createElement('a')
+        link.href = url
+        link.target = '_blank'
+        link.rel = 'noopener noreferrer'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+    }
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto">
@@ -145,41 +298,53 @@ function PlacementReadyStudentsTable() {
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Email Address</label>
                   <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
                     <LuMail size={16} className="text-gray-400" />
-                    <a href={`mailto:${student.name.toLowerCase().replace(' ', '.')}@email.com`} className="text-blue-600 hover:underline">
-                      {student.name.toLowerCase().replace(' ', '.')}@email.com
+                    {student.email ? (
+                      <a href={`mailto:${student.email}`} className="text-blue-600 hover:underline">
+                        {student.email}
                     </a>
+                    ) : (
+                      <span className={TAILWIND_COLORS.TEXT_MUTED}>Not available</span>
+                    )}
                   </p>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Phone Number</label>
                   <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
                     <LuPhone size={16} className="text-gray-400" />
-                    <a href="tel:+919876543210" className="text-blue-600 hover:underline">
-                      +91 9876543210
+                    {student.phone ? (
+                      <a href={`tel:${student.phone}`} className="text-blue-600 hover:underline">
+                        {student.phone}
                     </a>
+                    ) : (
+                      <span className={TAILWIND_COLORS.TEXT_MUTED}>Not available</span>
+                    )}
                   </p>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Date of Birth</label>
                   <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
                     <LuCalendar size={16} className="text-gray-400" />
-                    15-03-1998
+                    {student.dob || 'Not available'}
                   </p>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Address</label>
                   <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
                     <LuMapPin size={16} className="text-gray-400" />
-                    123 Student Street, City, State 12345
+                    {student.region || 'Not available'}
                   </p>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>LinkedIn Profile</label>
                   <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
                     <LuGlobe size={16} className="text-gray-400" />
-                    <a href="#" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      linkedin.com/in/{student.name.toLowerCase().replace(' ', '')}
+                    {student.linkedin ? (
+                      <a href={student.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                        {student.linkedin}
                     </a>
+                    ) : (
+                      <span className={TAILWIND_COLORS.TEXT_MUTED}>Not available</span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -192,30 +357,26 @@ function PlacementReadyStudentsTable() {
                 Educational Background
               </h3>
               <div className="space-y-4">
+                {student.courseDegree || student.courseField ? (
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center justify-between mb-2">
-                    <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.courseDegree} in {student.courseField}</h4>
-                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>2022 - 2024</span>
+                      <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                        {student.courseDegree ? `${student.courseDegree}${student.courseField ? ` in ${student.courseField}` : ''}` : student.courseField}
+                      </h4>
+                      {student.graduation_year && (
+                        <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.graduation_year}</span>
+                      )}
                   </div>
-                  <p className={TAILWIND_COLORS.TEXT_MUTED}>University of Technology</p>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>CGPA: 8.5/10</p>
-                </div>
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Bachelor's Degree</h4>
-                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>2018 - 2022</span>
+                    {student.cgpa && (
+                      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>CGPA: {student.cgpa}</p>
+                    )}
+                    {student.courseDegree && !student.courseDegree.includes(student.courseField) && (
+                      <p className={TAILWIND_COLORS.TEXT_MUTED}>{student.courseDegree}</p>
+                    )}
                   </div>
-                  <p className={TAILWIND_COLORS.TEXT_MUTED}>State University</p>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>CGPA: 8.2/10</p>
-                </div>
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Higher Secondary (12th)</h4>
-                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>2016 - 2018</span>
-                  </div>
-                  <p className={TAILWIND_COLORS.TEXT_MUTED}>Central Board of Secondary Education</p>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Percentage: 85%</p>
-                </div>
+                ) : (
+                  <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-center py-4`}>No data available</p>
+                )}
               </div>
             </div>
 
@@ -229,21 +390,21 @@ function PlacementReadyStudentsTable() {
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Technical Skills</label>
                   <div className="flex flex-wrap gap-2">
-                    {['JavaScript', 'Python', 'React', 'Node.js', 'SQL', 'MongoDB'].map((skill, index) => (
+                    {student.skills && student.skills.length > 0 ? (
+                      student.skills.map((skill, index) => (
                       <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
                         {skill}
                       </span>
-                    ))}
+                      ))
+                    ) : (
+                      <span className={TAILWIND_COLORS.TEXT_MUTED}>No skills listed</span>
+                    )}
                   </div>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Soft Skills</label>
                   <div className="flex flex-wrap gap-2">
-                    {['Leadership', 'Communication', 'Problem Solving', 'Teamwork', 'Time Management'].map((skill, index) => (
-                      <span key={index} className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
-                        {skill}
-                      </span>
-                    ))}
+                    <span className={TAILWIND_COLORS.TEXT_MUTED}>No data available</span>
                   </div>
                 </div>
               </div>
@@ -255,84 +416,66 @@ function PlacementReadyStudentsTable() {
                 <LuBriefcase className="text-orange-600" size={20} />
                 Work Experience
               </h3>
+              {student.experience ? (
               <div className="space-y-4">
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Software Developer Intern</h4>
-                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Jun 2023 - Aug 2023</span>
+                  {(() => {
+                    try {
+                      const exp = typeof student.experience === 'string' ? JSON.parse(student.experience) : student.experience;
+                      const expArray = Array.isArray(exp) ? exp : [exp];
+                      return expArray.map((item, index) => (
+                        <div key={index} className="bg-white p-4 rounded-lg border border-gray-200">
+                          {item.role && (
+                            <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>{item.role}</h4>
+                          )}
+                          {item.company && (
+                            <p className={`${TAILWIND_COLORS.TEXT_MUTED} font-medium`}>{item.company}</p>
+                          )}
+                          {item.duration && (
+                            <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{item.duration}</span>
+                          )}
                   </div>
-                  <p className={`${TAILWIND_COLORS.TEXT_MUTED} font-medium`}>Tech Solutions Pvt. Ltd.</p>
-                  <ul className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-2 list-disc list-inside`}>
-                    <li>Developed web applications using React and Node.js</li>
-                    <li>Collaborated with team members on project development</li>
-                    <li>Participated in code reviews and testing processes</li>
-                  </ul>
-                </div>
+                      ));
+                    } catch (e) {
+                      return (
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Part-time Tutor</h4>
-                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Jan 2022 - Dec 2023</span>
+                          <p className={TAILWIND_COLORS.TEXT_MUTED}>{student.experience}</p>
                   </div>
-                  <p className={`${TAILWIND_COLORS.TEXT_MUTED} font-medium`}>Online Tutoring Platform</p>
-                  <ul className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-2 list-disc list-inside`}>
-                    <li>Taught programming concepts to students</li>
-                    <li>Created educational content and tutorials</li>
-                    <li>Mentored students in their academic projects</li>
-                  </ul>
+                      );
+                    }
+                  })()}
                 </div>
-              </div>
+              ) : (
+                <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-center py-4`}>No data available</p>
+              )}
             </div>
 
             {/* Projects */}
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Projects</h3>
-              <div className="space-y-4">
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>E-commerce Platform</h4>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>A full-stack e-commerce application with user authentication, product management, and payment integration.</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['React', 'Node.js', 'MongoDB', 'Stripe API'].map((tech, index) => (
-                      <span key={index} className={`px-2 py-1 bg-gray-100 ${TAILWIND_COLORS.TEXT_MUTED} text-xs rounded`}>
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Data Analysis Dashboard</h4>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-2`}>Interactive dashboard for analyzing sales data with real-time charts and reporting features.</p>
-                  <div className="flex flex-wrap gap-2">
-                    {['Python', 'Pandas', 'Matplotlib', 'Flask'].map((tech, index) => (
-                      <span key={index} className={`px-2 py-1 bg-gray-100 ${TAILWIND_COLORS.TEXT_MUTED} text-xs rounded`}>
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-center py-4`}>No data available</p>
             </div>
 
             {/* Certifications & Achievements */}
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Certifications & Achievements</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>AWS Certified Developer</h4>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Amazon Web Services - 2023</p>
+              {student.certificates ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🏆</span>
+                  <div className="flex-1">
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      {student.certificates.split('/').pop() || 'Certificate'}
+                    </p>
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Google Cloud Professional</h4>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Google Cloud Platform - 2023</p>
+                  <button
+                    onClick={() => handleDownload(student.certificates, student.certificates.split('/').pop() || 'certificate.pdf')}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap"
+                  >
+                    Download
+                  </button>
                 </div>
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Hackathon Winner</h4>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Tech Innovation Challenge - 2022</p>
-                </div>
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                  <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Dean's List</h4>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>University of Technology - 2023</p>
-                </div>
-              </div>
+              ) : (
+                <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-center py-4`}>No data available</p>
+              )}
             </div>
 
             {/* Placement Information */}
@@ -353,29 +496,42 @@ function PlacementReadyStudentsTable() {
                     {student.status}
                   </span>
                 </div>
+                {student.jobTitle && (
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Expected Salary</label>
-                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>₹8-12 LPA</p>
+                    <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Job Title</label>
+                    <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.jobTitle}</p>
                 </div>
+                )}
+                {student.companyName && (
                 <div>
-                  <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Preferred Location</label>
-                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Bangalore, Mumbai, Pune</p>
+                    <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Company Name</label>
+                    <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.companyName}</p>
                 </div>
+                )}
               </div>
             </div>
 
             {/* Resume/CV Section */}
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Resume/CV</h3>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
+              {student.resume ? (
+                <div className="flex items-center gap-3">
                   <span className="text-2xl">📄</span>
-                  <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{student.name}_Resume.pdf</span>
+                  <div className="flex-1">
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      {student.resume.split('/').pop() || `${student.name}_Resume.pdf`}
+                    </p>
                 </div>
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+                  <button
+                    onClick={() => handleDownload(student.resume, student.resume.split('/').pop() || `${student.name}_Resume.pdf`)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap"
+                  >
                   Download CV
                 </button>
               </div>
+              ) : (
+                <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-center py-4`}>No data available</p>
+              )}
             </div>
           </div>
           
@@ -414,10 +570,10 @@ function PlacementReadyStudentsTable() {
                   Name
                 </th>
                 <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
-                  Course
+                  Course Name
                 </th>
                 <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
-                  Course
+                  Job Title
                 </th>
                 <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Placement Drive
@@ -431,8 +587,21 @@ function PlacementReadyStudentsTable() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {studentData.map((student, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-8 text-center">
+                    <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>Loading placement students...</p>
+                  </td>
+                </tr>
+              ) : studentData.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-8 text-center">
+                    <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>No placement ready students found</p>
+                  </td>
+                </tr>
+              ) : (
+                studentData.map((student, index) => (
+                  <tr key={student.id || index} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</div>
                   </td>
@@ -440,14 +609,14 @@ function PlacementReadyStudentsTable() {
                     <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.courseField}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.courseDegree}</div>
+                      <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.jobTitle || '-'}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.placementDrive}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                      student.status === 'Placed' 
+                        student.status === 'Placed' || student.status === 'placed'
                         ? 'bg-blue-100 text-blue-800' 
                         : 'bg-green-100 text-green-800'
                     }`}>
@@ -461,7 +630,8 @@ function PlacementReadyStudentsTable() {
                     />
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -76,6 +76,7 @@ const ViewStudents = () => {
   const [loading, setLoading] = useState(false)
 
   const [batchOptions, setBatchOptions] = useState([]);
+  const [courses, setCourses] = useState([]);
   
   const fetchStudents = async () => {
     try {
@@ -155,8 +156,31 @@ const fetchStudentDetails = async (studentId) => {
 
 
   
+  // ✅ Fetch courses for dropdown
+  const fetchCourses = async () => {
+    try {
+      const resp = await getMethod({ apiUrl: apiService.getCourses })
+      if (resp?.status && Array.isArray(resp.courses)) {
+        const mappedCourses = resp.courses
+          .map((course) => ({
+            id: course.id ?? course.course_id,
+            name: course.title ?? course.course_title ?? course.name ?? 'Untitled Course'
+          }))
+          .filter((course) => course.id)
+        setCourses(mappedCourses)
+      } else {
+        setCourses([])
+        console.warn('No courses found for dropdown', resp)
+      }
+    } catch (err) {
+      console.error('Error fetching courses for dropdown:', err)
+      setCourses([])
+    }
+  }
+
   useEffect(() => {
     fetchStudents()
+    fetchCourses()
   }, [])
   
 
@@ -453,9 +477,11 @@ const fetchStudentDetails = async (studentId) => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Courses</option>
-              <option value="electrician">Electrician</option>
-              <option value="fitter">Fitter</option>
-              <option value="welder">Welder</option>
+              {courses.map((course) => (
+                <option key={course.id} value={course.name.toLowerCase()}>
+                  {course.name}
+                </option>
+              ))}
             </select>
           </div>
 

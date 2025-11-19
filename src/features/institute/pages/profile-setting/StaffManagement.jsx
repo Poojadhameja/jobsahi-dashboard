@@ -26,7 +26,7 @@ export default function StaffManagement() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   // Initialize with database enum roles to ensure they're always available
-  const [availableRoles, setAvailableRoles] = useState(['faculty', 'admin'])
+  const [availableRoles, setAvailableRoles] = useState(['faculty'])
   const [loadingRoles, setLoadingRoles] = useState(false)
 
   // -------------------------------
@@ -72,9 +72,9 @@ export default function StaffManagement() {
   }
 
   // ✅ Fetch available roles from backend
-  // Database enum values: 'faculty', 'admin' (from faculty_users table schema)
+  // Database enum values: 'faculty' (from faculty_users table schema)
   // Always show all available roles from database enum, not just what's in existing data
-  const databaseRoles = ['faculty', 'admin']
+  const databaseRoles = ['faculty']
   
   const fetchRoles = async () => {
     try {

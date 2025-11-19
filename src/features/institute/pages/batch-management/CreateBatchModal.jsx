@@ -25,7 +25,7 @@ const [tempEnd, setTempEnd] = useState("");
 
   const [formData, setFormData] = useState({
     batchName: "",
-    course: courseTitle || "",
+    course: courseId ? String(courseId) : "",
     startDate: "",
     endDate: "",
     timeSlot: "", // ✅ keep this field here
@@ -60,8 +60,28 @@ const [tempEnd, setTempEnd] = useState("");
     if (isOpen) {
       fetchCourses();
       fetchInstructors();
+      // ✅ Reset form when modal opens, but set course if courseId is provided
+      if (courseId) {
+        setFormData(prev => ({
+          ...prev,
+          course: String(courseId)
+        }));
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, courseId]);
+
+  // ✅ Auto-select course when courses are loaded and courseId is provided
+  useEffect(() => {
+    if (courseId && courses.length > 0) {
+      const courseExists = courses.find(c => c.id === courseId || c.course_id === courseId);
+      if (courseExists) {
+        setFormData(prev => ({
+          ...prev,
+          course: String(courseId)
+        }));
+      }
+    }
+  }, [courses, courseId]);
 
   // const [formData, setFormData] = useState({
   //   batchName: '',
@@ -159,7 +179,7 @@ const [tempEnd, setTempEnd] = useState("");
   const resetState = () => {
     setFormData({
       batchName: "",
-      course: courseTitle || "",
+      course: courseId ? String(courseId) : "",
       startDate: "",
       endDate: "",
       timeSlot: "10:00 AM - 12:00 PM",
@@ -387,9 +407,11 @@ const [tempEnd, setTempEnd] = useState("");
                     onChange={(e) =>
                       handleInputChange("course", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent ${
+                      courseId ? 'bg-gray-100 cursor-not-allowed' : ''
+                    }`}
                     required
-                    disabled={loadingCourses}
+                    disabled={loadingCourses || !!courseId}
                   >
                     <option value="">
                       {loadingCourses
@@ -404,7 +426,9 @@ const [tempEnd, setTempEnd] = useState("");
                     ))}
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    Choose the course for this batch
+                    {courseId 
+                      ? "Course is pre-selected and cannot be changed" 
+                      : "Choose the course for this batch"}
                   </p>
                 </div>
 

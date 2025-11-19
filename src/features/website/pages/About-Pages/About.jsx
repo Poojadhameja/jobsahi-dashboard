@@ -15,7 +15,8 @@ import {
   FaSearch,
   FaUsers,
   FaBriefcase,
-  FaBuilding
+  FaBuilding,
+  FaCube
 } from "react-icons/fa";
 import textunderline from "../../assets/website_text_underline.png";
 import { COLOR_CLASSES } from "../../components/colorClasses";
@@ -207,53 +208,34 @@ const About = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Side - Visual Elements */}
             <div className="relative flex justify-center lg:justify-start">
-              <div className={`w-full max-w-xs sm:max-w-md md:max-w-lg ${COLOR_CLASSES.bg.surfacePaleBlue} rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl`}>
-                <div className="flex flex-col sm:flex-row gap-4 items-stretch">
-                  <div className={`flex-1 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md`}>
-                    <input
-                      type="text"
-                      placeholder="Trusted Job Vacancies..."
-                      className={`w-full ${COLOR_CLASSES.text.neutralSlate} bg-transparent border-none outline-none text-base sm:text-lg`}
-                      readOnly
-                    />
-                  </div>
-                  <button className={`self-start sm:self-auto w-full sm:w-16 h-12 sm:h-16 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg relative`}>
+              <div className="w-full max-w-md space-y-6">
+                {/* Search Bar with Button */}
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="text"
+                    placeholder="Trusted Job Vacancies...."
+                    className={`flex-1 ${COLOR_CLASSES.bg.pureWhite} rounded-xl px-4 py-3 ${COLOR_CLASSES.text.neutralSlate} shadow-md border-none outline-none text-base placeholder:text-[#8C9BA0]`}
+                    readOnly
+                  />
+                  <button className={`w-14 h-14 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow`}>
                     <FaSearch className={`${COLOR_CLASSES.text.pureWhite} text-lg`} />
-                    <div className={`absolute inset-0 ${COLOR_CLASSES.bg.accentLime} rounded-xl opacity-30 blur-sm`}></div>
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className={`flex items-center gap-3 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md`}>
-                    <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center`}>
-                      <FaBriefcase className={`${COLOR_CLASSES.text.pureWhite} text-xl`} />
-                    </div>
-                    <div>
-                      <p className={`${COLOR_CLASSES.text.deepBlue} font-semibold text-base`}>Active Jobs</p>
-                      <p className={`${COLOR_CLASSES.text.neutralSlate} text-sm`}>1,200+ verified listings</p>
-                    </div>
+                {/* Content Blocks Container */}
+                <div className="relative">
+                  {/* Large Grey Block */}
+                  <div className={`w-full h-60 sm:h-80 ${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl shadow-md`}></div>
+                  
+                  {/* Green Badge with Cube Icon */}
+                  <div className={`absolute -top-4 -left-4 w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg`}>
+                    <FaCube className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
                   </div>
-                  <div className={`flex items-center gap-3 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md`}>
-                    <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentSky} rounded-full flex items-center justify-center`}>
-                      <FaUsers className={`${COLOR_CLASSES.text.pureWhite} text-xl`} />
-                    </div>
-                    <div>
-                      <p className={`${COLOR_CLASSES.text.deepBlue} font-semibold text-base`}>Talent Network</p>
-                      <p className={`${COLOR_CLASSES.text.neutralSlate} text-sm`}>50K+ motivated seekers</p>
-                    </div>
-                  </div>
-                  <div className={`flex items-center gap-3 ${COLOR_CLASSES.bg.pureWhite} rounded-xl p-4 shadow-md sm:col-span-2`}>
-                    <div className={`w-12 h-12 ${COLOR_CLASSES.bg.accentGreen} rounded-full flex items-center justify-center`}>
-                      <FaBuilding className={`${COLOR_CLASSES.text.pureWhite} text-xl`} />
-                    </div>
-                    <div>
-                      <p className={`${COLOR_CLASSES.text.deepBlue} font-semibold text-base`}>Partner Institutes</p>
-                      <p className={`${COLOR_CLASSES.text.neutralSlate} text-sm`}>Growing across India</p>
-                    </div>
-                  </div>
+
+                  {/* Smaller Grey Block */}
+                  <div className={`absolute -bottom-6 -right-6 w-32 h-24 ${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl shadow-md`}></div>
                 </div>
               </div>
-              <div className={`hidden md:block absolute -bottom-8 -right-6 w-24 h-24 border-4 ${COLOR_CLASSES.border.pureWhite} ${COLOR_CLASSES.bg.surfacePaleBlue} rounded-2xl`}></div>
             </div>
 
             {/* Right Side - Content */}
@@ -324,13 +306,13 @@ const About = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 md:mb-16">
             <h2 className={`text-3xl sm:text-4xl md:text-5xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
-              How It's Works?
+              How It Works?
             </h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
             {/* Step 1: Create Account */}
-            <div className={`${COLOR_CLASSES.bg.surfaceSoftBlue} rounded-3xl p-6 sm:p-8 text-center h-full`}>
+            <div className=" p-6 sm:p-8 text-center h-full">
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <div className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center relative`}>
                   <FaUserPlus className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
@@ -342,13 +324,13 @@ const About = () => {
               <h3 className={`text-2xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
                 Create Account
               </h3>
-              <p className={`${COLOR_CLASSES.text.neutralBlueGray} text-base sm:text-lg leading-relaxed`}>
+              <p className="text-white sm:text-lg font-light">
                 Sign up quickly using your mobile number or email.
               </p>
             </div>
 
             {/* Step 2: Complete Your Profile */}
-            <div className={`${COLOR_CLASSES.bg.surfaceSoftBlue} rounded-3xl p-6 sm:p-8 text-center h-full`}>
+            <div className=" p-6 sm:p-8 text-center h-full">
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <div className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center`}>
                   <FaFileAlt className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
@@ -357,13 +339,13 @@ const About = () => {
               <h3 className={`text-2xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
                 Complete Your Profile
               </h3>
-              <p className={`${COLOR_CLASSES.text.neutralBlueGray} text-base sm:text-lg leading-relaxed`}>
+              <p className="text-white sm:text-lg font-light">
                 Upload your resume, education, and skills.
               </p>
             </div>
 
             {/* Step 3: Apply Job Or Hire */}
-            <div className={`${COLOR_CLASSES.bg.surfaceSoftBlue} rounded-3xl p-6 sm:p-8 text-center h-full`}>
+            <div className=" p-6 sm:p-8 text-center h-full">
               <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <div className={`w-16 h-16 ${COLOR_CLASSES.bg.accentLime} rounded-full flex items-center justify-center`}>
                   <FaHandshake className={`${COLOR_CLASSES.text.pureWhite} text-2xl`} />
@@ -372,7 +354,7 @@ const About = () => {
               <h3 className={`text-2xl font-bold ${COLOR_CLASSES.text.pureWhite} mb-4`}>
                 Apply Job Or Hire
               </h3>
-              <p className={`${COLOR_CLASSES.text.neutralBlueGray} text-base sm:text-lg leading-relaxed`}>
+              <p className="text-white sm:text-lg font-light">
                 Browse listings and apply directly—no middleman.
               </p>
             </div>

@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';
+import { getMethod, postMethod, deleteMethod } from '../../../../service/api';
+import apiService from '../../services/serviceUrl';
+import Swal from 'sweetalert2';
 
 const CourseOversight = () => {
   // ====== STATE MANAGEMENT ======
@@ -15,9 +18,10 @@ const CourseOversight = () => {
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [courseSearchTerm, setCourseSearchTerm] = useState('');
   const [courseStatusFilter, setCourseStatusFilter] = useState('All Status');
-  const [categories, setCategories] = useState(['Electrician', 'Fitter', 'COPA']);
+  const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState('');
   const [minTopRated, setMinTopRated] = useState(4.5);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   // ====== COMPUTED VALUES ======
   const filteredCourses = courses.filter(course => {
@@ -39,18 +43,143 @@ const CourseOversight = () => {
   const handleBulkCourseApprove = () => selectedCourses.length && updateCourseStatus(selectedCourses, 'Approved');
   const handleBulkCourseFeature = () => selectedCourses.length && updateCourseStatus(selectedCourses, 'Featured');
 
+  // ====== API CALLS ======
+  const fetchCategories = useCallback(async () => {
+    try {
+      setLoadingCategories(true);
+      const response = await getMethod({
+        apiUrl: apiService.getCourseCategory
+      });
+
+      console.log('📊 Categories API Response:', response);
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true;
+
+      if (isSuccess) {
+        // Extract category names from response
+        // API returns categories in response.categories or response.data
+        let categoryList = [];
+        
+        if (response.categories && Array.isArray(response.categories)) {
+          categoryList = response.categories.map(cat => ({
+            id: cat.id,
+            name: cat.category_name || cat.name || cat.title || cat
+          }));
+        } else if (response.data && Array.isArray(response.data)) {
+          categoryList = response.data.map(cat => ({
+            id: cat.id,
+            name: cat.category_name || cat.name || cat.title || cat
+          }));
+        } else if (Array.isArray(response)) {
+          categoryList = response.map(cat => ({
+            id: cat.id,
+            name: cat.category_name || cat.name || cat.title || cat
+          }));
+        }
+        
+        console.log('✅ Categories:', categoryList);
+        setCategories(categoryList);
+      } else {
+        console.error('❌ Failed to fetch categories:', response?.message);
+        setCategories([]);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching categories:', error);
+      setCategories([]);
+    } finally {
+      setLoadingCategories(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
+
   // Category management handlers
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     const name = newCategory.trim();
-    if (!name || categories.includes(name)) return;
-    setCategories(prev => [...prev, name]);
-    setNewCategory('');
+    if (!name) {
+      Swal.fire('Error!', 'Please enter a category name', 'error');
+      return;
+    }
+
+    if (categories.includes(name)) {
+      Swal.fire('Error!', 'Category already exists', 'error');
+      return;
+    }
+
+    try {
+      const response = await postMethod({
+        apiUrl: apiService.createCourseCategory,
+        payload: {
+          name: name
+        }
+      });
+
+      console.log('📊 Create Category API Response:', response);
+
+      if (response?.status === true || response?.success === true) {
+        Swal.fire('Success!', 'Category added successfully', 'success');
+        setNewCategory('');
+        // Auto-refresh will handle the UI update, but refresh immediately for instant feedback
+        fetchCategories();
+      } else {
+        Swal.fire('Error!', response?.message || 'Failed to add category', 'error');
+      }
+    } catch (error) {
+      console.error('❌ Error adding category:', error);
+      Swal.fire('Error!', 'Failed to add category', 'error');
+    }
   };
-  const handleDeleteCategory = (name) => setCategories(prev => prev.filter(c => c !== name));
+
+  const handleDeleteCategory = async (category) => {
+    const categoryName = typeof category === 'object' ? category.name : category;
+    const categoryId = typeof category === 'object' ? category.id : null;
+
+    const result = await Swal.fire({
+      title: 'Delete Category?',
+      text: `Are you sure you want to delete "${categoryName}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // Call API to delete from database
+        if (categoryId) {
+          const response = await deleteMethod({
+            apiUrl: `${apiService.deleteCourseCategory}?id=${categoryId}`
+          });
+
+          console.log('📊 Delete Category API Response:', response);
+
+          if (response?.status === true || response?.success === true) {
+            Swal.fire('Deleted!', 'Category has been deleted successfully', 'success');
+            // Auto-refresh will handle the UI update, but refresh immediately for instant feedback
+            fetchCategories();
+          } else {
+            Swal.fire('Error!', response?.message || 'Failed to delete category', 'error');
+            fetchCategories(); // Refresh to get correct state
+          }
+        } else {
+          Swal.fire('Error!', 'Category ID not found', 'error');
+        }
+      } catch (error) {
+        console.error('❌ Error deleting category:', error);
+        Swal.fire('Error!', 'Failed to delete category', 'error');
+        fetchCategories(); // Refresh to get correct state
+      }
+    }
+  };
+
   const handleRenameCategory = (oldName) => {
     const next = window.prompt('Rename category', oldName);
     const name = (next || '').trim();
-    if (!name) return;
+    if (!name || name === oldName) return;
     setCategories(prev => prev.map(c => (c === oldName ? name : c)));
   };
 
@@ -208,25 +337,36 @@ const CourseOversight = () => {
       <div className={`${TAILWIND_COLORS.CARD} p-6`}>
         <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Category Management</h3>
         
-        <div className="flex flex-wrap gap-2 mb-4">
-          {categories.map((category) => (
-            <div key={category} className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
-              <span className="text-sm text-gray-700">{category}</span>
-              <button
-                onClick={() => handleRenameCategory(category)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✏️
-              </button>
-              <button
-                onClick={() => handleDeleteCategory(category)}
-                className="text-red-500 hover:text-red-700"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-        </div>
+        {loadingCategories ? (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <p className={`mt-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Loading categories...</p>
+          </div>
+        ) : categories.length === 0 ? (
+          <div className="text-center py-8">
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No categories found</p>
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {categories.map((category) => {
+              const categoryName = typeof category === 'object' ? category.name : category;
+              const categoryKey = typeof category === 'object' ? category.id || category.name : category;
+              
+              return (
+                <div key={categoryKey} className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+                  <span className="text-sm text-gray-700">{categoryName}</span>
+                  <button
+                    onClick={() => handleDeleteCategory(category)}
+                    className="text-red-500 hover:text-red-700 text-sm font-bold"
+                    title="Delete category"
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="flex gap-2">
           <input

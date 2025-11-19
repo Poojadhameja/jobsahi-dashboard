@@ -17,7 +17,8 @@ const service = {
 
     verifyUser: "/user/verify_user.php",
 
-
+    //jobs
+    getJobs: '/jobs/jobs.php',
 
 }
 
