@@ -16,17 +16,13 @@ export default function StaffManagement() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
-    role: '' // No default - user must select
+    phone: ''
   })
 
   // ✅ API data state
   const [instructors, setInstructors] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  // Initialize with database enum roles to ensure they're always available
-  const [availableRoles, setAvailableRoles] = useState(['faculty'])
-  const [loadingRoles, setLoadingRoles] = useState(false)
 
   // -------------------------------
   // Helpers: map API → UI object
@@ -36,7 +32,6 @@ export default function StaffManagement() {
     name: row.name,
     email: row.email,
     phone: row.phone || '',
-    role: row.role || 'faculty', // Use role from backend, default to 'faculty'
     status:
       row.admin_action === 'approved'
         ? 'Active'
@@ -70,45 +65,9 @@ export default function StaffManagement() {
     }
   }
 
-  // ✅ Fetch available roles from backend
-  // Database enum values: 'faculty' (from faculty_users table schema)
-  // Always show all available roles from database enum, not just what's in existing data
-  const databaseRoles = ['faculty']
-  
-  const fetchRoles = async () => {
-    try {
-      setLoadingRoles(true)
-      
-      // Always start with database enum roles to ensure they're always available
-      let allRoles = [...databaseRoles]
-      
-      // Try to get roles from faculty API response to see if backend provides additional roles
-      const res = await getMethod({ apiUrl: apiService.getFaculty })
-      
-      if (res?.status && Array.isArray(res.data)) {
-        // Extract unique roles from faculty data
-        const uniqueRoles = [...new Set(res.data.map(f => f.role).filter(Boolean))]
-        
-        // Combine database enum roles with any additional roles from API
-        // This ensures all enum values are always available, plus any extras
-        allRoles = [...new Set([...databaseRoles, ...uniqueRoles])]
-      }
-      
-      // Always set roles - never clear them
-      setAvailableRoles(allRoles)
-    } catch (err) {
-      console.error('Error fetching roles:', err)
-      // Fallback to database enum values - always available
-      setAvailableRoles(databaseRoles)
-    } finally {
-      setLoadingRoles(false)
-    }
-  }
-
   // load on first render
   useEffect(() => {
     fetchFaculty()
-    fetchRoles()
   }, [])
 
   const filteredInstructors = instructors.filter((instructor) =>
@@ -120,7 +79,7 @@ export default function StaffManagement() {
   // UI Handlers (Add/Edit/Delete)
   // -------------------------------
   const handleAddInstructor = () => {
-    setFormData({ name: '', email: '', phone: '', role: '' }) // No default role - user must select
+    setFormData({ name: '', email: '', phone: '' })
     setEditingInstructor(null)
     setShowAddModal(true)
   }
@@ -130,8 +89,7 @@ export default function StaffManagement() {
     setFormData({
       name: instructor.name,
       email: instructor.email,
-      phone: instructor.phone,
-      role: instructor.role
+      phone: instructor.phone
     })
     setShowEditModal(true)
   }
@@ -141,11 +99,11 @@ export default function StaffManagement() {
   // -------------------------------
   const handleSaveInstructor = async () => {
     // simple required validation; backend will still validate
-    if (!formData.name.trim() || !formData.email.trim() || !formData.role) {
+    if (!formData.name.trim() || !formData.email.trim()) {
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
-        text: 'Please fill all required fields including Role',
+        text: 'Please fill all required fields (Name and Email)',
         confirmButtonColor: '#5C9A24'
       })
       return
@@ -159,8 +117,7 @@ export default function StaffManagement() {
           id: editingInstructor.id,
           name: formData.name.trim(),
           email: formData.email.trim(),
-          phone: formData.phone.trim(),
-          role: formData.role // Use the selected role, no default fallback
+          phone: formData.phone.trim()
           // admin_action only from admin side if needed
         }
 
@@ -203,8 +160,7 @@ export default function StaffManagement() {
         const payload = {
           name: formData.name.trim(),
           email: formData.email.trim(),
-          phone: formData.phone.trim(),
-          role: formData.role // Use the selected role, no default fallback
+          phone: formData.phone.trim()
         }
 
         const res = await postMethod({
@@ -240,7 +196,7 @@ export default function StaffManagement() {
         setShowAddModal(false)
       }
 
-      setFormData({ name: '', email: '', phone: '', role: '' })
+      setFormData({ name: '', email: '', phone: '' })
     } catch (err) {
       console.error('Error saving faculty:', err)
       // Show error popup for unexpected errors
@@ -259,7 +215,7 @@ export default function StaffManagement() {
     setShowAddModal(false)
     setShowEditModal(false)
     setEditingInstructor(null)
-    setFormData({ name: '', email: '', phone: '', role: '' })
+    setFormData({ name: '', email: '', phone: '' })
   }
 
   const handleInputChange = (e) => {
@@ -346,11 +302,6 @@ export default function StaffManagement() {
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  {/* Role Badge */}
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TAILWIND_COLORS.BADGE_INFO}`}>
-                    {instructor.role}
-                  </span>
-
                   {/* Action Buttons */}
                   <div className="flex items-center space-x-2">
                     <button
@@ -445,32 +396,6 @@ export default function StaffManagement() {
                 />
               </div>
 
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
-                  Role <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="role"
-                  value={formData.role || ''}
-                  onChange={handleInputChange}
-                  disabled={loadingRoles || isSaving}
-                  required
-                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary ${TAILWIND_COLORS.TEXT_PRIMARY} ${(loadingRoles || isSaving) ? 'opacity-50 cursor-not-allowed' : ''} ${!formData.role ? 'border-red-300' : ''}`}
-                >
-                  <option value="">{loadingRoles ? 'Loading roles...' : 'Select role'}</option>
-                  {availableRoles.map((role) => (
-                    <option key={role} value={role}>
-                      {role.charAt(0).toUpperCase() + role.slice(1)}
-                    </option>
-                  ))}
-                </select>
-                {!loadingRoles && availableRoles.length === 0 && (
-                  <p className="text-xs text-gray-500 mt-1">No roles available</p>
-                )}
-                {!formData.role && (
-                  <p className="text-xs text-red-500 mt-1">Please select a role</p>
-                )}
-              </div>
             </div>
 
             <div className="flex justify-end space-x-3 mt-6">
