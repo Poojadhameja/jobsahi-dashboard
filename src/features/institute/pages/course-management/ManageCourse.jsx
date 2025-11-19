@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { LuSearch, LuChevronDown, LuCalendar, LuEye, LuPencil, LuTrash2, LuBuilding, LuRefreshCw } from 'react-icons/lu'
+import { LuSearch, LuChevronDown, LuCalendar, LuEye, LuPencil, LuBuilding, LuRefreshCw } from 'react-icons/lu'
 import { useCourseContext } from '../../context/CourseContext'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import ViewCoursePopup from './ViewCoursePopup'
@@ -11,7 +11,7 @@ import apiService from '../../services/serviceUrl'
 export default function ManageCourse({ onNavigateToCreateCourse }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const { deleteCourse, updateCourse } = useCourseContext()
+  const { updateCourse } = useCourseContext()
   
   const [coursesData, setCoursesData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -20,13 +20,35 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
   const [filters, setFilters] = useState({
     status: '',
     fields: '',
-    skills: ''
+    Courses: ''
   })
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [showViewPopup, setShowViewPopup] = useState(false)
   const [showEditPopup, setShowEditPopup] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [courseToDelete, setCourseToDelete] = useState(null)
+  const [categories, setCategories] = useState([])
+
+  // ✅ Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getMethod({
+          apiUrl: apiService.getCourseCategories
+        })
+        
+        if (res?.status && Array.isArray(res.categories)) {
+          setCategories(res.categories)
+        } else {
+          console.warn('⚠️ No categories found or invalid response:', res)
+          setCategories([])
+        }
+      } catch (err) {
+        console.error('❌ Error fetching categories:', err)
+        setCategories([])
+      }
+    }
+    
+    fetchCategories()
+  }, [])
 
   // ✅ Fetch courses on component mount
   useEffect(() => {
@@ -66,7 +88,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
           categoryId: course.category_id,
           category: getCategoryName(course.category_id),
           fee: parseFloat(course.fee) || 0,
-          status: course.status || 'Active',
+          status: course.status || '',
           instructorName: course.instructor_name || '',
           mode: course.mode || '',
           skills: course.tagged_skills
@@ -79,8 +101,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
           media: course.media || '',
           adminAction: course.admin_action, // Only for admin
           createdAt: course.created_at,
-          updatedAt: course.updated_at,
-          team: 'Institute Team'
+          updatedAt: course.updated_at
         }))
         
         setCoursesData(transformedCourses)
@@ -100,25 +121,35 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
 
   // Helper function to get category name from ID
   const getCategoryName = (categoryId) => {
-    const categories = {
-      1: 'Technical',
-      2: 'Non-Technical',
-      3: 'Vocational',
-      4: 'Professional'
-    }
-    return categories[categoryId] || 'Uncategorized'
+    if (!categoryId) return ''
+    
+    const category = categories.find(cat => 
+      cat.id === categoryId || cat.category_id === categoryId
+    )
+    
+    return category?.category_name || category?.name || ''
   }
 
   // Filter courses based on search and filters
   const filteredCourses = coursesData.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = !filters.status || course.status.toLowerCase() === filters.status.toLowerCase()
-    const matchesFields = !filters.fields || course.category.toLowerCase().includes(filters.fields.toLowerCase())
-    const matchesSkills = !filters.skills || course.skills.some(skill => 
-      skill.toLowerCase().includes(filters.skills.toLowerCase())
-    )
     
-    return matchesSearch && matchesStatus && matchesFields && matchesSkills
+    // Match fields by category name (from API categories)
+    const matchesFields = !filters.fields || (() => {
+      const courseCategoryName = course.category.toLowerCase()
+      const filterValue = filters.fields.toLowerCase()
+      return courseCategoryName === filterValue || courseCategoryName.includes(filterValue)
+    })()
+    
+    // Match courses by course title (from API courses)
+    const matchesCourses = !filters.Courses || (() => {
+      const courseTitle = course.title.toLowerCase()
+      const filterValue = filters.Courses.toLowerCase()
+      return courseTitle === filterValue || courseTitle.includes(filterValue)
+    })()
+    
+    return matchesSearch && matchesStatus && matchesFields && matchesCourses
   })
 
   const itemsPerPage = 4
@@ -168,9 +199,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
     } else if (action === 'edit') {
       setSelectedCourse(course)
       setShowEditPopup(true)
-    } else if (action === 'delete') {
-      setCourseToDelete(course)
-      setShowDeleteConfirm(true)
     }
   }
 
@@ -234,47 +262,13 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
     }
   }
 
-  const handleDeleteConfirm = async () => {
-    if (!courseToDelete) return
-
-    try {
-      console.log('🗑️ Deleting course:', courseToDelete.id)
-      
-      // Call backend delete API - uncomment when ready
-      // const res = await deleteMethod({ 
-      //   apiUrl: `${apiService.deleteCourse}/${courseToDelete.id}` 
-      // })
-      
-      // Update local state
-      setCoursesData(prev => prev.filter(course => course.id !== courseToDelete.id))
-      
-      if (deleteCourse) {
-        deleteCourse(courseToDelete.id)
-      }
-      
-      alert('✅ Course deleted successfully!')
-      setShowDeleteConfirm(false)
-      setCourseToDelete(null)
-      
-      // Refresh from backend
-      fetchCourses()
-    } catch (err) {
-      console.error('❌ Error deleting course:', err)
-      alert('Failed to delete course. Please try again.')
-    }
-  }
-
-  const handleDeleteCancel = () => {
-    setShowDeleteConfirm(false)
-    setCourseToDelete(null)
-  }
 
   const handleRefresh = () => {
     setSearchTerm('')
     setFilters({
       status: '',
       fields: '',
-      skills: ''
+      Courses: ''
     })
     fetchCourses()
   }
@@ -331,12 +325,11 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
                 <option value="">Status</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
-                <option value="draft">Draft</option>
               </select>
               <LuChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             </div>
 
-            {/* Fields Filter */}
+            {/* Fields Filter - Using API Categories */}
             <div className="relative">
               <select
                 value={filters.fields}
@@ -344,29 +337,44 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
                 className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[120px]"
               >
                 <option value="">Fields</option>
-                <option value="technical">Technical</option>
-                <option value="non-technical">Non-Technical</option>
-                <option value="vocational">Vocational</option>
-                <option value="professional">Professional</option>
+                {categories.length > 0 ? (
+                  categories.map((category) => {
+                    const categoryName = category.category_name || category.name || ''
+                    if (!categoryName) return null
+                    return (
+                      <option key={category.id || category.category_id} value={categoryName.toLowerCase()}>
+                        {categoryName}
+                      </option>
+                    )
+                  })
+                ) : (
+                  <option value="" disabled>Loading categories...</option>
+                )}
               </select>
               <LuChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             </div>
 
-            {/* Skills Filter */}
+            {/* Courses Filter - Using API Courses */}
             <div className="relative">
               <select
-                value={filters.skills}
-                onChange={(e) => handleFilterChange('skills', e.target.value)}
+                value={filters.Courses}
+                onChange={(e) => handleFilterChange('Courses', e.target.value)}
                 className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-[#5C9A24] min-w-[120px]"
               >
-                <option value="">Skills</option>
-                <option value="javascript">JavaScript</option>
-                <option value="react">React</option>
-                <option value="python">Python</option>
-                <option value="java">Java</option>
-                <option value="sql">SQL</option>
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
+                <option value="">Courses</option>
+                {coursesData.length > 0 ? (
+                  coursesData
+                    .map(course => course.title)
+                    .filter((title, index, self) => title && self.indexOf(title) === index) // Get unique course titles
+                    .sort()
+                    .map(courseTitle => (
+                      <option key={courseTitle} value={courseTitle.toLowerCase()}>
+                        {courseTitle}
+                      </option>
+                    ))
+                ) : (
+                  <option value="" disabled>Loading courses...</option>
+                )}
               </select>
               <LuChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
             </div>
@@ -421,18 +429,19 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {currentCourses.map((course) => (
               <div key={course.id} className={`${TAILWIND_COLORS.CARD} p-6`}>
-                {/* Team and Status */}
-                <div className="flex justify-between items-center mb-3">
-                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{course.team}</span>
-                  <span className={`${
-                    course.status.toLowerCase() === 'active' 
-                      ? TAILWIND_COLORS.BADGE_SUCCESS 
-                      : course.status.toLowerCase() === 'inactive'
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-gray-100 text-gray-800'
-                  } text-xs font-medium px-2.5 py-0.5 rounded-full`}>
-                    {course.status}
-                  </span>
+                {/* Status */}
+                <div className="flex justify-end items-center mb-3">
+                  {course.status && (
+                    <span className={`${
+                      course.status.toLowerCase() === 'active' 
+                        ? TAILWIND_COLORS.BADGE_SUCCESS 
+                        : course.status.toLowerCase() === 'inactive'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-800'
+                    } text-xs font-medium px-2.5 py-0.5 rounded-full`}>
+                      {course.status}
+                    </span>
+                  )}
                 </div>
 
                 {/* Course Title */}
@@ -518,13 +527,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
                       >
                         <LuPencil className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => handleAction('delete', course.id)}
-                        className="p-2 text-error hover:text-red-700 transition-colors"
-                        title="Delete"
-                      >
-                        <LuTrash2 className="w-4 h-4" />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -586,46 +588,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         />
       )}
 
-      {/* Delete Confirmation Popup */}
-      {showDeleteConfirm && courseToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className={`${TAILWIND_COLORS.HEADER_BG} rounded-lg shadow-xl max-w-md w-full`}>
-            <div className="p-6">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                  <LuTrash2 className="w-6 h-6 text-red-600" />
-                </div>
-                <div>
-                  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                    Delete Course
-                  </h3>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                    This action cannot be undone.
-                  </p>
-                </div>
-              </div>
-              <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>
-                Are you sure you want to delete <strong>"{courseToDelete.title}"</strong>? 
-                This will permanently remove the course and all its data.
-              </p>
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={handleDeleteCancel}
-                  className={`px-4 py-2 ${TAILWIND_COLORS.BTN_LIGHT} rounded-lg transition-colors`}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDeleteConfirm}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Delete Course
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

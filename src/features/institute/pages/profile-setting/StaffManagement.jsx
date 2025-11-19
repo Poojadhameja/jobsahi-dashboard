@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { LuPlus, LuSearch, LuFilter, LuPencil, LuTrash2, LuUserPlus } from 'react-icons/lu'
+import { LuPlus, LuSearch, LuFilter, LuPencil, LuUserPlus } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 
@@ -11,9 +11,7 @@ export default function StaffManagement() {
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [editingInstructor, setEditingInstructor] = useState(null)
-  const [deletingInstructor, setDeletingInstructor] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -137,11 +135,6 @@ export default function StaffManagement() {
     setShowEditModal(true)
   }
 
-  const handleDeleteInstructor = (instructor) => {
-    setDeletingInstructor(instructor)
-    setShowDeleteModal(true)
-  }
-
   // -------------------------------
   // CREATE / UPDATE via API
   // -------------------------------
@@ -231,23 +224,10 @@ export default function StaffManagement() {
     }
   }
 
-  const handleConfirmDelete = () => {
-    // ❗ No delete API given, so just remove from current list
-    if (deletingInstructor) {
-      setInstructors((prev) =>
-        prev.filter((inst) => inst.id !== deletingInstructor.id)
-      )
-    }
-    setShowDeleteModal(false)
-    setDeletingInstructor(null)
-  }
-
   const handleCancelModal = () => {
     setShowAddModal(false)
     setShowEditModal(false)
-    setShowDeleteModal(false)
     setEditingInstructor(null)
-    setDeletingInstructor(null)
     setFormData({ name: '', email: '', phone: '', role: '' })
   }
 
@@ -348,13 +328,6 @@ export default function StaffManagement() {
                       title="Edit"
                     >
                       <LuPencil className="w-4 h-4 text-secondary" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteInstructor(instructor)}
-                      className="w-8 h-8 bg-red-100 hover:bg-red-200 rounded flex items-center justify-center transition-colors"
-                      title="Delete"
-                    >
-                      <LuTrash2 className="w-4 h-4 text-error" />
                     </button>
                   </div>
                 </div>
@@ -491,40 +464,6 @@ export default function StaffManagement() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${TAILWIND_COLORS.HEADER_BG} rounded-lg p-6 w-full max-w-md mx-4`}>
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
-              Confirm Delete
-            </h3>
-
-            <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
-              Are you sure you want to delete <strong>{deletingInstructor?.name}</strong>?
-              This action cannot be undone.
-            </p>
-
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={handleCancelModal}
-                variant="light"
-                size="md"
-                disabled={isSaving}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmDelete}
-                variant="danger"
-                size="md"
-                disabled={isSaving}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

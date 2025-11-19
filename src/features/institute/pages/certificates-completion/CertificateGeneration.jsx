@@ -108,6 +108,7 @@ function CertificateGeneration() {
     setSelectedCourse(cid);
     setSelectedBatch("");
     setStudents([]);
+    setSelectedStudents([]);
 
     const selected = courses.find((c) => String(c.id) === cid);
     setBatches(selected?.batches || []);
@@ -139,6 +140,8 @@ function CertificateGeneration() {
     );
 
     setStudents(mappedStudents);
+    // Auto-select all students when batch is selected
+    setSelectedStudents(mappedStudents.map(s => s.id));
   };
 
   // ✅ Select template
@@ -160,14 +163,6 @@ function CertificateGeneration() {
     }
   };
 
-  // ✅ Toggle selection
-  const toggleStudentSelect = (studentId) => {
-    setSelectedStudents((prev) =>
-      prev.includes(studentId)
-        ? prev.filter((id) => id !== studentId)
-        : [...prev, studentId]
-    );
-  };
 
   const handleAssetSelect = (setFile, setPreview) => (event) => {
     const file = event.target.files?.[0];
@@ -618,12 +613,6 @@ function CertificateGeneration() {
                     key={`${student.id}-${student.email || student.phone}`}
                     className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200"
                   >
-                    <input
-                      type="checkbox"
-                      checked={selectedStudents.includes(student.id)}
-                      onChange={() => toggleStudentSelect(student.id)}
-                      className={`mr-4 w-5 h-5 ${TAILWIND_COLORS.TEXT_SUCCESS} rounded focus:ring-green-500`}
-                    />
                     <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mr-4">
                       <LuUser className={`h-6 w-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`} />
                     </div>
