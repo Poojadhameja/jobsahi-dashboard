@@ -39,6 +39,7 @@ function CertificateGeneration() {
   const [signaturePreview, setSignaturePreview] = useState("");
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -83,24 +84,32 @@ function CertificateGeneration() {
         const resp = await getMethod({
           apiUrl: apiService.certificateTemplatesList,
         });
-
-        if (resp?.status && Array.isArray(resp.data) && resp.data.length) {
+  
+        if (resp?.status && Array.isArray(resp.data)) {
           setTemplates(resp.data);
-          const firstTemplate = resp.data[0];
-          setSelectedTemplateId(firstTemplate?.template_id || firstTemplate?.id || "");
-          setTemplateName(firstTemplate?.template_name || DEFAULT_TEMPLATE_NAME);
-          setDescription(firstTemplate?.footer_text || DEFAULT_CERTIFICATE_DESCRIPTION);
-        } else {
-          setTemplates([]);
+  
+          if (resp.data.length > 0) {
+            const t = resp.data[0];
+  
+            setSelectedTemplateId(t.id);
+            setTemplateName(t.template_name);
+            setDescription(t.description);
+  
+            // preview set for popup
+            setLogoPreview(t.logo || "");
+            setSealPreview(t.seal || "");
+            setSignaturePreview(t.signature || "");
+          }
         }
       } catch (error) {
         console.error("❌ Error fetching template defaults:", error);
-        setTemplates([]);
       }
     };
-
+  
     fetchTemplateDefaults();
   }, []);
+  
+
 
   // ✅ Select course
   const onCourseChange = (e) => {
@@ -250,9 +259,9 @@ function CertificateGeneration() {
         formData.append("template_name", templateName.trim());
         formData.append("description", description || "");
 
-        if (logoFile) formData.append("logo_url", logoFile);
-        if (sealFile) formData.append("seal_url", sealFile);
-        if (signatureFile) formData.append("signature_url", signatureFile);
+        if (logoFile) formData.append("logo", logoFile);
+        if (sealFile) formData.append("seal", sealFile);
+        if (signatureFile) formData.append("signature", signatureFile);
 
         console.log("📤 Sending FormData keys:", Array.from(formData.keys()));
 
@@ -331,71 +340,42 @@ function CertificateGeneration() {
 
   // ✅ Create template
   const handleCreateTemplate = async () => {
-    if (!templateName.trim()) {
-      Swal.fire({
-        icon: "warning",
-        title: "Template Name Required",
-        text: "Please enter a template name.",
-        confirmButtonColor: "#16a34a",
-      });
-      return;
-    }
-
-    if (!description.trim()) {
-      Swal.fire({
-        icon: "warning",
-        title: "Description Required",
-        text: "Please enter a description.",
-        confirmButtonColor: "#16a34a",
-      });
-      return;
-    }
-
-    if (!logoFile || !sealFile || !signatureFile) {
-      Swal.fire({
-        icon: "warning",
-        title: "Assets Required",
-        text: "Please upload all assets (Logo, Seal, and Signature).",
-        confirmButtonColor: "#16a34a",
-      });
-      return;
-    }
-
+    if (!templateName.trim()) return Swal.fire("Template name required");
+    if (!description.trim()) return Swal.fire("Description required");
+    if (!logoFile || !sealFile || !signatureFile)
+      return Swal.fire("Upload all assets");
+  
     setIsCreatingTemplate(true);
+  
     try {
       const formData = new FormData();
+  
       formData.append("template_name", templateName.trim());
-      formData.append("header_text", "Certificate of Completion");
-      
-      const footer = description.trim().replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-      formData.append("footer_text", footer || "Powered by JobSahi");
+      formData.append("description", description.trim());
       formData.append("is_active", "1");
       formData.append("admin_action", "approved");
-
-      formData.append("logo_url", logoFile);
-      formData.append("seal_url", sealFile);
-      formData.append("signature_url", signatureFile);
-
+  
+      formData.append("logo", logoFile);
+      formData.append("seal", sealFile);
+      formData.append("signature", signatureFile);
+  
       const res = await postMultipart({
         apiUrl: apiService.createCertificateTemplate,
         formData,
       });
-
+  
       if (res?.status) {
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: "Template created successfully!",
-          confirmButtonColor: "#16a34a",
-        });
-        // Refresh templates list
+        Swal.fire("Success", "Template created successfully", "success");
+  
+        // 🔥 Refresh template list
         const resp = await getMethod({
           apiUrl: apiService.certificateTemplatesList,
         });
-        if (resp?.status && Array.isArray(resp.data)) {
+  
+        if (resp?.status) {
           setTemplates(resp.data);
         }
-        // Close modal and reset form
+  
         setIsTemplateModalOpen(false);
         setTemplateName(DEFAULT_TEMPLATE_NAME);
         setDescription(DEFAULT_CERTIFICATE_DESCRIPTION);
@@ -406,25 +386,15 @@ function CertificateGeneration() {
         setSealPreview("");
         setSignaturePreview("");
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Failed",
-          text: res?.message || "Failed to create template",
-          confirmButtonColor: "#16a34a",
-        });
+        Swal.fire("Failed", res?.message, "error");
       }
     } catch (err) {
-      console.error("❌ Error creating template:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "An error occurred while creating the template. Please try again.",
-        confirmButtonColor: "#16a34a",
-      });
+      Swal.fire("Error", "Something went wrong", "error");
     } finally {
       setIsCreatingTemplate(false);
     }
   };
+  
 
   const assetInputs = [
     {
@@ -597,7 +567,7 @@ function CertificateGeneration() {
                   }`}
                 >
                   <LuFileText className="h-5 w-5" />
-                  <span>{isCreatingTemplate ? "Creating..." : "Create Template"}</span>
+                  <span>{isCreatingTemplate ? "Creating..." : "Create "}</span>
                 </button>
               </div>
             </>
@@ -658,32 +628,47 @@ function CertificateGeneration() {
             <div className="mb-6">
               <h4 className="text-md font-medium mb-4">Student in Batch</h4>
               <div className="space-y-3">
-                {students.map((student) => (
-                  <div
-                    key={`${student.id}-${student.email || student.phone}`}
-                    className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200"
-                  >
-                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mr-4">
-                      <LuUser className={`h-6 w-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`} />
-                    </div>
-                    <div className="flex-1">
-                      <h5 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</h5>
-                      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                        Enrollment ID: {student.enrollmentId}
-                      </p>
-                    </div>
-                    <div className={`flex items-center space-x-4 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                      <div className="flex items-center">
-                        <LuPhone className="h-4 w-4 mr-1" />
-                        {student.phone || "-"}
+                {students.map((student) => {
+                  const isSelected = selectedStudents.includes(student.id);
+                  return (
+                    <div
+                      key={`${student.id}-${student.email || student.phone}`}
+                      className="flex items-center p-4 bg-gray-50 rounded-lg border border-gray-200"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedStudents([...selectedStudents, student.id]);
+                          } else {
+                            setSelectedStudents(selectedStudents.filter(id => id !== student.id));
+                          }
+                        }}
+                        className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 mr-4 cursor-pointer"
+                      />
+                      <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mr-4">
+                        <LuUser className={`h-6 w-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`} />
                       </div>
-                      <div className="flex items-center">
-                        <LuMail className="h-4 w-4 mr-1" />
-                        {student.email || "-"}
+                      <div className="flex-1">
+                        <h5 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</h5>
+                        <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                          Enrollment ID: {student.enrollmentId}
+                        </p>
+                      </div>
+                      <div className={`flex items-center space-x-4 text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                        <div className="flex items-center">
+                          <LuPhone className="h-4 w-4 mr-1" />
+                          {student.phone || "-"}
+                        </div>
+                        <div className="flex items-center">
+                          <LuMail className="h-4 w-4 mr-1" />
+                          {student.email || "-"}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {!students.length && (
                   <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                     No students to show. Select a course & batch.
@@ -897,7 +882,7 @@ function CertificateGeneration() {
       </div>
 
       {/* Certificate Preview */}
-      {renderCertificatePreview()}
+      {/* {renderCertificatePreview()} */}
 
       {isTemplateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
@@ -911,7 +896,10 @@ function CertificateGeneration() {
               </div>
               <button
                 type="button"
-                onClick={() => setIsTemplateModalOpen(false)}
+                onClick={() => {
+                  setIsTemplateModalOpen(false);
+                  setShowPreview(false);
+                }}
                 className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary text-sm font-medium`}
               >
                 Close
@@ -919,7 +907,7 @@ function CertificateGeneration() {
             </div>
             <div className="space-y-6">
               {renderCertificateFormSections()}
-              {renderCertificatePreview()}
+              {showPreview && renderCertificatePreview()}
             </div>
           </div>
         </div>

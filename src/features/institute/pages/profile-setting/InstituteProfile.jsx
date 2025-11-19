@@ -111,19 +111,39 @@ export default function InstituteProfile() {
   // ----------------------------
   const fetchInstituteTypes = async () => {
     try {
-      setLoadingInstituteTypes(true)
-      const res = await getMethod({ apiUrl: apiService.getInstituteProfile })
-
-      if (res?.success) {
-        if (res?.data?.institute_types) setInstituteTypes(res.data.institute_types)
-        else setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
-      }
-    } catch {
-      setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
+      setLoadingInstituteTypes(true);
+  
+      const res = await getMethod({ apiUrl: apiService.getInstituteProfile });
+  
+      // ⭐ Backend se jitne bhi types mile → use as is
+      const typesFromAPI =
+        res?.data?.institute_types && Array.isArray(res.data.institute_types)
+          ? res.data.institute_types
+          : [];
+  
+      // ⭐ Unique remove + empty filter
+      const uniqueTypes = [...new Set(typesFromAPI)].filter(Boolean);
+  
+      // ⭐ Fallback list
+      const fallback = [
+        "Private",
+        "Public",
+        "Government",
+      ];
+  
+      // ⭐ Final list
+      setInstituteTypes(uniqueTypes.length > 0 ? uniqueTypes : fallback);
+    } catch (err) {
+      setInstituteTypes([
+        "Private",
+        "Public",
+        "Government",
+      ]);
     } finally {
-      setLoadingInstituteTypes(false)
+      setLoadingInstituteTypes(false);
     }
-  }
+  };
+  
 
   // ----------------------------
   // FETCH PROFILE (LOGO FIXED)
@@ -405,10 +425,11 @@ export default function InstituteProfile() {
                 >
                   <option value="">{loadingInstituteTypes ? 'Loading institute types...' : 'Select Institute Type'}</option>
                   {instituteTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
+  <option key={type} value={type}>
+    {type}
+  </option>
+))}
+
                 </select>
                 {errors.instituteType && (
                   <p className="text-xs text-error mt-1">{errors.instituteType}</p>
