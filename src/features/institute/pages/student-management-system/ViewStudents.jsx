@@ -19,20 +19,49 @@ const ViewStudents = () => {
 
   const fetchBatchesByCourse = async (course_id) => {
     try {
-      if (!course_id) return [];
+      if (!course_id) {
+        console.warn("No course_id provided for batch fetch");
+        return [];
+      }
   
+      console.log("Fetching batches for course_id:", course_id);
+      
       const resp = await getMethod({
-        apiUrl: `${apiService.get_batches}?course_id=${course_id}`,
+        apiUrl: apiService.getBatches,
+        params: { course_id: Number(course_id) }
       });
   
-      if (resp?.status && resp.batches) {
-        return resp.batches;
-      }
-    } catch (e) {
-      console.error("Batch fetch error:", e);
-    }
+      console.log("Batches API response for course_id", course_id, ":", resp);
   
-    return [];
+      // Handle different response structures
+      if (resp?.status) {
+        let batches = [];
+        
+        // Check for batches in different possible locations
+        if (Array.isArray(resp.batches)) {
+          batches = resp.batches;
+        } else if (Array.isArray(resp.data)) {
+          batches = resp.data;
+        } else if (resp.data && Array.isArray(resp.data.batches)) {
+          batches = resp.data.batches;
+        }
+        
+        // Filter batches to ensure they belong to this course_id
+        const filteredBatches = batches.filter(batch => {
+          const batchCourseId = batch.course_id || batch.courseId || batch.course?.course_id || batch.course?.id;
+          return Number(batchCourseId) === Number(course_id);
+        });
+        
+        console.log("Filtered batches for course_id", course_id, ":", filteredBatches);
+        return filteredBatches;
+      }
+      
+      console.warn("No batches found in response for course_id:", course_id);
+      return [];
+    } catch (e) {
+      console.error("Batch fetch error for course_id", course_id, ":", e);
+      return [];
+    }
   };
   
 
@@ -46,35 +75,8 @@ const ViewStudents = () => {
   })
   const [loading, setLoading] = useState(false)
 
-  const defaultCourseOptions = [
-    'Electrician',
-    'Fitter',
-    'Welder',
-    'Mechanic',
-    'Plumber',
-    'Carpenter',
-    'Painter'
-  ]
-
-  const defaultBatchOptions = [
-    'Batch A',
-    'Batch B',
-    'Batch C'
-  ]
-
-  const courseOptions = useMemo(() => {
-    const uniqueCourses = Array.from(
-      new Set(students.map((student) => student.course).filter(Boolean))
-    )
-    return uniqueCourses.length > 0 ? uniqueCourses : defaultCourseOptions
-  }, [students])
-
-  const batchOptions = useMemo(() => {
-    const uniqueBatches = Array.from(
-      new Set(students.map((student) => student.batch).filter(Boolean))
-    )
-    return uniqueBatches.length > 0 ? uniqueBatches : defaultBatchOptions
-  }, [students])
+  const [batchOptions, setBatchOptions] = useState([]);
+  const [courses, setCourses] = useState([]);
   
   const fetchStudents = async () => {
     try {
@@ -90,9 +92,12 @@ const ViewStudents = () => {
         setStudents(
           (resp.data || []).map((s) => ({
             ...s,
-            student_id: s.student_id || s.id || s.user_id, // choose correct id from backend
+            student_id: s.student_id,       // REAL student_id (from student_profiles.id)
+            course_id: s.course_id,         // required for batch dropdown
+            batch_id: s.batch_id || null,
           }))
         );
+        
         
   
         if (resp.summary) {
@@ -151,8 +156,31 @@ const fetchStudentDetails = async (studentId) => {
 
 
   
+  // ✅ Fetch courses for dropdown
+  const fetchCourses = async () => {
+    try {
+      const resp = await getMethod({ apiUrl: apiService.getCourses })
+      if (resp?.status && Array.isArray(resp.courses)) {
+        const mappedCourses = resp.courses
+          .map((course) => ({
+            id: course.id ?? course.course_id,
+            name: course.title ?? course.course_title ?? course.name ?? 'Untitled Course'
+          }))
+          .filter((course) => course.id)
+        setCourses(mappedCourses)
+      } else {
+        setCourses([])
+        console.warn('No courses found for dropdown', resp)
+      }
+    } catch (err) {
+      console.error('Error fetching courses for dropdown:', err)
+      setCourses([])
+    }
+  }
+
   useEffect(() => {
     fetchStudents()
+    fetchCourses()
   }, [])
   
 
@@ -255,11 +283,25 @@ const fetchStudentDetails = async (studentId) => {
   };
   
 
-  const handleEditStudent = (student) => {
-    setSelectedStudent(student)
-    setShowEditPopup(true)
-  }
-
+  const handleEditStudent = async (student) => {
+    setSelectedStudent(student);
+  
+    let batches = [];
+    // Only fetch batches if student has a course_id
+    if (student.course_id) {
+      console.log("Loading batches for student:", student.name, "course:", student.course, "course_id:", student.course_id);
+      batches = await fetchBatchesByCourse(student.course_id);
+      console.log("Fetched batches for course:", batches);
+    } else {
+      console.warn("Student has no course_id, cannot fetch batches. Student:", student.name);
+    }
+  
+    // store fetched batches for dropdown use (only batches for this specific course)
+    setBatchOptions(batches || []);
+  
+    setShowEditPopup(true);
+  };
+  
   const handleDeleteStudent = (student) => {
     setSelectedStudent(student)
     setShowDeletePopup(true)
@@ -270,6 +312,7 @@ const fetchStudentDetails = async (studentId) => {
     setShowEditPopup(false)
     setShowDeletePopup(false)
     setSelectedStudent(null)
+    setBatchOptions([]) // Clear batches when closing popup
   }
 
   const handleConfirmDelete = () => {
@@ -289,63 +332,110 @@ const fetchStudentDetails = async (studentId) => {
   // ✅ Update student data to backend
   const updateStudentDetails = async (updatedStudent) => {
     try {
-      // FIND STUDENT BY NAME
+      // find full student record
       const foundStudent = students.find(
-        (s) =>
-          s.name.trim().toLowerCase() ===
-          updatedStudent.name.trim().toLowerCase()
+        (s) => s.student_id === updatedStudent.student_id
       );
   
       if (!foundStudent) {
-        alert("Student not found by name");
-        return;
-      }
-      
-      if (!foundStudent.student_id) {
-        console.error("❌ Missing student_id:", foundStudent);
-        alert("Invalid student record. student_id missing.");
+        alert("Student record not found");
         return;
       }
   
-      // FINAL PAYLOAD
+      // Validate batch_id
+      const batchId = Number(updatedStudent.batch);
+      if (!batchId || batchId === 0) {
+        alert("Invalid batch selected. Please select a valid batch.");
+        return;
+      }
+
+      // Validate status - normalize to lowercase as backend expects
+      const normalizedStatus = (updatedStudent.status || '').toLowerCase().trim();
+      if (!normalizedStatus || !['enrolled', 'completed', 'dropped'].includes(normalizedStatus)) {
+        alert("Invalid status. Please select a valid status.");
+        return;
+      }
+
+      // final clean payload - matching backend expectations exactly
       const payload = {
         student_id: Number(foundStudent.student_id),
-        batch_id: updatedStudent.batch,
-        status: updatedStudent.status,
+        batch_id: batchId,
+        status: normalizedStatus,
       };
-  
-      console.log("📤 Sending Payload:", payload);
-  
-      // CALL API
+
+      console.log("📤 Update Payload:", JSON.stringify(payload, null, 2));
+      console.log("📤 Update API URL:", apiService.update_student);
+      console.log("📤 Student ID:", foundStudent.student_id);
+      console.log("📤 Batch ID:", batchId);
+      console.log("📤 Status:", normalizedStatus);
+
       const resp = await putMethod({
         apiUrl: apiService.update_student,
         payload: payload,
       });
-  
-      console.log("Update Response:", resp);
-  
-      if (resp?.status) {
+
+      console.log("📥 Update API Response (Full):", JSON.stringify(resp, null, 2));
+      console.log("📥 Response status:", resp?.status);
+      console.log("📥 Response success:", resp?.success);
+      console.log("📥 Response message:", resp?.message);
+
+      // Check for success - backend returns {status: true, ...}
+      // respChanges might convert it to {status: 'success', success: true}
+      const isSuccess = resp?.status === true || 
+                       resp?.success === true || 
+                       resp?.status === 'success' ||
+                       (typeof resp?.status === 'string' && resp.status.toLowerCase() === 'success');
+      
+      console.log("📥 Is Success:", isSuccess);
+
+      if (isSuccess) {
+        // Find the batch name from batchOptions using batch_id
+        const selectedBatch = batchOptions.find(b => 
+          (b.batch_id || b.id) === Number(updatedStudent.batch)
+        );
+        const batchName = selectedBatch 
+          ? `${selectedBatch.batch_name || selectedBatch.name}${selectedBatch.batch_time_slot ? ` - ${selectedBatch.batch_time_slot}` : ''}`
+          : `Batch ${updatedStudent.batch}`; // fallback if name not found
+        
+        // update UI list with both batch_id and batch name
         setStudents((prev) =>
           prev.map((s) =>
             s.student_id === foundStudent.student_id
-              ? { ...s, batch: updatedStudent.batch, status: updatedStudent.status }
+              ? { 
+                  ...s, 
+                  batch_id: Number(updatedStudent.batch), 
+                  batch: batchName,
+                  status: updatedStudent.status 
+                }
               : s
           )
         );
   
         setShowEditPopup(false);
         setSelectedStudent(null);
+        setBatchOptions([]); // Clear batch options
+        
+        // Refresh student list to get latest data from backend
+        await fetchStudents();
+        
+        alert("Student updated successfully!");
       } else {
-        alert(resp?.message || "Failed to update student");
+        console.error("Update failed - Full response:", resp);
+        const errorMsg = resp?.message || resp?.error?.message || "Update failed. Please check console for details.";
+        alert(`Update failed: ${errorMsg}`);
       }
-    } catch (error) {
-      console.error("Update error:", error);
+    } catch (err) {
+      console.error("Update error:", err);
+      console.error("Error details:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      alert(`Error updating student: ${err.response?.data?.message || err.message || "Unknown error"}`);
     }
   };
   
   
-  
-
 
   return (
     <div className="p-2   min-h-screen">
@@ -387,9 +477,11 @@ const fetchStudentDetails = async (studentId) => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Courses</option>
-              <option value="electrician">Electrician</option>
-              <option value="fitter">Fitter</option>
-              <option value="welder">Welder</option>
+              {courses.map((course) => (
+                <option key={course.id} value={course.name.toLowerCase()}>
+                  {course.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -584,12 +676,40 @@ const fetchStudentDetails = async (studentId) => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          
+          // Check if batches are available for this course
+          if (batchOptions.length === 0) {
+            alert("इस course के लिए कोई batches उपलब्ध नहीं हैं। Student को update नहीं किया जा सकता।\n\nNo batches available for this course. Cannot update student.");
+            return;
+          }
+          
           const formData = new FormData(e.target);
+          const batchValue = formData.get("batch");
+          const statusValue = formData.get("status");
+          
+          // Validate batch selection
+          if (!batchValue || batchValue === "") {
+            alert("कृपया एक batch चुनें।\n\nPlease select a batch.");
+            return;
+          }
+
+          // Normalize status to lowercase (backend expects: enrolled, completed, dropped)
+          const normalizedStatus = (statusValue || '').toLowerCase().trim();
+          if (!normalizedStatus || !['enrolled', 'completed', 'dropped'].includes(normalizedStatus)) {
+            alert("Invalid status selected. Please select a valid status.");
+            return;
+          }
+
+          console.log("📝 Form Submission:", {
+            batch: batchValue,
+            status: normalizedStatus,
+            originalStatus: statusValue
+          });
 
           const updatedStudent = {
             ...selectedStudent,
-            batch: formData.get("batch"),
-            status: formData.get("status"),
+            batch: batchValue,
+            status: normalizedStatus,
           };
 
           updateStudentDetails(updatedStudent);
@@ -656,21 +776,27 @@ const fetchStudentDetails = async (studentId) => {
           {/* Batch (editable) */}
           <div>
             <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
-              Batch
+              Batch {batchOptions.length === 0 && <span className="text-red-500 text-xs">(No batches available)</span>}
             </label>
-            <select
-              name="batch"
-              defaultValue={selectedStudent.batch || ""}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            >
-              <option value="" disabled>Select batch</option>
-              {batchOptions.map((batch) => (
-                <option key={batch} value={batch}>
-                  {batch}
-                </option>
-              ))}
-            </select>
+            {batchOptions.length > 0 ? (
+              <select
+                name="batch"
+                defaultValue={selectedStudent.batch_id || ""}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">Select batch</option>
+                {batchOptions.map((b) => (
+                  <option key={b.batch_id || b.id} value={b.batch_id || b.id}>
+                    {b.batch_name || b.name} {b.batch_time_slot ? `- ${b.batch_time_slot}` : ''}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed">
+                इस course के लिए कोई batches उपलब्ध नहीं हैं / No batches available for this course
+              </div>
+            )}
           </div>
 
           {/* Status (editable) */}
@@ -680,13 +806,13 @@ const fetchStudentDetails = async (studentId) => {
             </label>
             <select
               name="status"
-              defaultValue={selectedStudent.status}
+              defaultValue={(selectedStudent.status || '').toLowerCase()}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             >
-              <option value="Enrolled">Enrolled</option>
-              <option value="Completed">Completed</option>
-              <option value="Dropped">Dropped</option>
+              <option value="enrolled">Enrolled</option>
+              <option value="completed">Completed</option>
+              <option value="dropped">Dropped</option>
             </select>
           </div>
         </div>
@@ -701,7 +827,12 @@ const fetchStudentDetails = async (studentId) => {
           >
             Cancel
           </Button>
-          <Button type="submit" variant="primary">
+          <Button 
+            type="submit" 
+            variant="primary"
+            disabled={batchOptions.length === 0}
+            className={batchOptions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}
+          >
             Update Student
           </Button>
         </div>

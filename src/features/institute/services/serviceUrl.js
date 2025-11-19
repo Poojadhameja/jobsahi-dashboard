@@ -46,7 +46,7 @@ const apiService = {
   institute_view_students: `/institute/get_institute_students.php`,
   list_students: "/admin/list_students.php",
   assign_course_batch: "/institute/assign_course_batch.php",
-
+  update_student: "/institute/update_student.php",
   INSTITUTE_REPORT: "/institute/institute_report.php",
 
   getInstituteProfile: '/institute/profile.php',
