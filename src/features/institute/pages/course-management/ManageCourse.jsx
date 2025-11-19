@@ -7,6 +7,7 @@ import ViewCoursePopup from './ViewCoursePopup'
 import EditCoursePopup from './EditCoursePopup'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
+import Swal from 'sweetalert2'
 
 export default function ManageCourse({ onNavigateToCreateCourse }) {
   const location = useLocation()
@@ -57,7 +58,12 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
     // Show success message if redirected from create course
     if (location.state?.message) {
       setTimeout(() => {
-        alert(location.state.message)
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: location.state.message,
+          confirmButtonColor: '#5C9A24'
+        })
         // Clear the state
         window.history.replaceState({}, document.title)
       }, 100)
@@ -112,7 +118,12 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
       }
     } catch (err) {
       console.error('❌ Error fetching courses:', err)
-      alert('Failed to fetch courses. Please try again.')
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to fetch courses. Please try again.',
+        confirmButtonColor: '#5C9A24'
+      })
       setCoursesData([])
     } finally {
       setLoading(false)
@@ -250,7 +261,12 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         updateCourse(selectedCourse.id, updatedCourse)
       }
       
-      alert('✅ Course updated successfully!')
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Course updated successfully!',
+        confirmButtonColor: '#5C9A24'
+      })
       setShowEditPopup(false)
       setSelectedCourse(null)
       
@@ -258,7 +274,12 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
       fetchCourses()
     } catch (err) {
       console.error('❌ Error updating course:', err)
-      alert('Failed to update course. Please try again.')
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to update course. Please try again.',
+        confirmButtonColor: '#5C9A24'
+      })
     }
   }
 

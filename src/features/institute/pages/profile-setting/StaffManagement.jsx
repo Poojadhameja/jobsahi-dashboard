@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { LuPlus, LuSearch, LuFilter, LuPencil, LuUserPlus } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import Swal from 'sweetalert2'
 
 // ✅ API helpers + endpoints
 import { getMethod, postMethod, putMethod } from '../../../../service/api'
@@ -141,7 +142,12 @@ export default function StaffManagement() {
   const handleSaveInstructor = async () => {
     // simple required validation; backend will still validate
     if (!formData.name.trim() || !formData.email.trim() || !formData.role) {
-      alert('Please fill all required fields including Role')
+      Swal.fire({
+        icon: 'warning',
+        title: 'Validation Error',
+        text: 'Please fill all required fields including Role',
+        confirmButtonColor: '#5C9A24'
+      })
       return
     }
 
@@ -173,10 +179,20 @@ export default function StaffManagement() {
           // Roles are always available from database enum, no need to reset
           
           // Show success popup
-          alert('Instructor updated successfully!')
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Instructor updated successfully!',
+            confirmButtonColor: '#5C9A24'
+          })
         } else {
           // Show error popup if update failed
-          alert(res?.message || 'Failed to update instructor. Please try again.')
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: res?.message || 'Failed to update instructor. Please try again.',
+            confirmButtonColor: '#5C9A24'
+          })
           return
         }
 
@@ -204,10 +220,20 @@ export default function StaffManagement() {
           // Roles are always available from database enum, no need to reset
           
           // Show success popup
-          alert('Instructor added successfully!')
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Instructor added successfully!',
+            confirmButtonColor: '#5C9A24'
+          })
         } else {
           // Show error popup if create failed
-          alert(res?.message || 'Failed to add instructor. Please try again.')
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: res?.message || 'Failed to add instructor. Please try again.',
+            confirmButtonColor: '#5C9A24'
+          })
           return
         }
 
@@ -218,7 +244,12 @@ export default function StaffManagement() {
     } catch (err) {
       console.error('Error saving faculty:', err)
       // Show error popup for unexpected errors
-      alert('Something went wrong. Please try again.')
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong. Please try again.',
+        confirmButtonColor: '#5C9A24'
+      })
     } finally {
       setIsSaving(false)
     }

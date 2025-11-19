@@ -5,6 +5,7 @@ import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Button, { IconButton } from '../../../../shared/components/Button'
 import { getMethod, putMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
+import Swal from 'sweetalert2'
 
 const ViewStudents = () => {
   const [searchTerm, setSearchTerm] = useState('')
@@ -143,7 +144,12 @@ const fetchStudentDetails = async (studentId) => {
       setShowViewPopup(true);
     } else {
       console.warn("No profile found for this student");
-      alert("No detailed profile found for this student.");
+      Swal.fire({
+        icon: 'info',
+        title: 'No Profile Found',
+        text: 'No detailed profile found for this student.',
+        confirmButtonColor: '#5C9A24'
+      })
     }
   } catch (error) {
     console.error("Error fetching student details:", error);
@@ -307,21 +313,36 @@ const fetchStudentDetails = async (studentId) => {
       );
   
       if (!foundStudent) {
-        alert("Student record not found");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Student record not found',
+          confirmButtonColor: '#5C9A24'
+        })
         return;
       }
   
       // Validate batch_id
       const batchId = Number(updatedStudent.batch);
       if (!batchId || batchId === 0) {
-        alert("Invalid batch selected. Please select a valid batch.");
+        Swal.fire({
+          icon: 'warning',
+          title: 'Validation Error',
+          text: 'Invalid batch selected. Please select a valid batch.',
+          confirmButtonColor: '#5C9A24'
+        })
         return;
       }
 
       // Validate status - normalize to lowercase as backend expects
       const normalizedStatus = (updatedStudent.status || '').toLowerCase().trim();
       if (!normalizedStatus || !['enrolled', 'completed', 'dropped'].includes(normalizedStatus)) {
-        alert("Invalid status. Please select a valid status.");
+        Swal.fire({
+          icon: 'warning',
+          title: 'Validation Error',
+          text: 'Invalid status. Please select a valid status.',
+          confirmButtonColor: '#5C9A24'
+        })
         return;
       }
 
@@ -387,11 +408,21 @@ const fetchStudentDetails = async (studentId) => {
         // Refresh student list to get latest data from backend
         await fetchStudents();
         
-        alert("Student updated successfully!");
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Student updated successfully!',
+          confirmButtonColor: '#5C9A24'
+        })
       } else {
         console.error("Update failed - Full response:", resp);
         const errorMsg = resp?.message || resp?.error?.message || "Update failed. Please check console for details.";
-        alert(`Update failed: ${errorMsg}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: errorMsg,
+          confirmButtonColor: '#5C9A24'
+        })
       }
     } catch (err) {
       console.error("Update error:", err);
@@ -400,7 +431,12 @@ const fetchStudentDetails = async (studentId) => {
         response: err.response?.data,
         status: err.response?.status
       });
-      alert(`Error updating student: ${err.response?.data?.message || err.message || "Unknown error"}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.message || err.message || "Unknown error",
+        confirmButtonColor: '#5C9A24'
+      })
     }
   };
   
@@ -624,7 +660,12 @@ const fetchStudentDetails = async (studentId) => {
           
           // Check if batches are available for this course
           if (batchOptions.length === 0) {
-            alert("इस course के लिए कोई batches उपलब्ध नहीं हैं। Student को update नहीं किया जा सकता।\n\nNo batches available for this course. Cannot update student.");
+            Swal.fire({
+              icon: 'warning',
+              title: 'No Batches Available',
+              text: 'इस course के लिए कोई batches उपलब्ध नहीं हैं। Student को update नहीं किया जा सकता।\n\nNo batches available for this course. Cannot update student.',
+              confirmButtonColor: '#5C9A24'
+            })
             return;
           }
           
@@ -634,14 +675,24 @@ const fetchStudentDetails = async (studentId) => {
           
           // Validate batch selection
           if (!batchValue || batchValue === "") {
-            alert("कृपया एक batch चुनें।\n\nPlease select a batch.");
+            Swal.fire({
+              icon: 'warning',
+              title: 'Validation Error',
+              text: 'कृपया एक batch चुनें।\n\nPlease select a batch.',
+              confirmButtonColor: '#5C9A24'
+            })
             return;
           }
 
           // Normalize status to lowercase (backend expects: enrolled, completed, dropped)
           const normalizedStatus = (statusValue || '').toLowerCase().trim();
           if (!normalizedStatus || !['enrolled', 'completed', 'dropped'].includes(normalizedStatus)) {
-            alert("Invalid status selected. Please select a valid status.");
+            Swal.fire({
+              icon: 'warning',
+              title: 'Validation Error',
+              text: 'Invalid status selected. Please select a valid status.',
+              confirmButtonColor: '#5C9A24'
+            })
             return;
           }
 
