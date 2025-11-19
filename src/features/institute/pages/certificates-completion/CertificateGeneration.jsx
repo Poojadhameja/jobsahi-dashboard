@@ -170,12 +170,22 @@ function CertificateGeneration() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Please select a valid image file (PNG, JPG, SVG, or WebP).");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Invalid File Type',
+        text: 'Please select a valid image file (PNG, JPG, SVG, or WebP).',
+        confirmButtonColor: '#5C9A24'
+      })
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size must be less than 5MB.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'File Too Large',
+        text: 'File size must be less than 5MB.',
+        confirmButtonColor: '#5C9A24'
+      })
       return;
     }
 
@@ -197,17 +207,32 @@ function CertificateGeneration() {
   // ✅ Generate certificates
   const handleGenerateCertificate = async () => {
     if (!selectedCourse || !selectedBatch || !completionDate) {
-      alert("Please fill in all required fields (Course, Batch, Date)");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Validation Error',
+        text: 'Please fill in all required fields (Course, Batch, Date)',
+        confirmButtonColor: '#5C9A24'
+      })
       return;
     }
 
     if (selectedStudents.length === 0) {
-      alert("Please select at least one student!");
+      Swal.fire({
+        icon: 'warning',
+        title: 'No Students Selected',
+        text: 'Please select at least one student!',
+        confirmButtonColor: '#5C9A24'
+      })
       return;
     }
 
     if (!templateName.trim()) {
-      alert("Please provide a template name.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Validation Error',
+        text: 'Please provide a template name.',
+        confirmButtonColor: '#5C9A24'
+      })
       return;
     }
 
@@ -248,14 +273,29 @@ function CertificateGeneration() {
       }
 
       if (results.length > 0) {
-        alert(`🎉 ${results.length} certificates generated successfully!`);
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: `${results.length} certificates generated successfully!`,
+          confirmButtonColor: '#5C9A24'
+        })
         setGeneratedCertificates(results);
       } else {
-        alert("⚠️ No new certificates generated.");
+        Swal.fire({
+          icon: 'info',
+          title: 'No Certificates Generated',
+          text: 'No new certificates were generated.',
+          confirmButtonColor: '#5C9A24'
+        })
       }
     } catch (err) {
       console.error("❌ Certificate generation failed:", err);
-      alert("An unexpected error occurred. Check console logs.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An unexpected error occurred. Check console logs.',
+        confirmButtonColor: '#5C9A24'
+      })
     } finally {
       setIsGenerating(false);
     }
@@ -271,11 +311,21 @@ function CertificateGeneration() {
       if (res?.status && res?.data?.certificate_info?.file_url) {
         window.open(res.data.certificate_info.file_url, "_blank");
       } else {
-        alert("Certificate file not found or not available!");
+        Swal.fire({
+          icon: 'error',
+          title: 'File Not Found',
+          text: 'Certificate file not found or not available!',
+          confirmButtonColor: '#5C9A24'
+        })
       }
     } catch (err) {
       console.error("❌ Error fetching certificate details:", err);
-      alert("Failed to download certificate");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to download certificate',
+        confirmButtonColor: '#5C9A24'
+      })
     }
   };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { LuBuilding, LuUpload, LuSave, LuCheck, LuCircleAlert } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import Swal from 'sweetalert2'
 
 import { getMethod, putMethod, putMultipart } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
@@ -291,20 +292,35 @@ export default function InstituteProfile() {
         setTimeout(() => setSaveStatus(null), 3000)
         
         // Show success popup
-        alert('Institute profile updated successfully!')
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Institute profile updated successfully!',
+          confirmButtonColor: '#5C9A24'
+        })
       } else {
         console.error('Update failed:', res?.message || 'Unknown error')
         setSaveStatus('error')
         
         // Show error popup
-        alert(res?.message || 'Failed to update institute profile. Please try again.')
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: res?.message || 'Failed to update institute profile. Please try again.',
+          confirmButtonColor: '#5C9A24'
+        })
       }
     } catch (error) {
       console.error('Error updating profile:', error)
       setSaveStatus('error')
       
       // Show error popup for unexpected errors
-      alert('Something went wrong. Please try again.')
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong. Please try again.',
+        confirmButtonColor: '#5C9A24'
+      })
     } finally {
       setIsSaving(false)
     }
