@@ -38,7 +38,11 @@ export default function InstituteProfile() {
        VALIDATIONS (UNCHANGED)
   ---------------------------------------- */
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  const validatePhone = (phone) => /^[0-9]{10}$/.test(phone.replace(/\s/g, ''))
+  const validatePhone = (phone) => {
+    // Remove all non-digit characters and check if exactly 10 digits
+    const phoneDigits = phone.replace(/\D/g, '')
+    return phoneDigits.length === 10
+  }
   const validateWebsite = (url) => { try { new URL(url); return true } catch { return false } }
 
   const validateForm = () => {
@@ -221,8 +225,11 @@ export default function InstituteProfile() {
       const fd = new FormData()
 
       // Only append fields that have non-empty values
+      // Sync user_name and institute_name (must match according to API)
       if (formData.instituteName?.trim()) {
-        fd.append('institute_name', formData.instituteName.trim())
+        const trimmedName = formData.instituteName.trim()
+        fd.append('institute_name', trimmedName)
+        fd.append('user_name', trimmedName) // Auto-sync: user_name must match institute_name
       }
       if (formData.registrationNumber?.trim()) {
         fd.append('registration_number', formData.registrationNumber.trim())
@@ -295,6 +302,28 @@ export default function InstituteProfile() {
           })
 
       if (res?.success || res?.status === 'success') {
+        // Update localStorage authUser with new user_name and institute_name
+        // This ensures the name updates immediately in the UI (header/dropdown)
+        try {
+          const authUserStr = localStorage.getItem('authUser')
+          if (authUserStr) {
+            const authUser = JSON.parse(authUserStr)
+            // Update user_name from API response if available
+            if (res?.data?.personal_info?.user_name) {
+              authUser.user_name = res.data.personal_info.user_name
+            } else if (formData.instituteName?.trim()) {
+              // Fallback: use institute_name if API response doesn't have user_name
+              authUser.user_name = formData.instituteName.trim()
+            }
+            localStorage.setItem('authUser', JSON.stringify(authUser))
+            
+            // Dispatch custom event to update all components that use authUser immediately
+            window.dispatchEvent(new CustomEvent('authUserUpdated'))
+          }
+        } catch (err) {
+          console.error('Error updating authUser in localStorage:', err)
+        }
+
         // Refresh profile data after successful update
         await fetchInstituteProfile()
         
