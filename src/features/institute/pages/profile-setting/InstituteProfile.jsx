@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { LuBuilding, LuUpload, LuSave, LuCheck, LuCircleAlert } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import Swal from 'sweetalert2'
 
 import { getMethod, putMethod, putMultipart } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
@@ -35,9 +34,9 @@ export default function InstituteProfile() {
   const [instituteTypes, setInstituteTypes] = useState([])
   const [loadingInstituteTypes, setLoadingInstituteTypes] = useState(false)
 
-  // ----------------------------
-  // VALIDATIONS
-  // ----------------------------
+  /* ----------------------------------------
+       VALIDATIONS (UNCHANGED)
+  ---------------------------------------- */
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   const validatePhone = (phone) => /^[0-9]{10}$/.test(phone.replace(/\s/g, ''))
   const validateWebsite = (url) => { try { new URL(url); return true } catch { return false } }
@@ -49,8 +48,7 @@ export default function InstituteProfile() {
     if (!formData.description.trim()) e.description = 'Description is required'
     else if (formData.description.length < 50) e.description = 'Minimum 50 characters required'
 
-    if (
-      formData.establishedYear &&
+    if (formData.establishedYear &&
       (formData.establishedYear < 1800 || formData.establishedYear > new Date().getFullYear())
     ) e.establishedYear = 'Enter a valid year'
 
@@ -69,23 +67,36 @@ export default function InstituteProfile() {
     return Object.keys(e).length === 0
   }
 
-  // ----------------------------
-  // INPUT CHANGE
-  // ----------------------------
+  /* ----------------------------------------
+        INPUT CHANGE HANDLER
+  ---------------------------------------- */
   const handleInputChange = (field, value) => {
+    // Special handling for phone field - only numbers and max 10 digits
     if (field === 'phone') {
-      const numericValue = value.replace(/\D/g, '').slice(0, 10)
-      setFormData((prev) => ({ ...prev, [field]: numericValue }))
+      // Remove all non-numeric characters
+      const numericValue = value.replace(/\D/g, '')
+      // Limit to 10 digits
+      const limitedValue = numericValue.slice(0, 10)
+      
+      setFormData((prev) => ({
+        ...prev,
+        [field]: limitedValue
+      }))
     } else {
-      setFormData((prev) => ({ ...prev, [field]: value }))
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value
+      }))
     }
 
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }))
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: '' }))
+    }
   }
 
-  // ----------------------------
-  // LOGO UPLOAD (FIXED)
-  // ----------------------------
+  /* ----------------------------------------
+         LOGO UPLOAD HANDLER
+  ---------------------------------------- */
   const handleLogoUpload = (event) => {
     const file = event.target.files[0]
     if (!file) return
@@ -101,40 +112,68 @@ export default function InstituteProfile() {
     }
 
     setFormData((p) => ({ ...p, logo: file }))
-
-    // ⭐ LIVE PREVIEW FIX
-    setLogoPreview(URL.createObjectURL(file))
+    setLogoPreview(null)
   }
 
-  // ----------------------------
-  // FETCH INSTITUTE TYPES
-  // ----------------------------
+  /* ----------------------------------------
+      FETCH INSTITUTE TYPES FROM BACKEND
+  ---------------------------------------- */
   const fetchInstituteTypes = async () => {
     try {
       setLoadingInstituteTypes(true)
       const res = await getMethod({ apiUrl: apiService.getInstituteProfile })
 
       if (res?.success) {
-        if (res?.data?.institute_types) setInstituteTypes(res.data.institute_types)
-        else setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
+        // Check if API returns available institute types
+        if (res?.data?.institute_types && Array.isArray(res.data.institute_types)) {
+          setInstituteTypes(res.data.institute_types)
+        } 
+        // Or extract unique types from profiles if multiple profiles exist
+        else if (res?.data?.profiles && Array.isArray(res.data.profiles)) {
+          const uniqueTypes = [...new Set(res.data.profiles.map(p => p.institute_info?.institute_type).filter(Boolean))]
+          if (uniqueTypes.length > 0) {
+            setInstituteTypes(uniqueTypes)
+          } else {
+            // Fallback to common types if none found
+            setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
+          }
+        }
+        // Or check if single profile response has types
+        else if (res?.data?.institute_info?.available_types) {
+          setInstituteTypes(res.data.institute_info.available_types)
+        }
+        // Fallback to common types
+        else {
+          setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
+        }
+      } else {
+        // Fallback to common types
+        setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
       }
-    } catch {
+    } catch (err) {
+      console.error('Error fetching institute types:', err)
+      // Fallback to common types
       setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
     } finally {
       setLoadingInstituteTypes(false)
     }
   }
 
-  // ----------------------------
-  // FETCH PROFILE (LOGO FIXED)
-  // ----------------------------
+  /* ----------------------------------------
+      FETCH PROFILE (UPDATED MAPPING)
+  ---------------------------------------- */
   const fetchInstituteProfile = async () => {
     try {
       setIsLoadingProfile(true)
       const res = await getMethod({ apiUrl: apiService.getInstituteProfile })
 
       if (res?.success) {
-        let profile = res?.data?.profiles?.[0] || res?.data
+        let profile = null
+
+        if (res?.data?.profiles?.length) profile = res.data.profiles[0]
+        else if (res?.data) profile = res.data
+
+        if (!profile) return
 
         setFormData({
           instituteName: profile.institute_info?.institute_name ?? '',
@@ -155,19 +194,20 @@ export default function InstituteProfile() {
           logo: null
         })
 
-        // ⭐ FIX: always append timestamp to break cache
         const logoURL = profile.institute_info?.institute_logo
-        if (logoURL) setLogoPreview(logoURL + `?t=${Date.now()}`)
+        if (logoURL) setLogoPreview(logoURL)
       }
 
+    } catch (err) {
+      console.log('Error:', err)
     } finally {
       setIsLoadingProfile(false)
     }
   }
 
-  // ----------------------------
-  // SAVE PROFILE (LOGO FIXED)
-  // ----------------------------
+  /* ----------------------------------------
+      SAVE PROFILE (PUT) UPDATED RESPONSE MAP
+  ---------------------------------------- */
   const handleSave = async () => {
     if (!validateForm()) {
       setIsFormValid(false)
@@ -180,74 +220,99 @@ export default function InstituteProfile() {
     try {
       const fd = new FormData()
 
-      const appendField = (key, value) => {
-        if (value !== undefined && value !== null && value !== '') fd.append(key, value)
+      // Only append fields that have non-empty values
+      if (formData.instituteName?.trim()) {
+        fd.append('institute_name', formData.instituteName.trim())
+      }
+      if (formData.registrationNumber?.trim()) {
+        fd.append('registration_number', formData.registrationNumber.trim())
+      }
+      if (formData.instituteType?.trim()) {
+        fd.append('institute_type', formData.instituteType.trim())
+      }
+      if (formData.description?.trim()) {
+        fd.append('description', formData.description.trim())
+      }
+      if (formData.website?.trim()) {
+        fd.append('website', formData.website.trim())
+      }
+      if (formData.accreditation?.trim()) {
+        fd.append('accreditation', formData.accreditation.trim())
+      }
+      if (formData.establishedYear && formData.establishedYear.toString().trim()) {
+        fd.append('established_year', formData.establishedYear.toString().trim())
+      }
+      if (formData.address?.trim()) {
+        fd.append('address', formData.address.trim())
+      }
+      if (formData.postalCode?.trim()) {
+        fd.append('postal_code', formData.postalCode.trim())
+      }
+      if (formData.contactPerson?.trim()) {
+        fd.append('contact_person', formData.contactPerson.trim())
+      }
+      if (formData.contactDesignation?.trim()) {
+        fd.append('contact_designation', formData.contactDesignation.trim())
       }
 
-      appendField('institute_name', formData.instituteName)
-      appendField('registration_number', formData.registrationNumber)
-      appendField('institute_type', formData.instituteType)
-      appendField('description', formData.description)
-      appendField('website', formData.website)
-      appendField('accreditation', formData.accreditation)
-      appendField('established_year', formData.establishedYear)
-      appendField('address', formData.address)
-      appendField('postal_code', formData.postalCode)
-      appendField('contact_person', formData.contactPerson)
-      appendField('contact_designation', formData.contactDesignation)
-
+      // Logo file if uploaded
       if (formData.logo instanceof File) {
         fd.append('institute_logo', formData.logo)
       }
 
-      const payload = Object.fromEntries(fd.entries())
-
-      const res = formData.logo
-        ? await putMultipart({ apiUrl: apiService.updateInstituteProfile, data: fd })
-        : await putMethod({ apiUrl: apiService.updateInstituteProfile, payload })
-
-      if (res?.success || res?.status === 'success') {
-
-        // ⭐ Fix: update preview instantly with fresh URL
-        if (res?.data?.institute_info?.institute_logo) {
-          setLogoPreview(res.data.institute_info.institute_logo + `?t=${Date.now()}`)
-        }
-
-        await fetchInstituteProfile()
-
-        setSaveStatus('success')
-        Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: 'Institute profile updated successfully!',
-          confirmButtonColor: '#5C9A24'
-        })
-      } else {
+      // Check if we have any fields to send
+      const formDataEntries = Array.from(fd.entries())
+      if (formDataEntries.length === 0) {
+        console.error('No fields to update')
         setSaveStatus('error')
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: res?.message || 'Update failed',
-          confirmButtonColor: '#5C9A24'
-        })
+        setIsSaving(false)
+        return
       }
 
-    } catch (err) {
-      console.log(err)
+      console.log('FormData entries:', formDataEntries.map(([key]) => key))
+
+      // Use putMultipart if logo is being uploaded, otherwise use putMethod
+      const res = formData.logo instanceof File
+        ? await putMultipart({
+            apiUrl: apiService.updateInstituteProfile,
+            data: fd
+          })
+        : await putMethod({
+            apiUrl: apiService.updateInstituteProfile,
+            payload: Object.fromEntries(fd.entries())
+          })
+
+      if (res?.success || res?.status === 'success') {
+        // Refresh profile data after successful update
+        await fetchInstituteProfile()
+        
+        setSaveStatus('success')
+        setIsFormValid(true)
+        setTimeout(() => setSaveStatus(null), 3000)
+        
+        // Show success popup
+        alert('Institute profile updated successfully!')
+      } else {
+        console.error('Update failed:', res?.message || 'Unknown error')
+        setSaveStatus('error')
+        
+        // Show error popup
+        alert(res?.message || 'Failed to update institute profile. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error)
       setSaveStatus('error')
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Something went wrong',
-        confirmButtonColor: '#5C9A24'
-      })
+      
+      // Show error popup for unexpected errors
+      alert('Something went wrong. Please try again.')
     } finally {
       setIsSaving(false)
     }
   }
 
   useEffect(() => {
-    validateForm()
+    const ok = validateForm()
+    setIsFormValid(ok)
   }, [formData])
 
   useEffect(() => {
