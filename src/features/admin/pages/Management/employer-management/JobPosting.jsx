@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   LuEye, 
   LuBuilding,
@@ -14,11 +14,15 @@ import {
 import { HiDotsVertical } from 'react-icons/hi'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 import { Button } from '../../../../../shared/components/Button.jsx'
+import { getMethod } from '../../../../../service/api'
+import apiService from '../../../../admin/services/serviceUrl'
 
 // Job Posting Analytics Component
 function JobPostingAnalytics() {
   const [timeFilter, setTimeFilter] = useState('All Time')
   const [viewDetailsModal, setViewDetailsModal] = useState({ isOpen: false, company: null })
+  const [analyticsData, setAnalyticsData] = useState([])
+  const [loading, setLoading] = useState(true)
 
   // Handle View Details
   const handleViewDetails = (company) => {
@@ -38,63 +42,49 @@ function JobPostingAnalytics() {
     'Last Year'
   ]
 
-  const analyticsData = [
-    {
-      id: 1,
-      company: 'TechCorp',
-      contactPerson: 'Rahul Kumar',
-      status: 'Active',
-      jobsPosted: 45,
-      totalApplicants: 1250,
-      shortlisted: 85,
-      successRate: 5,
-      lastActivity: '01-01-2025'
-    },
-    {
-      id: 2,
-      company: 'InnovateTech',
-      contactPerson: 'Priya Sharma',
-      status: 'Active',
-      jobsPosted: 32,
-      totalApplicants: 890,
-      shortlisted: 67,
-      successRate: 8,
-      lastActivity: '02-01-2025'
-    },
-    {
-      id: 3,
-      company: 'DataSoft Solutions',
-      contactPerson: 'Amit Patel',
-      status: 'Inactive',
-      jobsPosted: 28,
-      totalApplicants: 650,
-      shortlisted: 45,
-      successRate: 7,
-      lastActivity: '28-12-2024'
-    },
-    {
-      id: 4,
-      company: 'CloudTech Inc',
-      contactPerson: 'Sneha Gupta',
-      status: 'Active',
-      jobsPosted: 51,
-      totalApplicants: 1450,
-      shortlisted: 92,
-      successRate: 6,
-      lastActivity: '03-01-2025'
-    },
-    {
-      id: 5,
-      company: 'StartupHub',
-      contactPerson: 'Vikram Singh',
-      status: 'Pending',
-      jobsPosted: 18,
-      totalApplicants: 420,
-      shortlisted: 28,
-      successRate: 7,
-      lastActivity: '30-12-2024'
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await getMethod({
+        apiUrl: apiService.adminJobPostingAnalytics
+      })
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+
+      if (isSuccess && Array.isArray(response?.data)) {
+        const mapped = response.data.map((item, index) => {
+          const jobsPosted = Number(item.jobs_posted || 0)
+          const totalApplicants = Number(item.total_applicants || 0)
+          const shortlisted = Number(item.shortlisted || 0)
+
+          return {
+            id: item.id || index + 1,
+            company: item.company_name || 'N/A',
+            contactPerson: item.recruiter_name || 'N/A',
+            status: item.status || 'Active',
+            jobsPosted,
+            totalApplicants,
+            shortlisted,
+            lastActivity: item.last_activity || 'N/A',
+            industry: item.industry || '—'
+          }
+        })
+        setAnalyticsData(mapped)
+      } else {
+        console.warn('No analytics data found', response?.message)
+        setAnalyticsData([])
+      }
+    } catch (error) {
+      console.error('Error fetching job posting analytics:', error)
+      setAnalyticsData([])
+    } finally {
+      setLoading(false)
     }
-  ]
+  }, [])
+
+  useEffect(() => {
+    fetchAnalytics()
+  }, [fetchAnalytics])
 
   const getStatusBadge = (status) => {
     const statusStyles = {
@@ -103,9 +93,11 @@ function JobPostingAnalytics() {
       'Pending': 'bg-yellow-100 text-yellow-800'
     }
     
+    const badgeClasses = statusStyles[status] || 'bg-gray-100 text-gray-800'
+    
     return (
-      <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusStyles[status]}`}>
-        {status}
+      <span className={`px-3 py-1 rounded-full text-xs font-medium ${badgeClasses}`}>
+        {status || 'N/A'}
       </span>
     )
   }
@@ -200,7 +192,7 @@ function JobPostingAnalytics() {
                 </div>
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Industry</label>
-                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>Technology</p>
+                  <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{company.industry || 'Technology'}</p>
                 </div>
                 <div>
                   <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Company Size</label>
@@ -286,10 +278,10 @@ function JobPostingAnalytics() {
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-green-600 text-lg">📈</span>
-                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Success Rate</span>
+                    <span className="text-green-600 text-lg">🏢</span>
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Industry</span>
                   </div>
-                  <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{company.successRate}%</p>
+                  <p className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{company.industry || '—'}</p>
                 </div>
               </div>
             </div>
@@ -399,7 +391,7 @@ function JobPostingAnalytics() {
                   Shortlisted
                 </th>
                 <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
-                  Success Rate
+                  Industry
                 </th>
                 <th className={`px-6 py-4 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                   Last Activity
@@ -410,13 +402,26 @@ function JobPostingAnalytics() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {analyticsData.map((item) => (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-500">
+                    Loading analytics...
+                  </td>
+                </tr>
+              ) : analyticsData.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-500">
+                    No analytics data available.
+                  </td>
+                </tr>
+              ) : (
+                analyticsData.map((item) => (
                 <tr key={item.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
                         <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm font-medium`}>
-                          {item.company.charAt(0)}
+                          {item.company?.charAt(0) || 'N'}
                         </span>
                       </div>
                       <div>
@@ -447,7 +452,9 @@ function JobPostingAnalytics() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {getSuccessRateBar(item.successRate)}
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                      {item.industry || '—'}
+                    </span>
                   </td>
                   <td className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                     {item.lastActivity}
@@ -459,7 +466,7 @@ function JobPostingAnalytics() {
                     />
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

@@ -24,6 +24,10 @@ const service = {
     //employer ratings
     getEmployerRatings: '/admin/get_employer_feedback.php',
 
+    //admin dashboard
+    adminDashboard: '/admin/admin_dashboard.php',
+    adminJobPostingAnalytics: '/admin/admin_job_posting_analytics.php',
+
 }
 
 export default service;

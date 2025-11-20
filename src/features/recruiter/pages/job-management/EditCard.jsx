@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { LuCalendar, LuX } from "react-icons/lu";
 import { getMethod, putMethod } from "../../../../service/api";
 import service from "../../services/serviceUrl";
-import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import RichTextEditor from "@shared/components/RichTextEditor";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { Button, IconButton } from "../../../../shared/components/Button";
@@ -225,45 +225,34 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
       console.log("✅ [EditCard] ➜ API Response:", res);
 
       if (res?.status) {
-        toast.success("✅ Job Updated Successfully!", {
-          position: "top-center",
-          autoClose: 2500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-          style: {
-            background: "linear-gradient(90deg, #00b09b, #96c93d)",
-            color: "#fff",
-            fontWeight: "600",
-            fontSize: "16px",
-            borderRadius: "10px",
-          },
-        });
-
-        setTimeout(() => {
+        Swal.fire({
+          title: "Success!",
+          text: "Job updated successfully!",
+          icon: "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#3085d6",
+        }).then(() => {
           if (onSave) onSave();
           onClose();
-        }, 1800);
+        });
       } else {
-        toast.error("⚠️ Failed to update job!", {
-          position: "top-center",
-          autoClose: 2500,
-          theme: "colored",
-          style: {
-            background: "linear-gradient(90deg, #ff5f6d, #ffc371)",
-            color: "#fff",
-            fontWeight: "600",
-            fontSize: "16px",
-            borderRadius: "10px",
-          },
+        Swal.fire({
+          title: "Error!",
+          text: res?.message || "Failed to update job. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#d33",
         });
       }
     } catch (err) {
       console.error("🚨 [EditCard] ➜ Network or API error:", err);
-      toast.error("⚠️ Network or API error!");
+      Swal.fire({
+        title: "Error!",
+        text: "Network or API error occurred. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#d33",
+      });
     }
   };
 

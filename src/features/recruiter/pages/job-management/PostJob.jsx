@@ -3,7 +3,7 @@ import { LuUpload, LuCalendar } from "react-icons/lu";
 import RichTextEditor from "@shared/components/RichTextEditor";
 import { postMethod, getMethod } from "../../../../service/api";
 import service from "../../services/serviceUrl";
-import { toast } from "react-toastify"; // optional toast
+import Swal from "sweetalert2";
 import { Button } from "@shared/components/Button";
 import { TAILWIND_COLORS } from "@shared/WebConstant";
 
@@ -11,8 +11,8 @@ const PostJob = ({ onJobSubmit }) => {
   const [formData, setFormData] = useState({
     jobTitle: "",
     jobSector: "",
+    jobSectorId: "",
     jobDescription: "",
-    salaryType: "",
     minSalary: "",
     maxSalary: "",
     jobType: "",
@@ -79,16 +79,23 @@ const PostJob = ({ onJobSubmit }) => {
 
     if (!formData.jobTitle.trim()) newErrors.jobTitle = "Job title is required";
     if (!formData.jobSector) newErrors.jobSector = "Job sector is required";
-    if (!formData.jobDescription.trim())
+    
+    // ✅ Fix: Strip HTML tags before checking description
+    const descriptionText = formData.jobDescription.replace(/<[^>]+>/g, "").trim();
+    if (!descriptionText) {
       newErrors.jobDescription = "Job description is required";
-    if (!formData.salaryType) newErrors.salaryType = "Salary type is required";
+    }
+    
     if (!formData.minSalary.trim())
       newErrors.minSalary = "Minimum salary is required";
     if (!formData.maxSalary.trim())
       newErrors.maxSalary = "Maximum salary is required";
     if (!formData.jobType) newErrors.jobType = "Job type is required";
+    if (!formData.location.trim()) newErrors.location = "Location is required";
     if (!formData.vacancyStatus)
       newErrors.vacancyStatus = "Vacancy status is required";
+    if (!formData.no_of_vacancies)
+      newErrors.no_of_vacancies = "Number of vacancies is required";
     if (!formData.closingDate)
       newErrors.closingDate = "Closing date is required";
 
@@ -99,9 +106,12 @@ const PostJob = ({ onJobSubmit }) => {
     if (formData.minSalary && formData.maxSalary) {
       const minSalary = parseFloat(formData.minSalary);
       const maxSalary = parseFloat(formData.maxSalary);
-      if (minSalary >= maxSalary)
+      if (isNaN(minSalary) || isNaN(maxSalary)) {
+        newErrors.minSalary = "Please enter valid salary numbers";
+      } else if (minSalary >= maxSalary) {
         newErrors.maxSalary =
           "Maximum salary must be greater than minimum salary";
+      }
     }
 
     setErrors(newErrors);
@@ -118,10 +128,16 @@ const PostJob = ({ onJobSubmit }) => {
       return;
     }
 
+    // ✅ Get category_id from selected category
+    const selectedCategory = jobCategories.find(
+      (cat) => cat.category_name === formData.jobSector
+    );
+
     const payload = {
       title: formData.jobTitle,
-      description: formData.jobDescription.replace(/<[^>]+>/g, "").trim(),
+      category_id: selectedCategory?.id || formData.jobSectorId || "",
       category_name: formData.jobSector,
+      description: formData.jobDescription.replace(/<[^>]+>/g, "").trim(),
       location: formData.location,
       skills_required: formData.requiredSkills,
       salary_min: parseInt(formData.minSalary),
@@ -134,7 +150,7 @@ const PostJob = ({ onJobSubmit }) => {
       additional_contact: formData.additionalContact,
       is_remote: 0,
       no_of_vacancies: parseInt(formData.no_of_vacancies || 1),
-      vacancyStatus: formData.vacancyStatus.toLowerCase(),
+      status: formData.vacancyStatus.toLowerCase(),
     };
 
     try {
@@ -142,45 +158,57 @@ const PostJob = ({ onJobSubmit }) => {
         apiUrl: service.createJob,
         payload,
       });
-      console.log("📦 service.createJob =>", service.createJob);
+      console.log("📦 [PostJob] ➜ API Response:", response);
 
-      if (response.status === true || response.success === true) {
-        toast.success("🎉 Job created successfully!", {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: false,
-          draggable: true,
+      if (response?.status === true || response?.success === true) {
+        Swal.fire({
+          title: "Success!",
+          text: "Job created successfully!",
+          icon: "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#3085d6",
+        }).then(() => {
+          if (onJobSubmit) onJobSubmit(response.data || formData);
+
+          // ✅ Reset form
+          setFormData({
+            jobTitle: "",
+            jobSector: "",
+            jobSectorId: "",
+            jobDescription: "",
+            minSalary: "",
+            maxSalary: "",
+            jobType: "",
+            requiredSkills: "",
+            experience: "",
+            location: "",
+            contactPerson: "",
+            phone: "",
+            additionalContact: "",
+            vacancyStatus: "",
+            no_of_vacancies: "",
+            closingDate: "",
+          });
+          setErrors({});
         });
-
-        if (onJobSubmit) onJobSubmit(response.data || formData);
-
-        // ✅ Reset form
-        setFormData({
-          jobTitle: "",
-          jobSector: "",
-          jobDescription: "",
-          salaryType: "",
-          minSalary: "",
-          maxSalary: "",
-          jobType: "",
-          requiredSkills: "",
-          experience: "",
-          location: "",
-          contactPerson: "",
-          phone: "",
-          additionalContact: "",
-          vacancyStatus: "",
-          no_of_vacancies: "",
-          closingDate: "",
-        });
-        setErrors({});
       } else {
-        console.error("API Error:", response);
+        Swal.fire({
+          title: "Error!",
+          text: response?.message || "Failed to create job. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#d33",
+        });
       }
     } catch (err) {
-      console.error("❌ Network error:", err);
+      console.error("❌ [PostJob] ➜ Network error:", err);
+      Swal.fire({
+        title: "Error!",
+        text: "Network or API error occurred. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#d33",
+      });
     }
   };
 
@@ -189,12 +217,17 @@ const PostJob = ({ onJobSubmit }) => {
   // ✅ Add category modal logic (fixed)
   const handleAddCategory = () => {
     if (!newCategory.trim()) return;
-    if (!jobCategories.find((cat) => cat.category_name === newCategory.trim())) {
+      if (!jobCategories.find((cat) => cat.category_name === newCategory.trim())) {
+      const newCatId = Date.now();
       setJobCategories((prev) => [
         ...prev,
-        { id: Date.now(), category_name: newCategory.trim() },
+        { id: newCatId, category_name: newCategory.trim() },
       ]);
-      setFormData((prev) => ({ ...prev, jobSector: newCategory.trim() }));
+      setFormData((prev) => ({ 
+        ...prev, 
+        jobSector: newCategory.trim(),
+        jobSectorId: newCatId.toString()
+      }));
     }
     setShowAddCategoryModal(false);
     setNewCategory("");
@@ -274,6 +307,9 @@ const PostJob = ({ onJobSubmit }) => {
                   placeholder="Enter job title"
                   required
                 />
+                {errors.jobTitle && (
+                  <p className="text-red-500 text-sm mt-1">{errors.jobTitle}</p>
+                )}
               </div>
             </div>
 
@@ -289,7 +325,17 @@ const PostJob = ({ onJobSubmit }) => {
                 <select
                   name="jobSector"
                   value={formData.jobSector}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    const selectedName = e.target.value;
+                    const selectedCategory = jobCategories.find(
+                      (cat) => cat.category_name === selectedName
+                    );
+                    setFormData((prev) => ({
+                      ...prev,
+                      jobSector: selectedName,
+                      jobSectorId: selectedCategory?.id || "",
+                    }));
+                  }}
                   className={`flex-1 px-4 py-3 border rounded-lg focus:ring-2 ${
                     errors.jobSector ? "border-red-500" : "border-gray-300"
                   }`}
@@ -311,6 +357,9 @@ const PostJob = ({ onJobSubmit }) => {
                   + Add
                 </Button>
               </div>
+              {errors.jobSector && (
+                <p className="text-red-500 text-sm mt-1 ml-[33.333333%]">{errors.jobSector}</p>
+              )}
             </div>
 
             {/* ✅ Add Category Modal */}
@@ -366,6 +415,9 @@ const PostJob = ({ onJobSubmit }) => {
                   placeholder="Describe the job responsibilities, requirements, and benefits..."
                   height="200px"
                 />
+                {errors.jobDescription && (
+                  <p className="text-red-500 text-sm mt-1">{errors.jobDescription}</p>
+                )}
               </div>
             </div>
 
@@ -377,26 +429,41 @@ const PostJob = ({ onJobSubmit }) => {
                 </label>
                
               </div>
-              <div className="lg:col-span-2 flex gap-4">
-
-                <input
-                  type="text"
-                  name="minSalary"
-                  value={formData.minSalary}
-                  onChange={handleInputChange}
-                  className="w-28 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none"
-                  placeholder="Min"
-                  required
-                />
-                <input
-                  type="text"
-                  name="maxSalary"
-                  value={formData.maxSalary}
-                  onChange={handleInputChange}
-                  className="w-28 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none"
-                  placeholder="Max"
-                  required
-                />
+              <div className="lg:col-span-2 flex flex-col gap-2">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      name="minSalary"
+                      value={formData.minSalary}
+                      onChange={handleInputChange}
+                      className={`w-full px-3 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none ${
+                        errors.minSalary ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder="Min Salary"
+                      required
+                    />
+                    {errors.minSalary && (
+                      <p className="text-red-500 text-sm mt-1">{errors.minSalary}</p>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      name="maxSalary"
+                      value={formData.maxSalary}
+                      onChange={handleInputChange}
+                      className={`w-full px-3 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none ${
+                        errors.maxSalary ? "border-red-500" : "border-gray-300"
+                      }`}
+                      placeholder="Max Salary"
+                      required
+                    />
+                    {errors.maxSalary && (
+                      <p className="text-red-500 text-sm mt-1">{errors.maxSalary}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -413,7 +480,9 @@ const PostJob = ({ onJobSubmit }) => {
                   name="jobType"
                   value={formData.jobType}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none ${
+                    errors.jobType ? "border-red-500" : "border-gray-300"
+                  }`}
                   required
                 >
                   <option value="">Select type</option>
@@ -422,6 +491,9 @@ const PostJob = ({ onJobSubmit }) => {
                   <option value="contract">Contract</option>
                   <option value="internship">Internship</option>
                 </select>
+                {errors.jobType && (
+                  <p className="text-red-500 text-sm mt-1">{errors.jobType}</p>
+                )}
               </div>
             </div>
 
@@ -488,10 +560,15 @@ const PostJob = ({ onJobSubmit }) => {
                   name="location"
                   value={formData.location}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none"
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none ${
+                    errors.location ? "border-red-500" : "border-gray-300"
+                  }`}
                   placeholder="Enter complete address with street, area, landmark"
                   required
                 />
+                {errors.location && (
+                  <p className="text-red-500 text-sm mt-1">{errors.location}</p>
+                )}
               </div>
             </div>
           </div>
@@ -590,7 +667,9 @@ const PostJob = ({ onJobSubmit }) => {
                     name="vacancyStatus"
                     value={formData.vacancyStatus}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none"
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none ${
+                      errors.vacancyStatus ? "border-red-500" : "border-gray-300"
+                    }`}
                     required
                   >
                     <option value="">Select status</option>
@@ -598,6 +677,9 @@ const PostJob = ({ onJobSubmit }) => {
                     <option value="Closed">Closed</option>
                     <option value="Draft">Draft</option>
                   </select>
+                  {errors.vacancyStatus && (
+                    <p className="text-red-500 text-sm mt-1">{errors.vacancyStatus}</p>
+                  )}
                 </div>
               </div>
 
@@ -614,10 +696,16 @@ const PostJob = ({ onJobSubmit }) => {
                     name="no_of_vacancies"
                     value={formData.no_of_vacancies || ""}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none"
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none ${
+                      errors.no_of_vacancies ? "border-red-500" : "border-gray-300"
+                    }`}
                     placeholder="e.g., 2"
+                    min="1"
                     required
                   />
+                  {errors.no_of_vacancies && (
+                    <p className="text-red-500 text-sm mt-1">{errors.no_of_vacancies}</p>
+                  )}
                 </div>
               </div>
 
@@ -635,9 +723,14 @@ const PostJob = ({ onJobSubmit }) => {
                     name="closingDate"
                     value={formData.closingDate}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none"
+                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none ${
+                      errors.closingDate ? "border-red-500" : "border-gray-300"
+                    }`}
                     required
                   />
+                  {errors.closingDate && (
+                    <p className="text-red-500 text-sm mt-1">{errors.closingDate}</p>
+                  )}
                 </div>
               </div>
             </div>
