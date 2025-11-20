@@ -1,38 +1,66 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { LuUsers, LuCheck, LuClock, LuDownload, LuSearch, LuEye, LuPencil, LuMessageSquare, LuTrash2, LuX } from 'react-icons/lu'
+import { LuUsers, LuCheck, LuClock, LuDownload, LuSearch, LuEye, LuPencil, LuMessageSquare, LuX } from 'react-icons/lu'
 import { Horizontal4Cards } from '../../../../shared/components/metricCard'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Button, { IconButton } from '../../../../shared/components/Button'
 import { getMethod, putMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
+import Swal from 'sweetalert2'
 
 const ViewStudents = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [courseFilter, setCourseFilter] = useState('all')
-  const [selectedStudents, setSelectedStudents] = useState([])
   const [showViewPopup, setShowViewPopup] = useState(false)
   const [showEditPopup, setShowEditPopup] = useState(false)
-  const [showDeletePopup, setShowDeletePopup] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState(null)
 
 
   const fetchBatchesByCourse = async (course_id) => {
     try {
-      if (!course_id) return [];
+      if (!course_id) {
+        console.warn("No course_id provided for batch fetch");
+        return [];
+      }
   
+      console.log("Fetching batches for course_id:", course_id);
+      
       const resp = await getMethod({
-        apiUrl: `${apiService.get_batches}?course_id=${course_id}`,
+        apiUrl: apiService.getBatches,
+        params: { course_id: Number(course_id) }
       });
   
-      if (resp?.status && resp.batches) {
-        return resp.batches;
-      }
-    } catch (e) {
-      console.error("Batch fetch error:", e);
-    }
+      console.log("Batches API response for course_id", course_id, ":", resp);
   
-    return [];
+      // Handle different response structures
+      if (resp?.status) {
+        let batches = [];
+        
+        // Check for batches in different possible locations
+        if (Array.isArray(resp.batches)) {
+          batches = resp.batches;
+        } else if (Array.isArray(resp.data)) {
+          batches = resp.data;
+        } else if (resp.data && Array.isArray(resp.data.batches)) {
+          batches = resp.data.batches;
+        }
+        
+        // Filter batches to ensure they belong to this course_id
+        const filteredBatches = batches.filter(batch => {
+          const batchCourseId = batch.course_id || batch.courseId || batch.course?.course_id || batch.course?.id;
+          return Number(batchCourseId) === Number(course_id);
+        });
+        
+        console.log("Filtered batches for course_id", course_id, ":", filteredBatches);
+        return filteredBatches;
+      }
+      
+      console.warn("No batches found in response for course_id:", course_id);
+      return [];
+    } catch (e) {
+      console.error("Batch fetch error for course_id", course_id, ":", e);
+      return [];
+    }
   };
   
 
@@ -46,35 +74,8 @@ const ViewStudents = () => {
   })
   const [loading, setLoading] = useState(false)
 
-  const defaultCourseOptions = [
-    'Electrician',
-    'Fitter',
-    'Welder',
-    'Mechanic',
-    'Plumber',
-    'Carpenter',
-    'Painter'
-  ]
-
-  const defaultBatchOptions = [
-    'Batch A',
-    'Batch B',
-    'Batch C'
-  ]
-
-  const courseOptions = useMemo(() => {
-    const uniqueCourses = Array.from(
-      new Set(students.map((student) => student.course).filter(Boolean))
-    )
-    return uniqueCourses.length > 0 ? uniqueCourses : defaultCourseOptions
-  }, [students])
-
-  const batchOptions = useMemo(() => {
-    const uniqueBatches = Array.from(
-      new Set(students.map((student) => student.batch).filter(Boolean))
-    )
-    return uniqueBatches.length > 0 ? uniqueBatches : defaultBatchOptions
-  }, [students])
+  const [batchOptions, setBatchOptions] = useState([]);
+  const [courses, setCourses] = useState([]);
   
   const fetchStudents = async () => {
     try {
@@ -90,9 +91,12 @@ const ViewStudents = () => {
         setStudents(
           (resp.data || []).map((s) => ({
             ...s,
-            student_id: s.student_id || s.id || s.user_id, // choose correct id from backend
+            student_id: s.student_id,       // REAL student_id (from student_profiles.id)
+            course_id: s.course_id,         // required for batch dropdown
+            batch_id: s.batch_id || null,
           }))
         );
+        
         
   
         if (resp.summary) {
@@ -140,7 +144,12 @@ const fetchStudentDetails = async (studentId) => {
       setShowViewPopup(true);
     } else {
       console.warn("No profile found for this student");
-      alert("No detailed profile found for this student.");
+      Swal.fire({
+        icon: 'info',
+        title: 'No Profile Found',
+        text: 'No detailed profile found for this student.',
+        confirmButtonColor: '#5C9A24'
+      })
     }
   } catch (error) {
     console.error("Error fetching student details:", error);
@@ -151,8 +160,31 @@ const fetchStudentDetails = async (studentId) => {
 
 
   
+  // ✅ Fetch courses for dropdown
+  const fetchCourses = async () => {
+    try {
+      const resp = await getMethod({ apiUrl: apiService.getCourses })
+      if (resp?.status && Array.isArray(resp.courses)) {
+        const mappedCourses = resp.courses
+          .map((course) => ({
+            id: course.id ?? course.course_id,
+            name: course.title ?? course.course_title ?? course.name ?? 'Untitled Course'
+          }))
+          .filter((course) => course.id)
+        setCourses(mappedCourses)
+      } else {
+        setCourses([])
+        console.warn('No courses found for dropdown', resp)
+      }
+    } catch (err) {
+      console.error('Error fetching courses for dropdown:', err)
+      setCourses([])
+    }
+  }
+
   useEffect(() => {
     fetchStudents()
+    fetchCourses()
   }, [])
   
 
@@ -233,21 +265,6 @@ const fetchStudentDetails = async (studentId) => {
   })
   
 
-  const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedStudents(filteredStudents.map(s => s.id))
-    } else {
-      setSelectedStudents([])
-    }
-  }
-
-  const handleSelectStudent = (studentId, checked) => {a
-    if (checked) {
-      setSelectedStudents([...selectedStudents, studentId])
-    } else {
-      setSelectedStudents(selectedStudents.filter(id => id !== studentId))
-    }
-  }
 
   // Popup handlers
   const handleViewStudent = (student) => {
@@ -255,29 +272,30 @@ const fetchStudentDetails = async (studentId) => {
   };
   
 
-  const handleEditStudent = (student) => {
-    setSelectedStudent(student)
-    setShowEditPopup(true)
-  }
-
-  const handleDeleteStudent = (student) => {
-    setSelectedStudent(student)
-    setShowDeletePopup(true)
-  }
+  const handleEditStudent = async (student) => {
+    setSelectedStudent(student);
+  
+    let batches = [];
+    // Only fetch batches if student has a course_id
+    if (student.course_id) {
+      console.log("Loading batches for student:", student.name, "course:", student.course, "course_id:", student.course_id);
+      batches = await fetchBatchesByCourse(student.course_id);
+      console.log("Fetched batches for course:", batches);
+    } else {
+      console.warn("Student has no course_id, cannot fetch batches. Student:", student.name);
+    }
+  
+    // store fetched batches for dropdown use (only batches for this specific course)
+    setBatchOptions(batches || []);
+  
+    setShowEditPopup(true);
+  };
 
   const handleClosePopups = () => {
     setShowViewPopup(false)
     setShowEditPopup(false)
-    setShowDeletePopup(false)
     setSelectedStudent(null)
-  }
-
-  const handleConfirmDelete = () => {
-    if (selectedStudent) {
-      setStudents(students.filter(s => s.id !== selectedStudent.id))
-      setShowDeletePopup(false)
-      setSelectedStudent(null)
-    }
+    setBatchOptions([]) // Clear batches when closing popup
   }
 
   const handleUpdateStudent = (updatedStudent) => {
@@ -289,63 +307,140 @@ const fetchStudentDetails = async (studentId) => {
   // ✅ Update student data to backend
   const updateStudentDetails = async (updatedStudent) => {
     try {
-      // FIND STUDENT BY NAME
+      // find full student record
       const foundStudent = students.find(
-        (s) =>
-          s.name.trim().toLowerCase() ===
-          updatedStudent.name.trim().toLowerCase()
+        (s) => s.student_id === updatedStudent.student_id
       );
   
       if (!foundStudent) {
-        alert("Student not found by name");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Student record not found',
+          confirmButtonColor: '#5C9A24'
+        })
         return;
       }
   
-      if (!foundStudent.student_id) {
-        console.error("❌ Missing student_id:", foundStudent);
-        alert("Invalid student record. student_id missing.");
+      // Validate batch_id
+      const batchId = Number(updatedStudent.batch);
+      if (!batchId || batchId === 0) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Validation Error',
+          text: 'Invalid batch selected. Please select a valid batch.',
+          confirmButtonColor: '#5C9A24'
+        })
         return;
       }
-  
-      // FINAL PAYLOAD
+
+      // Validate status - normalize to lowercase as backend expects
+      const normalizedStatus = (updatedStudent.status || '').toLowerCase().trim();
+      if (!normalizedStatus || !['enrolled', 'completed', 'dropped'].includes(normalizedStatus)) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Validation Error',
+          text: 'Invalid status. Please select a valid status.',
+          confirmButtonColor: '#5C9A24'
+        })
+        return;
+      }
+
+      // final clean payload - matching backend expectations exactly
       const payload = {
         student_id: Number(foundStudent.student_id),
-        batch_id: updatedStudent.batch,
-        status: updatedStudent.status,
+        batch_id: batchId,
+        status: normalizedStatus,
       };
-  
-      console.log("📤 Sending Payload:", payload);
-  
-      // CALL API
+
+      console.log("📤 Update Payload:", JSON.stringify(payload, null, 2));
+      console.log("📤 Update API URL:", apiService.update_student);
+      console.log("📤 Student ID:", foundStudent.student_id);
+      console.log("📤 Batch ID:", batchId);
+      console.log("📤 Status:", normalizedStatus);
+
       const resp = await putMethod({
         apiUrl: apiService.update_student,
         payload: payload,
       });
-  
-      console.log("Update Response:", resp);
-  
-      if (resp?.status) {
+
+      console.log("📥 Update API Response (Full):", JSON.stringify(resp, null, 2));
+      console.log("📥 Response status:", resp?.status);
+      console.log("📥 Response success:", resp?.success);
+      console.log("📥 Response message:", resp?.message);
+
+      // Check for success - backend returns {status: true, ...}
+      // respChanges might convert it to {status: 'success', success: true}
+      const isSuccess = resp?.status === true || 
+                       resp?.success === true || 
+                       resp?.status === 'success' ||
+                       (typeof resp?.status === 'string' && resp.status.toLowerCase() === 'success');
+      
+      console.log("📥 Is Success:", isSuccess);
+
+      if (isSuccess) {
+        // Find the batch name from batchOptions using batch_id
+        const selectedBatch = batchOptions.find(b => 
+          (b.batch_id || b.id) === Number(updatedStudent.batch)
+        );
+        const batchName = selectedBatch 
+          ? `${selectedBatch.batch_name || selectedBatch.name}${selectedBatch.batch_time_slot ? ` - ${selectedBatch.batch_time_slot}` : ''}`
+          : `Batch ${updatedStudent.batch}`; // fallback if name not found
+        
+        // update UI list with both batch_id and batch name
         setStudents((prev) =>
           prev.map((s) =>
             s.student_id === foundStudent.student_id
-              ? { ...s, batch: updatedStudent.batch, status: updatedStudent.status }
+              ? { 
+                  ...s, 
+                  batch_id: Number(updatedStudent.batch), 
+                  batch: batchName,
+                  status: updatedStudent.status 
+                }
               : s
           )
         );
   
         setShowEditPopup(false);
         setSelectedStudent(null);
+        setBatchOptions([]); // Clear batch options
+        
+        // Refresh student list to get latest data from backend
+        await fetchStudents();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Student updated successfully!',
+          confirmButtonColor: '#5C9A24'
+        })
       } else {
-        alert(resp?.message || "Failed to update student");
+        console.error("Update failed - Full response:", resp);
+        const errorMsg = resp?.message || resp?.error?.message || "Update failed. Please check console for details.";
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: errorMsg,
+          confirmButtonColor: '#5C9A24'
+        })
       }
-    } catch (error) {
-      console.error("Update error:", error);
+    } catch (err) {
+      console.error("Update error:", err);
+      console.error("Error details:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.message || err.message || "Unknown error",
+        confirmButtonColor: '#5C9A24'
+      })
     }
   };
   
   
-  
-
 
   return (
     <div className="p-2   min-h-screen">
@@ -387,9 +482,11 @@ const fetchStudentDetails = async (studentId) => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Courses</option>
-              <option value="electrician">Electrician</option>
-              <option value="fitter">Fitter</option>
-              <option value="welder">Welder</option>
+              {courses.map((course) => (
+                <option key={course.id} value={course.name.toLowerCase()}>
+                  {course.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -408,14 +505,6 @@ const fetchStudentDetails = async (studentId) => {
           <table className="w-full">
             <thead className="bg-white border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-left">
-                  <input
-                    type="checkbox"
-                    checked={selectedStudents.length === filteredStudents.length && filteredStudents.length > 0}
-                    onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                </th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student</th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course & Batch</th>
                 <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
@@ -425,14 +514,6 @@ const fetchStudentDetails = async (studentId) => {
             <tbody className="divide-y divide-gray-200">
               {filteredStudents.map((student) => (
                 <tr key={student.id} className="hover:bg-white">
-                  <td className="px-6 py-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedStudents.includes(student.id)}
-                      onChange={(e) => handleSelectStudent(student.id, e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                  </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       <div className="w-6 h-6 bg-gray-300 rounded-full mr-3 flex-shrink-0"></div>
@@ -464,14 +545,6 @@ const fetchStudentDetails = async (studentId) => {
                       >
                         <LuPencil className="w-4 h-4" />
                       </button>
-                      <IconButton
-                        label="Delete student"
-                        onClick={() => handleDeleteStudent(student)}
-                        variant="light"
-                        className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-red-600 border border-gray-300 rounded-md transition-colors`}
-                      >
-                        <LuTrash2 className="w-4 h-4" />
-                      </IconButton>
                     </div>
                   </td>
                 </tr>
@@ -584,12 +657,55 @@ const fetchStudentDetails = async (studentId) => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          
+          // Check if batches are available for this course
+          if (batchOptions.length === 0) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'No Batches Available',
+              text: 'इस course के लिए कोई batches उपलब्ध नहीं हैं। Student को update नहीं किया जा सकता।\n\nNo batches available for this course. Cannot update student.',
+              confirmButtonColor: '#5C9A24'
+            })
+            return;
+          }
+          
           const formData = new FormData(e.target);
+          const batchValue = formData.get("batch");
+          const statusValue = formData.get("status");
+          
+          // Validate batch selection
+          if (!batchValue || batchValue === "") {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Validation Error',
+              text: 'कृपया एक batch चुनें।\n\nPlease select a batch.',
+              confirmButtonColor: '#5C9A24'
+            })
+            return;
+          }
+
+          // Normalize status to lowercase (backend expects: enrolled, completed, dropped)
+          const normalizedStatus = (statusValue || '').toLowerCase().trim();
+          if (!normalizedStatus || !['enrolled', 'completed', 'dropped'].includes(normalizedStatus)) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Validation Error',
+              text: 'Invalid status selected. Please select a valid status.',
+              confirmButtonColor: '#5C9A24'
+            })
+            return;
+          }
+
+          console.log("📝 Form Submission:", {
+            batch: batchValue,
+            status: normalizedStatus,
+            originalStatus: statusValue
+          });
 
           const updatedStudent = {
             ...selectedStudent,
-            batch: formData.get("batch"),
-            status: formData.get("status"),
+            batch: batchValue,
+            status: normalizedStatus,
           };
 
           updateStudentDetails(updatedStudent);
@@ -656,21 +772,27 @@ const fetchStudentDetails = async (studentId) => {
           {/* Batch (editable) */}
           <div>
             <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
-              Batch
+              Batch {batchOptions.length === 0 && <span className="text-red-500 text-xs">(No batches available)</span>}
             </label>
-            <select
-              name="batch"
-              defaultValue={selectedStudent.batch || ""}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            >
-              <option value="" disabled>Select batch</option>
-              {batchOptions.map((batch) => (
-                <option key={batch} value={batch}>
-                  {batch}
-                </option>
-              ))}
-            </select>
+            {batchOptions.length > 0 ? (
+              <select
+                name="batch"
+                defaultValue={selectedStudent.batch_id || ""}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">Select batch</option>
+                {batchOptions.map((b) => (
+                  <option key={b.batch_id || b.id} value={b.batch_id || b.id}>
+                    {b.batch_name || b.name} {b.batch_time_slot ? `- ${b.batch_time_slot}` : ''}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed">
+                इस course के लिए कोई batches उपलब्ध नहीं हैं / No batches available for this course
+              </div>
+            )}
           </div>
 
           {/* Status (editable) */}
@@ -680,13 +802,13 @@ const fetchStudentDetails = async (studentId) => {
             </label>
             <select
               name="status"
-              defaultValue={selectedStudent.status}
+              defaultValue={(selectedStudent.status || '').toLowerCase()}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             >
-              <option value="Enrolled">Enrolled</option>
-              <option value="Completed">Completed</option>
-              <option value="Dropped">Dropped</option>
+              <option value="enrolled">Enrolled</option>
+              <option value="completed">Completed</option>
+              <option value="dropped">Dropped</option>
             </select>
           </div>
         </div>
@@ -701,7 +823,12 @@ const fetchStudentDetails = async (studentId) => {
           >
             Cancel
           </Button>
-          <Button type="submit" variant="primary">
+          <Button 
+            type="submit" 
+            variant="primary"
+            disabled={batchOptions.length === 0}
+            className={batchOptions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}
+          >
             Update Student
           </Button>
         </div>
@@ -711,45 +838,6 @@ const fetchStudentDetails = async (studentId) => {
 )}
 
 
-      {/* Delete Confirmation Popup */}
-      {showDeletePopup && selectedStudent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-                <LuTrash2 className="w-6 h-6 text-red-600" />
-              </div>
-              <div>
-                <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Delete Student</h2>
-                <p className={TAILWIND_COLORS.TEXT_MUTED}>This action cannot be undone.</p>
-              </div>
-            </div>
-            
-            <div className="mb-6">
-              <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
-                Are you sure you want to delete <span className="font-semibold">{selectedStudent.name}</span>? 
-                This will permanently remove all their data from the system.
-              </p>
-            </div>
-
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={handleClosePopups}
-                variant="neutral"
-                className={TAILWIND_COLORS.TEXT_PRIMARY}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmDelete}
-                variant="danger"
-              >
-                Delete Student
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

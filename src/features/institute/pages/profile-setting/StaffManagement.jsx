@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { LuPlus, LuSearch, LuFilter, LuPencil, LuTrash2, LuUserPlus } from 'react-icons/lu'
+import { LuPlus, LuSearch, LuFilter, LuPencil, LuUserPlus } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import Swal from 'sweetalert2'
 
 // ✅ API helpers + endpoints
 import { getMethod, postMethod, putMethod } from '../../../../service/api'
@@ -11,23 +12,17 @@ export default function StaffManagement() {
   const [searchTerm, setSearchTerm] = useState('')
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [editingInstructor, setEditingInstructor] = useState(null)
-  const [deletingInstructor, setDeletingInstructor] = useState(null)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
-    role: '' // No default - user must select
+    phone: ''
   })
 
   // ✅ API data state
   const [instructors, setInstructors] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  // Initialize with database enum roles to ensure they're always available
-  const [availableRoles, setAvailableRoles] = useState(['faculty', 'admin'])
-  const [loadingRoles, setLoadingRoles] = useState(false)
 
   // -------------------------------
   // Helpers: map API → UI object
@@ -37,7 +32,6 @@ export default function StaffManagement() {
     name: row.name,
     email: row.email,
     phone: row.phone || '',
-    role: row.role || 'faculty', // Use role from backend, default to 'faculty'
     status:
       row.admin_action === 'approved'
         ? 'Active'
@@ -71,45 +65,9 @@ export default function StaffManagement() {
     }
   }
 
-  // ✅ Fetch available roles from backend
-  // Database enum values: 'faculty', 'admin' (from faculty_users table schema)
-  // Always show all available roles from database enum, not just what's in existing data
-  const databaseRoles = ['faculty', 'admin']
-  
-  const fetchRoles = async () => {
-    try {
-      setLoadingRoles(true)
-      
-      // Always start with database enum roles to ensure they're always available
-      let allRoles = [...databaseRoles]
-      
-      // Try to get roles from faculty API response to see if backend provides additional roles
-      const res = await getMethod({ apiUrl: apiService.getFaculty })
-      
-      if (res?.status && Array.isArray(res.data)) {
-        // Extract unique roles from faculty data
-        const uniqueRoles = [...new Set(res.data.map(f => f.role).filter(Boolean))]
-        
-        // Combine database enum roles with any additional roles from API
-        // This ensures all enum values are always available, plus any extras
-        allRoles = [...new Set([...databaseRoles, ...uniqueRoles])]
-      }
-      
-      // Always set roles - never clear them
-      setAvailableRoles(allRoles)
-    } catch (err) {
-      console.error('Error fetching roles:', err)
-      // Fallback to database enum values - always available
-      setAvailableRoles(databaseRoles)
-    } finally {
-      setLoadingRoles(false)
-    }
-  }
-
   // load on first render
   useEffect(() => {
     fetchFaculty()
-    fetchRoles()
   }, [])
 
   const filteredInstructors = instructors.filter((instructor) =>
@@ -121,7 +79,7 @@ export default function StaffManagement() {
   // UI Handlers (Add/Edit/Delete)
   // -------------------------------
   const handleAddInstructor = () => {
-    setFormData({ name: '', email: '', phone: '', role: '' }) // No default role - user must select
+    setFormData({ name: '', email: '', phone: '' })
     setEditingInstructor(null)
     setShowAddModal(true)
   }
@@ -131,15 +89,9 @@ export default function StaffManagement() {
     setFormData({
       name: instructor.name,
       email: instructor.email,
-      phone: instructor.phone,
-      role: instructor.role
+      phone: instructor.phone
     })
     setShowEditModal(true)
-  }
-
-  const handleDeleteInstructor = (instructor) => {
-    setDeletingInstructor(instructor)
-    setShowDeleteModal(true)
   }
 
   // -------------------------------
@@ -147,8 +99,13 @@ export default function StaffManagement() {
   // -------------------------------
   const handleSaveInstructor = async () => {
     // simple required validation; backend will still validate
-    if (!formData.name.trim() || !formData.email.trim() || !formData.role) {
-      alert('Please fill all required fields including Role')
+    if (!formData.name.trim() || !formData.email.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Validation Error',
+        text: 'Please fill all required fields (Name and Email)',
+        confirmButtonColor: '#5C9A24'
+      })
       return
     }
 
@@ -160,8 +117,7 @@ export default function StaffManagement() {
           id: editingInstructor.id,
           name: formData.name.trim(),
           email: formData.email.trim(),
-          phone: formData.phone.trim(),
-          role: formData.role // Use the selected role, no default fallback
+          phone: formData.phone.trim()
           // admin_action only from admin side if needed
         }
 
@@ -180,10 +136,20 @@ export default function StaffManagement() {
           // Roles are always available from database enum, no need to reset
           
           // Show success popup
-          alert('Instructor updated successfully!')
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Instructor updated successfully!',
+            confirmButtonColor: '#5C9A24'
+          })
         } else {
           // Show error popup if update failed
-          alert(res?.message || 'Failed to update instructor. Please try again.')
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: res?.message || 'Failed to update instructor. Please try again.',
+            confirmButtonColor: '#5C9A24'
+          })
           return
         }
 
@@ -194,8 +160,7 @@ export default function StaffManagement() {
         const payload = {
           name: formData.name.trim(),
           email: formData.email.trim(),
-          phone: formData.phone.trim(),
-          role: formData.role // Use the selected role, no default fallback
+          phone: formData.phone.trim()
         }
 
         const res = await postMethod({
@@ -211,44 +176,46 @@ export default function StaffManagement() {
           // Roles are always available from database enum, no need to reset
           
           // Show success popup
-          alert('Instructor added successfully!')
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Instructor added successfully!',
+            confirmButtonColor: '#5C9A24'
+          })
         } else {
           // Show error popup if create failed
-          alert(res?.message || 'Failed to add instructor. Please try again.')
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: res?.message || 'Failed to add instructor. Please try again.',
+            confirmButtonColor: '#5C9A24'
+          })
           return
         }
 
         setShowAddModal(false)
       }
 
-      setFormData({ name: '', email: '', phone: '', role: '' })
+      setFormData({ name: '', email: '', phone: '' })
     } catch (err) {
       console.error('Error saving faculty:', err)
       // Show error popup for unexpected errors
-      alert('Something went wrong. Please try again.')
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong. Please try again.',
+        confirmButtonColor: '#5C9A24'
+      })
     } finally {
       setIsSaving(false)
     }
   }
 
-  const handleConfirmDelete = () => {
-    // ❗ No delete API given, so just remove from current list
-    if (deletingInstructor) {
-      setInstructors((prev) =>
-        prev.filter((inst) => inst.id !== deletingInstructor.id)
-      )
-    }
-    setShowDeleteModal(false)
-    setDeletingInstructor(null)
-  }
-
   const handleCancelModal = () => {
     setShowAddModal(false)
     setShowEditModal(false)
-    setShowDeleteModal(false)
     setEditingInstructor(null)
-    setDeletingInstructor(null)
-    setFormData({ name: '', email: '', phone: '', role: '' })
+    setFormData({ name: '', email: '', phone: '' })
   }
 
   const handleInputChange = (e) => {
@@ -335,11 +302,6 @@ export default function StaffManagement() {
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  {/* Role Badge */}
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${TAILWIND_COLORS.BADGE_INFO}`}>
-                    {instructor.role}
-                  </span>
-
                   {/* Action Buttons */}
                   <div className="flex items-center space-x-2">
                     <button
@@ -348,13 +310,6 @@ export default function StaffManagement() {
                       title="Edit"
                     >
                       <LuPencil className="w-4 h-4 text-secondary" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteInstructor(instructor)}
-                      className="w-8 h-8 bg-red-100 hover:bg-red-200 rounded flex items-center justify-center transition-colors"
-                      title="Delete"
-                    >
-                      <LuTrash2 className="w-4 h-4 text-error" />
                     </button>
                   </div>
                 </div>
@@ -441,32 +396,6 @@ export default function StaffManagement() {
                 />
               </div>
 
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>
-                  Role <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="role"
-                  value={formData.role || ''}
-                  onChange={handleInputChange}
-                  disabled={loadingRoles || isSaving}
-                  required
-                  className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary ${TAILWIND_COLORS.TEXT_PRIMARY} ${(loadingRoles || isSaving) ? 'opacity-50 cursor-not-allowed' : ''} ${!formData.role ? 'border-red-300' : ''}`}
-                >
-                  <option value="">{loadingRoles ? 'Loading roles...' : 'Select role'}</option>
-                  {availableRoles.map((role) => (
-                    <option key={role} value={role}>
-                      {role.charAt(0).toUpperCase() + role.slice(1)}
-                    </option>
-                  ))}
-                </select>
-                {!loadingRoles && availableRoles.length === 0 && (
-                  <p className="text-xs text-gray-500 mt-1">No roles available</p>
-                )}
-                {!formData.role && (
-                  <p className="text-xs text-red-500 mt-1">Please select a role</p>
-                )}
-              </div>
             </div>
 
             <div className="flex justify-end space-x-3 mt-6">
@@ -491,40 +420,6 @@ export default function StaffManagement() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${TAILWIND_COLORS.HEADER_BG} rounded-lg p-6 w-full max-w-md mx-4`}>
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
-              Confirm Delete
-            </h3>
-
-            <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
-              Are you sure you want to delete <strong>{deletingInstructor?.name}</strong>?
-              This action cannot be undone.
-            </p>
-
-            <div className="flex justify-end space-x-3">
-              <Button
-                onClick={handleCancelModal}
-                variant="light"
-                size="md"
-                disabled={isSaving}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmDelete}
-                variant="danger"
-                size="md"
-                disabled={isSaving}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { LuPlus, LuPencil, LuTrash2, LuBookOpen, LuAward, LuFileText, LuCalendar } from 'react-icons/lu'
+import { LuPlus, LuPencil, LuBookOpen, LuAward, LuFileText, LuCalendar } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Button from '../../../../shared/components/Button'
 import CreateTemplateModal from './CreateTemplateModal'
@@ -50,7 +50,6 @@ export default function Templates() {
 
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState(null)
-  const [showDeleteModal, setShowDeleteModal] = useState(null)
 
   // Handle edit template
   const handleEditTemplate = (template) => {
@@ -83,16 +82,6 @@ export default function Templates() {
     }
   }
 
-  // Handle delete template
-  const handleDeleteTemplate = (templateId) => {
-    setTemplates(templates.filter(template => template.id !== templateId))
-    setShowDeleteModal(null)
-  }
-
-  // Handle confirm delete
-  const handleConfirmDelete = (templateId) => {
-    setShowDeleteModal(templateId)
-  }
 
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-6`}>
@@ -137,13 +126,6 @@ export default function Templates() {
                     className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-green-600 transition-colors`}
                     icon={<LuPencil className="w-4 h-4" />}
                     aria-label="Edit template"
-                  />
-                  <Button
-                    onClick={() => handleConfirmDelete(template.id)}
-                    variant="unstyled"
-                    className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-red-600 transition-colors`}
-                    icon={<LuTrash2 className="w-4 h-4" />}
-                    aria-label="Delete template"
                   />
                 </div>
               </div>
@@ -201,41 +183,6 @@ export default function Templates() {
         editingTemplate={editingTemplate}
       />
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
-                <LuTrash2 className="w-6 h-6 text-red-600" />
-              </div>
-              <div>
-                <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Delete Template</h3>
-                <p className={TAILWIND_COLORS.TEXT_MUTED}>This action cannot be undone.</p>
-              </div>
-            </div>
-            <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
-              Are you sure you want to delete this template? This will permanently remove it from your templates.
-            </p>
-            <div className="flex space-x-3 justify-end">
-              <Button
-                onClick={() => setShowDeleteModal(null)}
-                variant="light"
-                size="md"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => handleDeleteTemplate(showDeleteModal)}
-                variant="danger"
-                size="md"
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

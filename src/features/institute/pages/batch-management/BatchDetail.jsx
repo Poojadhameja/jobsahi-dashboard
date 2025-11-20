@@ -30,16 +30,23 @@ export default function BatchDetail({ batchData, onBack }) {
       try {
         setLoading(true)
         setError(null)
+        
+        // Fetch batch details
         const response = await getMethod({
           apiUrl: apiService.courseByBatch,
           params: { course_id: batchData.courseId },
         })
 
+        // Fetch course details to get instructor
+        const courseResponse = await getMethod({
+          apiUrl: `${apiService.getSingleCourse}?id=${batchData.courseId}`,
+        })
+
         if (response.status && response.batches?.length > 0) {
           const currentBatch = response.batches.find(
-            (b) => parseInt(b.batch_id) === parseInt(batchData.batch.batch_id)
+            (b) => Number(b.batch_id) === Number(batchData.batch.batch_id)
           )
-
+        
           if (currentBatch) {
             setBatchInfo({
               name: currentBatch.batch_name,
@@ -49,30 +56,81 @@ export default function BatchDetail({ batchData, onBack }) {
               description: `${batchData.courseTitle} - Practical oriented training batch`,
               totalStudents: currentBatch.enrolled_students || 0,
               maxStudents: 30,
-              activeStudents:
-                currentBatch.students?.filter((s) => s.status === 'Active').length || 0,
+              activeStudents: currentBatch.students?.filter((s) => s.status === 'Active').length || 0,
               completionPercentage: currentBatch.completion_percent || 0,
             })
-
+        
             setStudents(
-              currentBatch.students?.map((s) => ({
+              (currentBatch.students || []).map((s) => ({
                 id: s.student_id,
                 name: s.name,
                 email: s.email,
                 joinDate: s.join_date,
                 status: s.status,
-              })) || []
+              }))
             )
+        
+            // ✅ Get instructor from course data (getCourseById API)
+            if (courseResponse?.status && courseResponse?.course) {
+              const instructorName = courseResponse.course.instructor_name || courseResponse.course.instructor
+              if (instructorName) {
+                setInstructors([
+                  {
+                    id: courseResponse.course.instructor_id || null,
+                    name: instructorName,
+                    email: courseResponse.course.instructor_email || '',
+                    phone: courseResponse.course.instructor_phone || '',
+                  }
+                ])
+              } else {
+                // Fallback to batch faculty if course instructor not available
+                if (Array.isArray(currentBatch.faculty) && currentBatch.faculty.length > 0) {
+                  setInstructors(
+                    currentBatch.faculty.map((f) => ({
+                      id: f.faculty_id,
+                      name: f.name,
+                      email: f.email,
+                      phone: f.phone,
+                    }))
+                  )
+                } else if (currentBatch.assigned_instructor) {
+                  setInstructors([
+                    {
+                      id: currentBatch.assigned_instructor.faculty_id,
+                      name: currentBatch.assigned_instructor.name,
+                      email: currentBatch.assigned_instructor.email,
+                      phone: currentBatch.assigned_instructor.phone,
+                    }
+                  ])
+                } else {
+                  setInstructors([])
+                }
+              }
+            } else {
+              // Fallback to batch faculty if course API fails
+              if (Array.isArray(currentBatch.faculty) && currentBatch.faculty.length > 0) {
+                setInstructors(
+                  currentBatch.faculty.map((f) => ({
+                    id: f.faculty_id,
+                    name: f.name,
+                    email: f.email,
+                    phone: f.phone,
+                  }))
+                )
+              } else if (currentBatch.assigned_instructor) {
+                setInstructors([
+                  {
+                    id: currentBatch.assigned_instructor.faculty_id,
+                    name: currentBatch.assigned_instructor.name,
+                    email: currentBatch.assigned_instructor.email,
+                    phone: currentBatch.assigned_instructor.phone,
+                  }
+                ])
+              } else {
+                setInstructors([])
+              }
+            }
           }
-
-          setInstructors(
-            response.faculty?.map((f) => ({
-              id: f.faculty_id,
-              name: f.name,
-              email: f.email,
-              phone: f.phone,
-            })) || []
-          )
         } else {
           setError('Batch details not found')
         }
@@ -85,7 +143,7 @@ export default function BatchDetail({ batchData, onBack }) {
     }
 
     fetchBatchDetail()
-  }, [batchData?.batch?.batch_id])
+  }, [batchData?.batch?.batch_id, batchData?.courseId])
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -367,28 +425,40 @@ export default function BatchDetail({ batchData, onBack }) {
             Instructor
           </h2>
           <div className="space-y-4">
-            {instructors.map((instructor) => (
-              <div
-                key={instructor.id}
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
-              >
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                    {instructor.name
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')}
-                  </span>
+            {instructors.length > 0 ? (
+              instructors.map((instructor) => (
+                <div
+                  key={instructor.id || instructor.name}
+                  className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                >
+                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                    <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      {instructor.name
+                        ? instructor.name
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')
+                        : 'N/A'}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                      {instructor.name || 'No instructor assigned'}
+                    </h3>
+                    {instructor.email && (
+                      <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{instructor.email}</p>
+                    )}
+                    {instructor.phone && (
+                      <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{instructor.phone}</p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                    {instructor.name}
-                  </h3>
-                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{instructor.email}</p>
-                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{instructor.phone}</p>
-                </div>
+              ))
+            ) : (
+              <div className="text-center py-4">
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No instructor assigned</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
