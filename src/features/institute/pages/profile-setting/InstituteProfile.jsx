@@ -255,6 +255,18 @@ export default function InstituteProfile() {
         fd.append('contact_designation', formData.contactDesignation.trim())
       }
 
+      // Email and Phone fields (for users table update)
+      if (formData.email?.trim()) {
+        fd.append('email', formData.email.trim())
+      }
+      if (formData.phone?.trim()) {
+        // Phone should be exactly 10 digits
+        const phoneDigits = formData.phone.replace(/\D/g, '')
+        if (phoneDigits.length === 10) {
+          fd.append('phone_number', phoneDigits)
+        }
+      }
+
       // Logo file if uploaded
       if (formData.logo instanceof File) {
         fd.append('institute_logo', formData.logo)
