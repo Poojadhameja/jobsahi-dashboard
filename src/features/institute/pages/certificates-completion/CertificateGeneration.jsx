@@ -14,10 +14,6 @@ import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { getMethod, postMultipart } from "../../../../service/api";
 import apiService from "../../services/serviceUrl.js";
 
-const DEFAULT_TEMPLATE_NAME = "Certificate of Completion";
-const DEFAULT_CERTIFICATE_DESCRIPTION =
-  "Upon successful completion of the course, participants will receive a Certificate of Completion, recognizing their achievement and confirming that they have acquired the essential skills and knowledge outlined in the curriculum.";
-
 function CertificateGeneration() {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -28,7 +24,7 @@ function CertificateGeneration() {
   const [completionDate, setCompletionDate] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedCertificates, setGeneratedCertificates] = useState([]);
-  const [templateName, setTemplateName] = useState(DEFAULT_TEMPLATE_NAME);
+  const [templateName, setTemplateName] = useState("");
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [logoFile, setLogoFile] = useState(null);
@@ -48,7 +44,7 @@ function CertificateGeneration() {
       });
     };
   }, [logoPreview, sealPreview, signaturePreview]);
-  const [description, setDescription] = useState(DEFAULT_CERTIFICATE_DESCRIPTION);
+  const [description, setDescription] = useState("");
 
   // ✅ Fetch all nested data once
   useEffect(() => {
@@ -452,7 +448,7 @@ function CertificateGeneration() {
                         key={template.template_id || template.id} 
                         value={template.template_id || template.id}
                       >
-                        {template.template_name || "Unnamed Template"}
+                        {template.template_name || ""}
                       </option>
                     ))}
                   </select>
@@ -464,7 +460,7 @@ function CertificateGeneration() {
                     type="text"
                     value={templateName}
                     onChange={(e) => setTemplateName(e.target.value)}
-                    placeholder="Enter template name (e.g., Certificate of Completion)"
+                    placeholder="Enter template name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
@@ -478,7 +474,7 @@ function CertificateGeneration() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={5}
-                  placeholder="Enter a detailed description for the certificate. This text will appear on the certificate to describe its purpose and significance."
+                  placeholder="Enter description"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 resize-y min-h-[120px]"
                 />
                 <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
@@ -746,13 +742,13 @@ function CertificateGeneration() {
 
               <div className="text-center mb-8">
                 <h1 className={`text-3xl font-bold italic mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                  {templateName?.trim() || DEFAULT_TEMPLATE_NAME}
+                  {templateName?.trim() || ""}
                 </h1>
                 <p
                   className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} max-w-2xl mx-auto leading-relaxed`}
                   style={{ whiteSpace: "pre-line" }}
                 >
-                  {description?.trim() || DEFAULT_CERTIFICATE_DESCRIPTION}
+                  {description?.trim() || ""}
                 </p>
               </div>
 
@@ -761,7 +757,7 @@ function CertificateGeneration() {
                   {student.name}
                 </h2>
                 <p className={`text-lg ${TAILWIND_COLORS.TEXT_PRIMARY} uppercase tracking-wide`}>
-                  {course?.title || "Selected Course"}
+                  {course?.title || ""}
                 </p>
               </div>
 
@@ -815,22 +811,22 @@ function CertificateGeneration() {
 
           <div className="text-center mb-8">
             <h1 className={`text-3xl font-bold italic mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              {templateName?.trim() || DEFAULT_TEMPLATE_NAME}
+              {templateName?.trim() || ""}
             </h1>
             <p
               className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} max-w-2xl mx-auto leading-relaxed`}
               style={{ whiteSpace: "pre-line" }}
             >
-              {description?.trim() || DEFAULT_CERTIFICATE_DESCRIPTION}
+              {description?.trim() || ""}
             </p>
           </div>
 
           <div className="text-center mb-8">
             <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-              Student Name
+              {""}
             </h2>
             <p className={`text-lg ${TAILWIND_COLORS.TEXT_PRIMARY} uppercase tracking-wide`}>
-              Course Name
+              {""}
             </p>
           </div>
 
