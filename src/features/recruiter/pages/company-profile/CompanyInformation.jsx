@@ -14,8 +14,10 @@ import {
   getMethod,
   postMultipart,
   putMethod,
+  putMultipart,
 } from "../../../../service/api";
 import apiService from "../../services/serviceUrl";
+import { env } from "../../../../service/envConfig";
 
 const CompanyInfo = () => {
   const [logoFile, setLogoFile] = useState(null);
@@ -49,25 +51,117 @@ const CompanyInfo = () => {
           apiUrl: apiService.getRecruiterProfile,
         });
 
+        console.log('📥 GET Profile Response:', response);
+        console.log('📥 Response structure:', {
+          success: response?.success,
+          hasData: !!response?.data,
+          hasProfiles: !!response?.data?.profiles,
+          profilesLength: response?.data?.profiles?.length,
+          fullResponse: response
+        });
+
+        // ✅ Try multiple response structures
+        let profile = null;
         if (response?.success && response?.data?.profiles?.length > 0) {
-          const profile = response.data.profiles[0];
-          const personal = profile.personal_info || {};
-          const professional = profile.professional_info || {};
-          const docs = profile.documents || {};
+          profile = response.data.profiles[0];
+        } else if (response?.success && response?.data) {
+          profile = response.data;
+        } else if (response?.data) {
+          profile = response.data;
+        }
+
+        if (profile) {
+          const personal = profile.personal_info || profile.personal || {};
+          const professional = profile.professional_info || profile.professional || {};
+          const docs = profile.documents || profile.document || {};
+
+          console.log('📋 Profile data:', {
+            personal,
+            professional,
+            docs,
+            fullProfile: profile
+          });
 
           setCompanyData({
-            name: professional.company_name || "",
+            name: professional.company_name || professional.name || "",
             website: professional.website || "",
-            industry: professional.industry || "",
+            industry: professional.industry || professional.trade || "",
             email: personal.email || "",
-            phone_number: personal.phone_number || "",
+            phone_number: personal.phone_number || personal.phone || "",
             location: personal.location || "",
           });
 
-          if (docs.company_logo) setLogoPreview(docs.company_logo);
+          // ✅ Try multiple possible logo field locations
+          const logoPath = docs.company_logo 
+            || docs.logo 
+            || professional.company_logo 
+            || professional.logo
+            || profile.company_logo
+            || profile.logo;
+
+          console.log('🖼️ Logo path found:', logoPath);
+
+          // ✅ Only set logo if we have a valid, non-empty path
+          if (logoPath && 
+              typeof logoPath === 'string' && 
+              logoPath.trim() !== '' && 
+              logoPath !== 'null' && 
+              logoPath !== 'undefined' &&
+              logoPath.length > 0) {
+            
+            let logoUrl = logoPath.trim();
+            
+            // ✅ Skip if it's clearly not a valid image filename
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'];
+            const hasImageExtension = imageExtensions.some(ext => 
+              logoUrl.toLowerCase().endsWith(ext)
+            );
+            
+            // ✅ If not absolute URL, construct full path
+            if (!logoUrl.startsWith('http')) {
+              // Remove /api from apiHost and add /uploads
+              const baseUrl = env.apiHost.replace('/api', '');
+              
+              // ✅ Clean up the logo path - remove any leading/trailing slashes
+              logoUrl = logoUrl.replace(/^\/+|\/+$/g, '');
+              
+              // ✅ Handle different path formats
+              if (logoUrl.startsWith('uploads/')) {
+                // Already has uploads/ prefix
+                logoUrl = `${baseUrl}/${logoUrl}`;
+              } else if (logoUrl.includes('/uploads/')) {
+                // Has /uploads/ somewhere in path
+                const uploadsIndex = logoUrl.indexOf('/uploads/');
+                logoUrl = `${baseUrl}${logoUrl.substring(uploadsIndex)}`;
+              } else {
+                // Just filename, add /uploads/ prefix
+                logoUrl = `${baseUrl}/uploads/${logoUrl}`;
+              }
+            }
+            
+            console.log('🖼️ Final logo URL:', logoUrl);
+            
+            // ✅ Only set preview if URL is valid and looks like an image
+            if (logoUrl && logoUrl.trim() !== '' && (hasImageExtension || logoUrl.startsWith('http'))) {
+              setLogoPreview(logoUrl);
+            } else {
+              console.warn('⚠️ Invalid logo URL or not an image file:', logoUrl);
+              setLogoPreview(null);
+            }
+          } else {
+            console.warn('⚠️ No valid logo path found in response:', logoPath);
+            setLogoPreview(null);
+          }
+        } else {
+          console.warn('⚠️ No profile data found in response');
         }
       } catch (error) {
         console.error("❌ Error fetching recruiter profile:", error);
+        console.error("❌ Error details:", {
+          message: error?.message,
+          response: error?.response,
+          responseData: error?.response?.data
+        });
       }
     };
 
@@ -133,31 +227,117 @@ const CompanyInfo = () => {
 
       let res;
       if (logoFile) {
+        // ✅ Use FormData for file upload
         const formData = new FormData();
-        Object.entries(payload).forEach(([key, val]) =>
-          formData.append(key, val)
-        );
+        Object.entries(payload).forEach(([key, val]) => {
+          if (val !== null && val !== undefined && val !== '') {
+            formData.append(key, val);
+          }
+        });
+        // ✅ Append logo file with proper field name
         formData.append("company_logo", logoFile);
 
-        res = await postMultipart({
+        // ✅ Use putMultipart for updates (not postMultipart)
+        res = await putMultipart({
           apiUrl: apiService.updateRecruiterProfile,
           data: formData,
         });
       } else {
+        // ✅ Use putMethod for non-file updates
         res = await putMethod({
           apiUrl: apiService.updateRecruiterProfile,
           payload,
         });
       }
 
-      if (res?.success || res?.data?.success) {
+      console.log('📤 Update Response:', res);
+
+      if (res?.success || res?.status === true || res?.data?.success) {
         toast.success("✅ Profile updated successfully!");
+        
+        // ✅ Refresh profile data after successful update
+        const refreshResponse = await getMethod({
+          apiUrl: apiService.getRecruiterProfile,
+        });
+
+        console.log('🔄 Refresh Profile Response:', refreshResponse);
+
+        // ✅ Use same logic as fetchProfile
+        let profile = null;
+        if (refreshResponse?.success && refreshResponse?.data?.profiles?.length > 0) {
+          profile = refreshResponse.data.profiles[0];
+        } else if (refreshResponse?.success && refreshResponse?.data) {
+          profile = refreshResponse.data;
+        }
+
+        if (profile) {
+          const docs = profile.documents || profile.document || {};
+          const professional = profile.professional_info || profile.professional || {};
+          
+          // ✅ Try multiple possible logo field locations
+          const logoPath = docs.company_logo 
+            || docs.logo 
+            || professional.company_logo 
+            || professional.logo
+            || profile.company_logo
+            || profile.logo;
+          
+          // ✅ Only set logo if we have a valid, non-empty path
+          if (logoPath && 
+              typeof logoPath === 'string' && 
+              logoPath.trim() !== '' && 
+              logoPath !== 'null' && 
+              logoPath !== 'undefined' &&
+              logoPath.length > 0) {
+            
+            let logoUrl = logoPath.trim();
+            
+            // ✅ Check if it's a valid image filename
+            const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'];
+            const hasImageExtension = imageExtensions.some(ext => 
+              logoUrl.toLowerCase().endsWith(ext)
+            );
+            
+            if (!logoUrl.startsWith('http')) {
+              const baseUrl = env.apiHost.replace('/api', '');
+              
+              // ✅ Clean up the logo path
+              logoUrl = logoUrl.replace(/^\/+|\/+$/g, '');
+              
+              // ✅ Handle different path formats
+              if (logoUrl.startsWith('uploads/')) {
+                logoUrl = `${baseUrl}/${logoUrl}`;
+              } else if (logoUrl.includes('/uploads/')) {
+                const uploadsIndex = logoUrl.indexOf('/uploads/');
+                logoUrl = `${baseUrl}${logoUrl.substring(uploadsIndex)}`;
+              } else {
+                logoUrl = `${baseUrl}/uploads/${logoUrl}`;
+              }
+            }
+            
+            console.log('🖼️ Refresh - Final logo URL:', logoUrl);
+            
+            // ✅ Only set preview if URL is valid and looks like an image
+            if (logoUrl && logoUrl.trim() !== '' && (hasImageExtension || logoUrl.startsWith('http'))) {
+              setLogoPreview(logoUrl);
+            } else {
+              console.warn('⚠️ Refresh - Invalid logo URL:', logoUrl);
+              setLogoPreview(null);
+            }
+          } else {
+            console.warn('⚠️ Refresh - No valid logo path:', logoPath);
+            setLogoPreview(null);
+          }
+          
+          // ✅ Clear logoFile state after successful upload
+          setLogoFile(null);
+        }
       } else {
         toast.error(res?.message || "❌ Update failed!");
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong!");
+      console.error('❌ Update Error:', err);
+      toast.error(err?.response?.data?.message || "Something went wrong!");
     }
   };
 
@@ -179,6 +359,12 @@ const CompanyInfo = () => {
                   src={logoPreview}
                   alt="Company Logo"
                   className="max-h-32 object-contain mx-auto rounded-md"
+                  onError={(e) => {
+                    console.error('❌ Image load error for:', logoPreview);
+                    // ✅ If image fails to load, clear preview and show upload area
+                    setLogoPreview(null);
+                    e.target.style.display = 'none';
+                  }}
                 />
                 <Button
                   onClick={(e) => {

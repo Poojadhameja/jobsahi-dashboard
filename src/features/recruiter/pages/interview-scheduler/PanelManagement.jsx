@@ -63,30 +63,36 @@ const PanelManagement = () => {
         
         // Extract only the 4 important fields: interviewId, candidateName, candidateId, jobTitle
         const students = interviews.map((item) => {
-          // Extract the 4 important fields from API response
-          const interviewId = item.interviewId || item.id || item.interview_id
-          const candidateName = item.candidateName || item.candidate_name || item.name || 'N/A'
-          const candidateId = item.candidateId || item.student_id || item.studentId || item.user_id
-          const jobTitle = item.jobTitle || item.job_title || ''
+          // ✅ Try multiple possible field names for interview_id
+          const interviewId = item.interviewId || item.interview_id || item.id || item.interviewId || null
+          const candidateName = item.candidateName || item.candidate_name || item.name || item.candidate || 'N/A'
+          const candidateId = item.candidateId || item.student_id || item.studentId || item.user_id || item.candidate_id
+          const jobTitle = item.jobTitle || item.job_title || item.title || ''
           
           // Log for debugging if required fields are missing
-          if (!interviewId || !candidateName || !candidateId) {
+          if (!interviewId || !candidateName) {
             console.warn('⚠️ Missing required fields in item:', {
               interviewId,
               candidateName,
               candidateId,
               jobTitle,
+              availableFields: Object.keys(item),
               fullItem: item
             })
           }
           
+          // ✅ Keep interview_id as number, but ensure it's valid
+          const parsedInterviewId = interviewId ? (typeof interviewId === 'string' ? parseInt(interviewId) : interviewId) : null
+          
           return {
-            interview_id: interviewId ? parseInt(interviewId) : null,
+            interview_id: parsedInterviewId,
             candidate_name: candidateName,
-            candidate_id: candidateId ? parseInt(candidateId) : null,
-            job_title: jobTitle
+            candidate_id: candidateId ? (typeof candidateId === 'string' ? parseInt(candidateId) : candidateId) : null,
+            job_title: jobTitle,
+            // ✅ Keep original data for debugging
+            originalData: item
           }
-        })
+        }).filter(s => s.interview_id !== null && s.candidate_name !== 'N/A') // ✅ Filter out invalid entries
         
         console.log('📋 Mapped students with job titles:', students.map(s => ({ 
           interview_id: s.interview_id,
@@ -261,9 +267,11 @@ const PanelManagement = () => {
       setIsSubmitting(true)
 
       // Payload: interview_id, panelist_name (candidateName), feedback, rating
-      const interviewId = parseInt(formData.interview_id)
+      // ✅ Convert interview_id to number, but keep original value for validation
+      const interviewIdValue = formData.interview_id
+      const interviewId = typeof interviewIdValue === 'string' ? parseInt(interviewIdValue) : interviewIdValue
       
-      if (isNaN(interviewId) || interviewId <= 0) {
+      if (!interviewId || isNaN(interviewId) || interviewId <= 0) {
         console.error('❌ Invalid interview_id:', formData.interview_id)
         Swal.fire({
           title: "Error",
@@ -274,26 +282,29 @@ const PanelManagement = () => {
         return
       }
       
-      const payload = {
-        interview_id: interviewId,
-        panelist_name: formData.candidate_name.trim(), // candidateName goes as panelist_name
-        feedback: formData.feedback.trim(),
-        rating: parseInt(formData.rating)
+      // ✅ Verify interview_id exists in studentsList
+      const validInterview = studentsList.find(s => 
+        s.interview_id && (s.interview_id === interviewId || String(s.interview_id) === String(interviewId))
+      )
+      
+      if (!validInterview) {
+        console.error('❌ Interview ID not found in scheduled interviews:', interviewId)
+        Swal.fire({
+          title: "Error",
+          text: "Selected interview is not valid. Please refresh and select again.",
+          icon: "error",
+        })
+        setIsSubmitting(false)
+        return
       }
-
-      console.log('📤 Add Panel Feedback Payload:', payload)
-      console.log('📤 Full payload details:', {
-        interview_id: payload.interview_id,
-        interview_id_type: typeof payload.interview_id,
-        panelist_name: payload.panelist_name,
-        panelist_name_type: typeof payload.panelist_name,
-        feedback: payload.feedback,
-        rating: payload.rating,
-        rating_type: typeof payload.rating
-      })
-      console.log('📤 API URL:', apiService.addInterviewPanel)
-      console.log('📤 Auth Token:', localStorage.getItem('authToken') ? 'Present' : 'Missing')
-
+      
+      // ✅ Try sending interview_id as number first (if API expects string, we'll handle in error)
+      const payload = {
+        interview_id: interviewId, // Send as number
+        panelist_name: formData.candidate_name.trim(),
+        feedback: formData.feedback.trim(),
+        rating: parseInt(formData.rating) || 0
+      }
       const response = await postMethod({
         apiUrl: apiService.addInterviewPanel,
         payload: payload

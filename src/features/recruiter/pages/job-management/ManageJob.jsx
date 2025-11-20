@@ -115,7 +115,7 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                 status: "Open",
                 no_of_vacancies: 5,
                 views: 120,
-                admin_action: "approved",
+                admin_status: "approved",
               },
               {
                 id: 2,
@@ -129,7 +129,7 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                 status: "Open",
                 no_of_vacancies: 3,
                 views: 95,
-                admin_action: "pending",
+                admin_status: "pending",
               },
             ];
 
@@ -447,23 +447,27 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                   {job.company_name || "—"}
                 </span>
 
-                {job.admin_action && (
-                  <span
-                    className={`inline-block mt-1 px-2.5 py-1 text-xs font-medium rounded-full ${
-                      job.admin_action === "approved"
-                        ? "bg-green-100 text-green-700"
-                        : job.admin_action === "pending"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : `bg-gray-100 ${TAILWIND_COLORS.TEXT_PRIMARY}`
-                    }`}
-                  >
-                    {job.admin_action === "approved"
-                      ? "✅ Approved"
-                      : job.admin_action === "pending"
-                      ? "⏳ Pending"
-                      : job.admin_action}
-                  </span>
-                )}
+                {(() => {
+                  // ✅ If admin_status is null/undefined, treat as approved
+                  const status = job.admin_status || "approved";
+                  return (
+                    <span
+                      className={`inline-block mt-1 px-2.5 py-1 text-xs font-medium rounded-full ${
+                        status === "approved"
+                          ? "bg-green-100 text-green-700"
+                          : status === "pending"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : `bg-gray-100 ${TAILWIND_COLORS.TEXT_PRIMARY}`
+                      }`}
+                    >
+                      {status === "approved"
+                        ? "✅ Approved"
+                        : status === "pending"
+                        ? "⏳ Pending"
+                        : status}
+                    </span>
+                  );
+                })()}
               </div>
 
               <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
