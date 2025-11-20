@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';
+import { getMethod, postMethod, putMethod } from '../../../../service/api';
+import service from '../../../../service/serviceUrl';
+import apiService from '../../services/serviceUrl';
+import Swal from 'sweetalert2';
 
 const JobPosting = () => {
   // ====== STATE MANAGEMENT ======
@@ -10,51 +14,99 @@ const JobPosting = () => {
   const [promotionJobId, setPromotionJobId] = useState('');
   const [topRibbonEnabled, setTopRibbonEnabled] = useState(false);
   const [priorityListingEnabled, setPriorityListingEnabled] = useState(false);
-  const [showFlaggedModal, setShowFlaggedModal] = useState(false);
-  const [selectedFlaggedPost, setSelectedFlaggedPost] = useState(null);
-  const [actionMessage, setActionMessage] = useState('');
-  const [flaggedPosts, setFlaggedPosts] = useState([
-    { 
-      id: 1, 
-      title: 'Product Manager', 
-      company: 'Novatech', 
-      reports: 3,
-      description: 'We are looking for a skilled Product Manager to join our team and drive product strategy.',
-      location: 'New York, NY',
-      salary: '$80,000 - $120,000',
-      postedBy: 'John Smith',
-      postedDate: '2025-01-15',
-      reportReasons: [
-        { reason: 'Misleading job description', reporter: 'User123', date: '2025-01-16' },
-        { reason: 'Fake company information', reporter: 'User456', date: '2025-01-16' },
-        { reason: 'Spam content', reporter: 'User789', date: '2025-01-17' }
-      ]
-    },
-    { 
-      id: 2, 
-      title: 'Software Engineer', 
-      company: 'TechCorp', 
-      reports: 2,
-      description: 'Join our dynamic team as a Software Engineer and work on cutting-edge projects.',
-      location: 'San Francisco, CA',
-      salary: '$90,000 - $130,000',
-      postedBy: 'Jane Doe',
-      postedDate: '2025-01-14',
-      reportReasons: [
-        { reason: 'Suspicious company', reporter: 'User456', date: '2025-01-15' },
-        { reason: 'Unrealistic salary range', reporter: 'User789', date: '2025-01-15' }
-      ]
-    }
-  ]);
+  const [showJobModal, setShowJobModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [lastAction, setLastAction] = useState(null);
 
   // ====== DATA CONFIGURATION ======
-  const jobPostings = [
-    { id: 1, title: 'Electrician', company: 'NovaTech', posted: '2025-08-08', status: 'Pending' },
-    { id: 2, title: 'Fitter', company: 'NovaTech', posted: '2025-08-08', status: 'Approved' },
-    { id: 3, title: 'COPA', company: 'NovaTech', posted: '2025-08-08', status: 'Flagged' },
-    { id: 4, title: 'Fitter', company: 'NovaTech', posted: '2025-08-08', status: 'Promoted' },
-    { id: 5, title: 'Electrician', company: 'NovaTech', posted: '2025-08-08', status: 'Flagged' }
-  ];
+  const [jobPostings, setJobPostings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [flaggedJobIds, setFlaggedJobIds] = useState([]);
+
+  // ====== API CALL ======
+  const fetchJobs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await getMethod({
+        apiUrl: service.getJobs
+      });
+
+      console.log('📊 Jobs API Response:', response);
+
+      // Check if response is successful
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true;
+
+      if (isSuccess && response?.data) {
+        // Helper function to capitalize first letter of each word
+        const capitalizeWords = (str) => {
+          if (!str || str === 'N/A') return str;
+          return str.toLowerCase().split(' ').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+          ).join(' ');
+        };
+
+        // Map API response to component format
+        const mappedJobs = response.data.map((job) => ({
+          id: job.id || job.job_id,
+          title: capitalizeWords(job.title || 'N/A'),
+          company: capitalizeWords(job.company_name || job.company || 'N/A'),
+          posted: job.created_at || job.posted_date || 'N/A',
+          status: job.admin_action === 'approved' ? 'Approved' : 
+                 job.admin_action === 'pending' ? 'Pending' : 
+                 job.is_featured === 1 ? 'Promoted' : 
+                 job.status === 'flagged' ? 'Flagged' : 
+                 'Pending',
+          // Keep all original data
+          ...job
+        }));
+
+        console.log('✅ Mapped Jobs:', mappedJobs);
+        setJobPostings(mappedJobs);
+      } else {
+        console.error('❌ Failed to fetch jobs:', response?.message);
+        setJobPostings([]);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching jobs:', error);
+      setJobPostings([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchFlaggedJobs = useCallback(async () => {
+    try {
+      const response = await getMethod({
+        apiUrl: apiService.getJobFlags
+      });
+
+      console.log('📊 Flagged Jobs API Response:', response);
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true;
+
+      if (isSuccess && response?.data) {
+        // Extract job_ids from flagged jobs (only those that are not reviewed or pending)
+        const flaggedIds = Array.isArray(response.data)
+          ? response.data
+              .filter(flag => flag.reviewed === 0 || flag.admin_action === 'pending')
+              .map(flag => flag.job_id)
+          : [];
+        
+        console.log('🚩 Flagged Job IDs:', flaggedIds);
+        setFlaggedJobIds(flaggedIds);
+      } else {
+        setFlaggedJobIds([]);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching flagged jobs:', error);
+      setFlaggedJobIds([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchJobs();
+    fetchFlaggedJobs();
+  }, [fetchJobs, fetchFlaggedJobs]);
 
 
   // ====== COMPUTED VALUES ======
@@ -80,7 +132,106 @@ const JobPosting = () => {
   };
 
   // Job action handlers
-  const handleApproveJob = (jobId) => console.log('Approving job:', jobId);
+  const handleViewJob = (job) => {
+    setSelectedJob(job);
+    setShowJobModal(true);
+  };
+
+  const handleCloseJobModal = () => {
+    setShowJobModal(false);
+    setSelectedJob(null);
+  };
+
+  const handleApproveJob = async (jobId) => {
+    try {
+      const { value: reason } = await Swal.fire({
+        title: 'Approve Job',
+        input: 'textarea',
+        inputLabel: 'Reason for approval',
+        inputPlaceholder: 'Enter the reason for approving this job...',
+        inputAttributes: {
+          'aria-label': 'Enter reason for approval'
+        },
+        showCancelButton: true,
+        confirmButtonColor: COLORS.GREEN_PRIMARY,
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Approve Job',
+        cancelButtonText: 'Cancel',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'You need to provide a reason!';
+          }
+        }
+      });
+
+      if (reason) {
+        const response = await putMethod({
+          apiUrl: `${apiService.resolveJobFlag}?id=${jobId}`
+        });
+
+        if (response?.status === true || response?.success === true) {
+          setLastAction({ type: 'approved', message: 'Job approved successfully' });
+          Swal.fire('Success!', 'Job approved/resolved successfully', 'success');
+          fetchJobs(); // Refresh jobs list
+          fetchFlaggedJobs(); // Refresh flagged jobs list
+          setTimeout(() => setLastAction(null), 3000);
+        } else {
+          Swal.fire('Error!', response?.message || 'Failed to approve job', 'error');
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error approving job:', error);
+      Swal.fire('Error!', 'Failed to approve job', 'error');
+    }
+  };
+
+  const handleFlaggedJob = async (jobId) => {
+    try {
+      const { value: reason } = await Swal.fire({
+        title: 'Flag Job',
+        input: 'textarea',
+        inputLabel: 'Reason for flagging',
+        inputPlaceholder: 'Enter the reason for flagging this job...',
+        inputAttributes: {
+          'aria-label': 'Enter reason for flagging'
+        },
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Flag Job',
+        cancelButtonText: 'Cancel',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'You need to provide a reason!';
+          }
+        }
+      });
+
+      if (reason) {
+        const response = await postMethod({
+          apiUrl: apiService.flagJob,
+          payload: {
+            job_id: jobId,
+            reason: reason
+          }
+        });
+
+        if (response?.status === true || response?.success === true) {
+          setLastAction({ type: 'flagged', message: 'Job flagged successfully' });
+          Swal.fire('Success!', 'Job flagged successfully', 'success');
+          fetchJobs(); // Refresh jobs list
+          fetchFlaggedJobs(); // Refresh flagged jobs list
+          setTimeout(() => setLastAction(null), 3000);
+        } else {
+          Swal.fire('Error!', response?.message || 'Failed to flag job', 'error');
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error flagging job:', error);
+      Swal.fire('Error!', 'Failed to flag job', 'error');
+    }
+  };
+
   const handlePromoteJob = (jobId) => console.log('Promoting job:', jobId);
   const handleBulkApprove = () => console.log('Bulk approving jobs:', selectedJobs);
   const handleBulkPromote = () => console.log('Bulk promoting jobs:', selectedJobs);
@@ -93,56 +244,8 @@ const JobPosting = () => {
     setPromotionJobId('');
   };
 
-  // Flagged post handlers
-  const handleViewFlaggedPost = (post) => {
-    setSelectedFlaggedPost(post);
-    setShowFlaggedModal(true);
-  };
-
-  const handleCloseFlaggedModal = () => {
-    setShowFlaggedModal(false);
-    setSelectedFlaggedPost(null);
-  };
-
-  const handleApproveFlaggedPost = (postId) => {
-    console.log('Approving flagged post:', postId);
-    // Update the flagged posts array to remove the approved post
-    setFlaggedPosts(prev => prev.filter(post => post.id !== postId));
-    setActionMessage('Post approved successfully!');
-    // Here you would typically update the post status in your backend
-    // Example API call:
-    // await approveFlaggedPost(postId);
-    handleCloseFlaggedModal();
-    // Clear message after 3 seconds
-    setTimeout(() => setActionMessage(''), 3000);
-  };
-
-  const handleRejectFlaggedPost = (postId) => {
-    console.log('Rejecting flagged post:', postId);
-    // Update the flagged posts array to remove the rejected post
-    setFlaggedPosts(prev => prev.filter(post => post.id !== postId));
-    setActionMessage('Post rejected successfully!');
-    // Here you would typically remove or hide the post from your backend
-    // Example API call:
-    // await rejectFlaggedPost(postId);
-    handleCloseFlaggedModal();
-    // Clear message after 3 seconds
-    setTimeout(() => setActionMessage(''), 3000);
-  };
-
   return (
     <div className="job-posting-section space-y-6">
-      {/* Success Message */}
-      {actionMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg">
-          <div className="flex items-center">
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            {actionMessage}
-          </div>
-        </div>
-      )}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6" data-section="job-posting-management">
         {/* Toolbar */}
         <div className="flex items-center space-x-3 mb-6">
@@ -151,8 +254,21 @@ const JobPosting = () => {
               <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
             </svg>
           </div>
-          <div>
-            <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Posting Management</h2>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Posting Management</h2>
+              {lastAction && (
+                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                  lastAction.type === 'approved' 
+                    ? 'bg-green-100 text-green-700' 
+                    : lastAction.type === 'flagged'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-blue-100 text-blue-700'
+                } animate-pulse`}>
+                  {lastAction.message}
+                </span>
+              )}
+            </div>
             <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>View / Manage all jobs, approve flagged posts, and promote jobs manually.</p>
           </div>
         </div>
@@ -190,117 +306,139 @@ const JobPosting = () => {
           </div>
 
           <div className="flex gap-3">
-            <Button onClick={handleBulkApprove} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve selected</Button>
+            {/* <Button onClick={handleBulkApprove} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve selected</Button> */}
             <Button onClick={handleBulkPromote} className={`px-4 py-2 rounded-lg transition-colors duration-200 border-secondary text-secondary bg-bg-white hover:bg-gray-100`} variant="unstyled">Promote selected</Button>
           </div>
         </div>
 
         {/* Table */}
         <div className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full table-fixed">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="w-12 px-4 py-3 text-center">
-                    <input
-                      type="checkbox"
-                      checked={filteredJobs.length > 0 && selectedJobs.length === filteredJobs.length}
-                      onChange={(e) => handleSelectAll(e.target.checked)}
-                      className="rounded border-gray-300"
-                      style={{ accentColor: COLORS.GREEN_PRIMARY }}
-                    />
-                  </th>
-                  <th className={`w-1/4 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Title</th>
-                  <th className={`w-1/5 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Company</th>
-                  <th className={`w-1/6 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Posted</th>
-                  <th className={`w-1/6 px-4 py-3 text-center text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
-                  <th className={`w-1/5 px-4 py-3 text-center text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredJobs.map((job) => (
-                  <tr key={job.id} className="hover:bg-gray-50">
-                    <td className="w-12 px-4 py-4 text-center">
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              <p className={`mt-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Loading jobs...</p>
+            </div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-2">
+                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No jobs found</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full table-fixed">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="w-12 px-4 py-3 text-center">
                       <input
                         type="checkbox"
-                        checked={selectedJobs.includes(job.id)}
-                        onChange={(e) => handleSelectJob(job.id, e.target.checked)}
+                        checked={filteredJobs.length > 0 && selectedJobs.length === filteredJobs.length}
+                        onChange={(e) => handleSelectAll(e.target.checked)}
                         className="rounded border-gray-300"
                         style={{ accentColor: COLORS.GREEN_PRIMARY }}
                       />
-                    </td>
-                    <td className={`w-1/4 px-4 py-4 text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`} title={job.title}>{job.title}</td>
-                    <td className={`w-1/5 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED} truncate`} title={job.company}>{job.company}</td>
-                    <td className={`w-1/6 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{job.posted}</td>
-                    <td className="w-1/6 px-4 py-4 text-center">
-                      <span
-                        data-status={job.status.toLowerCase()}
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          job.status === 'Approved'
-                          ? TAILWIND_COLORS.BADGE_SUCCESS
-                            : job.status === 'Flagged'
-                          ? TAILWIND_COLORS.BADGE_WARN
-                            : job.status === 'Promoted'
-                            ? TAILWIND_COLORS.BADGE_INFO
-                            : 'bg-gray-100 text-gray-600'
-                        }`}
-                      >
-                        {job.status}
-                      </span>
-                    </td>
-                    <td className="w-1/5 px-4 py-4 text-center">
-                      <div className="flex justify-center space-x-2">
-                        <Button onClick={() => handleApproveJob(job.id)} className={`px-3 py-1 text-xs rounded transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve</Button>
-                        <Button onClick={() => handlePromoteJob(job.id)} className={`px-3 py-1 text-xs rounded border-secondary text-secondary bg-bg-white hover:bg-gray-100`} variant="unstyled">Promote</Button>
-                      </div>
-                    </td>
+                    </th>
+                    <th className={`w-1/4 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Title</th>
+                    <th className={`w-1/5 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Company</th>
+                    <th className={`w-1/6 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Posted</th>
+                    <th className={`w-1/6 px-4 py-3 text-center text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
+                    <th className={`w-1/5 px-4 py-3 text-center text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredJobs.map((job) => (
+                    <tr key={job.id} className="hover:bg-gray-50">
+                      <td className="w-12 px-4 py-4 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedJobs.includes(job.id)}
+                          onChange={(e) => handleSelectJob(job.id, e.target.checked)}
+                          className="rounded border-gray-300"
+                          style={{ accentColor: COLORS.GREEN_PRIMARY }}
+                        />
+                      </td>
+                      <td className={`w-1/4 px-4 py-4 text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                        <div className="flex items-center gap-2">
+                          <span className="truncate" title={job.title}>{job.title}</span>
+                          {flaggedJobIds.includes(job.id) ? (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-700 font-medium whitespace-nowrap">
+                              Flagged
+                            </span>
+                          ) : (job.admin_action === 'approved' || job.status === 'Approved') ? (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium whitespace-nowrap">
+                              Approved
+                            </span>
+                          ) : null}
+                        </div>
+                      </td>
+                      <td className={`w-1/5 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED} truncate`} title={job.company}>{job.company}</td>
+                      <td className={`w-1/6 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{job.posted}</td>
+                      <td className="w-1/6 px-4 py-4 text-center">
+                        <span
+                          data-status={job.status.toLowerCase()}
+                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                            job.status === 'Approved'
+                            ? TAILWIND_COLORS.BADGE_SUCCESS
+                              : job.status === 'Flagged'
+                            ? TAILWIND_COLORS.BADGE_WARN
+                              : job.status === 'Promoted'
+                              ? TAILWIND_COLORS.BADGE_INFO
+                              : 'bg-gray-100 text-gray-600'
+                          }`}
+                        >
+                          {job.status}
+                        </span>
+                      </td>
+                      <td className="w-1/5 px-2 py-3 text-center">
+                        <div className="flex flex-col gap-1 items-center">
+                          <button 
+                            onClick={() => handleApproveJob(job.id)} 
+                            className={`w-20 px-2 py-1 text-xs font-medium rounded transition-colors duration-150 whitespace-nowrap ${
+                              job.admin_action === 'approved' || job.status === 'Approved'
+                                ? 'bg-green-600 text-white hover:bg-green-700 shadow-md'
+                                : 'bg-green-100 text-green-700 hover:bg-green-200'
+                            }`}
+                          >
+                            Approved
+                          </button>
+                          <button 
+                            onClick={() => handlePromoteJob(job.id)} 
+                            className="w-20 px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors duration-150 whitespace-nowrap"
+                          >
+                            Promote
+                          </button>
+                          <button 
+                            onClick={() => handleFlaggedJob(job.id)} 
+                            className={`w-20 px-2 py-1 text-xs font-medium rounded transition-colors duration-150 whitespace-nowrap ${
+                              job.status === 'Flagged' || job.admin_action === 'flagged'
+                                ? 'bg-red-100 text-red-700 hover:bg-red-200 opacity-60'
+                                : 'bg-red-100 text-red-700 hover:bg-red-200'
+                            }`}
+                          >
+                            Flagged
+                          </button>
+                          <button 
+                            onClick={() => handleViewJob(job)} 
+                            className="w-20 px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors duration-150 whitespace-nowrap"
+                          >
+                            View
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Secondary actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        {/* Flagged posts */}
-        <div className={`${TAILWIND_COLORS.CARD} p-6`} data-section="flagged-posts">
-          <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Flagged posts review</h3>
-          <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Quickly handle reports from users.</p>
-          <div className="mt-4 space-y-3">
-            {flaggedPosts.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="text-gray-400 mb-2">
-                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No flagged posts to review</p>
-              </div>
-            ) : (
-              flaggedPosts.map((post) => (
-                <div key={post.id} className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
-                  <div>
-                    <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{post.title}</div>
-                    <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{post.company} - {post.reports} reports</div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Button onClick={() => handleApproveJob(post.id)} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`} variant="unstyled">Approve</Button>
-                    <Button onClick={() => handleViewFlaggedPost(post)} className={`px-4 py-2 rounded-lg border-secondary text-secondary bg-bg-white hover:bg-gray-100`} variant="unstyled">View</Button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Manual promotion */}
-       
-      </div>
-
-      {/* Flagged Post Details Modal */}
-      {showFlaggedModal && selectedFlaggedPost && (
+      {/* Job Details Modal */}
+      {showJobModal && selectedJob && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
@@ -312,12 +450,12 @@ const JobPosting = () => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Flagged Post Details</h3>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Review reported content and take action</p>
+                  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Details</h3>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>View complete job information</p>
                 </div>
               </div>
               <button
-                onClick={handleCloseFlaggedModal}
+                onClick={handleCloseJobModal}
                 className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -333,75 +471,70 @@ const JobPosting = () => {
                 <h4 className={`text-md font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Job Information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Title</label>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.title}</p>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Job Title</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.title || 'N/A'}</p>
                   </div>
                   <div>
-                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Company</label>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.company}</p>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Company</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.company || 'N/A'}</p>
                   </div>
                   <div>
-                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Location</label>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.location}</p>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Location</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.location || 'N/A'}</p>
                   </div>
                   <div>
-                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Salary Range</label>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.salary}</p>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Job Type</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.job_type || 'N/A'}</p>
                   </div>
                   <div>
-                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Posted By</label>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.postedBy}</p>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Salary Range</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>
+                      {selectedJob.salary_min && selectedJob.salary_max 
+                        ? `${selectedJob.salary_min} - ${selectedJob.salary_max}`
+                        : selectedJob.salary_min || selectedJob.salary_max || 'N/A'}
+                    </p>
                   </div>
                   <div>
-                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Posted Date</label>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{selectedFlaggedPost.postedDate}</p>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Experience Required</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.experience_required || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Skills Required</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.skills_required || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>No. of Vacancies</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.no_of_vacancies || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Application Deadline</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.application_deadline || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Posted Date</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.posted || selectedJob.created_at || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Status</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.status || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Admin Action</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.admin_action || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Is Remote</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.is_remote === 1 ? 'Yes' : selectedJob.is_remote === 0 ? 'No' : 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Is Featured</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedJob.is_featured === 1 ? 'Yes' : selectedJob.is_featured === 0 ? 'No' : 'N/A'}</p>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Description</label>
-                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedFlaggedPost.description}</p>
+                  <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Job Description</label>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1 whitespace-pre-wrap`}>{selectedJob.description || 'N/A'}</p>
                 </div>
-              </div>
-
-              {/* Report Information */}
-              <div className="bg-red-50 rounded-lg p-4">
-                <h4 className={`text-md font-semibold text-red-800 mb-3`}>Report Details</h4>
-                <div className="mb-3">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                    {selectedFlaggedPost.reports} Reports
-                  </span>
-                </div>
-                <div className="space-y-3">
-                  {selectedFlaggedPost.reportReasons.map((report, index) => (
-                    <div key={index} className="bg-white rounded border border-red-200 p-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{report.reason}</p>
-                          <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Reported by: {report.reporter}</p>
-                        </div>
-                        <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{report.date}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                <Button
-                  onClick={() => handleRejectFlaggedPost(selectedFlaggedPost.id)}
-                  className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_LIGHT}`}
-                  variant="unstyled"
-                >
-                  Reject Post
-                </Button>
-                <Button
-                  onClick={() => handleApproveFlaggedPost(selectedFlaggedPost.id)}
-                  className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}
-                  variant="unstyled"
-                >
-                  Approve Post
-                </Button>
               </div>
             </div>
           </div>
@@ -412,3 +545,6 @@ const JobPosting = () => {
 };
 
 export default JobPosting;
+
+
+

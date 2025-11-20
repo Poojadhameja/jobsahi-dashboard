@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { 
   LuEye, 
   LuUser,
@@ -25,11 +25,7 @@ function PlacementReadyStudentsTable() {
   const [loading, setLoading] = useState(true)
 
   // Fetch data from API
-  useEffect(() => {
-    fetchPlacementStudents()
-  }, [])
-
-  const fetchPlacementStudents = async () => {
+  const fetchPlacementStudents = useCallback(async () => {
     try {
       setLoading(true)
       const response = await getMethod({ 
@@ -88,7 +84,11 @@ function PlacementReadyStudentsTable() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchPlacementStudents()
+  }, [fetchPlacementStudents])
 
   // Handle View Details - Fetch student details by ID
   const handleViewDetails = async (student) => {

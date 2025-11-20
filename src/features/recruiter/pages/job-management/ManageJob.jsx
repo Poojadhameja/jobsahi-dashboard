@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   LuSearch,
   LuCalendar,
@@ -8,12 +8,10 @@ import {
   LuEye,
   LuUsers,
   LuMapPin,
-  LuFileText,
   LuPencil,
 } from "react-icons/lu";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import EditCard from "./EditCard";
-import ViewJobModal from "./ViewJobModal";
 import { getMethod, deleteMethod } from "../../../../service/api";
 import service from "../../services/serviceUrl";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
@@ -31,6 +29,37 @@ function money(x) {
   if (x == null || x === "") return "—";
   const n = Number(x);
   return isNaN(n) ? x : `₹${n.toLocaleString("en-IN")}`;
+}
+
+/* ============================
+   COMPANY LOGO COMPONENT
+============================ */
+function CompanyLogo({ logo, companyName }) {
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  const displayInitial = !logo || imageError;
+  const initial = (companyName || 'C').charAt(0).toUpperCase();
+
+  return (
+    <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+      {!displayInitial && logo ? (
+        <img
+          src={logo}
+          alt={companyName || "Company Logo"}
+          className="w-full h-full object-cover"
+          onError={handleImageError}
+        />
+      ) : (
+        <span className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_MUTED}`}>
+          {initial}
+        </span>
+      )}
+    </div>
+  );
 }
 
 /* ============================
@@ -52,8 +81,6 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
   const [jobToDelete, setJobToDelete] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [jobToEdit, setJobToEdit] = useState(null);
-  const [showViewModal, setShowViewModal] = useState(false);
-  const [jobToView, setJobToView] = useState(null);
 
   /* ============================
      FETCH JOBS FROM API OR DUMMY
@@ -168,23 +195,105 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
 
   const handleEditCancel = () => setShowEditModal(false);
 
-  const handleViewClick = (job) => {
-    setJobToView(job);
-    setShowViewModal(true);
+  // Clear all filters
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("");
+    setLocationFilter("");
+    setDateFilter("");
   };
 
-  const handleViewClose = () => setShowViewModal(false);
+  /* ============================
+     FILTER JOBS
+  ============================ */
+  const filteredJobs = useMemo(() => {
+    if (!Array.isArray(jobs)) return [];
+
+    let filtered = [...jobs];
+
+    // Search filter - by job title or company name
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(
+        (job) =>
+          (job.title && job.title.toLowerCase().includes(searchLower)) ||
+          (job.company_name && job.company_name.toLowerCase().includes(searchLower))
+      );
+    }
+
+    // Status filter
+    if (statusFilter) {
+      filtered = filtered.filter(
+        (job) => job.status && job.status.toLowerCase() === statusFilter.toLowerCase()
+      );
+    }
+
+    // Location filter - check if location contains the filter value
+    if (locationFilter) {
+      filtered = filtered.filter(
+        (job) =>
+          job.location &&
+          job.location.toLowerCase().includes(locationFilter.toLowerCase())
+      );
+    }
+
+    // Date filter
+    if (dateFilter) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      filtered = filtered.filter((job) => {
+        if (!job.created_at && !job.posted_date && !job.date) return false;
+        
+        const jobDate = new Date(job.created_at || job.posted_date || job.date);
+        
+        switch (dateFilter) {
+          case "today":
+            return jobDate >= today;
+          case "week":
+            const weekAgo = new Date(today);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            return jobDate >= weekAgo;
+          case "month":
+            const monthAgo = new Date(today);
+            monthAgo.setMonth(monthAgo.getMonth() - 1);
+            return jobDate >= monthAgo;
+          default:
+            return true;
+        }
+      });
+    }
+
+    return filtered;
+  }, [jobs, searchTerm, statusFilter, locationFilter, dateFilter]);
 
   /* ============================
      PAGINATION
   ============================ */
-  const totalItems = jobs.length;
+  const totalItems = filteredJobs.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startItem = (currentPage - 1) * itemsPerPage;
   const endItem = startItem + itemsPerPage;
-  const currentJobs = Array.isArray(jobs)
-    ? jobs.slice(startItem, endItem)
-    : [];
+  const currentJobs = filteredJobs.slice(startItem, endItem);
+
+  // Get unique locations from jobs
+  const uniqueLocations = useMemo(() => {
+    if (!Array.isArray(jobs)) return [];
+    const locations = new Set();
+    jobs.forEach((job) => {
+      if (job.location) {
+        // Extract city name from location string (e.g., "Indore, Madhya Pradesh" -> "Indore")
+        const city = job.location.split(',')[0].trim();
+        if (city) locations.add(city);
+      }
+    });
+    return Array.from(locations).sort();
+  }, [jobs]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, locationFilter, dateFilter]);
 
   const handlePageChange = (page) => setCurrentPage(page);
   const handlePrevious = () => setCurrentPage((p) => Math.max(p - 1, 1));
@@ -266,10 +375,11 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                 className={`appearance-none bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none min-w-[120px] ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               >
                 <option value="">Location</option>
-                <option value="Indore">Indore</option>
-                <option value="Bhopal">Bhopal</option>
-                <option value="Pune">Pune</option>
-                <option value="Bangalore">Bangalore</option>
+                {uniqueLocations.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {loc}
+                  </option>
+                ))}
               </select>
               <LuChevronDown
                 className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`}
@@ -294,6 +404,17 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                 size={16}
               />
             </div>
+
+            {/* Clear Filters Button */}
+            {(searchTerm || statusFilter || locationFilter || dateFilter) && (
+              <Button
+                onClick={handleClearFilters}
+                variant="unstyled"
+                className={`px-4 py-2 text-sm border border-gray-300 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100 transition-colors whitespace-nowrap`}
+              >
+                Clear Filters
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -360,9 +481,10 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
               </div>
             </div>
 
-            <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-              <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Logo</span>
-            </div>
+            <CompanyLogo
+              logo={job.company_logo}
+              companyName={job.company_name}
+            />
           </div>
 
           <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm mb-4 line-clamp-3`}>{desc}</p>
@@ -384,14 +506,6 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
             </div>
 
             <div className="flex gap-2">
-              <Button
-                onClick={() => handleViewClick(job)}
-                variant="unstyled"
-                className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors`}
-                aria-label="View Job"
-              >
-                <LuFileText size={18} />
-              </Button>
               <Button
                 onClick={() => handleEditClick(job)}
                 variant="unstyled"
@@ -475,13 +589,6 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
         />
       )}
 
-      {showViewModal && jobToView && (
-        <ViewJobModal
-          isOpen={showViewModal}
-          onClose={handleViewClose}
-          job={jobToView}
-        />
-      )}
     </div>
   );
 };

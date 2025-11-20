@@ -21,10 +21,14 @@ const service = {
     getRecentApplicants: "/employer/get_recent_applicants.php",
 
     //interview schedule
-
     scheduleInterview: "/applications/schedule_interview.php",
     getScheduledInterviews: "/applications/schedule_interview.php",
-updateInterview: "/applications/update_interview.php",
+    updateInterview: "/applications/update_interview.php",
+
+    //interview panel management
+    addInterviewPanel: "/interviews/add_interview_panel.php",
+    getInterviewPanel: "/interviews/get_interview_panel.php",
+    updateInterviewPanel: "/interviews/update_interview_panel.php",
 
     //report 
     recruiterAnalyticsReports: "/employer/recruiter_analytics_reports.php",

@@ -1,10 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 import Button from '../../../../../shared/components/Button'
+import { getMethod } from '../../../../../service/api'
+import apiService from '../../../../admin/services/serviceUrl'
+import { LuX } from 'react-icons/lu'
 
 // Employer Ratings (Student Feedback) Component
 function EmployerRatings() {
   const [timeFilter, setTimeFilter] = useState('All Time')
+  const [ratingsData, setRatingsData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [selectedCompany, setSelectedCompany] = useState(null)
+  const [showReviewsModal, setShowReviewsModal] = useState(false)
 
   const timeFilterOptions = [
     'All Time',
@@ -15,50 +22,77 @@ function EmployerRatings() {
     'Last Year'
   ]
 
-  const ratingsData = [
-    {
-      id: 1,
-      company: 'Microsoft',
-      rating: 5,
-      totalReviews: 150,
-      responseRate: 7
-    },
-    {
-      id: 2,
-      company: 'Google',
-      rating: 4.8,
-      totalReviews: 234,
-      responseRate: 12
-    },
-    {
-      id: 3,
-      company: 'Amazon',
-      rating: 4.5,
-      totalReviews: 189,
-      responseRate: 9
-    },
-    {
-      id: 4,
-      company: 'Apple',
-      rating: 4.9,
-      totalReviews: 167,
-      responseRate: 15
-    },
-    {
-      id: 5,
-      company: 'Meta',
-      rating: 4.3,
-      totalReviews: 98,
-      responseRate: 6
-    },
-    {
-      id: 6,
-      company: 'Netflix',
-      rating: 4.7,
-      totalReviews: 145,
-      responseRate: 11
+  // Fetch ratings from API
+  const fetchRatings = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await getMethod({
+        apiUrl: apiService.getEmployerRatings
+      })
+
+      console.log('📊 Employer Ratings API Response:', response)
+
+      const isSuccess = response?.success === true || response?.status === true || response?.status === 'success'
+
+      if (isSuccess && response?.data) {
+        const ratings = Array.isArray(response.data) ? response.data : []
+
+        // Group ratings by company_name
+        const companyRatingsMap = {}
+        
+        ratings.forEach((rating) => {
+          const companyName = rating.company_name || 'Unknown Company'
+          
+          if (!companyRatingsMap[companyName]) {
+            companyRatingsMap[companyName] = {
+              company: companyName,
+              ratings: [],
+              totalReviews: 0,
+              averageRating: 0
+            }
+          }
+          
+          companyRatingsMap[companyName].ratings.push({
+            id: rating.id,
+            job_title: rating.job_title || 'N/A',
+            rating: rating.rating || 0,
+            feedback: rating.feedback || '',
+            created_at: rating.created_at || ''
+          })
+        })
+
+        // Calculate average rating and total reviews for each company
+        const groupedRatings = Object.values(companyRatingsMap).map((company) => {
+          const totalRating = company.ratings.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0)
+          const avgRating = company.ratings.length > 0 ? totalRating / company.ratings.length : 0
+          
+          return {
+            id: company.ratings[0]?.id || Math.random(),
+            company: company.company,
+            rating: parseFloat(avgRating.toFixed(1)),
+            totalReviews: company.ratings.length,
+            responseRate: 0, // Not available in API
+            allRatings: company.ratings // Store all ratings for detailed view
+          }
+        })
+
+        console.log('✅ Grouped Ratings:', groupedRatings)
+        setRatingsData(groupedRatings)
+      } else {
+        console.error('❌ Failed to fetch ratings:', response?.message)
+        setRatingsData([])
+      }
+    } catch (error) {
+      console.error('❌ Error fetching ratings:', error)
+      setRatingsData([])
+    } finally {
+      setLoading(false)
     }
-  ]
+  }, [])
+
+  useEffect(() => {
+    fetchRatings()
+  }, [fetchRatings])
 
   const renderStars = (rating) => {
     const stars = []
@@ -87,8 +121,21 @@ function EmployerRatings() {
     return stars
   }
 
-  const handleViewReviews = (companyId) => {
-    alert(`Viewing reviews for company ID: ${companyId}`)
+  const handleViewReviews = (company) => {
+    // Find company data
+    const companyData = ratingsData.find(c => c.company === company)
+    if (companyData && companyData.allRatings) {
+      setSelectedCompany({
+        company: company,
+        reviews: companyData.allRatings
+      })
+      setShowReviewsModal(true)
+    }
+  }
+
+  const closeReviewsModal = () => {
+    setShowReviewsModal(false)
+    setSelectedCompany(null)
   }
 
   return (
@@ -124,86 +171,169 @@ function EmployerRatings() {
 
       {/* Ratings Cards */}
       <div className="bg-white rounded-lg border border-blue-200 shadow-sm p-6">
-        <div className="space-y-4">
-          {ratingsData.map((company) => (
-            <div key={company.id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200">
-              <div className="flex items-center justify-between">
-                {/* Left Side - Company Info */}
-                <div className="flex items-center space-x-4">
-                  {/* Company Logo Placeholder */}
-                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-                    <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm font-bold`}>
-                      {company.company.charAt(0)}
-                    </span>
-                  </div>
-                  
-                  {/* Company Info */}
-                  <div>
-                    <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>{company.company}</h3>
-                    
-                    {/* Rating Stars */}
-                    <div className="flex items-center space-x-2">
-                      <div className="flex">
-                        {renderStars(company.rating)}
-                      </div>
-                      <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                        ({company.totalReviews} reviews)
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>Loading ratings...</p>
+          </div>
+        ) : ratingsData.length === 0 ? (
+          <div className="flex items-center justify-center py-8">
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>No ratings available</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {ratingsData.map((company) => (
+              <div key={company.id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200">
+                <div className="flex items-center justify-between">
+                  {/* Left Side - Company Info */}
+                  <div className="flex items-center space-x-4">
+                    {/* Company Logo Placeholder */}
+                    <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                      <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm font-bold`}>
+                        {company.company.charAt(0).toUpperCase()}
                       </span>
                     </div>
-                  </div>
-                </div>
-                
-                {/* Right Side - Response Rate and Button */}
-                <div className="flex items-center space-x-4">
-                  <div className="text-right">
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Response rate</p>
-                    <p className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{company.responseRate}%</p>
+                    
+                    {/* Company Info */}
+                    <div>
+                      <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>{company.company}</h3>
+                      
+                      {/* Rating Stars */}
+                      <div className="flex items-center space-x-2">
+                        <div className="flex">
+                          {renderStars(company.rating)}
+                        </div>
+                        <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                          ({company.totalReviews} {company.totalReviews === 1 ? 'review' : 'reviews'})
+                        </span>
+                      </div>
+                    </div>
                   </div>
                   
-                  <Button
-                    onClick={() => handleViewReviews(company.id)}
-                    variant="unstyled"
-                    className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors duration-200 text-sm font-medium"
-                  >
-                    View Reviews
-                  </Button>
+                  {/* Right Side - Button */}
+                  <div className="flex items-center space-x-4">
+                    <Button
+                      onClick={() => handleViewReviews(company.company)}
+                      variant="unstyled"
+                      className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors duration-200 text-sm font-medium"
+                    >
+                      View Reviews
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Summary Stats */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
         <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Overall Statistics</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="text-center">
-            <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              {ratingsData.reduce((sum, company) => sum + company.rating, 0) / ratingsData.length}
-            </div>
-            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Average Rating</div>
+        {loading ? (
+          <div className="flex items-center justify-center py-4">
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>Loading statistics...</p>
           </div>
-          <div className="text-center">
-            <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              {ratingsData.reduce((sum, company) => sum + company.totalReviews, 0)}
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                {ratingsData.length > 0 
+                  ? (ratingsData.reduce((sum, company) => sum + company.rating, 0) / ratingsData.length).toFixed(1)
+                  : '0.0'}
+              </div>
+              <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Average Rating</div>
             </div>
-            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Total Reviews</div>
+            <div className="text-center">
+              <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                {ratingsData.reduce((sum, company) => sum + company.totalReviews, 0)}
+              </div>
+              <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Total Reviews</div>
+            </div>
+            <div className="text-center">
+              <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                {ratingsData.length}
+              </div>
+              <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Companies</div>
+            </div>
           </div>
-          <div className="text-center">
-            <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              {ratingsData.length}
+        )}
+      </div>
+
+      {/* Reviews Modal */}
+      {showReviewsModal && selectedCompany && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[70vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <div>
+                <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                  Reviews for {selectedCompany.company}
+                </h3>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                  {selectedCompany.reviews.length} {selectedCompany.reviews.length === 1 ? 'review' : 'reviews'}
+                </p>
+              </div>
+              <button
+                onClick={closeReviewsModal}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              >
+                <LuX size={20} className={TAILWIND_COLORS.TEXT_MUTED} />
+              </button>
             </div>
-            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Companies</div>
-          </div>
-          <div className="text-center">
-            <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              {Math.round(ratingsData.reduce((sum, company) => sum + company.responseRate, 0) / ratingsData.length)}%
+
+            {/* Modal Body - Scrollable */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="space-y-4">
+                {selectedCompany.reviews.map((review, index) => (
+                  <div key={review.id || index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <h4 className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                          {review.job_title || 'N/A'}
+                        </h4>
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex">
+                            {renderStars(parseFloat(review.rating) || 0)}
+                          </div>
+                          <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                            {review.rating}/5
+                          </span>
+                        </div>
+                      </div>
+                      {review.created_at && (
+                        <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} whitespace-nowrap ml-2`}>
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                    {review.feedback && (
+                      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-2 leading-relaxed`}>
+                        {review.feedback}
+                      </p>
+                    )}
+                    {!review.feedback && (
+                      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} italic mt-2`}>
+                        No feedback provided
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Avg Response Rate</div>
+
+            {/* Modal Footer */}
+            <div className="p-4 border-t border-gray-200 flex justify-end">
+              <Button
+                onClick={closeReviewsModal}
+                variant="unstyled"
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 text-sm font-medium"
+              >
+                Close
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
