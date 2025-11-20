@@ -26,17 +26,18 @@ export default function StudentCompletion() {
     const fetchStudentCompletion = async () => {
       try {
         const res = await getMethod({ apiUrl: apiService.INSTITUTE_REPORT })
-
+  
         if (res?.status && Array.isArray(res?.data?.student_completion_chart)) {
           const chartRows = res.data.student_completion_chart
-
+  
+          // Course Names
           const labels = chartRows.map(item => item.course_name || 'N/A')
-
-          // 🔥 IMPORTANT CHANGE HERE
-          const data = chartRows.map(item => Number(item.enrolled_students || 0))
-
+  
+          // Completed Students (Correct field from API)
+          const data = chartRows.map(item => Number(item.completed_students || 0))
+  
           const barColor = colors?.primary?.darkBlue || '#1D4ED8'
-
+  
           setChartData({
             labels,
             datasets: [
@@ -56,9 +57,10 @@ export default function StudentCompletion() {
         console.error('❌ Error fetching student completion chart:', error)
       }
     }
-
+  
     fetchStudentCompletion()
   }, [])
+  
 
   return (
     <BarChart

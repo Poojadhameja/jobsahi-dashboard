@@ -74,36 +74,35 @@ function CertificateGeneration() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const fetchTemplateDefaults = async () => {
-      try {
-        const resp = await getMethod({
-          apiUrl: apiService.certificateTemplatesList,
-        });
+ useEffect(() => {
+  const fetchTemplateDefaults = async () => {
+    try {
+      const resp = await getMethod({
+        apiUrl: apiService.certificateTemplates, // certificate_templates.php
+      });
   
-        if (resp?.status && Array.isArray(resp.data)) {
-          setTemplates(resp.data);
+      if (resp?.status && Array.isArray(resp.data)) {
+        setTemplates(resp.data);
   
-          if (resp.data.length > 0) {
-            const t = resp.data[0];
+        if (resp.data.length > 0) {
+          const t = resp.data[0];
   
-            setSelectedTemplateId(t.id);
-            setTemplateName(t.template_name);
-            setDescription(t.description);
+          setSelectedTemplateId(t.id);
+          setTemplateName(t.template_name);
+          setDescription(t.description);
   
-            // preview set for popup
-            setLogoPreview(t.logo || "");
-            setSealPreview(t.seal || "");
-            setSignaturePreview(t.signature || "");
-          }
+          setLogoPreview(t.logo || "");
+          setSealPreview(t.seal || "");
+          setSignaturePreview(t.signature || "");
         }
-      } catch (error) {
-        console.error("❌ Error fetching template defaults:", error);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+    }
+  };
   
-    fetchTemplateDefaults();
-  }, []);
+}, []);
+
   
 
 
@@ -150,23 +149,21 @@ function CertificateGeneration() {
   };
 
   // ✅ Select template
-  const onTemplateChange = (e) => {
-    const templateId = e.target.value;
-    setSelectedTemplateId(templateId);
+ const onTemplateChange = (e) => {
+  const id = e.target.value;
+  setSelectedTemplateId(id);
 
-    if (templateId) {
-      const selectedTemplate = templates.find(
-        (t) => String(t.template_id || t.id) === String(templateId)
-      );
-      if (selectedTemplate) {
-        setTemplateName(selectedTemplate.template_name || "");
-        setDescription(selectedTemplate.footer_text || "");
-      }
-    } else {
-      setTemplateName("");
-      setDescription("");
-    }
-  };
+  const t = templates.find(x => String(x.id) === String(id));
+  if (!t) return;
+
+  setTemplateName(t.template_name);
+  setDescription(t.description);
+
+  setLogoPreview(t.logo || "");
+  setSealPreview(t.seal || "");
+  setSignaturePreview(t.signature || "");
+};
+
 
 
   const handleAssetSelect = (setFile, setPreview) => (event) => {
@@ -336,60 +333,61 @@ function CertificateGeneration() {
 
   // ✅ Create template
   const handleCreateTemplate = async () => {
-    if (!templateName.trim()) return Swal.fire("Template name required");
-    if (!description.trim()) return Swal.fire("Description required");
-    if (!logoFile || !sealFile || !signatureFile)
-      return Swal.fire("Upload all assets");
-  
-    setIsCreatingTemplate(true);
-  
-    try {
-      const formData = new FormData();
-  
-      formData.append("template_name", templateName.trim());
-      formData.append("description", description.trim());
-      formData.append("is_active", "1");
-      formData.append("admin_action", "approved");
-  
-      formData.append("logo", logoFile);
-      formData.append("seal", sealFile);
-      formData.append("signature", signatureFile);
-  
-      const res = await postMultipart({
-        apiUrl: apiService.createCertificateTemplate,
-        formData,
+  if (!templateName.trim()) return Swal.fire("Template name required");
+  if (!description.trim()) return Swal.fire("Description required");
+  if (!logoFile || !sealFile || !signatureFile)
+    return Swal.fire("Upload all assets");
+
+  setIsCreatingTemplate(true);
+
+  try {
+    const formData = new FormData();
+
+    formData.append("template_name", templateName.trim());
+    formData.append("description", description.trim());
+    formData.append("is_active", "1");
+    formData.append("admin_action", "approved");
+
+    formData.append("logo", logoFile);
+    formData.append("seal", sealFile);
+    formData.append("signature", signatureFile);
+
+    const res = await postMultipart({
+      apiUrl: apiService.createCertificateTemplate,
+      formData,
+    });
+
+    if (res?.status) {
+      Swal.fire("Success", "Template created successfully", "success");
+
+      // 🔥 Refresh template list
+      const resp = await getMethod({
+        apiUrl: apiService.certificateTemplatesList,
       });
-  
-      if (res?.status) {
-        Swal.fire("Success", "Template created successfully", "success");
-  
-        // 🔥 Refresh template list
-        const resp = await getMethod({
-          apiUrl: apiService.certificateTemplatesList,
-        });
-  
-        if (resp?.status) {
-          setTemplates(resp.data);
-        }
-  
-        setIsTemplateModalOpen(false);
-        setTemplateName("");
-        setDescription("");
-        setLogoFile(null);
-        setSealFile(null);
-        setSignatureFile(null);
-        setLogoPreview("");
-        setSealPreview("");
-        setSignaturePreview("");
-      } else {
-        Swal.fire("Failed", res?.message, "error");
+
+      if (resp?.status) {
+        setTemplates(resp.data);
       }
-    } catch (err) {
-      Swal.fire("Error", "Something went wrong", "error");
-    } finally {
-      setIsCreatingTemplate(false);
+
+      setIsTemplateModalOpen(false);
+      setTemplateName(DEFAULT_TEMPLATE_NAME);
+      setDescription(DEFAULT_CERTIFICATE_DESCRIPTION);
+      setLogoFile(null);
+      setSealFile(null);
+      setSignatureFile(null);
+      setLogoPreview("");
+      setSealPreview("");
+      setSignaturePreview("");
+    } else {
+      Swal.fire("Failed", res?.message, "error");
     }
-  };
+  } catch (err) {
+    Swal.fire("Error", "Something went wrong", "error");
+  } finally {
+    setIsCreatingTemplate(false);
+  }
+};
+
   
 
   const assetInputs = [
