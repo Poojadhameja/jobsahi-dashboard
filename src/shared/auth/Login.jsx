@@ -4,7 +4,7 @@ import Swal from 'sweetalert2'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuPhone, LuMail } from 'react-icons/lu'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
-import { postMethod } from '../../service/api'
+import { postMethod, putMethod, putMultipart } from '../../service/api'
 import { getMethod } from '../../service/api'
 import apiService from '../../shared/services/serviceUrl'
 
@@ -66,6 +66,164 @@ export default function Login() {
 
   const isEmail = mode === 'EMAIL'
 
+  // Function to update profile after login
+  const updateProfileAfterLogin = async (profileData, userRole) => {
+    try {
+      if (profileData.role.toLowerCase() !== userRole.toLowerCase()) {
+        console.warn('Profile role mismatch, skipping update');
+        return;
+      }
+
+      if (profileData.role === 'Recruiter') {
+        const payload = {
+          company_name: profileData.company_name,
+          industry: profileData.industry,
+          website: profileData.website,
+          location: profileData.location
+        };
+
+        if (profileData.hasLogo && profileData.logoBase64) {
+          // Convert base64 to File
+          const byteString = atob(profileData.logoBase64.split(',')[1]);
+          const mimeString = profileData.logoBase64.split(',')[0].split(':')[1].split(';')[0];
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          const blob = new Blob([ab], { type: mimeString });
+          const file = new File([blob], profileData.logoFileName, { type: mimeString });
+
+          const formData = new FormData();
+          Object.entries(payload).forEach(([key, val]) => {
+            if (val !== null && val !== undefined && val !== '') {
+              formData.append(key, val);
+            }
+          });
+          formData.append('company_logo', file);
+
+          await putMultipart({
+            apiUrl: apiService.updateRecruiterProfile,
+            data: formData
+          });
+        } else {
+          await putMethod({
+            apiUrl: apiService.updateRecruiterProfile,
+            payload
+          });
+        }
+
+      } else if (profileData.role === 'Institute') {
+        const payload = {
+          institute_name: profileData.institute_name,
+          institute_type: profileData.institute_type,
+          website: profileData.website,
+          description: profileData.description,
+          address: profileData.address,
+          contact_person: profileData.contact_person,
+          contact_designation: profileData.contact_designation,
+          accreditation: profileData.accreditation,
+          courses_offered: profileData.courses_offered
+        };
+
+        if (profileData.hasLogo && profileData.logoBase64) {
+          const byteString = atob(profileData.logoBase64.split(',')[1]);
+          const mimeString = profileData.logoBase64.split(',')[0].split(':')[1].split(';')[0];
+          const ab = new ArrayBuffer(byteString.length);
+          const ia = new Uint8Array(ab);
+          for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          const blob = new Blob([ab], { type: mimeString });
+          const file = new File([blob], profileData.logoFileName, { type: mimeString });
+
+          const formData = new FormData();
+          Object.entries(payload).forEach(([key, val]) => {
+            if (val !== null && val !== undefined && val !== '') {
+              formData.append(key, val);
+            }
+          });
+          formData.append('institute_logo', file);
+
+          await putMultipart({
+            apiUrl: apiService.updateInstituteProfile,
+            data: formData
+          });
+        } else {
+          await putMethod({
+            apiUrl: apiService.updateInstituteProfile,
+            payload
+          });
+        }
+
+      } else if (profileData.role === 'Student') {
+        const payload = {
+          bio: profileData.bio,
+          dob: profileData.dob,
+          gender: profileData.gender,
+          location: profileData.location,
+          skills: profileData.skills,
+          education: profileData.education,
+          graduation_year: profileData.graduation_year,
+          cgpa: profileData.cgpa,
+          linkedin_url: profileData.linkedin_url,
+          portfolio_link: profileData.portfolio_link,
+          trade: profileData.trade
+        };
+
+        if (profileData.hasResume || profileData.hasProfilePhoto) {
+          const formData = new FormData();
+          Object.entries(payload).forEach(([key, val]) => {
+            if (val !== null && val !== undefined && val !== '') {
+              formData.append(key, val);
+            }
+          });
+
+          if (profileData.hasResume && profileData.resumeBase64) {
+            const byteString = atob(profileData.resumeBase64.split(',')[1]);
+            const mimeString = profileData.resumeBase64.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+              ia[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([ab], { type: mimeString });
+            const file = new File([blob], profileData.resumeFileName, { type: mimeString });
+            formData.append('resume', file);
+          }
+
+          if (profileData.hasProfilePhoto && profileData.profilePhotoBase64) {
+            const byteString = atob(profileData.profilePhotoBase64.split(',')[1]);
+            const mimeString = profileData.profilePhotoBase64.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+              ia[i] = byteString.charCodeAt(i);
+            }
+            const blob = new Blob([ab], { type: mimeString });
+            const file = new File([blob], profileData.profilePhotoFileName, { type: mimeString });
+            formData.append('profile_photo', file);
+          }
+
+          await putMultipart({
+            apiUrl: apiService.updateStudentProfile,
+            data: formData
+          });
+        } else {
+          await putMethod({
+            apiUrl: apiService.updateStudentProfile,
+            payload
+          });
+        }
+      }
+
+      console.log('Profile updated successfully after login');
+    } catch (error) {
+      console.error('Error updating profile after login:', error);
+      throw error;
+    }
+  };
+
   // Check for pending registration on component mount
   React.useEffect(() => {
     const pendingEmail = localStorage.getItem('pendingVerificationEmail');
@@ -103,6 +261,24 @@ export default function Login() {
           localStorage.setItem("authToken", response.token)
           localStorage.setItem("authExpiry", response.expires_in)
           localStorage.setItem("authUser", JSON.stringify(response.user))
+
+          // Check if there's pending profile update data
+          const pendingProfileData = localStorage.getItem('pendingProfileUpdate');
+          
+          if (pendingProfileData) {
+            try {
+              const profileData = JSON.parse(pendingProfileData);
+              
+              // Update profile automatically after login
+              await updateProfileAfterLogin(profileData, response.user.role);
+              
+              // Remove pending profile data after successful update
+              localStorage.removeItem('pendingProfileUpdate');
+            } catch (profileError) {
+              console.error('Profile update error after login:', profileError);
+              // Continue with login even if profile update fails
+            }
+          }
 
           // alert(response.message || "Login successful!")
           Swal.fire({

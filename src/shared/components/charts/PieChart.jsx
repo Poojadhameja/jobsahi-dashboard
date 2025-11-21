@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import {
   Chart as ChartJS,
   ArcElement,
@@ -15,9 +15,10 @@ const PieChart = ({
   subtitle = "",
   showExport = true,
   onExport,
+  onElementClick,
   className = ""
 }) => {
-  const options = {
+  const options = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -40,7 +41,13 @@ const PieChart = ({
         display: false,
       },
     },
-  }
+    onClick: (event, elements) => {
+      if (elements.length > 0 && onElementClick) {
+        const elementIndex = elements[0].index
+        onElementClick(elementIndex, data?.labels?.[elementIndex])
+      }
+    },
+  }), [data, onElementClick])
 
   return (
     <div className={`bg-white rounded-lg border border-gray-200 p-6 min-h-[420px] ${className}`}>

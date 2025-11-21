@@ -25,19 +25,19 @@ export default function StudentCompletion() {
   useEffect(() => {
     const fetchStudentCompletion = async () => {
       try {
-        // ✅ Fetch data from backend API
         const res = await getMethod({ apiUrl: apiService.INSTITUTE_REPORT })
-
-        // ✅ Check if student completion chart data exists
+  
         if (res?.status && Array.isArray(res?.data?.student_completion_chart)) {
           const chartRows = res.data.student_completion_chart
-
-          // ✅ Extract labels & data dynamically
+  
+          // Course Names
           const labels = chartRows.map(item => item.course_name || 'N/A')
+  
+          // Completed Students (Correct field from API)
           const data = chartRows.map(item => Number(item.completed_students || 0))
+  
           const barColor = colors?.primary?.darkBlue || '#1D4ED8'
-
-          // ✅ Prepare data for Bar Chart
+  
           setChartData({
             labels,
             datasets: [
@@ -57,14 +57,15 @@ export default function StudentCompletion() {
         console.error('❌ Error fetching student completion chart:', error)
       }
     }
-
+  
     fetchStudentCompletion()
   }, [])
+  
 
   return (
     <BarChart
       data={chartData}
-      title="Student Completion"
+      title="Enrolled Students"
       subtitle="Institute Performance Dashboard"
       showExport={true}
       onExport={handleExport}

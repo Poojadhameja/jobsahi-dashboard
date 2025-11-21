@@ -199,6 +199,21 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
     educationList = [];
   }
 
+  // ✅ Handle social_links safely
+  let socialLinks = [];
+  try {
+    if (Array.isArray(candidate.social_links)) {
+      socialLinks = candidate.social_links;
+    } else if (typeof candidate.social_links === 'string' && candidate.social_links.trim() !== '') {
+      const parsed = JSON.parse(candidate.social_links);
+      socialLinks = Array.isArray(parsed) ? parsed : (parsed ? [parsed] : []);
+    }
+    console.log('🔗 Social Links:', socialLinks);
+  } catch (error) {
+    console.warn('Error parsing social_links:', error);
+    socialLinks = [];
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -517,6 +532,32 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
               )}
             </div>
           </div>
+
+          {/* Social Links Section */}
+          {socialLinks && socialLinks.length > 0 && (
+            <div className="mb-6">
+              <h3
+                className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}
+              >
+                Social Links
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {socialLinks.map((link, index) => (
+                  <a
+                    key={index}
+                    href={link.profile_url || link.url || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center space-x-1 px-3 py-1.5 bg-blue-50 rounded-md transition-colors border border-blue-200"
+                  >
+                    <LuLink className="w-4 h-4" />
+                    <span>{link.title || 'Link'}</span>
+                    <LuExternalLink className="w-3 h-3" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Experience Section */}
           <div className="mb-6">

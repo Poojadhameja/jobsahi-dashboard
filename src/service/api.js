@@ -57,10 +57,15 @@ export const getMethod = async (data) => {
  */
 export const postMethod = async (data) => {
   try {
-    // const headers = getHeaders(!data.apiUrl.includes('signup') && !data.apiUrl.includes('create_user'));
-    const headers = getHeaders(
-  data?.apiUrl && !data.apiUrl.includes('signup') && !data.apiUrl.includes('create_user')
-);
+    // Skip token for signup, create_user, and profile creation endpoints
+    const skipToken = data?.apiUrl && (
+      data.apiUrl.includes('signup') || 
+      data.apiUrl.includes('create_user') ||
+      data.apiUrl.includes('create_recruiter_profile') ||
+      data.apiUrl.includes('create_institute_profile') ||
+      data.apiUrl.includes('create_student_profile')
+    );
+    const headers = getHeaders(!skipToken);
 
 
     console.log('🌐 POST Request:', {
@@ -95,10 +100,16 @@ export const postMethod = async (data) => {
  */
 export const putMethod = async (data) => {
   try {
-    const headers = getHeaders();
+    // Skip token if user_id is present in payload (for account creation profile update)
+    const hasUserId = (data.payload?.user_id || data.data?.user_id) && 
+                      (data.apiUrl.includes('update_recruiter_profile') || 
+                       data.apiUrl.includes('institute_profile_updated') || 
+                       data.apiUrl.includes('profile_updated'));
+    const headers = getHeaders(!hasUserId);
     console.log('🌐 PUT Request:', {
       url: backendHost + data.apiUrl,
-      payload: data.payload || data.data
+      payload: data.payload || data.data,
+      skipToken: hasUserId
     });
 
     const respData = await axios({
@@ -125,7 +136,17 @@ export const putMethod = async (data) => {
  */
 export const putMultipart = async (data) => {
   try {
-    const token = localStorage.getItem("authToken");
+    // Check if FormData contains user_id (for account creation profile update)
+    let hasUserId = false;
+    if (data.data instanceof FormData) {
+      hasUserId = data.data.has('user_id') && 
+                  (data.apiUrl.includes('update_recruiter_profile') || 
+                   data.apiUrl.includes('institute_profile_updated') || 
+                   data.apiUrl.includes('profile_updated'));
+    }
+    
+    // Skip token if user_id is present (for account creation)
+    const token = hasUserId ? null : localStorage.getItem("authToken");
     const headers = {
       "Content-Type": "multipart/form-data",
     };
@@ -135,6 +156,7 @@ export const putMultipart = async (data) => {
       url: backendHost + data.apiUrl,
       data: data.data instanceof FormData ? "[FormData]" : data.data,
       token: token ? `${token.substring(0, 15)}...` : "No token",
+      skipToken: hasUserId
     });
 
     const respData = await axios({
@@ -201,7 +223,14 @@ export const deleteMethod = async (data) => {
  */
 export const postMultipart = async (data) => {
   try {
-    const token = localStorage.getItem("authToken");
+    // Skip token for profile creation endpoints
+    const skipToken = data?.apiUrl && (
+      data.apiUrl.includes('create_recruiter_profile') ||
+      data.apiUrl.includes('create_institute_profile') ||
+      data.apiUrl.includes('create_student_profile')
+    );
+    
+    const token = skipToken ? null : localStorage.getItem("authToken");
     const headers = {
       "Content-Type": "multipart/form-data",
     };

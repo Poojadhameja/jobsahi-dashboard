@@ -38,6 +38,7 @@ const Dashboard = () => {
   const [interviewDetails, setInterviewDetails] = useState([]);
   const [interviewDates, setInterviewDates] = useState([]);
   const [recentApplicants, setRecentApplicants] = useState([]);
+  const [recentApplicantsDetailed, setRecentApplicantsDetailed] = useState([]); // Store detailed data
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [tradesData, setTradesData] = useState({ labels: [], datasets: [] });
@@ -70,18 +71,18 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   // ---------- API CALLS ----------
   // ----------- CACHE DURATION (optional, 30 mins) ------------
-  const CACHE_DURATION = 30 * 60 * 1000;
+  // const CACHE_DURATION = 30 * 60 * 1000;
 
-  // 1️⃣ FETCH DASHBOARD DATA (with cache)
+  // 1️⃣ FETCH DASHBOARD DATA (without cache)
   const fetchDashboardData = async () => {
-    const cached = localStorage.getItem("dashboard_stats");
-    const cachedTime = localStorage.getItem("dashboard_stats_time");
+    // const cached = localStorage.getItem("dashboard_stats");
+    // const cachedTime = localStorage.getItem("dashboard_stats_time");
 
-    if (cached && cachedTime && Date.now() - cachedTime < CACHE_DURATION) {
-      setDashboardStats(JSON.parse(cached));
-      console.log("✅ Loaded dashboard data from cache");
-      return;
-    }
+    // if (cached && cachedTime && Date.now() - cachedTime < CACHE_DURATION) {
+    //   setDashboardStats(JSON.parse(cached));
+    //   console.log("✅ Loaded dashboard data from cache");
+    //   return;
+    // }
 
     try {
       const res = await getMethod({ apiUrl: service.getRecruiterJobs });
@@ -94,8 +95,8 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
           interview_completed: statsData.interview_completed || 0,
         };
         setDashboardStats(dataToSave);
-        localStorage.setItem("dashboard_stats", JSON.stringify(dataToSave));
-        localStorage.setItem("dashboard_stats_time", Date.now());
+        // localStorage.setItem("dashboard_stats", JSON.stringify(dataToSave));
+        // localStorage.setItem("dashboard_stats_time", Date.now());
         console.log("📡 Fetched dashboard data from API");
       }
     } catch (error) {
@@ -103,18 +104,18 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     }
   };
 
-  // 2️⃣ FETCH INTERVIEW DETAILS (with cache)
+  // 2️⃣ FETCH INTERVIEW DETAILS (without cache)
   const fetchInterviewDetails = async () => {
-    const cached = localStorage.getItem("interview_details");
-    const cachedTime = localStorage.getItem("interview_details_time");
+    // const cached = localStorage.getItem("interview_details");
+    // const cachedTime = localStorage.getItem("interview_details_time");
 
-    if (cached && cachedTime && Date.now() - cachedTime < CACHE_DURATION) {
-      const data = JSON.parse(cached);
-      setInterviewDetails(data.details);
-      setInterviewDates(data.dates);
-      console.log("✅ Loaded interview details from cache");
-      return;
-    }
+    // if (cached && cachedTime && Date.now() - cachedTime < CACHE_DURATION) {
+    //   const data = JSON.parse(cached);
+    //   setInterviewDetails(data.details);
+    //   setInterviewDates(data.dates);
+    //   console.log("✅ Loaded interview details from cache");
+    //   return;
+    // }
 
     try {
       const res = await getMethod({ apiUrl: service.getInterviewDetails });
@@ -138,11 +139,11 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
           .filter(Boolean);
         setInterviewDates(dates);
 
-        localStorage.setItem(
-          "interview_details",
-          JSON.stringify({ details: dataArr, dates })
-        );
-        localStorage.setItem("interview_details_time", Date.now());
+        // localStorage.setItem(
+        //   "interview_details",
+        //   JSON.stringify({ details: dataArr, dates })
+        // );
+        // localStorage.setItem("interview_details_time", Date.now());
         console.log("📡 Fetched interview details from API");
       }
     } catch (error) {
@@ -150,19 +151,19 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     }
   };
 
-  // 3️⃣ FETCH WEEKLY APPLICANTS (with cache)
+  // 3️⃣ FETCH WEEKLY APPLICANTS (without cache)
   const fetchWeeklyApplicants = async () => {
-    const cached = localStorage.getItem("weekly_applicants");
-    const cachedTime = localStorage.getItem("weekly_applicants_time");
+    // const cached = localStorage.getItem("weekly_applicants");
+    // const cachedTime = localStorage.getItem("weekly_applicants_time");
 
-    if (cached && cachedTime && Date.now() - cachedTime < CACHE_DURATION) {
-      const data = JSON.parse(cached);
-      setTradesData(data.tradesData);
-      setApplicantCards(data.applicantCards);
-      setWeekRange(data.weekRange);
-      console.log("✅ Loaded weekly applicants from cache");
-      return;
-    }
+    // if (cached && cachedTime && Date.now() - cachedTime < CACHE_DURATION) {
+    //   const data = JSON.parse(cached);
+    //   setTradesData(data.tradesData);
+    //   setApplicantCards(data.applicantCards);
+    //   setWeekRange(data.weekRange);
+    //   console.log("✅ Loaded weekly applicants from cache");
+    //   return;
+    // }
 
     try {
       const res = await getMethod({ apiUrl: service.getWeeklyApplicants });
@@ -210,11 +211,11 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
         setApplicantCards(cards);
         setWeekRange(weekRange);
 
-        localStorage.setItem(
-          "weekly_applicants",
-          JSON.stringify({ tradesData, applicantCards: cards, weekRange })
-        );
-        localStorage.setItem("weekly_applicants_time", Date.now());
+        // localStorage.setItem(
+        //   "weekly_applicants",
+        //   JSON.stringify({ tradesData, applicantCards: cards, weekRange })
+        // );
+        // localStorage.setItem("weekly_applicants_time", Date.now());
         console.log("📡 Fetched weekly applicants from API");
       }
     } catch (error) {
@@ -222,22 +223,22 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     }
   };
 
-  // 4️⃣ FETCH RECENT APPLICANTS (with cache)
+  // 4️⃣ FETCH RECENT APPLICANTS (without cache)
   const fetchRecentApplicants = async () => {
-    const cached = localStorage.getItem("recent_applicants");
-    const cachedFull = localStorage.getItem("recent_applicants_full");
-    const cachedTime = localStorage.getItem("recent_applicants_time");
+    // const cached = localStorage.getItem("recent_applicants");
+    // const cachedFull = localStorage.getItem("recent_applicants_full");
+    // const cachedTime = localStorage.getItem("recent_applicants_time");
 
-    if (
-      cached &&
-      cachedFull &&
-      cachedTime &&
-      Date.now() - cachedTime < CACHE_DURATION
-    ) {
-      setRecentApplicants(JSON.parse(cached));
-      console.log("✅ Loaded recent applicants from cache");
-      return;
-    }
+    // if (
+    //   cached &&
+    //   cachedFull &&
+    //   cachedTime &&
+    //   Date.now() - cachedTime < CACHE_DURATION
+    // ) {
+    //   setRecentApplicants(JSON.parse(cached));
+    //   console.log("✅ Loaded recent applicants from cache");
+    //   return;
+    // }
 
     try {
       const res = await getMethod({ apiUrl: service.getRecentApplicants });
@@ -283,22 +284,39 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     portfolio_link: a.portfolio_link || "",
     resume_url: a.resume_url || "",
     applied_date: a.applied_date || "",
+    social_links: (() => {
+      try {
+        if (Array.isArray(a.social_links)) {
+          return a.social_links;
+        } else if (typeof a.social_links === 'string' && a.social_links.trim() !== '') {
+          const parsed = JSON.parse(a.social_links);
+          return Array.isArray(parsed) ? parsed : (parsed ? [parsed] : []);
+        }
+        return [];
+      } catch {
+        return [];
+      }
+    })(),
   }));
 
 
         // 🔹 3️⃣ Update States
         setRecentApplicants(formatted);
+        setRecentApplicantsDetailed(detailed); // Store detailed data in state
 
-        // 🔹 4️⃣ Save to Cache
-        localStorage.setItem("recent_applicants", JSON.stringify(formatted));
-        localStorage.setItem("recent_applicants_full", JSON.stringify(detailed));
-        localStorage.setItem("recent_applicants_time", Date.now());
-        console.log("📡 Fetched recent applicants from API and cached");
+        // 🔹 4️⃣ Save to Cache (commented out)
+        // localStorage.setItem("recent_applicants", JSON.stringify(formatted));
+        // localStorage.setItem("recent_applicants_full", JSON.stringify(detailed));
+        // localStorage.setItem("recent_applicants_time", Date.now());
+        console.log("📡 Fetched recent applicants from API");
       } else {
         setRecentApplicants([]);
+        setRecentApplicantsDetailed([]);
       }
     } catch (error) {
       console.error("Error fetching recent applicants:", error);
+      setRecentApplicants([]);
+      setRecentApplicantsDetailed([]);
     }
   };
 
@@ -339,13 +357,14 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
       label: "View",
       variant: "info",
       onClick: (row) => {
-        const fullData = JSON.parse(localStorage.getItem("recent_applicants_full") || "[]");
-        const match = fullData.find(
-          (a) => a.name === row.name && a.applied_for === row.jobTitle
+        // Use state instead of localStorage
+        const match = recentApplicantsDetailed.find(
+          (a) => a.name === row.name && (a.applied_for === row.jobTitle || a.job_title === row.jobTitle)
         );
         if (match) {
           handleViewDetails(match); // ✅ same popup call
         } else {
+          console.error("❌ No match found for:", { row, detailed: recentApplicantsDetailed });
           alert("Detailed data not found for this applicant!");
         }
       },

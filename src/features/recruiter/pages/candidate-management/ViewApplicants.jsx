@@ -97,6 +97,19 @@ const ViewApplicants = () => {
               resume_url: item.resume_url || null,
               portfolio_link: item.portfolio_link || null,
               cover_letter: item.cover_letter || "—",
+              social_links: (() => {
+                try {
+                  if (Array.isArray(item.social_links)) {
+                    return item.social_links;
+                  } else if (typeof item.social_links === 'string' && item.social_links.trim() !== '') {
+                    const parsed = JSON.parse(item.social_links);
+                    return Array.isArray(parsed) ? parsed : (parsed ? [parsed] : []);
+                  }
+                  return [];
+                } catch {
+                  return [];
+                }
+              })(),
               // Add job_id and student_id for schedule interview
               job_id: jobId,
               student_id: studentId,

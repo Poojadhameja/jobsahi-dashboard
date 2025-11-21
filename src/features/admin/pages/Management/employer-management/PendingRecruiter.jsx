@@ -180,7 +180,8 @@ function ApprovalCard({
               />
             </div>
 
-            <div>
+            {/* Documents Section - Commented out (static data) */}
+            {/* <div>
               <p
                 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
               >
@@ -197,7 +198,7 @@ function ApprovalCard({
                   </span>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -377,8 +378,8 @@ function ReviewModal({ recruiter, isOpen, onClose }) {
             />
           </div>
 
-          {/* Documents Section */}
-          <div className="bg-gray-50 p-4 rounded-lg">
+          {/* Documents Section - Commented out (static data) */}
+          {/* <div className="bg-gray-50 p-4 rounded-lg">
             <p
               className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}
             >
@@ -409,7 +410,7 @@ function ReviewModal({ recruiter, isOpen, onClose }) {
                 </>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Footer */}

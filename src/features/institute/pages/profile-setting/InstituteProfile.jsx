@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { LuBuilding, LuUpload, LuSave, LuCheck, LuCircleAlert } from 'react-icons/lu'
+import { LuBuilding, LuUpload, LuSave, LuCheck, LuCircleAlert, LuX, LuLightbulb } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Swal from 'sweetalert2'
@@ -35,9 +35,9 @@ export default function InstituteProfile() {
   const [instituteTypes, setInstituteTypes] = useState([])
   const [loadingInstituteTypes, setLoadingInstituteTypes] = useState(false)
 
-  // ----------------------------
-  // VALIDATIONS
-  // ----------------------------
+  /* ----------------------------------------
+       VALIDATIONS (UNCHANGED)
+  ---------------------------------------- */
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   const validatePhone = (phone) => /^[0-9]{10}$/.test(phone.replace(/\s/g, ''))
   const validateWebsite = (url) => { try { new URL(url); return true } catch { return false } }
@@ -49,8 +49,7 @@ export default function InstituteProfile() {
     if (!formData.description.trim()) e.description = 'Description is required'
     else if (formData.description.length < 50) e.description = 'Minimum 50 characters required'
 
-    if (
-      formData.establishedYear &&
+    if (formData.establishedYear &&
       (formData.establishedYear < 1800 || formData.establishedYear > new Date().getFullYear())
     ) e.establishedYear = 'Enter a valid year'
 
@@ -69,23 +68,36 @@ export default function InstituteProfile() {
     return Object.keys(e).length === 0
   }
 
-  // ----------------------------
-  // INPUT CHANGE
-  // ----------------------------
+  /* ----------------------------------------
+        INPUT CHANGE HANDLER
+  ---------------------------------------- */
   const handleInputChange = (field, value) => {
+    // Special handling for phone field - only numbers and max 10 digits
     if (field === 'phone') {
-      const numericValue = value.replace(/\D/g, '').slice(0, 10)
-      setFormData((prev) => ({ ...prev, [field]: numericValue }))
+      // Remove all non-numeric characters
+      const numericValue = value.replace(/\D/g, '')
+      // Limit to 10 digits
+      const limitedValue = numericValue.slice(0, 10)
+      
+      setFormData((prev) => ({
+        ...prev,
+        [field]: limitedValue
+      }))
     } else {
-      setFormData((prev) => ({ ...prev, [field]: value }))
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value
+      }))
     }
 
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }))
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: '' }))
+    }
   }
 
-  // ----------------------------
-  // LOGO UPLOAD (FIXED)
-  // ----------------------------
+  /* ----------------------------------------
+         LOGO UPLOAD HANDLER
+  ---------------------------------------- */
   const handleLogoUpload = (event) => {
     const file = event.target.files[0]
     if (!file) return
@@ -101,60 +113,73 @@ export default function InstituteProfile() {
     }
 
     setFormData((p) => ({ ...p, logo: file }))
-
-    // ⭐ LIVE PREVIEW FIX
-    setLogoPreview(URL.createObjectURL(file))
+    setLogoPreview(null)
   }
 
-  // ----------------------------
-  // FETCH INSTITUTE TYPES
-  // ----------------------------
+  /* ----------------------------------------
+          LOGO REMOVE HANDLER
+  ---------------------------------------- */
+  const handleLogoRemove = () => {
+    setFormData((p) => ({ ...p, logo: null }))
+    setLogoPreview(null)
+  }
+
+  /* ----------------------------------------
+      FETCH INSTITUTE TYPES FROM BACKEND
+  ---------------------------------------- */
   const fetchInstituteTypes = async () => {
     try {
-      setLoadingInstituteTypes(true);
-  
-      const res = await getMethod({ apiUrl: apiService.getInstituteProfile });
-  
-      // ⭐ Backend se jitne bhi types mile → use as is
-      const typesFromAPI =
-        res?.data?.institute_types && Array.isArray(res.data.institute_types)
-          ? res.data.institute_types
-          : [];
-  
-      // ⭐ Unique remove + empty filter
-      const uniqueTypes = [...new Set(typesFromAPI)].filter(Boolean);
-  
-      // ⭐ Fallback list
-      const fallback = [
-        "Private",
-        "Public",
-        "Government",
-      ];
-  
-      // ⭐ Final list
-      setInstituteTypes(uniqueTypes.length > 0 ? uniqueTypes : fallback);
-    } catch (err) {
-      setInstituteTypes([
-        "Private",
-        "Public",
-        "Government",
-      ]);
-    } finally {
-      setLoadingInstituteTypes(false);
-    }
-  };
-  
+      setLoadingInstituteTypes(true)
+      const res = await getMethod({ apiUrl: apiService.getInstituteProfile })
 
-  // ----------------------------
-  // FETCH PROFILE (LOGO FIXED)
-  // ----------------------------
+      // Required types that must always be available for PUT API
+      const requiredTypes = ['Public', 'Private', 'Government']
+      let apiTypes = []
+
+      if (res?.success) {
+        // Check if API returns available institute types
+        if (res?.data?.institute_types && Array.isArray(res.data.institute_types)) {
+          apiTypes = res.data.institute_types
+        } 
+        // Or extract unique types from profiles if multiple profiles exist
+        else if (res?.data?.profiles && Array.isArray(res.data.profiles)) {
+          apiTypes = [...new Set(res.data.profiles.map(p => p.institute_info?.institute_type).filter(Boolean))]
+        }
+        // Or check if single profile response has types
+        else if (res?.data?.institute_info?.available_types) {
+          apiTypes = res.data.institute_info.available_types
+        }
+      }
+
+      // Merge required types with API types, ensuring required types are always included and prioritized
+      // Required types (Public, Private, Government) are placed first, then API types
+      const allTypes = [...requiredTypes, ...apiTypes]
+      const mergedTypes = [...new Set(allTypes)]
+      setInstituteTypes(mergedTypes)
+    } catch (err) {
+      console.error('Error fetching institute types:', err)
+      // Fallback: always include required types (Public, Private, Government) for PUT API
+      setInstituteTypes(['Public', 'Private', 'Government'])
+    } finally {
+      setLoadingInstituteTypes(false)
+    }
+  }
+
+  /* ----------------------------------------
+      FETCH PROFILE (UPDATED MAPPING)
+  ---------------------------------------- */
   const fetchInstituteProfile = async () => {
     try {
       setIsLoadingProfile(true)
       const res = await getMethod({ apiUrl: apiService.getInstituteProfile })
 
       if (res?.success) {
-        let profile = res?.data?.profiles?.[0] || res?.data
+        let profile = null
+
+        if (res?.data?.profiles?.length) profile = res.data.profiles[0]
+        else if (res?.data) profile = res.data
+
+        if (!profile) return
 
         setFormData({
           instituteName: profile.institute_info?.institute_name ?? '',
@@ -175,19 +200,20 @@ export default function InstituteProfile() {
           logo: null
         })
 
-        // ⭐ FIX: always append timestamp to break cache
         const logoURL = profile.institute_info?.institute_logo
-        if (logoURL) setLogoPreview(logoURL + `?t=${Date.now()}`)
+        if (logoURL) setLogoPreview(logoURL)
       }
 
+    } catch (err) {
+      console.log('Error:', err)
     } finally {
       setIsLoadingProfile(false)
     }
   }
 
-  // ----------------------------
-  // SAVE PROFILE (LOGO FIXED)
-  // ----------------------------
+  /* ----------------------------------------
+      SAVE PROFILE (PUT) UPDATED RESPONSE MAP
+  ---------------------------------------- */
   const handleSave = async () => {
     if (!validateForm()) {
       setIsFormValid(false)
@@ -200,66 +226,119 @@ export default function InstituteProfile() {
     try {
       const fd = new FormData()
 
-      const appendField = (key, value) => {
-        if (value !== undefined && value !== null && value !== '') fd.append(key, value)
+      // Only append fields that have non-empty values
+      // Sync user_name and institute_name (API requirement: they must be the same)
+      if (formData.instituteName?.trim()) {
+        const instituteNameValue = formData.instituteName.trim()
+        fd.append('institute_name', instituteNameValue)
+        fd.append('user_name', instituteNameValue)  // Auto-sync with institute_name
+      }
+      
+      // Personal info fields (updates users table)
+      if (formData.email?.trim()) {
+        fd.append('email', formData.email.trim())
+      }
+      if (formData.phone?.trim()) {
+        fd.append('phone_number', formData.phone.trim())
+      }
+      
+      if (formData.registrationNumber?.trim()) {
+        fd.append('registration_number', formData.registrationNumber.trim())
+      }
+      if (formData.instituteType?.trim()) {
+        fd.append('institute_type', formData.instituteType.trim())
+      }
+      if (formData.description?.trim()) {
+        fd.append('description', formData.description.trim())
+      }
+      if (formData.website?.trim()) {
+        fd.append('website', formData.website.trim())
+      }
+      if (formData.accreditation?.trim()) {
+        fd.append('accreditation', formData.accreditation.trim())
+      }
+      if (formData.establishedYear && formData.establishedYear.toString().trim()) {
+        fd.append('established_year', formData.establishedYear.toString().trim())
+      }
+      if (formData.address?.trim()) {
+        fd.append('address', formData.address.trim())
+      }
+      if (formData.postalCode?.trim()) {
+        fd.append('postal_code', formData.postalCode.trim())
+      }
+      if (formData.contactPerson?.trim()) {
+        fd.append('contact_person', formData.contactPerson.trim())
+      }
+      if (formData.contactDesignation?.trim()) {
+        fd.append('contact_designation', formData.contactDesignation.trim())
       }
 
-      appendField('institute_name', formData.instituteName)
-      appendField('registration_number', formData.registrationNumber)
-      appendField('institute_type', formData.instituteType)
-      appendField('description', formData.description)
-      appendField('website', formData.website)
-      appendField('accreditation', formData.accreditation)
-      appendField('established_year', formData.establishedYear)
-      appendField('address', formData.address)
-      appendField('postal_code', formData.postalCode)
-      appendField('contact_person', formData.contactPerson)
-      appendField('contact_designation', formData.contactDesignation)
-
+      // Logo file if uploaded
       if (formData.logo instanceof File) {
         fd.append('institute_logo', formData.logo)
       }
 
-      const payload = Object.fromEntries(fd.entries())
+      // Check if we have any fields to send
+      const formDataEntries = Array.from(fd.entries())
+      if (formDataEntries.length === 0) {
+        console.error('No fields to update')
+        setSaveStatus('error')
+        setIsSaving(false)
+        return
+      }
 
-      const res = formData.logo
-        ? await putMultipart({ apiUrl: apiService.updateInstituteProfile, data: fd })
-        : await putMethod({ apiUrl: apiService.updateInstituteProfile, payload })
+      console.log('FormData entries:', formDataEntries.map(([key]) => key))
+
+      // Use putMultipart if logo is being uploaded, otherwise use putMethod
+      const res = formData.logo instanceof File
+        ? await putMultipart({
+            apiUrl: apiService.updateInstituteProfile,
+            data: fd
+          })
+        : await putMethod({
+            apiUrl: apiService.updateInstituteProfile,
+            payload: Object.fromEntries(fd.entries())
+          })
 
       if (res?.success || res?.status === 'success') {
-
-        // ⭐ Fix: update preview instantly with fresh URL
-        if (res?.data?.institute_info?.institute_logo) {
-          setLogoPreview(res.data.institute_info.institute_logo + `?t=${Date.now()}`)
-        }
-
+        // Refresh profile data after successful update
         await fetchInstituteProfile()
-
+        
         setSaveStatus('success')
+        setIsFormValid(true)
+        setTimeout(() => setSaveStatus(null), 3000)
+        
+        // Show success popup
         Swal.fire({
           icon: 'success',
           title: 'Success!',
           text: 'Institute profile updated successfully!',
-          confirmButtonColor: '#5C9A24'
+          confirmButtonColor: '#3085d6',
+          timer: 3000,
+          timerProgressBar: true
         })
       } else {
+        console.error('Update failed:', res?.message || 'Unknown error')
         setSaveStatus('error')
+        
+        // Show error popup
         Swal.fire({
           icon: 'error',
-          title: 'Error',
-          text: res?.message || 'Update failed',
-          confirmButtonColor: '#5C9A24'
+          title: 'Update Failed',
+          text: res?.message || 'Failed to update institute profile. Please try again.',
+          confirmButtonColor: '#d33'
         })
       }
-
-    } catch (err) {
-      console.log(err)
+    } catch (error) {
+      console.error('Error updating profile:', error)
       setSaveStatus('error')
+      
+      // Show error popup for unexpected errors
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Something went wrong',
-        confirmButtonColor: '#5C9A24'
+        text: 'Something went wrong. Please try again.',
+        confirmButtonColor: '#d33'
       })
     } finally {
       setIsSaving(false)
@@ -267,7 +346,8 @@ export default function InstituteProfile() {
   }
 
   useEffect(() => {
-    validateForm()
+    const ok = validateForm()
+    setIsFormValid(ok)
   }, [formData])
 
   useEffect(() => {
@@ -330,25 +410,56 @@ export default function InstituteProfile() {
               <div
                 className={`border-2 border-dashed ${TAILWIND_COLORS.BORDER} rounded-lg p-8 text-center`}
               >
-                <div className={`mx-auto w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center mb-4`}>
-                  {formData.logo ? (
-                    // ✅ Agar naya file select kiya hai
-                    <img
-                      src={URL.createObjectURL(formData.logo)}
-                      alt="Institute Logo"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  ) : logoPreview ? (
-                    // ✅ Existing logo from API
-                    <img
-                      src={logoPreview}
-                      alt="Institute Logo"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  ) : (
-                    <LuBuilding className="w-8 h-8 text-gray-400" />
-                  )}
-                </div>
+                {formData.logo || logoPreview ? (
+                  // Logo display with close button
+                  <div 
+                    className="mx-auto w-48 h-48 bg-black rounded-xl flex items-center justify-center mb-4 relative overflow-hidden group"
+                    style={{ 
+                      border: '3px solid #FF8C00',
+                      boxShadow: '0 0 0 2px rgba(255, 140, 0, 0.2)',
+                      position: 'relative'
+                    }}
+                  >
+                    {formData.logo ? (
+                      // ✅ New file selected
+                      <div className="w-full h-full flex items-center justify-center p-4">
+                        <img
+                          src={URL.createObjectURL(formData.logo)}
+                          alt="Institute Logo"
+                          className="max-w-full max-h-full object-contain rounded-lg"
+                        />
+                      </div>
+                    ) : (
+                      // ✅ Existing logo from API
+                      <div className="w-full h-full flex items-center justify-center p-4">
+                        <img
+                          src={logoPreview}
+                          alt="Institute Logo"
+                          className="max-w-full max-h-full object-contain rounded-lg"
+                        />
+                      </div>
+                    )}
+                    {/* Close button overlay - White box visible, cross appears on hover with green background */}
+                    <button
+                      onClick={handleLogoRemove}
+                      className="absolute top-2 right-2 w-8 h-8 bg-white hover:bg-green-600 rounded-md shadow-lg flex items-center justify-center transition-all duration-200 z-10 group"
+                      type="button"
+                      aria-label="Remove logo"
+                    >
+                      <LuX className="w-4 h-4 opacity-0 group-hover:opacity-100 text-white transition-all duration-200" />
+                    </button>
+                  </div>
+                ) : (
+                  // Upload placeholder - White background with dashed border (appears after removing logo)
+                  <div 
+                    className="mx-auto w-48 h-48 bg-white border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center mb-4 cursor-pointer hover:border-gray-400 transition-colors"
+                    onClick={() => document.getElementById('logo-upload').click()}
+                  >
+                    <LuUpload className="w-8 h-8 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-600 font-medium mb-1">Upload Company Logo</span>
+                    <span className="text-xs text-gray-400">[Max 5MB]</span>
+                  </div>
+                )}
                 <input
                   type="file"
                   id="logo-upload"
@@ -356,16 +467,21 @@ export default function InstituteProfile() {
                   onChange={handleLogoUpload}
                   className="hidden"
                 />
-                <label
-                  htmlFor="logo-upload"
-                  className={`inline-flex items-center gap-2 px-4 py-2 ${TAILWIND_COLORS.BTN_PRIMARY} rounded-md cursor-pointer transition-colors`}
-                >
-                  <LuUpload className="w-4 h-4" />
-                  Upload Logo
-                </label>
-                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>
-                  Recommended: 200x200px, PNG or JPG format
-                </p>
+                {/* Upload button and recommended text - only show when no logo is present (after cross click or initially) */}
+                {!formData.logo && !logoPreview && (
+                  <>
+                    <label
+                      htmlFor="logo-upload"
+                      className={`inline-flex items-center gap-2 px-4 py-2 ${TAILWIND_COLORS.BTN_PRIMARY} rounded-md cursor-pointer transition-colors`}
+                    >
+                      <LuUpload className="w-4 h-4" />
+                      Upload Logo
+                    </label>
+                    <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>
+                      Recommended: 200x200px, PNG or JPG format
+                    </p>
+                  </>
+                )}
                 {errors.logo && (
                   <p className="text-xs text-error mt-1">{errors.logo}</p>
                 )}
@@ -425,11 +541,10 @@ export default function InstituteProfile() {
                 >
                   <option value="">{loadingInstituteTypes ? 'Loading institute types...' : 'Select Institute Type'}</option>
                   {instituteTypes.map((type) => (
-  <option key={type} value={type}>
-    {type}
-  </option>
-))}
-
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
                 </select>
                 {errors.instituteType && (
                   <p className="text-xs text-error mt-1">{errors.instituteType}</p>
