@@ -5,9 +5,10 @@ import { COLORS, TAILWIND_COLORS } from '../WebConstant'
 import { LuUsers } from 'react-icons/lu'
 import { LuGraduationCap } from 'react-icons/lu'
 import { FaUserShield, FaBuilding, FaSchool, FaEye, FaEyeSlash } from 'react-icons/fa'
-import { postMethod } from '../../service/api'
-import { getMethod } from '../../service/api'
+import { postMethod, putMethod, putMultipart, postMultipart } from '../../service/api'
 import apiService from '../../shared/services/serviceUrl'
+import axios from '../../service/axios'
+import { env } from '../../service/envConfig'
 
 function Pills({ items = [], activeKey, onChange }) {
   return (
@@ -55,6 +56,8 @@ export default function CreateAccount() {
   const [role, setRole] = useState('Admin') // Admin | Recruiter | Institute | Student
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadingText, setLoadingText] = useState('Creating Account...')
   const [form, setForm] = useState({
     // Common fields
     password: '',
@@ -123,112 +126,342 @@ export default function CreateAccount() {
       return;
     }
     
-    // Prepare payload based on role
-    let payload = {
+    // Step 1: Prepare user creation payload (only basic fields for users table)
+    // is_verified: 0 for Recruiter and Institute (admin approval required)
+    // is_verified: 1 for Admin and Student (directly verified)
+    const isVerified = (role === 'Recruiter' || role === 'Institute') ? 0 : 1;
+    
+    let userPayload = {
       password: form.password,
       role: role.toLowerCase(), // Convert to lowercase for API
-      verified: '1', // Set as verified by default
-      is_verified: 1, // Additional verification field
-      status: 'active' // Set account status as active
+      is_verified: isVerified,
+      status: 'active'
     }
 
+    // Add role-specific basic fields for users table
     if (role === 'Admin') {
-      payload = {
-        ...payload,
+      userPayload = {
+        ...userPayload,
         user_name: form.fullName,
         email: form.officialEmail,
-        phone_number: form.mobileNumber,
-        admin_role: form.adminRole,
-        employee_id: form.employeeId,
-        profile_photo: form.profilePhoto
+        phone_number: form.mobileNumber
       }
     } else if (role === 'Recruiter') {
-      payload = {
-        ...payload,
+      userPayload = {
+        ...userPayload,
         user_name: form.companyName,
         email: form.companyEmail,
-        phone_number: form.companyContact,
-        industry_type: form.industryType,
-        office_address: form.officeAddress,
-        company_logo: form.companyLogo,
-        gst_pan: form.gstPan,
-        company_website: form.companyWebsite
+        phone_number: form.companyContact
       }
     } else if (role === 'Institute') {
-      payload = {
-        ...payload,
+      userPayload = {
+        ...userPayload,
         user_name: form.instituteName,
         email: form.instituteEmail,
-        phone_number: form.instituteContact,
-        institute_type: form.instituteType,
-        registration_number: form.registrationNumber,
-        affiliation_details: form.affiliationDetails,
-        principal_name: form.principalName,
-        institute_logo: form.instituteLogo,
-        courses_offered: form.coursesOffered,
-        institute_address: form.instituteAddress,
-        institute_website: form.instituteWebsite
+        phone_number: form.instituteContact
       }
-    } else if (role === 'Admin') {
-      payload = {
-        ...payload,
+    } else if (role === 'Student') {
+      userPayload = {
+        ...userPayload,
         user_name: form.studentFullName,
         email: form.studentEmail,
-        phone_number: form.studentMobileNumber,
-        date_of_birth: form.dateOfBirth,
-        gender: form.gender,
-        profile_photo: form.studentProfilePhoto,
-        city: form.city,
-        state: form.state,
-        country: form.country,
-        pin_code: form.pinCode,
-        highest_qualification: form.highestQualification,
-        college_name: form.collegeName,
-        passing_year: form.passingYear,
-        marks_cgpa: form.marksCgpa,
-        skills: form.skills,
-        resume_cv: form.resumeCv,
-        preferred_job_location: form.preferredJobLocation,
-        linkedin_portfolio_link: form.linkedinPortfolioLink
+        phone_number: form.studentMobileNumber
       }
     }
 
+    // Show loading - user को loading दिखाओ
+    setIsLoading(true);
+    setLoadingText('Creating Account...');
+
     try {
-      var data = {
+      // ============================================
+      // STEP 1: Create User Account (Signup API)
+      // ============================================
+      console.log('📤 Step 1: Calling signup API...');
+      setLoadingText('Creating Account...');
+      var userData = {
         apiUrl: apiService.signup,
-        payload: payload,
+        payload: userPayload,
       };
 
-      var response = await postMethod(data);
-      console.log('Full API Response:', response)
-      console.log('Response Status:', response.status)
-      console.log('Response Success:', response.success)
-      console.log('HTTP Status:', response.httpStatus)
-      console.log('Role:', role)
+      var userResponse = await postMethod(userData);
+      console.log('✅ Step 1 Response - User Creation:', userResponse)
       
-      // Check multiple success conditions including HTTP status
-      // Also check that it's not an error message
-      const isSuccess = (response.status === 'success' || 
-          response.success === true || 
-          (response.data && response.data.success === true) ||
-          response.message === 'User registered successfully' ||
-          (response.message && response.message.includes('successfully')) ||
-          response.httpStatus === 200) &&
-          !response.message?.includes('already exists') &&
-          !response.message?.includes('failed') &&
-          !response.message?.includes('error');
+      // Check if user creation was successful
+      const isUserSuccess = (userResponse.status === 'success' || 
+          userResponse.success === true || 
+          (userResponse.data && userResponse.data.success === true) ||
+          userResponse.message === 'User registered successfully' ||
+          (userResponse.message && userResponse.message.includes('successfully')) ||
+          userResponse.httpStatus === 200) &&
+          !userResponse.message?.includes('already exists') &&
+          !userResponse.message?.includes('failed') &&
+          !userResponse.message?.includes('error');
       
-      if (isSuccess) {
+      if (!isUserSuccess) {
+        setIsLoading(false);
+        Swal.fire({
+          title: "Failed",
+          text: userResponse.message || "User registration failed",
+          icon: "error"
+        });
+        return;
+      }
+
+      // ============================================
+      // STEP 2: Extract user_id from signup response
+      // ============================================
+      const userId = userResponse.data?.user_id || 
+                     userResponse.data?.id || 
+                     userResponse.user_id || 
+                     userResponse.id;
+      
+      if (!userId) {
+        setIsLoading(false);
+        Swal.fire({
+          title: "Error",
+          text: "User created but user ID not found in response",
+          icon: "error"
+        });
+        return;
+      }
+
+      console.log('✅ User ID:', userId);
+
+      // ============================================
+      // STEP 3: Get Token by calling Login API with email and password
+      // ============================================
+      let authToken = null;
+      const previousToken = localStorage.getItem('authToken');
+      
+      // Get email and password for login
+      const userEmail = userPayload.email;
+      const userPassword = userPayload.password;
+      
+      if (userEmail && userPassword) {
+        try {
+          console.log('📤 Step 2: Getting token by calling login API...');
+          
+          const loginData = {
+            apiUrl: apiService.signin,
+            payload: {
+              email: userEmail,
+              password: userPassword
+            }
+          };
+
+          const loginResponse = await postMethod(loginData);
+          console.log('✅ Login Response:', loginResponse);
+
+          // Extract token from login response (same as Login.jsx)
+          authToken = loginResponse.token || 
+                     loginResponse.data?.token ||
+                     loginResponse.authToken ||
+                     loginResponse.data?.authToken;
+
+          if (authToken) {
+            localStorage.setItem('authToken', authToken);
+            console.log('✅ Token received from login API:', authToken.substring(0, 20) + '...');
+          } else {
+            console.log('⚠️ No token in login response');
+          }
+        } catch (loginError) {
+          console.error('❌ Login error:', loginError);
+          // Continue without token - will try profile update anyway
+        }
+      } else {
+        console.log('⚠️ Email or password not available for login');
+      }
+
+      // ============================================
+      // STEP 4: Update Profile (PUT API with token)
+      // ============================================
+      let profileResponse = null;
+      
+      try {
+        console.log('📤 Step 3: Calling profile update API with user_id:', userId);
         
+        if (role === 'Recruiter') {
+          const profilePayload = {
+            user_id: userId,
+            company_name: form.companyName,
+            industry: form.industryType,
+            website: form.companyWebsite,
+            location: form.officeAddress,
+            gst_pan: form.gstPan || null
+          };
+
+          console.log('📤 Recruiter Profile Payload:', profilePayload);
+
+          if (form.companyLogo) {
+            const formData = new FormData();
+            Object.entries(profilePayload).forEach(([key, val]) => {
+              if (val !== null && val !== undefined && val !== '') {
+                formData.append(key, val);
+              }
+            });
+            formData.append('company_logo', form.companyLogo);
+            
+            console.log('📤 Calling PUT multipart API with user_id:', userId, 'and token');
+            // PUT method with token - user_id के साथ
+            profileResponse = await putMultipart({ 
+              apiUrl: apiService.updateRecruiterProfile, 
+              data: formData 
+            });
+          } else {
+            console.log('📤 Calling PUT method API with user_id:', userId, 'and token');
+            // PUT method with token - user_id के साथ
+            profileResponse = await putMethod({ 
+              apiUrl: apiService.updateRecruiterProfile, 
+              payload: profilePayload 
+            });
+          }
+
+        } else if (role === 'Institute') {
+          const profilePayload = {
+            user_id: userId,
+            institute_name: form.instituteName,
+            institute_type: form.instituteType,
+            website: form.instituteWebsite,
+            description: form.affiliationDetails,
+            address: form.instituteAddress,
+            contact_person: form.principalName,
+            contact_designation: 'Principal',
+            accreditation: form.affiliationDetails,
+            courses_offered: Array.isArray(form.coursesOffered) 
+              ? form.coursesOffered.join(', ') 
+              : form.coursesOffered
+          };
+
+          console.log('📤 Institute Profile Payload:', profilePayload);
+
+          if (form.instituteLogo) {
+            const formData = new FormData();
+            Object.entries(profilePayload).forEach(([key, val]) => {
+              if (val !== null && val !== undefined && val !== '') {
+                formData.append(key, val);
+              }
+            });
+            formData.append('institute_logo', form.instituteLogo);
+            
+            console.log('📤 Calling PUT multipart API with user_id:', userId, 'and token');
+            // PUT method with token - user_id के साथ
+            profileResponse = await putMultipart({ 
+              apiUrl: apiService.updateInstituteProfile, 
+              data: formData 
+            });
+          } else {
+            console.log('📤 Calling PUT method API with user_id:', userId, 'and token');
+            // PUT method with token - user_id के साथ
+            profileResponse = await putMethod({ 
+              apiUrl: apiService.updateInstituteProfile, 
+              payload: profilePayload 
+            });
+          }
+
+        } else if (role === 'Student') {
+          const profilePayload = {
+            user_id: userId,
+            bio: form.studentFullName || 'Student Profile',
+            dob: form.dateOfBirth,
+            gender: form.gender?.toLowerCase() || null,
+            location: form.preferredJobLocation || `${form.city}, ${form.state}`,
+            skills: Array.isArray(form.skills) ? form.skills.join(', ') : form.skills || null,
+            education: `${form.highestQualification} from ${form.collegeName}, Year: ${form.passingYear}, CGPA: ${form.marksCgpa}`,
+            graduation_year: form.passingYear ? parseInt(form.passingYear) : null,
+            cgpa: form.marksCgpa ? parseFloat(form.marksCgpa) : null,
+            linkedin_url: form.linkedinPortfolioLink || null,
+            portfolio_link: form.linkedinPortfolioLink || null,
+            trade: form.highestQualification || null
+          };
+
+          console.log('📤 Student Profile Payload:', profilePayload);
+
+          if (form.resumeCv || form.studentProfilePhoto) {
+            const formData = new FormData();
+            Object.entries(profilePayload).forEach(([key, val]) => {
+              if (val !== null && val !== undefined && val !== '') {
+                formData.append(key, val);
+              }
+            });
+            if (form.resumeCv) {
+              formData.append('resume', form.resumeCv);
+            }
+            if (form.studentProfilePhoto) {
+              formData.append('profile_photo', form.studentProfilePhoto);
+            }
+            
+            console.log('📤 Calling PUT multipart API with user_id:', userId, 'and token');
+            // PUT method with token - user_id के साथ
+            profileResponse = await putMultipart({ 
+              apiUrl: apiService.updateStudentProfile, 
+              data: formData 
+            });
+          } else {
+            console.log('📤 Calling PUT method API with user_id:', userId, 'and token');
+            // PUT method with token - user_id के साथ
+            profileResponse = await putMethod({ 
+              apiUrl: apiService.updateStudentProfile, 
+              payload: profilePayload 
+            });
+          }
+
+        } else if (role === 'Admin') {
+          // Admin doesn't have separate profile table
+          profileResponse = { success: true, message: 'Admin account created successfully' };
+        }
+
+        console.log('✅ Profile Create/Update Response:', profileResponse);
+        console.log('✅ Profile Response Success:', profileResponse?.success);
+        console.log('✅ Profile Response Status:', profileResponse?.status);
+        console.log('✅ Profile Response Message:', profileResponse?.message);
+
+      } catch (profileError) {
+        console.error('❌ Profile create/update error:', profileError);
+        console.error('❌ Error details:', {
+          message: profileError?.message,
+          response: profileError?.response?.data,
+          status: profileError?.response?.status
+        });
+        profileResponse = {
+          success: false,
+          status: false,
+          message: profileError?.response?.data?.message || profileError?.message || 'Profile update failed'
+        };
+      } finally {
+        // Restore previous token after profile operation (user will login separately)
+        if (previousToken) {
+          localStorage.setItem('authToken', previousToken);
+        } else {
+          localStorage.removeItem('authToken');
+        }
+      }
+
+      // Check if profile update was successful
+      const isProfileSuccess = profileResponse && (
+        profileResponse.success === true || 
+        profileResponse.status === 'success' ||
+        profileResponse.status === true ||
+        (profileResponse.data && profileResponse.data.success === true) ||
+        (profileResponse.message && profileResponse.message.includes('successfully')) ||
+        profileResponse.httpStatus === 200
+      );
+
+      console.log('✅ Profile Success Check:', isProfileSuccess);
+      console.log('✅ Profile Response Object:', JSON.stringify(profileResponse, null, 2));
+
+      // Hide loading
+      setIsLoading(false);
+
+      if (isProfileSuccess || role === 'Admin') {
         Swal.fire({
           title: "Success",
-          text: response.message || "User registered successfully! You can now login.",
+          text: profileResponse?.message || userResponse.message || "Account and profile created successfully! You can now login.",
           confirmButtonText: "Ok",
           icon: "success"
         }).then((result) => {
           if (result.isConfirmed) {
-            // Store user email for login page
-            const userEmail = payload.email;
+            const userEmail = userPayload.email;
             if (userEmail) {
               localStorage.setItem('pendingVerificationEmail', userEmail);
             }
@@ -236,14 +469,34 @@ export default function CreateAccount() {
           }
         });
       } else {
+        // Show error with details
+        const errorMessage = profileResponse?.message || 
+                           "Profile update failed. Please update your profile after login.";
+        
+        console.error('❌ Profile operation failed:', {
+          profileResponse,
+          authToken: authToken ? 'Yes' : 'No',
+          role
+        });
+
         Swal.fire({
-          title: "Failed",
-          text: response.message || "Registration Failed",
-          icon: "error"
+          title: "Account Created",
+          text: `User account created successfully! However, ${errorMessage}`,
+          confirmButtonText: "Ok",
+          icon: "warning"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const userEmail = userPayload.email;
+            if (userEmail) {
+              localStorage.setItem('pendingVerificationEmail', userEmail);
+            }
+            navigate("/login")
+          }
         });
       }
     } catch (error) {
       console.error('Registration error:', error);
+      setIsLoading(false);
       Swal.fire({
         title: "API Error",
         text: error.message || "Something went wrong. Please try again.",
@@ -371,21 +624,14 @@ export default function CreateAccount() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Industry Type*</label>
-                    <select
+                    <input
+                      type="text"
                       value={form.industryType}
                       onChange={update('industryType')}
                       required
+                      placeholder="Enter industry type"
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    >
-                      <option value="">Select Industry Type</option>
-                      <option value="IT">IT</option>
-                      <option value="Education">Education</option>
-                      <option value="Marketing">Marketing</option>
-                      <option value="Manufacturing">Manufacturing</option>
-                      <option value="Healthcare">Healthcare</option>
-                      <option value="Finance">Finance</option>
-                      <option value="Other">Other</option>
-                    </select>
+                    />
                   </div>
                 </div>
 
@@ -428,8 +674,9 @@ export default function CreateAccount() {
                     <input
                       type="text"
                       value={form.gstPan}
-                      onChange={update('gstPan')}
+                      onChange={(e) => setForm((f) => ({ ...f, gstPan: e.target.value.toUpperCase().slice(0, 10) }))}
                       placeholder="Enter GST or PAN number"
+                      maxLength={10}
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     />
                   </div>
@@ -908,8 +1155,22 @@ export default function CreateAccount() {
             </div>
 
             <div className="pt-2">
-              <button type="submit" className={`w-full h-11 rounded-lg font-medium ${TAILWIND_COLORS.BTN_PRIMARY}`}>
-                SIGN UP
+              <button 
+                type="submit" 
+                disabled={isLoading}
+                className={`w-full h-11 rounded-lg font-medium ${TAILWIND_COLORS.BTN_PRIMARY} ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {loadingText}
+                  </span>
+                ) : (
+                  'SIGN UP'
+                )}
               </button>
             </div>
 

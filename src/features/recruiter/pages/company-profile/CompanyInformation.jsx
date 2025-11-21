@@ -33,6 +33,7 @@ const CompanyInfo = () => {
     email: "",
     phone_number: "",
     location: "",
+    gst_pan: "",
   });
 
   const tradeOptions = [
@@ -89,6 +90,7 @@ const CompanyInfo = () => {
             email: personal.email || "",
             phone_number: personal.phone_number || personal.phone || "",
             location: personal.location || "",
+            gst_pan: professional.gst_pan || professional.gstPan || docs.gst_pan || docs.gstPan || "",
           });
 
           // ✅ Try multiple possible logo field locations
@@ -223,6 +225,7 @@ const CompanyInfo = () => {
         email: companyData.email,
         phone_number: companyData.phone_number,
         location: companyData.location,
+        gst_pan: companyData.gst_pan,
       };
 
       let res;
@@ -495,6 +498,18 @@ const CompanyInfo = () => {
                 onChange={(e) => handleChange("location", e.target.value)}
                 placeholder="Enter company location"
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">GST / PAN</label>
+              <input
+                type="text"
+                value={companyData.gst_pan}
+                onChange={(e) => handleChange("gst_pan", e.target.value.toUpperCase().slice(0, 10))}
+                placeholder="Enter GST or PAN number"
+                maxLength={10}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 uppercase"
               />
             </div>
           </div>
