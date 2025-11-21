@@ -14,6 +14,10 @@ import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { getMethod, postMultipart } from "../../../../service/api";
 import apiService from "../../services/serviceUrl.js";
 
+// Default values for template form
+const DEFAULT_TEMPLATE_NAME = "";
+const DEFAULT_CERTIFICATE_DESCRIPTION = "";
+
 function CertificateGeneration() {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -33,6 +37,10 @@ function CertificateGeneration() {
   const [logoPreview, setLogoPreview] = useState("");
   const [sealPreview, setSealPreview] = useState("");
   const [signaturePreview, setSignaturePreview] = useState("");
+  // Store last template URLs for reuse
+  const [lastTemplateLogoUrl, setLastTemplateLogoUrl] = useState("");
+  const [lastTemplateSealUrl, setLastTemplateSealUrl] = useState("");
+  const [lastTemplateSignatureUrl, setLastTemplateSignatureUrl] = useState("");
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -78,35 +86,37 @@ function CertificateGeneration() {
   const fetchTemplateDefaults = async () => {
     try {
       const resp = await getMethod({
-        apiUrl: apiService.certificateTemplates, // certificate_templates.php
+        apiUrl: apiService.certificateTemplatesList, // Fixed: use correct endpoint
       });
+  
+      console.log("📋 Templates fetch response:", resp);
   
       if (resp?.status && Array.isArray(resp.data)) {
         setTemplates(resp.data);
+        console.log("✅ Templates loaded:", resp.data.length);
   
-        if (resp.data.length > 0) {
-          const t = resp.data[0];
-  
-          setSelectedTemplateId(t.id);
-          setTemplateName(t.template_name);
-          setDescription(t.description);
-  
-          setLogoPreview(t.logo || "");
-          setSealPreview(t.seal || "");
-          setSignaturePreview(t.signature || "");
-        }
+        // Don't auto-select first template - let user choose
+        // Reset to default "Choose a template"
+        setSelectedTemplateId("");
+        setTemplateName("");
+        setDescription("");
+        setLogoPreview("");
+        setSealPreview("");
+        setSignaturePreview("");
+      } else {
+        console.warn("⚠️ Templates response format issue:", resp);
+        setTemplates([]);
+        setSelectedTemplateId("");
       }
     } catch (error) {
-      console.error("Error fetching templates:", error);
+      console.error("❌ Error fetching templates:", error);
+      setTemplates([]);
     }
   };
   
+  fetchTemplateDefaults();
 }, []);
-
-  
-
-
-  // ✅ Select course
+   // ✅ Select course
   const onCourseChange = (e) => {
     const cid = e.target.value;
     setSelectedCourse(cid);
@@ -166,7 +176,7 @@ function CertificateGeneration() {
 
 
 
-  const handleAssetSelect = (setFile, setPreview) => (event) => {
+  const handleAssetSelect = (setFile, setPreview, setLastTemplateUrl = null) => (event) => {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
@@ -191,23 +201,48 @@ function CertificateGeneration() {
       return;
     }
 
+    // Clear last template URL when user selects new file
+    if (setLastTemplateUrl) {
+      setLastTemplateUrl("");
+    }
+
     setFile(file);
     setPreview((prevUrl) => {
-      if (prevUrl) URL.revokeObjectURL(prevUrl);
+      // Only revoke if it's a blob URL (from previous file upload)
+      if (prevUrl && prevUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(prevUrl);
+      }
       return URL.createObjectURL(file);
     });
   };
 
-  const handleAssetRemove = (setFile, setPreview) => () => {
+  const handleAssetRemove = (setFile, setPreview, setLastTemplateUrl = null) => () => {
     setFile(null);
     setPreview((prevUrl) => {
-      if (prevUrl) URL.revokeObjectURL(prevUrl);
+      // Only revoke if it's a blob URL (from file upload)
+      if (prevUrl && prevUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(prevUrl);
+      }
       return "";
     });
+    // Clear last template URL when user removes
+    if (setLastTemplateUrl) {
+      setLastTemplateUrl("");
+    }
   };
 
   // ✅ Generate certificates
   const handleGenerateCertificate = async () => {
+    console.log("🚀 Starting certificate generation...");
+    console.log("📋 Current state:", {
+      selectedCourse,
+      selectedBatch,
+      completionDate,
+      selectedStudents,
+      templateName,
+      selectedTemplateId
+    });
+
     if (!selectedCourse || !selectedBatch || !completionDate) {
       Swal.fire({
         icon: 'warning',
@@ -228,11 +263,23 @@ function CertificateGeneration() {
       return;
     }
 
-    if (!templateName.trim()) {
+    // Check if templateName is set, if not try to get it from selected template
+    let finalTemplateName = templateName.trim();
+    if (!finalTemplateName && selectedTemplateId) {
+      const selectedTemplate = templates.find(t => String(t.id) === String(selectedTemplateId) || String(t.template_id) === String(selectedTemplateId));
+      if (selectedTemplate) {
+        finalTemplateName = selectedTemplate.template_name || "";
+        console.log("📝 Template name not set, using from selected template:", finalTemplateName);
+        setTemplateName(finalTemplateName);
+      }
+    }
+
+    if (!finalTemplateName) {
+      console.error("❌ Template name is missing!");
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
-        text: 'Please provide a template name.',
+        text: 'Please select a template or provide a template name.',
         confirmButtonColor: '#5C9A24'
       })
       return;
@@ -249,28 +296,65 @@ function CertificateGeneration() {
         formData.append("course_id", parseInt(selectedCourse, 10));
         formData.append("batch_id", parseInt(selectedBatch, 10));
         formData.append("issue_date", completionDate);
-        formData.append("template_name", templateName.trim());
+        formData.append("template_name", finalTemplateName);
         formData.append("description", description || "");
 
         if (logoFile) formData.append("logo", logoFile);
         if (sealFile) formData.append("seal", sealFile);
         if (signatureFile) formData.append("signature", signatureFile);
 
-        console.log("📤 Sending FormData keys:", Array.from(formData.keys()));
-
-        const res = await postMultipart({
-          apiUrl: apiService.generateCertificate,
-          formData,
+        console.log("📤 Generating certificate for student:", studentId);
+        console.log("📤 Template name:", finalTemplateName);
+        console.log("📤 FormData keys:", Array.from(formData.keys()));
+        console.log("📤 FormData values:", {
+          student_id: parseInt(studentId, 10),
+          course_id: parseInt(selectedCourse, 10),
+          batch_id: parseInt(selectedBatch, 10),
+          issue_date: completionDate,
+          template_name: finalTemplateName,
+          description: description || "",
+          hasLogo: !!logoFile,
+          hasSeal: !!sealFile,
+          hasSignature: !!signatureFile
         });
 
-        console.log("📩 Response:", res);
+        try {
+          const res = await postMultipart({
+            apiUrl: apiService.generateCertificate,
+            data: formData, // ✅ Correct parameter name
+          });
 
-        if (res?.status) {
-          results.push(res.data);
-        } else {
-          console.warn(
-            `⚠️ Certificate not generated for ${studentId}: ${res?.message}`
-          );
+          console.log("📩 Full API Response:", JSON.stringify(res, null, 2));
+          console.log("📩 Response status:", res?.status);
+          console.log("📩 Response message:", res?.message);
+          console.log("📩 Response data:", res?.data);
+
+          if (res?.status === true || res?.status === "success" || res?.success === true) {
+            console.log("✅ Certificate generated successfully for student:", studentId);
+            results.push(res.data || res);
+          } else {
+            console.error(`❌ Certificate generation failed for student ${studentId}:`, {
+              status: res?.status,
+              message: res?.message,
+              data: res?.data,
+              fullResponse: res
+            });
+            // Still show the error message to user
+            Swal.fire({
+              icon: 'error',
+              title: 'Generation Failed',
+              text: res?.message || `Failed to generate certificate for student ID: ${studentId}`,
+              confirmButtonColor: '#5C9A24'
+            });
+          }
+        } catch (apiError) {
+          console.error(`❌ API Error for student ${studentId}:`, apiError);
+          Swal.fire({
+            icon: 'error',
+            title: 'API Error',
+            text: apiError?.message || `Error generating certificate for student ID: ${studentId}`,
+            confirmButtonColor: '#5C9A24'
+          });
         }
       }
 
@@ -333,14 +417,83 @@ function CertificateGeneration() {
 
   // ✅ Create template
   const handleCreateTemplate = async () => {
-  if (!templateName.trim()) return Swal.fire("Template name required");
-  if (!description.trim()) return Swal.fire("Description required");
-  if (!logoFile || !sealFile || !signatureFile)
-    return Swal.fire("Upload all assets");
+  console.log("🔍 Template name value:", templateName);
+  console.log("🔍 Template name trimmed:", templateName.trim());
+  console.log("🔍 Template name length:", templateName.trim().length);
+  
+  if (!templateName.trim()) {
+    console.log("❌ Template name validation failed - empty or whitespace");
+    Swal.fire({
+      icon: 'warning',
+      title: 'Validation Error',
+      text: 'Please provide a template name.',
+      confirmButtonColor: '#5C9A24'
+    });
+    return;
+  }
+  if (!description.trim()) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Validation Error',
+      text: 'Please provide a description.',
+      confirmButtonColor: '#5C9A24'
+    });
+    return;
+  }
+  
+  // Check if files are uploaded OR last template URLs are available
+  const hasLogo = logoFile || lastTemplateLogoUrl;
+  const hasSeal = sealFile || lastTemplateSealUrl;
+  const hasSignature = signatureFile || lastTemplateSignatureUrl;
+  
+  if (!hasLogo || !hasSeal || !hasSignature) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Assets Required',
+      text: 'Please upload logo, seal, and signature, or they will be reused from last template.',
+      confirmButtonColor: '#5C9A24'
+    });
+  }
 
   setIsCreatingTemplate(true);
 
   try {
+    // First, refresh templates list to get latest data
+    console.log("📋 Current templates before create:", templates);
+    console.log("📝 Template name to create:", templateName.trim());
+    
+    const refreshResp = await getMethod({
+      apiUrl: apiService.certificateTemplatesList,
+    });
+
+    let latestTemplates = templates;
+    if (refreshResp?.status && Array.isArray(refreshResp.data)) {
+      latestTemplates = refreshResp.data;
+      setTemplates(latestTemplates);
+      console.log("✅ Refreshed templates:", latestTemplates.length);
+    }
+
+    // Check if template name already exists in latest templates list
+    const existingTemplate = latestTemplates.find(
+      (t) => {
+        const existingName = (t.template_name || "").toLowerCase().trim();
+        const newName = templateName.toLowerCase().trim();
+        return existingName === newName && existingName !== "";
+      }
+    );
+
+    if (existingTemplate) {
+      setIsCreatingTemplate(false);
+      console.log("⚠️ Template already exists:", existingTemplate);
+      return Swal.fire({
+        title: "Template Exists",
+        text: `Template "${templateName}" already exists. Please use a different name.`,
+        icon: "warning"
+      });
+    }
+
+    console.log("✅ No duplicate found, proceeding with create...");
+
     const formData = new FormData();
 
     formData.append("template_name", templateName.trim());
@@ -348,14 +501,37 @@ function CertificateGeneration() {
     formData.append("is_active", "1");
     formData.append("admin_action", "approved");
 
-    formData.append("logo", logoFile);
-    formData.append("seal", sealFile);
-    formData.append("signature", signatureFile);
+    // Append files if user uploaded new ones, otherwise use last template URLs
+    if (logoFile) {
+      formData.append("logo", logoFile);
+    } else if (lastTemplateLogoUrl) {
+      formData.append("logo_url", lastTemplateLogoUrl);
+    }
 
+    if (sealFile) {
+      formData.append("seal", sealFile);
+    } else if (lastTemplateSealUrl) {
+      formData.append("seal_url", lastTemplateSealUrl);
+    }
+
+    if (signatureFile) {
+      formData.append("signature", signatureFile);
+    } else if (lastTemplateSignatureUrl) {
+      formData.append("signature_url", lastTemplateSignatureUrl);
+    }
+
+    console.log("📤 Creating template with name:", templateName.trim());
+    console.log("📤 FormData keys:", Array.from(formData.keys()));
+    
     const res = await postMultipart({
       apiUrl: apiService.createCertificateTemplate,
-      formData,
+      data: formData, // Fixed: use 'data' instead of 'formData'
     });
+
+    console.log("📥 Create template response:", res);
+    console.log("📥 Response status:", res?.status);
+    console.log("📥 Response message:", res?.message);
+    console.log("📥 Full response:", JSON.stringify(res, null, 2));
 
     if (res?.status) {
       Swal.fire("Success", "Template created successfully", "success");
@@ -367,22 +543,76 @@ function CertificateGeneration() {
 
       if (resp?.status) {
         setTemplates(resp.data);
+        // Select the newly created template
+        const newTemplate = resp.data.find(
+          (t) => t.template_name?.toLowerCase().trim() === templateName.toLowerCase().trim()
+        );
+        if (newTemplate) {
+          setSelectedTemplateId(newTemplate.id || newTemplate.template_id);
+        }
       }
 
-      setIsTemplateModalOpen(false);
-      setTemplateName(DEFAULT_TEMPLATE_NAME);
-      setDescription(DEFAULT_CERTIFICATE_DESCRIPTION);
-      setLogoFile(null);
-      setSealFile(null);
-      setSignatureFile(null);
-      setLogoPreview("");
-      setSealPreview("");
-      setSignaturePreview("");
+      // Don't close modal, show preview instead
+      setShowPreview(true);
+      // Keep template data for preview (don't reset)
     } else {
-      Swal.fire("Failed", res?.message, "error");
+      // If backend says "already exists" but template not in our list, refresh and check
+      const errorMessage = res?.message || res?.data?.message || "";
+      console.log("❌ Error message:", errorMessage);
+      
+      if (errorMessage.toLowerCase().includes("already exists") || 
+          // errorMessage.toLowerCase().includes("already exist") ||
+          errorMessage.toLowerCase().includes("duplicate")) {
+        
+        console.log("🔄 Refreshing templates list to verify...");
+        
+        // Refresh templates list to verify
+        const resp = await getMethod({
+          apiUrl: apiService.certificateTemplatesList,
+        });
+
+        console.log("📋 Refreshed templates response:", resp);
+
+        if (resp?.status && Array.isArray(resp.data)) {
+          setTemplates(resp.data);
+          
+          // Check again after refresh - check all possible name fields
+          const existsAfterRefresh = resp.data.find(
+            (t) => {
+              const existingName = (t.template_name || t.name || "").toLowerCase().trim();
+              const newName = templateName.toLowerCase().trim();
+              return existingName === newName && existingName !== "";
+            }
+          );
+
+          console.log("🔍 Template exists after refresh?", !!existsAfterRefresh);
+          if (existsAfterRefresh) {
+            console.log("✅ Found existing template:", existsAfterRefresh);
+            Swal.fire({
+              title: "Template Exists",
+              text: `Template "${templateName}" already exists in the system.`,
+              icon: "warning"
+            });
+          } else {
+            // Template doesn't exist, might be backend issue - show detailed error
+            console.error("⚠️ Backend says exists but not found in list. Backend might have case-sensitive check or other validation.");
+            Swal.fire({
+              title: "Validation Error",
+              text: `Backend validation failed: ${errorMessage}. Please check if a similar template name exists (case-sensitive) or try a different name.`,
+              icon: "error"
+            });
+          }
+        } else {
+          console.error("❌ Failed to refresh templates:", resp);
+          Swal.fire("Failed", errorMessage || "Could not verify template existence", "error");
+        }
+      } else {
+        Swal.fire("Failed", errorMessage || "Template creation failed", "error");
+      }
     }
   } catch (err) {
-    Swal.fire("Error", "Something went wrong", "error");
+    console.error("Create template error:", err);
+    Swal.fire("Error", err?.message || "Something went wrong", "error");
   } finally {
     setIsCreatingTemplate(false);
   }
@@ -399,6 +629,7 @@ function CertificateGeneration() {
       preview: logoPreview,
       setFile: setLogoFile,
       setPreview: setLogoPreview,
+      setLastTemplateUrl: setLastTemplateLogoUrl,
       inputId: "template-logo-upload",
     },
     {
@@ -409,6 +640,7 @@ function CertificateGeneration() {
       preview: sealPreview,
       setFile: setSealFile,
       setPreview: setSealPreview,
+      setLastTemplateUrl: setLastTemplateSealUrl,
       inputId: "template-seal-upload",
     },
     {
@@ -419,6 +651,7 @@ function CertificateGeneration() {
       preview: signaturePreview,
       setFile: setSignatureFile,
       setPreview: setSignaturePreview,
+      setLastTemplateUrl: setLastTemplateSignatureUrl,
       inputId: "template-signature-upload",
     },
   ];
@@ -458,11 +691,17 @@ function CertificateGeneration() {
                   <label className="block text-sm font-medium mb-2">TEMPLATE NAME</label>
                   <input
                     type="text"
-                    value={templateName}
-                    onChange={(e) => setTemplateName(e.target.value)}
+                    value={templateName || ""}
+                    onChange={(e) => {
+                      console.log("📝 Template name input changed:", e.target.value);
+                      setTemplateName(e.target.value);
+                    }}
                     placeholder="Enter template name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
+                  {templateName && (
+                    <p className="text-xs text-gray-500 mt-1">Current value: "{templateName}"</p>
+                  )}
                 </div>
               )}
             </div>
@@ -488,7 +727,7 @@ function CertificateGeneration() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {assetInputs.map(
-                  ({ key, label, helper, file, preview, setFile, setPreview, inputId }) => (
+                  ({ key, label, helper, file, preview, setFile, setPreview, setLastTemplateUrl, inputId }) => (
                     <div key={key} className="space-y-3">
                       <div>
                         <label className="block text-sm font-medium mb-2 uppercase">
@@ -500,7 +739,7 @@ function CertificateGeneration() {
                           type="file"
                           id={inputId}
                           accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                          onChange={handleAssetSelect(setFile, setPreview)}
+                          onChange={handleAssetSelect(setFile, setPreview, setLastTemplateUrl)}
                           className="hidden"
                         />
                         {preview ? (
@@ -512,17 +751,19 @@ function CertificateGeneration() {
                                 className="object-contain h-full w-full"
                               />
                             </div>
-                            <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{file?.name}</p>
+                            <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>
+                              {file?.name || (preview.includes('http') || preview.includes('/uploads') ? 'From last template' : 'Preview')}
+                            </p>
                             <div className="flex items-center justify-center gap-4 text-sm">
                               <label
                                 htmlFor={inputId}
                                 className={`${TAILWIND_COLORS.TEXT_SUCCESS} hover:underline cursor-pointer`}
                               >
-                                Change
+                                {file ? 'Change' : 'Upload New'}
                               </label>
                               <button
                                 type="button"
-                                onClick={handleAssetRemove(setFile, setPreview)}
+                                onClick={handleAssetRemove(setFile, setPreview, setLastTemplateUrl)}
                                 className="text-red-500 hover:underline"
                               >
                                 Remove
@@ -553,9 +794,21 @@ function CertificateGeneration() {
               <div className="flex justify-center mt-6">
                 <button
                   onClick={handleCreateTemplate}
-                  disabled={isCreatingTemplate || !templateName.trim() || !description.trim() || !logoFile || !sealFile || !signatureFile}
+                  disabled={
+                    isCreatingTemplate || 
+                    !templateName.trim() || 
+                    !description.trim() || 
+                    (!logoFile && !lastTemplateLogoUrl) || 
+                    (!sealFile && !lastTemplateSealUrl) || 
+                    (!signatureFile && !lastTemplateSignatureUrl)
+                  }
                   className={`px-6 py-3 rounded-lg flex items-center space-x-2 ${TAILWIND_COLORS.TEXT_INVERSE} ${
-                    isCreatingTemplate || !templateName.trim() || !description.trim() || !logoFile || !sealFile || !signatureFile
+                    isCreatingTemplate || 
+                    !templateName.trim() || 
+                    !description.trim() || 
+                    (!logoFile && !lastTemplateLogoUrl) || 
+                    (!sealFile && !lastTemplateSealUrl) || 
+                    (!signatureFile && !lastTemplateSignatureUrl)
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-green-600 hover:bg-green-700"
                   }`}
@@ -690,6 +943,80 @@ function CertificateGeneration() {
       </>
     );
   };
+
+  // Template Preview (for after template creation)
+  const renderTemplatePreview = () => (
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <h3 className={`text-lg font-semibold mb-1 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+        Template Preview
+      </h3>
+      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
+        Preview of your certificate template
+      </p>
+
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 mb-6 bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div className="flex justify-between items-start mb-6">
+          {logoPreview ? (
+            <div className="h-16 w-16 flex items-center justify-center overflow-hidden">
+              <img
+                src={logoPreview}
+                alt="Institute Logo"
+                className="object-contain h-full w-full"
+              />
+            </div>
+          ) : (
+            <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
+              <LuAward className={`h-6 w-6 ${TAILWIND_COLORS.TEXT_INVERSE}`} />
+            </div>
+          )}
+          {sealPreview ? (
+            <div className="h-16 w-16 flex items-center justify-center overflow-hidden">
+              <img
+                src={sealPreview}
+                alt="Official Seal"
+                className="object-contain h-full w-full"
+              />
+            </div>
+          ) : (
+            <div className="w-12 h-12 bg-gray-400 rounded-lg flex items-center justify-center">
+              <LuGraduationCap className={`h-6 w-6 ${TAILWIND_COLORS.TEXT_INVERSE}`} />
+            </div>
+          )}
+        </div>
+
+        <div className="text-center mb-8">
+          <h1 className={`text-3xl font-bold italic mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+            {templateName?.trim() || "Template Name"}
+          </h1>
+          <p
+            className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} max-w-2xl mx-auto leading-relaxed`}
+            style={{ whiteSpace: "pre-line" }}
+          >
+            {description?.trim() || "Template description will appear here"}
+          </p>
+        </div>
+
+        <div className="flex justify-between items-end">
+          <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+            Date: —
+          </div>
+          {signaturePreview ? (
+            <div className="h-16 w-32 flex items-center justify-center overflow-hidden">
+              <img
+                src={signaturePreview}
+                alt="Authorized Signature"
+                className="object-contain h-full w-full"
+              />
+            </div>
+          ) : (
+            <div className="h-16 w-32 bg-gray-200 rounded flex items-center justify-center">
+              <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>Signature</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   const renderCertificatePreview = () => (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -865,7 +1192,29 @@ function CertificateGeneration() {
       <div className="bg-white rounded-lg border border-gray-200 p-6 relative">
         <button
           type="button"
-          onClick={() => setIsTemplateModalOpen(true)}
+          onClick={() => {
+            // Pre-populate with last template's assets if available
+            if (templates.length > 0) {
+              const lastTemplate = templates[templates.length - 1];
+              if (lastTemplate) {
+                // Set previews from last template
+                if (lastTemplate.logo) {
+                  setLogoPreview(lastTemplate.logo);
+                  setLastTemplateLogoUrl(lastTemplate.logo);
+                }
+                if (lastTemplate.seal) {
+                  setSealPreview(lastTemplate.seal);
+                  setLastTemplateSealUrl(lastTemplate.seal);
+                }
+                if (lastTemplate.signature) {
+                  setSignaturePreview(lastTemplate.signature);
+                  setLastTemplateSignatureUrl(lastTemplate.signature);
+                }
+                console.log("📋 Pre-populated with last template:", lastTemplate);
+              }
+            }
+            setIsTemplateModalOpen(true);
+          }}
           className={`absolute top-6 right-6 px-4 py-2 bg-green-600 ${TAILWIND_COLORS.TEXT_INVERSE} rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 whitespace-nowrap flex items-center space-x-2 shadow-md`}
         >
           <LuFileText className="h-4 w-4" />
@@ -891,8 +1240,20 @@ function CertificateGeneration() {
               <button
                 type="button"
                 onClick={() => {
-                  setIsTemplateModalOpen(false);
+                  // Reset form when closing modal
+                  setTemplateName(DEFAULT_TEMPLATE_NAME);
+                  setDescription(DEFAULT_CERTIFICATE_DESCRIPTION);
+                  setLogoFile(null);
+                  setSealFile(null);
+                  setSignatureFile(null);
+                  setLogoPreview("");
+                  setSealPreview("");
+                  setSignaturePreview("");
+                  setLastTemplateLogoUrl("");
+                  setLastTemplateSealUrl("");
+                  setLastTemplateSignatureUrl("");
                   setShowPreview(false);
+                  setIsTemplateModalOpen(false);
                 }}
                 className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-text-primary text-sm font-medium`}
               >
@@ -900,8 +1261,68 @@ function CertificateGeneration() {
               </button>
             </div>
             <div className="space-y-6">
-              {renderCertificateFormSections()}
-              {showPreview && renderCertificatePreview()}
+              {!showPreview && renderCertificateFormSections()}
+              {showPreview && (
+                <>
+                  {renderTemplatePreview()}
+                  {/* Confirm Button - Show after template preview */}
+                  <div className="flex justify-center gap-4 pt-4 border-t border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowPreview(false);
+                        setIsTemplateModalOpen(false);
+                        // Reset form after closing
+                        setTemplateName(DEFAULT_TEMPLATE_NAME);
+                        setDescription(DEFAULT_CERTIFICATE_DESCRIPTION);
+                        setLogoFile(null);
+                        setSealFile(null);
+                        setSignatureFile(null);
+                        setLogoPreview("");
+                        setSealPreview("");
+                        setSignaturePreview("");
+                        setLastTemplateLogoUrl("");
+                        setLastTemplateSealUrl("");
+                        setLastTemplateSignatureUrl("");
+                      }}
+                      className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        // Close modal first
+                        setIsTemplateModalOpen(false);
+                        setShowPreview(false);
+                        
+                        // Reset last template URLs for next time
+                        setLastTemplateLogoUrl("");
+                        setLastTemplateSealUrl("");
+                        setLastTemplateSignatureUrl("");
+                        
+                        // Check if course, batch, students are selected for certificate generation
+                        if (selectedCourse && selectedBatch && selectedStudents.length > 0 && completionDate) {
+                          // Generate certificate immediately
+                          await handleGenerateCertificate();
+                        } else {
+                          // Template is ready, user needs to select course, batch, students first
+                          Swal.fire({
+                            icon: 'info',
+                            title: 'Template Created',
+                            text: 'Template created successfully! Please select course, batch, and students to generate certificates.',
+                            confirmButtonColor: '#5C9A24'
+                          });
+                        }
+                      }}
+                      className={`px-6 py-2 rounded-lg flex items-center space-x-2 bg-green-600 hover:bg-green-700 ${TAILWIND_COLORS.TEXT_INVERSE}`}
+                    >
+                      <LuAward className="h-5 w-5" />
+                      <span>Confirm & Generate Certificate</span>
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

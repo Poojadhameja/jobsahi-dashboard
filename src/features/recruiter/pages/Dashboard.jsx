@@ -38,6 +38,7 @@ const Dashboard = () => {
   const [interviewDetails, setInterviewDetails] = useState([]);
   const [interviewDates, setInterviewDates] = useState([]);
   const [recentApplicants, setRecentApplicants] = useState([]);
+  const [recentApplicantsDetailed, setRecentApplicantsDetailed] = useState([]); // Store detailed data
   const [selectedApplicant, setSelectedApplicant] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [tradesData, setTradesData] = useState({ labels: [], datasets: [] });
@@ -283,12 +284,25 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     portfolio_link: a.portfolio_link || "",
     resume_url: a.resume_url || "",
     applied_date: a.applied_date || "",
-    social_links: Array.isArray(a.social_links) ? a.social_links : (a.social_links ? [a.social_links] : []),
+    social_links: (() => {
+      try {
+        if (Array.isArray(a.social_links)) {
+          return a.social_links;
+        } else if (typeof a.social_links === 'string' && a.social_links.trim() !== '') {
+          const parsed = JSON.parse(a.social_links);
+          return Array.isArray(parsed) ? parsed : (parsed ? [parsed] : []);
+        }
+        return [];
+      } catch {
+        return [];
+      }
+    })(),
   }));
 
 
         // 🔹 3️⃣ Update States
         setRecentApplicants(formatted);
+        setRecentApplicantsDetailed(detailed); // Store detailed data in state
 
         // 🔹 4️⃣ Save to Cache (commented out)
         // localStorage.setItem("recent_applicants", JSON.stringify(formatted));
@@ -297,9 +311,12 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
         console.log("📡 Fetched recent applicants from API");
       } else {
         setRecentApplicants([]);
+        setRecentApplicantsDetailed([]);
       }
     } catch (error) {
       console.error("Error fetching recent applicants:", error);
+      setRecentApplicants([]);
+      setRecentApplicantsDetailed([]);
     }
   };
 
@@ -340,13 +357,14 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
       label: "View",
       variant: "info",
       onClick: (row) => {
-        const fullData = JSON.parse(localStorage.getItem("recent_applicants_full") || "[]");
-        const match = fullData.find(
-          (a) => a.name === row.name && a.applied_for === row.jobTitle
+        // Use state instead of localStorage
+        const match = recentApplicantsDetailed.find(
+          (a) => a.name === row.name && (a.applied_for === row.jobTitle || a.job_title === row.jobTitle)
         );
         if (match) {
           handleViewDetails(match); // ✅ same popup call
         } else {
+          console.error("❌ No match found for:", { row, detailed: recentApplicantsDetailed });
           alert("Detailed data not found for this applicant!");
         }
       },

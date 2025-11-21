@@ -227,9 +227,21 @@ export default function InstituteProfile() {
       const fd = new FormData()
 
       // Only append fields that have non-empty values
+      // Sync user_name and institute_name (API requirement: they must be the same)
       if (formData.instituteName?.trim()) {
-        fd.append('institute_name', formData.instituteName.trim())
+        const instituteNameValue = formData.instituteName.trim()
+        fd.append('institute_name', instituteNameValue)
+        fd.append('user_name', instituteNameValue)  // Auto-sync with institute_name
       }
+      
+      // Personal info fields (updates users table)
+      if (formData.email?.trim()) {
+        fd.append('email', formData.email.trim())
+      }
+      if (formData.phone?.trim()) {
+        fd.append('phone_number', formData.phone.trim())
+      }
+      
       if (formData.registrationNumber?.trim()) {
         fd.append('registration_number', formData.registrationNumber.trim())
       }
