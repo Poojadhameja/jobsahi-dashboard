@@ -233,6 +233,16 @@ function CertificateGeneration() {
 
   // ✅ Generate certificates
   const handleGenerateCertificate = async () => {
+    console.log("🚀 Starting certificate generation...");
+    console.log("📋 Current state:", {
+      selectedCourse,
+      selectedBatch,
+      completionDate,
+      selectedStudents,
+      templateName,
+      selectedTemplateId
+    });
+
     if (!selectedCourse || !selectedBatch || !completionDate) {
       Swal.fire({
         icon: 'warning',
@@ -253,11 +263,23 @@ function CertificateGeneration() {
       return;
     }
 
-    if (!templateName.trim()) {
+    // Check if templateName is set, if not try to get it from selected template
+    let finalTemplateName = templateName.trim();
+    if (!finalTemplateName && selectedTemplateId) {
+      const selectedTemplate = templates.find(t => String(t.id) === String(selectedTemplateId) || String(t.template_id) === String(selectedTemplateId));
+      if (selectedTemplate) {
+        finalTemplateName = selectedTemplate.template_name || "";
+        console.log("📝 Template name not set, using from selected template:", finalTemplateName);
+        setTemplateName(finalTemplateName);
+      }
+    }
+
+    if (!finalTemplateName) {
+      console.error("❌ Template name is missing!");
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
-        text: 'Please provide a template name.',
+        text: 'Please select a template or provide a template name.',
         confirmButtonColor: '#5C9A24'
       })
       return;
@@ -274,28 +296,65 @@ function CertificateGeneration() {
         formData.append("course_id", parseInt(selectedCourse, 10));
         formData.append("batch_id", parseInt(selectedBatch, 10));
         formData.append("issue_date", completionDate);
-        formData.append("template_name", templateName.trim());
+        formData.append("template_name", finalTemplateName);
         formData.append("description", description || "");
 
         if (logoFile) formData.append("logo", logoFile);
         if (sealFile) formData.append("seal", sealFile);
         if (signatureFile) formData.append("signature", signatureFile);
 
-        console.log("📤 Sending FormData keys:", Array.from(formData.keys()));
-
-        const res = await postMultipart({
-          apiUrl: apiService.generateCertificate,
-          formData,
+        console.log("📤 Generating certificate for student:", studentId);
+        console.log("📤 Template name:", finalTemplateName);
+        console.log("📤 FormData keys:", Array.from(formData.keys()));
+        console.log("📤 FormData values:", {
+          student_id: parseInt(studentId, 10),
+          course_id: parseInt(selectedCourse, 10),
+          batch_id: parseInt(selectedBatch, 10),
+          issue_date: completionDate,
+          template_name: finalTemplateName,
+          description: description || "",
+          hasLogo: !!logoFile,
+          hasSeal: !!sealFile,
+          hasSignature: !!signatureFile
         });
 
-        console.log("📩 Response:", res);
+        try {
+          const res = await postMultipart({
+            apiUrl: apiService.generateCertificate,
+            data: formData, // ✅ Correct parameter name
+          });
 
-        if (res?.status) {
-          results.push(res.data);
-        } else {
-          console.warn(
-            `⚠️ Certificate not generated for ${studentId}: ${res?.message}`
-          );
+          console.log("📩 Full API Response:", JSON.stringify(res, null, 2));
+          console.log("📩 Response status:", res?.status);
+          console.log("📩 Response message:", res?.message);
+          console.log("📩 Response data:", res?.data);
+
+          if (res?.status === true || res?.status === "success" || res?.success === true) {
+            console.log("✅ Certificate generated successfully for student:", studentId);
+            results.push(res.data || res);
+          } else {
+            console.error(`❌ Certificate generation failed for student ${studentId}:`, {
+              status: res?.status,
+              message: res?.message,
+              data: res?.data,
+              fullResponse: res
+            });
+            // Still show the error message to user
+            Swal.fire({
+              icon: 'error',
+              title: 'Generation Failed',
+              text: res?.message || `Failed to generate certificate for student ID: ${studentId}`,
+              confirmButtonColor: '#5C9A24'
+            });
+          }
+        } catch (apiError) {
+          console.error(`❌ API Error for student ${studentId}:`, apiError);
+          Swal.fire({
+            icon: 'error',
+            title: 'API Error',
+            text: apiError?.message || `Error generating certificate for student ID: ${studentId}`,
+            confirmButtonColor: '#5C9A24'
+          });
         }
       }
 
@@ -358,8 +417,29 @@ function CertificateGeneration() {
 
   // ✅ Create template
   const handleCreateTemplate = async () => {
-  if (!templateName.trim()) return Swal.fire("Template name required");
-  if (!description.trim()) return Swal.fire("Description required");
+  console.log("🔍 Template name value:", templateName);
+  console.log("🔍 Template name trimmed:", templateName.trim());
+  console.log("🔍 Template name length:", templateName.trim().length);
+  
+  if (!templateName.trim()) {
+    console.log("❌ Template name validation failed - empty or whitespace");
+    Swal.fire({
+      icon: 'warning',
+      title: 'Validation Error',
+      text: 'Please provide a template name.',
+      confirmButtonColor: '#5C9A24'
+    });
+    return;
+  }
+  if (!description.trim()) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Validation Error',
+      text: 'Please provide a description.',
+      confirmButtonColor: '#5C9A24'
+    });
+    return;
+  }
   
   // Check if files are uploaded OR last template URLs are available
   const hasLogo = logoFile || lastTemplateLogoUrl;
@@ -611,11 +691,17 @@ function CertificateGeneration() {
                   <label className="block text-sm font-medium mb-2">TEMPLATE NAME</label>
                   <input
                     type="text"
-                    value={templateName}
-                    onChange={(e) => setTemplateName(e.target.value)}
+                    value={templateName || ""}
+                    onChange={(e) => {
+                      console.log("📝 Template name input changed:", e.target.value);
+                      setTemplateName(e.target.value);
+                    }}
                     placeholder="Enter template name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
+                  {templateName && (
+                    <p className="text-xs text-gray-500 mt-1">Current value: "{templateName}"</p>
+                  )}
                 </div>
               )}
             </div>
@@ -708,9 +794,21 @@ function CertificateGeneration() {
               <div className="flex justify-center mt-6">
                 <button
                   onClick={handleCreateTemplate}
-                  disabled={isCreatingTemplate || !templateName.trim() || !description.trim() || !logoFile || !sealFile || !signatureFile}
+                  disabled={
+                    isCreatingTemplate || 
+                    !templateName.trim() || 
+                    !description.trim() || 
+                    (!logoFile && !lastTemplateLogoUrl) || 
+                    (!sealFile && !lastTemplateSealUrl) || 
+                    (!signatureFile && !lastTemplateSignatureUrl)
+                  }
                   className={`px-6 py-3 rounded-lg flex items-center space-x-2 ${TAILWIND_COLORS.TEXT_INVERSE} ${
-                    isCreatingTemplate || !templateName.trim() || !description.trim() || !logoFile || !sealFile || !signatureFile
+                    isCreatingTemplate || 
+                    !templateName.trim() || 
+                    !description.trim() || 
+                    (!logoFile && !lastTemplateLogoUrl) || 
+                    (!sealFile && !lastTemplateSealUrl) || 
+                    (!signatureFile && !lastTemplateSignatureUrl)
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-green-600 hover:bg-green-700"
                   }`}
