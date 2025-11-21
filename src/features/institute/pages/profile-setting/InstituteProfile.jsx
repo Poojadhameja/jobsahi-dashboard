@@ -39,11 +39,7 @@ export default function InstituteProfile() {
        VALIDATIONS (UNCHANGED)
   ---------------------------------------- */
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-  const validatePhone = (phone) => {
-    // Remove all non-digit characters and check if exactly 10 digits
-    const phoneDigits = phone.replace(/\D/g, '')
-    return phoneDigits.length === 10
-  }
+  const validatePhone = (phone) => /^[0-9]{10}$/.test(phone.replace(/\s/g, ''))
   const validateWebsite = (url) => { try { new URL(url); return true } catch { return false } }
 
   const validateForm = () => {
@@ -231,11 +227,8 @@ export default function InstituteProfile() {
       const fd = new FormData()
 
       // Only append fields that have non-empty values
-      // Sync user_name and institute_name (must match according to API)
       if (formData.instituteName?.trim()) {
-        const trimmedName = formData.instituteName.trim()
-        fd.append('institute_name', trimmedName)
-        fd.append('user_name', trimmedName) // Auto-sync: user_name must match institute_name
+        fd.append('institute_name', formData.instituteName.trim())
       }
       if (formData.registrationNumber?.trim()) {
         fd.append('registration_number', formData.registrationNumber.trim())
@@ -268,18 +261,6 @@ export default function InstituteProfile() {
         fd.append('contact_designation', formData.contactDesignation.trim())
       }
 
-      // Email and Phone fields (for users table update)
-      if (formData.email?.trim()) {
-        fd.append('email', formData.email.trim())
-      }
-      if (formData.phone?.trim()) {
-        // Phone should be exactly 10 digits
-        const phoneDigits = formData.phone.replace(/\D/g, '')
-        if (phoneDigits.length === 10) {
-          fd.append('phone_number', phoneDigits)
-        }
-      }
-
       // Logo file if uploaded
       if (formData.logo instanceof File) {
         fd.append('institute_logo', formData.logo)
@@ -308,28 +289,6 @@ export default function InstituteProfile() {
           })
 
       if (res?.success || res?.status === 'success') {
-        // Update localStorage authUser with new user_name and institute_name
-        // This ensures the name updates immediately in the UI (header/dropdown)
-        try {
-          const authUserStr = localStorage.getItem('authUser')
-          if (authUserStr) {
-            const authUser = JSON.parse(authUserStr)
-            // Update user_name from API response if available
-            if (res?.data?.personal_info?.user_name) {
-              authUser.user_name = res.data.personal_info.user_name
-            } else if (formData.instituteName?.trim()) {
-              // Fallback: use institute_name if API response doesn't have user_name
-              authUser.user_name = formData.instituteName.trim()
-            }
-            localStorage.setItem('authUser', JSON.stringify(authUser))
-            
-            // Dispatch custom event to update all components that use authUser immediately
-            window.dispatchEvent(new CustomEvent('authUserUpdated'))
-          }
-        } catch (err) {
-          console.error('Error updating authUser in localStorage:', err)
-        }
-
         // Refresh profile data after successful update
         await fetchInstituteProfile()
         
@@ -439,71 +398,36 @@ export default function InstituteProfile() {
               <div
                 className={`border-2 border-dashed ${TAILWIND_COLORS.BORDER} rounded-lg p-8 text-center`}
               >
-                <div 
-                  className="mx-auto w-48 h-48 bg-black rounded-xl flex items-center justify-center mb-4 relative overflow-hidden group"
-                  style={{ 
-                    border: '3px solid #FF8C00',
-                    boxShadow: '0 0 0 2px rgba(255, 140, 0, 0.2)',
-                    position: 'relative'
-                  }}
-                >
-                  {formData.logo ? (
-                    // ✅ Agar naya file select kiya hai
-                    <div className="w-full h-full flex items-center justify-center p-4">
-                      <img
-                        src={URL.createObjectURL(formData.logo)}
-                        alt="Institute Logo"
-                        className="max-w-full max-h-full object-contain rounded-lg"
-                      />
-                    </div>
-                  ) : logoPreview ? (
-                    // ✅ Existing logo from API
-                    <div className="w-full h-full flex items-center justify-center p-4">
-                      <img
-                        src={logoPreview}
-                        alt="Institute Logo"
-                        className="max-w-full max-h-full object-contain rounded-lg"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center text-white p-6 relative w-full h-full">
-                      {/* Orange-gold circular outline */}
-                      <div 
-                        className="absolute rounded-full"
-                        style={{
-                          border: '2px solid #FF8C00',
-                          width: '140px',
-                          height: '140px',
-                          top: '50%',
-                          left: '50%',
-                          transform: 'translate(-50%, -50%)'
-                        }}
-                      />
-                      {/* Lightbulb icon with split colors (white and orange-gold) */}
-                      <div className="relative z-10 flex items-center justify-center mb-3 mt-2">
-                        <div className="relative w-14 h-14">
-                          {/* White half */}
-                          <div className="absolute inset-0 overflow-hidden" style={{ clipPath: 'inset(0 50% 0 0)' }}>
-                            <LuLightbulb className="w-14 h-14 text-white" />
-                          </div>
-                          {/* Orange-gold half */}
-                          <div className="absolute inset-0 overflow-hidden" style={{ clipPath: 'inset(0 0 0 50%)' }}>
-                            <LuLightbulb className="w-14 h-14" style={{ color: '#FF8C00' }} />
-                          </div>
-                        </div>
+                {formData.logo || logoPreview ? (
+                  // Logo display with close button
+                  <div 
+                    className="mx-auto w-48 h-48 bg-black rounded-xl flex items-center justify-center mb-4 relative overflow-hidden group"
+                    style={{ 
+                      border: '3px solid #FF8C00',
+                      boxShadow: '0 0 0 2px rgba(255, 140, 0, 0.2)',
+                      position: 'relative'
+                    }}
+                  >
+                    {formData.logo ? (
+                      // ✅ New file selected
+                      <div className="w-full h-full flex items-center justify-center p-4">
+                        <img
+                          src={URL.createObjectURL(formData.logo)}
+                          alt="Institute Logo"
+                          className="max-w-full max-h-full object-contain rounded-lg"
+                        />
                       </div>
-                      {/* Brightorial text */}
-                      <span className="text-base font-semibold text-white mb-1 relative z-10" style={{ fontFamily: 'serif', fontSize: '15px' }}>
-                        Brightorial
-                      </span>
-                      {/* Tagline */}
-                      <span className="text-xs text-white relative z-10" style={{ fontSize: '9px', letterSpacing: '0.8px', opacity: 0.9 }}>
-                        IGNITING BRIGHT MINDS
-                      </span>
-                    </div>
-                  )}
-                  {/* Close button overlay - White box visible, cross appears on hover with green background */}
-                  {(formData.logo || logoPreview) && (
+                    ) : (
+                      // ✅ Existing logo from API
+                      <div className="w-full h-full flex items-center justify-center p-4">
+                        <img
+                          src={logoPreview}
+                          alt="Institute Logo"
+                          className="max-w-full max-h-full object-contain rounded-lg"
+                        />
+                      </div>
+                    )}
+                    {/* Close button overlay - White box visible, cross appears on hover with green background */}
                     <button
                       onClick={handleLogoRemove}
                       className="absolute top-2 right-2 w-8 h-8 bg-white hover:bg-green-600 rounded-md shadow-lg flex items-center justify-center transition-all duration-200 z-10 group"
@@ -512,8 +436,18 @@ export default function InstituteProfile() {
                     >
                       <LuX className="w-4 h-4 opacity-0 group-hover:opacity-100 text-white transition-all duration-200" />
                     </button>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  // Upload placeholder - White background with dashed border (appears after removing logo)
+                  <div 
+                    className="mx-auto w-48 h-48 bg-white border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center mb-4 cursor-pointer hover:border-gray-400 transition-colors"
+                    onClick={() => document.getElementById('logo-upload').click()}
+                  >
+                    <LuUpload className="w-8 h-8 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-600 font-medium mb-1">Upload Company Logo</span>
+                    <span className="text-xs text-gray-400">[Max 5MB]</span>
+                  </div>
+                )}
                 <input
                   type="file"
                   id="logo-upload"
@@ -521,16 +455,21 @@ export default function InstituteProfile() {
                   onChange={handleLogoUpload}
                   className="hidden"
                 />
-                <label
-                  htmlFor="logo-upload"
-                  className={`inline-flex items-center gap-2 px-4 py-2 ${TAILWIND_COLORS.BTN_PRIMARY} rounded-md cursor-pointer transition-colors`}
-                >
-                  <LuUpload className="w-4 h-4" />
-                  Upload Logo
-                </label>
-                <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>
-                  Recommended: 200x200px, PNG or JPG format
-                </p>
+                {/* Upload button and recommended text - only show when no logo is present (after cross click or initially) */}
+                {!formData.logo && !logoPreview && (
+                  <>
+                    <label
+                      htmlFor="logo-upload"
+                      className={`inline-flex items-center gap-2 px-4 py-2 ${TAILWIND_COLORS.BTN_PRIMARY} rounded-md cursor-pointer transition-colors`}
+                    >
+                      <LuUpload className="w-4 h-4" />
+                      Upload Logo
+                    </label>
+                    <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>
+                      Recommended: 200x200px, PNG or JPG format
+                    </p>
+                  </>
+                )}
                 {errors.logo && (
                   <p className="text-xs text-error mt-1">{errors.logo}</p>
                 )}
