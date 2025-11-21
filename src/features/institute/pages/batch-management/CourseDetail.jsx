@@ -181,20 +181,23 @@ export default function CourseDetail({ courseData, onBack }) {
     liveCourse.batches?.map((batch, index) => ({
       id: batch.batch_id || index,
       batchName: batch.batch_name || `Batch ${String.fromCharCode(65 + index)}`,
-      schedule: batch.batch_time_slot || '9:00 AM - 12:00 PM',
-      totalStudents: 30, // static / placeholder
+      schedule: batch.batch_time_slot || '', // '9:00 AM - 12:00 PM', // static time slot commented
+      // totalStudents: 30, // static / placeholder - commented out
+      totalStudents: typeof batch.total_students === 'number' 
+        ? batch.total_students 
+        : batch.students?.length || 0, // Use API data or fallback to enrolled students count
       enrolledStudents:
         typeof batch.enrolled_students === 'number'
           ? batch.enrolled_students
           : batch.students?.length || 0,
-      status: batch.status || batch.admin_action || 'Active',
+      status: batch.status || batch.admin_action || '', // 'Active', // static status commented
       ...batch,
     })) || []
 
   const batchColumns = [
     { key: 'batchName', header: 'Batch Name' },
     { key: 'schedule', header: 'Time Schedule' },
-    { key: 'totalStudents', header: 'Total Students' },
+    // { key: 'totalStudents', header: 'Total Students' },
     { key: 'enrolledStudents', header: 'Enrolled Students' },
     {
       key: 'status',
@@ -283,7 +286,7 @@ export default function CourseDetail({ courseData, onBack }) {
               Instructor
             </h4>
             <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
-              {liveCourse.instructor || 'Rajeev Kumar'}
+              {liveCourse.instructor || ''} {/* 'Rajeev Kumar' // static instructor commented */}
             </p>
           </div>
           <div>
@@ -328,14 +331,18 @@ export default function CourseDetail({ courseData, onBack }) {
               Certification
             </h4>
             <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
-              Industry recognized certificate
+              {/* Industry recognized certificate // static certification text commented */}
+              {liveCourse.certification || ''}
             </p>
           </div>
           <div>
             <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
               Language
             </h4>
-            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>English</p>
+            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
+              {/* English // static language commented */}
+              {liveCourse.language || ''}
+            </p>
           </div>
         </div>
 
@@ -355,8 +362,8 @@ export default function CourseDetail({ courseData, onBack }) {
             <p
               className={`${TAILWIND_COLORS.TEXT_PRIMARY} leading-relaxed`}
             >
-              {liveCourse.description ||
-                'Comprehensive electrical wiring training covering all aspects of electrical systems, safety protocols, and practical applications in residential and commercial settings.'}
+              {liveCourse.description || ''}
+              {/* 'Comprehensive electrical wiring training covering all aspects of electrical systems, safety protocols, and practical applications in residential and commercial settings.' // static description commented */}
             </p>
           </div>
         </div>
@@ -464,7 +471,7 @@ export default function CourseDetail({ courseData, onBack }) {
                     <p
                       className={`text-sm mb-4 ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}
                     >
-                      {course.description?.slice(0, 100) || 'No description available'}
+                      {course.description?.slice(0, 100) || ''} {/* 'No description available' // static fallback commented */}
                     </p>
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-bold">

@@ -8,8 +8,11 @@ import NewsletterSubscription from "../../components/NewsletterSubscription";
 import { WEBSITE_COLOR_CLASSES } from "../../components/colorClasses";
 import uploadresumebg from "../../assets/uploadresumebg.png";
 import textunderline from "../../assets/website_text_underline.png";
-import homebanner from "../../assets/homebanner.jpg";
-import homesquare from "../../assets/homesquare.jpg";
+import homebanner from "../../assets/home/homebanner.jpg";
+import jobsahi from "../../assets/home/jobsahi.jpg";
+import homesquare from "../../assets/home/homesquare.jpg";
+import homesq from "../../assets/home/homesq.jpg";
+import homesmall from "../../assets/home/homesmall.jpg";
 import { COLOR_CLASSES } from "../../components/colorClasses";
 
 const TrustedByStartups = lazy(() =>
@@ -422,32 +425,55 @@ const Home = () => {
           <div className="relative w-full flex justify-center mt-8 sm:mt-12 md:mt-16 lg:mt-24 xl:mt-32 mb-12 sm:mb-16 md:mb-20 lg:mb-24 xl:mb-32 px-3 sm:px-4 md:px-6">
             <div className="relative w-full max-w-6xl mx-auto">
               
-
+              {/* Left green bubbles - horizontally aligned design with improved spacing */}
+              <div className="absolute -top-1 sm:-top-2 md:-top-3 left-0 sm:left-2 md:left-4 lg:left-6 z-40 animate-fade-in">
+                <div className="relative flex items-center">
+                  {/* First pill - overlapping */}
+                  <div className="w-8 h-6 xs:w-10 xs:h-7 sm:w-12 sm:h-8 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-1.5 xs:-mr-2 sm:-mr-3 md:-mr-4" />
+                  {/* Second pill - overlapping */}
+                  <div className="w-8 h-6 xs:w-10 xs:h-7 sm:w-12 sm:h-8 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-1.5 xs:-mr-2 sm:-mr-3 md:-mr-4" />
+                  {/* Third pill - overlapping */}
+                  <div className="w-8 h-6 xs:w-10 xs:h-7 sm:w-12 sm:h-8 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-1 xs:-mr-1.5 sm:-mr-2 md:-mr-3" />
+                  {/* Plus icon circle */}
+                  <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-11 lg:h-11 bg-[#8CD63E] rounded-full flex items-center justify-center shadow-[0_4px_15px_rgba(140,214,62,0.4)] ring-2 ring-white/50">
+                    <FaPlus className="text-white text-[8px] xs:text-[10px] sm:text-xs md:text-sm" />
+                  </div>
+                </div>
+              </div>
               {/* Main white chat box with image */}
-              <div className="w-full h-[220px] xs:h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[450px] 2xl:h-[500px] rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] shadow-[0_15px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-gray-100/50 bg-gray-100">
-                {/* Background Image */}
+              <div className="w-full h-auto md:h-[350px] lg:h-[400px] xl:h-[450px] 2xl:h-[500px] rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] shadow-[0_15px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-gray-100/50 bg-gray-100">
+                {/* Mobile Image - jobsahi.jpg - Visible only on mobile (< 768px) - Auto height */}
+                <img 
+                  src={jobsahi} 
+                  alt="JobSahi - The easiest way to get your new job. Find opportunities for ITI and Polytechnic students." 
+                  className="block md:hidden w-full h-auto object-contain object-center rounded-2xl sm:rounded-3xl"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  sizes="100vw"
+                />
+                {/* Desktop Image - homebanner.jpg - Visible only on desktop (>= 768px) - Fixed height */}
                 <img 
                   src={homebanner} 
                   alt="JobSahi - The easiest way to get your new job. Find opportunities for ITI and Polytechnic students." 
-                  className="absolute top-0 left-0 w-full h-full object-cover object-center rounded-3xl md:rounded-[2.5rem]"
+                  className="hidden md:block absolute top-0 left-0 w-full h-full object-cover object-center rounded-2xl sm:rounded-3xl md:rounded-[2.5rem]"
                   style={{
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    objectPosition: 'center center',
-                    display: 'block'
+                    objectPosition: 'center center'
                   }}
                   loading="eager"
                   decoding="async"
                   fetchPriority="high"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
+                  sizes="(max-width: 1024px) 90vw, 1200px"
                 />
-                {/* Subtle overlay for better visual effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent rounded-3xl md:rounded-[2.5rem] pointer-events-none z-10" />
+                {/* Subtle overlay for better visual effect - Desktop only */}
+                <div className="hidden md:block absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent rounded-2xl sm:rounded-3xl md:rounded-[2.5rem] pointer-events-none z-10" />
               </div>
 
-              {/* Right side white box with improved styling */}
-              <div className="hidden md:block absolute -bottom-16 sm:-bottom-20 md:-bottom-24 lg:-bottom-28 right-0 z-30 animate-slide-in-right">
+              {/* Right side white box with improved styling - Desktop only */}
+              <div className="hidden md:block absolute -bottom-16 sm:-bottom-20 md:-bottom-24 lg:-bottom-28 xl:-bottom-32 right-0 z-30 animate-slide-in-right">
                 <div className="w-[140px] h-[120px] sm:w-[180px] sm:h-[160px] md:w-[200px] md:h-[180px] lg:w-[240px] lg:h-[220px] bg-white rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl rounded-br-[2.5rem] shadow-[0_15px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-gray-100/50">
                   <img 
                     src={homesquare} 
@@ -455,15 +481,15 @@ const Home = () => {
                     className="absolute inset-0 w-full h-full object-cover object-center rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl rounded-br-[2.5rem]"
                     loading="lazy"
                     decoding="async"
-                    sizes="(max-width: 640px) 140px, (max-width: 1024px) 200px, 240px"
+                    sizes="(max-width: 1024px) 200px, 240px"
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-blue-50/30 to-transparent" />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(207,244,154,0.1),_transparent_70%)]" />
                 </div>
               </div>
 
-              {/* Top-right tag - light green speech bubble with enhanced design */}
-              <div className="hidden md:block absolute -top-2 sm:-top-3 md:-top-4 lg:-top-6 right-2 sm:right-4 md:right-6 lg:right-8 bg-gradient-to-br from-[#CFF49A] to-[#B8E87A] text-gray-800 px-3 sm:px-4 md:px-5 lg:px-7 py-2 sm:py-2.5 md:py-3 rounded-xl sm:rounded-2xl md:rounded-3xl text-[10px] sm:text-xs md:text-sm font-semibold shadow-[0_8px_25px_rgba(207,244,154,0.4)] z-40 border border-[#8CD63E]/40 backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(207,244,154,0.5)] transition-all duration-300">
+              {/* Top-right tag - light green speech bubble with enhanced design - Desktop only */}
+              <div className="hidden md:block absolute -top-2 sm:-top-3 md:-top-4 lg:-top-6 xl:-top-8 right-2 sm:right-4 md:right-6 lg:right-8 xl:right-10 bg-gradient-to-br from-[#CFF49A] to-[#B8E87A] text-gray-800 px-3 sm:px-4 md:px-5 lg:px-7 py-2 sm:py-2.5 md:py-3 rounded-xl sm:rounded-2xl md:rounded-3xl text-[10px] sm:text-xs md:text-sm font-semibold shadow-[0_8px_25px_rgba(207,244,154,0.4)] z-40 border border-[#8CD63E]/40 backdrop-blur-sm hover:shadow-[0_10px_30px_rgba(207,244,154,0.5)] transition-all duration-300">
                 <p className="leading-tight drop-shadow-sm">
                   Let&apos;s Find Your Opportunity
                   <br />
@@ -474,26 +500,26 @@ const Home = () => {
       
             
 
-              {/* Bottom-left tag - light green speech bubble with enhanced styling */}
-              <div className="hidden md:block absolute -bottom-6 sm:-bottom-7 md:-bottom-8 lg:-bottom-10 left-2 sm:left-4 md:left-6 bg-gradient-to-br from-[#CFF49A] to-[#B8E87A] border-2 border-[#8CD63E] px-3 sm:px-4 md:px-5 lg:px-7 py-2 sm:py-2.5 md:py-3 lg:py-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-[0_10px_30px_rgba(207,244,154,0.4)] z-40 hover:shadow-[0_12px_35px_rgba(207,244,154,0.5)] transition-all duration-300">
+              {/* Bottom-left tag - light green speech bubble with enhanced styling - Desktop only */}
+              <div className="hidden md:block absolute -bottom-6 sm:-bottom-7 md:-bottom-8 lg:-bottom-10 xl:-bottom-12 left-2 sm:left-4 md:left-6 lg:left-8 bg-gradient-to-br from-[#CFF49A] to-[#B8E87A] border-2 border-[#8CD63E] px-3 sm:px-4 md:px-5 lg:px-7 py-2 sm:py-2.5 md:py-3 lg:py-4 rounded-xl sm:rounded-2xl md:rounded-3xl shadow-[0_10px_30px_rgba(207,244,154,0.4)] z-40 hover:shadow-[0_12px_35px_rgba(207,244,154,0.5)] transition-all duration-300">
                 <p className="text-[#4A7C0F] text-xs sm:text-sm md:text-base font-bold leading-tight drop-shadow-sm">
                   Start Your Career With{" "}
                   JobSahi
                 </p>
               </div>
 
-              {/* Center play button with text to the right - enhanced design */}
-              <div className="hidden md:flex absolute -bottom-12 sm:-bottom-13 md:-bottom-14 lg:-bottom-16 left-1/2 -translate-x-1/2 z-40 flex-col sm:flex-row items-center gap-2 sm:gap-3 md:gap-5">
+              {/* Center play button with text - Responsive design for all screens */}
+              <div className="absolute -bottom-8 sm:-bottom-10 md:-bottom-12 lg:-bottom-14 xl:-bottom-16 left-1/2 -translate-x-1/2 z-40 flex flex-col sm:flex-row items-center gap-2 sm:gap-3 md:gap-5">
                 <button
                   onClick={navigateToFindJob}
                   className="cursor-pointer group flex-shrink-0 focus:outline-none focus:ring-4 focus:ring-[#8CD63E]/30 rounded-full transition-all duration-300"
                   aria-label="Search Jobs"
                 >
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-[72px] lg:h-[72px] bg-gradient-to-br from-[#00395B] to-[#002A42] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,57,91,0.4)] group-hover:scale-110 group-hover:shadow-[0_15px_40px_rgba(0,57,91,0.6)] transition-all duration-300 group-active:scale-95">
-                    <FaPlay className="text-white text-base sm:text-lg md:text-xl lg:text-2xl ml-1 drop-shadow-md" />
+                  <div className="w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-[72px] lg:h-[72px] bg-gradient-to-br from-[#00395B] to-[#002A42] rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(0,57,91,0.4)] group-hover:scale-110 group-hover:shadow-[0_15px_40px_rgba(0,57,91,0.6)] transition-all duration-300 group-active:scale-95">
+                    <FaPlay className="text-white text-sm xs:text-base sm:text-lg md:text-xl lg:text-2xl ml-0.5 xs:ml-1 drop-shadow-md" />
                   </div>
                 </button>
-                <p className="text-xs sm:text-sm md:text-base font-semibold text-[#00395B] whitespace-nowrap text-center sm:text-left drop-shadow-sm px-2">
+                <p className="text-[10px] xs:text-xs sm:text-sm md:text-base font-semibold text-[#00395B] whitespace-nowrap text-center sm:text-left drop-shadow-sm px-2">
                   Search Jobs, Give Skill Tests, Get Hired
                 </p>
               </div>
@@ -675,81 +701,91 @@ const Home = () => {
       </section>
 
       {/* Right For You */}
-      <section className="py-8 sm:py-12 md:py-16 bg-white px-3 sm:px-4 md:px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-center">
-            {/* Left Abstract Shapes */}
-            <div className="relative flex justify-center lg:justify-start order-2 lg:order-1">
-              <div className="w-48 h-48 xs:w-56 xs:h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 bg-blue-100 rounded-2xl sm:rounded-3xl relative">
+      <section className="py-6 sm:py-8 md:py-12 lg:py-16 bg-white overflow-hidden">
+          <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center">
+          {/* Left visuals */}
+          <div className="relative mb-6 lg:mb-0">
+          <div className="w-[85%] sm:w-[80%] -mt-2 sm:-mt-3 md:-mt-4 lg:-mt-5 px-4 sm:px-5 md:px-6 pb-4 sm:pb-5 md:pb-6">
+            <div className="w-56 h-56 sm:w-60 sm:h-60 md:w-80 md:h-80 lg:w-96 lg:h-96 bg-blue-100 rounded-3xl relative overflow-hidden border-[6px] sm:border-[8px] md:border-[10px] lg:border-[12px] border-white">
+              <img 
+                src={homesq} 
+                alt="Home abstract shapes" 
+                className="w-full h-full object-cover rounded-3xl"
+              />
+              <div className="absolute top-0 left-0 w-full h-full">
                 {/* Green Badge */}
-                <div className="absolute border-2 sm:border-4 border-white -top-3 sm:-top-4 -left-3 sm:-left-4 bg-[#CFF49A] rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 shadow-md">
+                <div className="absolute border-[5px] sm:border-[6px] md:border-[7px] lg:border-[8px] border-white -top-2 sm:-top-3 md:-top-4 -left-2 sm:-left-3 md:-left-4 bg-[#CFF49A] rounded-lg sm:rounded-xl md:rounded-2xl p-1.5 sm:p-2 md:p-2.5 lg:p-3 shadow-md z-10">
                   <div className="text-center">
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-white rounded-full flex items-center justify-center mx-auto mb-1.5 sm:mb-2">
-                      <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 bg-[#CFF49A] rounded-full" />
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 bg-white rounded-full flex items-center justify-center mx-auto mb-0.5 sm:mb-1 md:mb-1.5">
+                      <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 lg:w-3.5 lg:h-3.5 bg-[#CFF49A] rounded-full" />
                     </div>
-                    <p className="text-black font-bold text-xs sm:text-sm">Top No. 1</p>
-                    <p className="text-black text-[10px] sm:text-xs">Portal Job Web</p>
+                    <p className="text-black font-bold text-[9px] sm:text-[10px] md:text-xs">Top No. 1</p>
+                    <p className="text-black text-[7px] sm:text-[9px] md:text-[10px]">Portal Job Web</p>
                   </div>
                 </div>
+              </div>
+            </div>
+            <div className="absolute border-[5px] sm:border-[6px] md:border-[7px] lg:border-[8px] border-white -bottom-6 sm:-bottom-8 md:-bottom-10 left-12 sm:left-16 md:left-40 lg:left-72 w-20 h-16 sm:w-24 sm:h-20 md:w-32 md:h-24 lg:w-48 lg:h-40 bg-blue-100 rounded-2xl overflow-hidden">
+              <img 
+                src={homesmall} 
+                alt="Home small" 
+                className="w-full h-full object-cover rounded-2xl"
+              />
+            </div>
+            </div>
+          </div>
 
-                {/* Smaller rectangular block */}
-                <div className="absolute border-2 sm:border-4 border-white -bottom-3 sm:-bottom-4 -right-3 sm:-right-4 md:-bottom-6 md:-right-6 w-24 h-20 sm:w-28 sm:h-20 md:w-32 md:h-24 bg-blue-200 rounded-xl sm:rounded-2xl shadow-md" />
+          {/* Right content */}
+          <div className="w-full">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight mb-3 sm:mb-4 md:mb-6">
+              Find{" "}
+              <span className={TEXT.PRIMARY_DEEP_BLUE}>The One</span> That&apos;s{" "}
+              <span className={TEXT.PRIMARY_DEEP_BLUE}>Right For You</span>
+            </h2>
+            <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-5 sm:mb-6 md:mb-8 lg:mb-10">
+              With JobSahi, searching for the perfect job is quick, easy, and
+              tailored to your skills.
+            </p>
+
+            <div className="space-y-3 sm:space-y-4 md:space-y-6">
+              <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
+                <FaCheckCircle
+                  className={`${TEXT.ACCENT_GREEN} text-base sm:text-lg flex-shrink-0 mt-0.5 sm:mt-0`}
+                />
+                <span className="text-gray-800 font-medium text-sm sm:text-base">
+                  Fast &amp; Simple Job Search Experience
+                </span>
+              </div>
+              <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
+                <FaCheckCircle
+                  className={`${TEXT.ACCENT_GREEN} text-base sm:text-lg flex-shrink-0 mt-0.5 sm:mt-0`}
+                />
+                <span className="text-gray-800 font-medium text-sm sm:text-base">
+                  Top Job Listings Across Industries
+                </span>
+              </div>
+              <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
+                <FaCheckCircle
+                  className={`${TEXT.ACCENT_GREEN} text-base sm:text-lg flex-shrink-0 mt-0.5 sm:mt-0`}
+                />
+                <span className="text-gray-800 font-medium text-sm sm:text-base">
+                  Secure And Trusted Application Process
+                </span>
               </div>
             </div>
 
-            {/* Right Content */}
-            <div className="space-y-5 sm:space-y-6 md:space-y-8 order-1 lg:order-2">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight">
-                Find{" "}
-                <span className={TEXT.PRIMARY_DEEP_BLUE}>The One</span> That&apos;s{" "}
-                <span className={TEXT.PRIMARY_DEEP_BLUE}>Right For You</span>
-              </h2>
-
-              <p className="text-gray-700 text-base sm:text-lg leading-relaxed">
-                With JobSahi, searching for the perfect job is quick, easy, and
-                tailored to your skills.
-              </p>
-
-              <div className="space-y-3 sm:space-y-4">
-                <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
-                  <FaCheckCircle
-                    className={`${TEXT.ACCENT_GREEN} text-base sm:text-lg flex-shrink-0 mt-0.5 sm:mt-0`}
-                  />
-                  <span className="text-gray-800 font-medium text-sm sm:text-base">
-                    Fast &amp; Simple Job Search Experience
-                  </span>
-                </div>
-                <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
-                  <FaCheckCircle
-                    className={`${TEXT.ACCENT_GREEN} text-base sm:text-lg flex-shrink-0 mt-0.5 sm:mt-0`}
-                  />
-                  <span className="text-gray-800 font-medium text-sm sm:text-base">
-                    Top Job Listings Across Industries
-                  </span>
-                </div>
-                <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
-                  <FaCheckCircle
-                    className={`${TEXT.ACCENT_GREEN} text-base sm:text-lg flex-shrink-0 mt-0.5 sm:mt-0`}
-                  />
-                  <span className="text-gray-800 font-medium text-sm sm:text-base">
-                    Secure And Trusted Application Process
-                  </span>
-                </div>
-              </div>
-
-              <div className="pt-2 sm:pt-4">
-                <button
-                  onClick={navigateToFindJob}
-                  className={`border-2 ${BORDER.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 rounded-full font-semibold text-sm sm:text-base md:text-lg ${HOVER_BG.ACCENT_GREEN} hover:text-white flex items-center space-x-2 sm:space-x-3 transition-all duration-200`}
+            <div className="pt-2 sm:pt-4 md:pt-6">
+              <button
+                onClick={navigateToFindJob}
+                className={`border-2 ${BORDER.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 rounded-full font-semibold text-sm sm:text-base md:text-lg ${HOVER_BG.ACCENT_GREEN} hover:text-white flex items-center space-x-2 sm:space-x-3 transition-all duration-200`}
+              >
+                <span>Search Job</span>
+                <div
+                  className={`w-7 h-7 sm:w-8 sm:h-8 ${BG.ACCENT_GREEN} rounded-full flex items-center justify-center`}
                 >
-                  <span>Search Job</span>
-                  <div
-                    className={`w-7 h-7 sm:w-8 sm:h-8 ${BG.ACCENT_GREEN} rounded-full flex items-center justify-center`}
-                  >
-                    <FaArrowRight className="text-white text-xs sm:text-sm" />
-                  </div>
-                </button>
-              </div>
+                  <FaArrowRight className="text-white text-xs sm:text-sm" />
+                </div>
+              </button>
             </div>
           </div>
         </div>

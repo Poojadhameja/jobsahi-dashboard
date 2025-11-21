@@ -11,6 +11,8 @@ import govImage from "../../assets/courses/gov.jpg"
 import workerImage from "../../assets/courses/worker.jpg"
 import companyImage from "../../assets/courses/company.jpg"
 import tipsImage from "../../assets/courses/tips.jpg"
+import newsmall from "../../assets/newsmall.jpg"
+import news from "../../assets/news.jpg"
 import { WEBSITE_COLOR_CLASSES } from '../../components/colorClasses'
 import { TRUSTED_BY_STARTUPS_DEFAULT_HEADER } from '../../components/TrustedByStartups.jsx'
 
@@ -121,49 +123,49 @@ const News = () => {
     {
       id: 1,
       title: "How to Build a Winning Polytechnic Resume",
-      image: " ",
+      image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=500&h=300&fit=crop",
       description: "Learn the essential tips to create a compelling resume that stands out to recruiters in the technical field."
     },
     {
       id: 2,
       title: "Interview Preparation for ITI Students",
-      image: " ",
+      image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=500&h=300&fit=crop",
       description: "Master the art of technical interviews with our comprehensive guide designed specifically for ITI graduates."
     },
     {
       id: 3,
       title: "Career Growth in Technical Fields",
-      image: " ",
+      image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=500&h=300&fit=crop",
       description: "Discover the various career paths available for technical professionals and how to advance your career."
     },
     {
       id: 4,
       title: "Skills Development for Modern Industries",
-      image: " ",
+      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=500&h=300&fit=crop",
       description: "Stay updated with the latest skills required in today's rapidly evolving technical landscape."
     },
     {
       id: 5,
       title: "Networking Strategies for Technical Professionals",
-      image: " ",
+      image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=500&h=300&fit=crop",
       description: "Build meaningful professional connections that can accelerate your career in the technical domain."
     },
     {
       id: 6,
       title: "Industry Certifications That Matter",
-      image: " ",
+      image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500&h=300&fit=crop",
       description: "Discover which technical certifications can boost your career prospects and increase your earning potential."
     },
     {
       id: 7,
       title: "Salary Negotiation Tips for Technicians",
-      image: " ",
+      image: "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=500&h=300&fit=crop",
       description: "Learn how to negotiate better salaries and benefits in the technical field with confidence."
     },
     {
       id: 8,
       title: "Career Transition from ITI to Engineering",
-      image: " ",
+      image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=500&h=300&fit=crop",
       description: "Step-by-step guide to advancing from technical training to professional engineering roles."
     }
   ]
@@ -434,17 +436,38 @@ const News = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-start">
             {/* Left Side - White Cards */}
-            <div className="relative flex justify-center lg:justify-start">
-                {/* Large L-shaped block */}
-                <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 lg:w-96 lg:h-96 bg-blue-100 rounded-2xl sm:rounded-3xl relative">
-                  {/* Green Badge */}
-                <div className="w-fit flex flex-col items-center -m-1 sm:-m-2 p-2 sm:p-3 md:p-4 bg-[#5C9A24] border-4 sm:border-6 md:border-8 border-[#00395B] rounded-lg sm:rounded-xl shadow-lg relative">
-                  <img src="" alt="icon" className="" />
-                  <p className="text-xs sm:text-sm md:text-base font-medium">Top No. 1 </p>
-                  <p className="font-light text-[10px] sm:text-xs md:text-sm">Portal Job Web </p>
+            <div className="relative mb-6 lg:mb-0 flex flex-col items-center lg:items-start">
+              <div className="w-full sm:w-[90%] md:w-[85%] lg:w-[80%] -mt-2 sm:-mt-3 md:-mt-4 lg:-mt-5 px-4 sm:px-5 md:px-6 pb-4 sm:pb-5 md:pb-6 mx-auto lg:mx-0">
+                <div className="relative mx-auto lg:mx-0">
+                  <div className="w-56 h-56 sm:w-60 sm:h-60 md:w-80 md:h-80 lg:w-96 lg:h-96 bg-blue-100 rounded-3xl relative overflow-hidden border-[6px] sm:border-[8px] md:border-[10px] lg:border-[12px] border-[#00395B] mx-auto lg:mx-0">
+                    <img 
+                      src={news} 
+                      alt="News" 
+                      className="w-full h-full object-cover rounded-3xl"
+                    />
+                    <div className="absolute top-0 left-0 w-full h-full">
+                      {/* Green Badge */}
+                      <div className="absolute border-[3px] sm:border-[3px] md:border-[4px] lg:border-[4px] border-[#00395B] -top-1 sm:-top-1.5 md:-top-2 -left-1 sm:-left-1.5 md:-left-2 bg-[#CFF49A] rounded-md sm:rounded-lg md:rounded-lg p-1 sm:p-1 md:p-1.5 lg:p-1.5 shadow-md z-10">
+                        <div className="text-center">
+                          <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-4.5 lg:h-4.5 bg-white rounded-full flex items-center justify-center mx-auto mb-0.5 sm:mb-0.5 md:mb-1">
+                            <div className="w-1.5 h-1.5 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2 lg:h-2 bg-[#CFF49A] rounded-full" />
+                          </div>
+                          <p className="text-black font-bold text-[7px] sm:text-[8px] md:text-[9px]">Top No. 1</p>
+                          <p className="text-black text-[6px] sm:text-[7px] md:text-[8px]">Portal Job Web</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute border-[5px] sm:border-[6px] md:border-[7px] lg:border-[8px] border-[#00395B] -bottom-6 sm:-bottom-8 md:-bottom-10 left-1/2 -translate-x-1/2 sm:left-1/2 sm:-translate-x-1/2 md:left-40 md:translate-x-0 lg:left-72 lg:translate-x-0 w-20 h-16 sm:w-24 sm:h-20 md:w-32 md:h-24 lg:w-48 lg:h-40 bg-blue-100 rounded-2xl overflow-hidden">
+                    <img 
+                      src={newsmall} 
+                      alt="News small" 
+                      className="w-full h-full object-cover rounded-2xl"
+                    />
+                  </div>
                 </div>
-                </div> 
               </div>
+            </div>
 
             {/* Right Side - News Snippets */}
             <div className="space-y-4 sm:space-y-5 md:space-y-6">
@@ -549,9 +572,9 @@ const News = () => {
               >
                 {careerGuidanceData.map((item, index) => (
                   <div key={item.id} className={`${cardsPerView === 1 ? 'w-full' : cardsPerView === 2 ? 'w-1/2' : 'w-1/3'} flex-shrink-0 px-2 sm:px-3`}>
-                    <div className="bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg border border-blue-100 hover:shadow-xl transition-shadow duration-300">
+                    <div className="bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg border border-blue-100 hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
                       {/* Image Placeholder */}
-                      <div className="h-40 sm:h-44 md:h-48 bg-gray-200 relative overflow-hidden flex items-center justify-center">
+                      <div className="h-48 sm:h-52 md:h-56 lg:h-60 w-full bg-gray-200 relative overflow-hidden flex items-center justify-center flex-shrink-0">
                         {item.image ? (
                           <img
                             src={item.image}
@@ -567,11 +590,11 @@ const News = () => {
                       </div>
                       
                       {/* Content */}
-                      <div className="p-4 sm:p-5 md:p-6">
-                        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1.5 sm:mb-2 leading-tight">
+                      <div className="p-4 sm:p-5 md:p-6 flex-1 flex flex-col">
+                        <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-2 sm:mb-3 leading-tight line-clamp-2">
                           {item.title}
                         </h3>
-                        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                        <p className="text-gray-600 text-xs sm:text-sm md:text-base leading-relaxed flex-1 line-clamp-3">
                           {item.description}
                         </p>
                       </div>

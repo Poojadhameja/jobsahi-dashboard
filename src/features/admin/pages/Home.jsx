@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { TAILWIND_COLORS } from '../../../shared/WebConstant.js'
 import MetricCard, { MatrixCard, Horizontal4Cards } from '../../../shared/components/metricCard.jsx'
-import { Line } from 'react-chartjs-2'
+import { Line, Pie } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
   Filler,
+  ArcElement,
 } from 'chart.js'
 import {
   LuGraduationCap,
@@ -18,17 +19,23 @@ import {
   LuUserCheck,
   LuTrendingUp,
 } from 'react-icons/lu'
-import { DoubleCircleChart } from '../../../shared/components/charts'
 import { getChartTooltipStyle, getChartTextColor, getChartGridColor, getChartColors } from '../../../shared/utils/chartColors'
+import { getMethod } from '../../../service/api'
+import apiService from '../services/serviceUrl'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler)
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler, ArcElement)
 
-function PlacementSuccess() {
+function PlacementSuccess({ funnelData }) {
   const items = [
-    { value: '5.5K', label: 'Applications', sub: 'Ready for placement', color: 'bg-emerald-500' },
-    { value: '3.2K', label: 'Interviews', sub: 'Shortlisted candidates', color: 'bg-blue-500' },
-    { value: '1.8K', label: 'Offers', sub: 'Job offers extended', color: 'bg-amber-500' },
-    { value: '1.2K', label: 'Hired', sub: 'Successfully placed', color: 'bg-rose-500' },
+    { value: funnelData?.applications || '0', label: 'Applications', sub: 'Ready for placement', color: 'bg-emerald-500' },
+    { value: funnelData?.interviews || '0', label: 'Interviews', sub: 'Shortlisted candidates', color: 'bg-blue-500' },
+    { 
+      value: funnelData?.active_courses || funnelData?.offers || '0', 
+      label: 'Courses', 
+      sub: 'Courses currently active', 
+      color: 'bg-amber-500' 
+    },
+    { value: funnelData?.hired || '0', label: 'Hired', sub: 'Successfully placed', color: 'bg-rose-500' },
   ]
   return (
     <div className={`${TAILWIND_COLORS.CARD} p-3 sm:p-4 md:p-5`}>
@@ -47,21 +54,131 @@ function PlacementSuccess() {
 }
 
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true)
+  const [dashboardData, setDashboardData] = useState({
+    cards: {
+      total_students: '0',
+      applied_jobs: '0',
+      interview_jobs: '0',
+      active_jobs: '0',
+      active_courses: '0'
+    },
+    placement_funnel: {
+      applications: '0',
+      interviews: '0',
+      active_courses: '0',
+      hired: '0'
+    },
+    applications_trend: [],
+    top_jobs_in_demand: []
+  })
+
+  // Format number with commas
+  const formatNumber = (num) => {
+    if (!num) return '0'
+    return Number(num).toLocaleString('en-IN')
+  }
+
+  // Fetch dashboard data
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await getMethod({
+        apiUrl: apiService.adminDashboard
+      })
+
+      console.log('📊 Admin Dashboard API Response:', response)
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+
+      if (isSuccess && response?.data) {
+        setDashboardData({
+          cards: response.data.cards || {
+            total_students: '0',
+            applied_jobs: '0',
+            interview_jobs: '0',
+            active_jobs: '0',
+            active_courses: '0'
+          },
+          placement_funnel: response.data.placement_funnel || {
+            applications: '0',
+            interviews: '0',
+            active_courses: '0',
+            hired: '0'
+          },
+          applications_trend: response.data.applications_trend || [],
+          top_jobs_in_demand: response.data.top_jobs_in_demand || []
+        })
+      } else {
+        console.error('❌ Failed to fetch dashboard data:', response?.message)
+      }
+    } catch (error) {
+      console.error('❌ Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [fetchDashboardData])
+
   const overview = [
-    { title:'Total Students', value:'15,847', icon:<LuGraduationCap className="w-5 h-5" /> },
-    { title:'Applied Job', value:'2,456', icon:<LuBriefcase className="w-5 h-5" /> },
-    { title:'Interview Job', value:'342', icon:<LuUserCheck className="w-5 h-5" /> },
-    { title:'Active Jobs', value:'23,891', icon:<LuTrendingUp className="w-5 h-5" /> },
+    { title:'Total Students', value: formatNumber(dashboardData.cards.total_students), icon:<LuGraduationCap className="w-5 h-5" /> },
+    { title:'Applied Job', value: formatNumber(dashboardData.cards.applied_jobs), icon:<LuBriefcase className="w-5 h-5" /> },
+    { title:'Interview Job', value: formatNumber(dashboardData.cards.interview_jobs), icon:<LuUserCheck className="w-5 h-5" /> },
+    { title:'Active Jobs', value: formatNumber(dashboardData.cards.active_jobs), icon:<LuTrendingUp className="w-5 h-5" /> },
   ]
 
   const palette = getChartColors()
 
+  // Get last 6 months dynamically
+  const getLast6Months = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const currentDate = new Date()
+    const last6Months = []
+    
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1)
+      last6Months.push(months[date.getMonth()])
+    }
+    
+    return last6Months
+  }
+
+  // Process applications trend data for chart - always show last 6 months
+  const processTrendData = () => {
+    const last6Months = getLast6Months()
+    const dataMap = new Map()
+    
+    // Map API data by month name (handle different formats)
+    if (dashboardData.applications_trend && dashboardData.applications_trend.length > 0) {
+      dashboardData.applications_trend.forEach(item => {
+        let monthName = item.month_name || item.month || item.label || ''
+        // Normalize month name to match our format (first 3 letters)
+        if (monthName.length > 3) {
+          monthName = monthName.substring(0, 3)
+        }
+        monthName = monthName.charAt(0).toUpperCase() + monthName.slice(1).toLowerCase()
+        const value = Number(item.total || item.value || item.count || 0)
+        dataMap.set(monthName, value)
+      })
+    }
+    
+    // Create data array for last 6 months, using 0 if no data
+    const data = last6Months.map(month => dataMap.get(month) || 0)
+    
+    return { labels: last6Months, data }
+  }
+
+  const trendData = processTrendData()
+
   const lineData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: trendData.labels,
     datasets: [
       {
         label: 'Applications',
-        data: [1200, 1800, 1400, 2200, 2900, 3200],
+        data: trendData.data,
         borderColor: palette.info,
         backgroundColor: 'rgba(12, 90, 141, 0.15)',
         fill: true,
@@ -95,8 +212,11 @@ export default function Dashboard() {
       },
       y: { 
         grid: { color: getChartGridColor() }, 
+        beginAtZero: true,
         ticks: { 
-          stepSize: 500,
+          stepSize: trendData.data.length > 0 && Math.max(...trendData.data) > 0 
+            ? Math.max(1, Math.ceil(Math.max(...trendData.data) / 5)) 
+            : 1,
           color: getChartTextColor(),
           font: {
             size: 12
@@ -116,7 +236,7 @@ export default function Dashboard() {
 
       <Horizontal4Cards data={overview} />
 
-      <PlacementSuccess />
+      <PlacementSuccess funnelData={dashboardData.placement_funnel} />
 
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
         <div className={`${TAILWIND_COLORS.CARD} p-3 sm:p-4`}> 
@@ -127,8 +247,63 @@ export default function Dashboard() {
         </div>
 
         <div className={`${TAILWIND_COLORS.CARD} p-3 sm:p-4`}>
-          <div className="font-medium my-3 sm:my-4 md:mb-6 lg:mb-10 text-lg sm:text-xl text-center md:text-left">Top Skills in Demand</div>
-          <DoubleCircleChart />
+          <div className="font-medium my-3 sm:my-4 md:mb-6 lg:mb-10 text-lg sm:text-xl text-center md:text-left">Top Jobs in Demand</div>
+          <div className="h-48 sm:h-56 md:h-64">
+            {dashboardData.top_jobs_in_demand && dashboardData.top_jobs_in_demand.length > 0 ? (
+              <Pie 
+                data={{
+                  labels: dashboardData.top_jobs_in_demand.map(job => job.title || 'N/A'),
+                  datasets: [{
+                    data: dashboardData.top_jobs_in_demand.map(job => Number(job.total_applications || 0)),
+                    backgroundColor: [
+                      palette.info,
+                      palette.success,
+                      palette.warning,
+                      palette.error,
+                      palette.secondary,
+                      '#8B5CF6',
+                      '#EC4899',
+                      '#14B8A6',
+                    ],
+                    borderWidth: 0,
+                  }]
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom',
+                      labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        font: {
+                          size: 11,
+                          weight: '400'
+                        },
+                        color: getChartTextColor(),
+                        boxWidth: 6,
+                      }
+                    },
+                    tooltip: {
+                      ...getChartTooltipStyle(),
+                      callbacks: {
+                        label: function(context) {
+                          const label = context.label || ''
+                          const value = context.parsed
+                          return `${label}: ${value} application${value !== 1 ? 's' : ''}`
+                        }
+                      }
+                    }
+                  }
+                }}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                No jobs data available
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </div>

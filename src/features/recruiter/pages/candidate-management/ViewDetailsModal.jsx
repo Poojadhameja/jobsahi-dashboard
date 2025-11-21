@@ -185,6 +185,20 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
     experienceList = [];
   }
 
+  // ✅ Handle education JSON safely
+  let educationList = [];
+  try {
+    if (typeof candidate.education === 'string' && candidate.education.trim() !== '') {
+      educationList = JSON.parse(candidate.education);
+    } else if (Array.isArray(candidate.education)) {
+      educationList = candidate.education;
+    }
+    if (!Array.isArray(educationList)) educationList = [];
+  } catch (error) {
+    console.warn('Error parsing education:', error);
+    educationList = [];
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -403,24 +417,76 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
                 Education Information
               </h3>
               <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mt-1">
-                    <span className={`text-xs font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>1</span>
+                {educationList.length > 0 ? (
+                  educationList.map((edu, index) => {
+                    const qualification = edu.qualification || edu.degree || '';
+                    const institute = edu.institute || edu.college || edu.school || '';
+                    const startYear = edu.start_year || edu.startYear || '';
+                    const endYear = edu.end_year || edu.endYear || '';
+                    const isPursuing = edu.is_pursuing || edu.isPursuing || false;
+                    
+                    // Build qualification text
+                    let qualificationText = qualification;
+                    if (institute) {
+                      qualificationText += qualification ? ` from ${institute}` : institute;
+                    }
+                    
+                    // Build year range text
+                    let yearText = '';
+                    if (startYear && endYear) {
+                      yearText = `${startYear} - ${endYear}`;
+                    } else if (startYear) {
+                      yearText = isPursuing ? `Started ${startYear} (Pursuing)` : `Started ${startYear}`;
+                    } else if (endYear) {
+                      yearText = `Completed ${endYear}`;
+                    } else if (isPursuing) {
+                      yearText = 'Currently Pursuing';
+                    }
+                    
+                    return (
+                      <div key={index} className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mt-1 flex-shrink-0">
+                          <span className={`text-xs font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                            {index + 1}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <h4
+                            className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                          >
+                            {qualificationText || "Not specified"}
+                          </h4>
+                          {yearText && (
+                            <p
+                              className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}
+                            >
+                              {yearText}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="flex items-start space-x-3">
+                    <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center mt-1">
+                      <span className={`text-xs font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>1</span>
+                    </div>
+                    <div className="flex-1">
+                      <h4
+                        className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                      >
+                        {candidate.qualification || "No education details available"}
+                      </h4>
+                      <p
+                        className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}
+                      >
+                        Verified Candidate:{" "}
+                        {candidate.verified === "Yes" || candidate.verified === true ? "Yes" : "No"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h4
-                      className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-                    >
-                      {candidate.qualification || candidate.education || "—"}
-                    </h4>
-                    <p
-                      className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}
-                    >
-                      Verified Candidate:{" "}
-                      {candidate.verified === "Yes" || candidate.verified === true ? "Yes" : "No"}
-                    </p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
