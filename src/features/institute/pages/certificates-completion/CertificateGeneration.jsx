@@ -14,10 +14,6 @@ import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { getMethod, postMultipart } from "../../../../service/api";
 import apiService from "../../services/serviceUrl.js";
 
-const DEFAULT_TEMPLATE_NAME = "Certificate of Completion";
-const DEFAULT_CERTIFICATE_DESCRIPTION =
-  "Upon successful completion of the course, participants will receive a Certificate of Completion, recognizing their achievement and confirming that they have acquired the essential skills and knowledge outlined in the curriculum.";
-
 function CertificateGeneration() {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -28,7 +24,7 @@ function CertificateGeneration() {
   const [completionDate, setCompletionDate] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedCertificates, setGeneratedCertificates] = useState([]);
-  const [templateName, setTemplateName] = useState(DEFAULT_TEMPLATE_NAME);
+  const [templateName, setTemplateName] = useState("");
   const [templates, setTemplates] = useState([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [logoFile, setLogoFile] = useState(null);
@@ -48,7 +44,7 @@ function CertificateGeneration() {
       });
     };
   }, [logoPreview, sealPreview, signaturePreview]);
-  const [description, setDescription] = useState(DEFAULT_CERTIFICATE_DESCRIPTION);
+  const [description, setDescription] = useState("");
 
   // ✅ Fetch all nested data once
   useEffect(() => {
@@ -78,36 +74,35 @@ function CertificateGeneration() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const fetchTemplateDefaults = async () => {
-      try {
-        const resp = await getMethod({
-          apiUrl: apiService.certificateTemplatesList,
-        });
+ useEffect(() => {
+  const fetchTemplateDefaults = async () => {
+    try {
+      const resp = await getMethod({
+        apiUrl: apiService.certificateTemplates, // certificate_templates.php
+      });
   
-        if (resp?.status && Array.isArray(resp.data)) {
-          setTemplates(resp.data);
+      if (resp?.status && Array.isArray(resp.data)) {
+        setTemplates(resp.data);
   
-          if (resp.data.length > 0) {
-            const t = resp.data[0];
+        if (resp.data.length > 0) {
+          const t = resp.data[0];
   
-            setSelectedTemplateId(t.id);
-            setTemplateName(t.template_name);
-            setDescription(t.description);
+          setSelectedTemplateId(t.id);
+          setTemplateName(t.template_name);
+          setDescription(t.description);
   
-            // preview set for popup
-            setLogoPreview(t.logo || "");
-            setSealPreview(t.seal || "");
-            setSignaturePreview(t.signature || "");
-          }
+          setLogoPreview(t.logo || "");
+          setSealPreview(t.seal || "");
+          setSignaturePreview(t.signature || "");
         }
-      } catch (error) {
-        console.error("❌ Error fetching template defaults:", error);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+    }
+  };
   
-    fetchTemplateDefaults();
-  }, []);
+}, []);
+
   
 
 
@@ -154,23 +149,21 @@ function CertificateGeneration() {
   };
 
   // ✅ Select template
-  const onTemplateChange = (e) => {
-    const templateId = e.target.value;
-    setSelectedTemplateId(templateId);
+ const onTemplateChange = (e) => {
+  const id = e.target.value;
+  setSelectedTemplateId(id);
 
-    if (templateId) {
-      const selectedTemplate = templates.find(
-        (t) => String(t.template_id || t.id) === String(templateId)
-      );
-      if (selectedTemplate) {
-        setTemplateName(selectedTemplate.template_name || DEFAULT_TEMPLATE_NAME);
-        setDescription(selectedTemplate.footer_text || DEFAULT_CERTIFICATE_DESCRIPTION);
-      }
-    } else {
-      setTemplateName(DEFAULT_TEMPLATE_NAME);
-      setDescription(DEFAULT_CERTIFICATE_DESCRIPTION);
-    }
-  };
+  const t = templates.find(x => String(x.id) === String(id));
+  if (!t) return;
+
+  setTemplateName(t.template_name);
+  setDescription(t.description);
+
+  setLogoPreview(t.logo || "");
+  setSealPreview(t.seal || "");
+  setSignaturePreview(t.signature || "");
+};
+
 
 
   const handleAssetSelect = (setFile, setPreview) => (event) => {
@@ -340,60 +333,61 @@ function CertificateGeneration() {
 
   // ✅ Create template
   const handleCreateTemplate = async () => {
-    if (!templateName.trim()) return Swal.fire("Template name required");
-    if (!description.trim()) return Swal.fire("Description required");
-    if (!logoFile || !sealFile || !signatureFile)
-      return Swal.fire("Upload all assets");
-  
-    setIsCreatingTemplate(true);
-  
-    try {
-      const formData = new FormData();
-  
-      formData.append("template_name", templateName.trim());
-      formData.append("description", description.trim());
-      formData.append("is_active", "1");
-      formData.append("admin_action", "approved");
-  
-      formData.append("logo", logoFile);
-      formData.append("seal", sealFile);
-      formData.append("signature", signatureFile);
-  
-      const res = await postMultipart({
-        apiUrl: apiService.createCertificateTemplate,
-        formData,
+  if (!templateName.trim()) return Swal.fire("Template name required");
+  if (!description.trim()) return Swal.fire("Description required");
+  if (!logoFile || !sealFile || !signatureFile)
+    return Swal.fire("Upload all assets");
+
+  setIsCreatingTemplate(true);
+
+  try {
+    const formData = new FormData();
+
+    formData.append("template_name", templateName.trim());
+    formData.append("description", description.trim());
+    formData.append("is_active", "1");
+    formData.append("admin_action", "approved");
+
+    formData.append("logo", logoFile);
+    formData.append("seal", sealFile);
+    formData.append("signature", signatureFile);
+
+    const res = await postMultipart({
+      apiUrl: apiService.createCertificateTemplate,
+      formData,
+    });
+
+    if (res?.status) {
+      Swal.fire("Success", "Template created successfully", "success");
+
+      // 🔥 Refresh template list
+      const resp = await getMethod({
+        apiUrl: apiService.certificateTemplatesList,
       });
-  
-      if (res?.status) {
-        Swal.fire("Success", "Template created successfully", "success");
-  
-        // 🔥 Refresh template list
-        const resp = await getMethod({
-          apiUrl: apiService.certificateTemplatesList,
-        });
-  
-        if (resp?.status) {
-          setTemplates(resp.data);
-        }
-  
-        setIsTemplateModalOpen(false);
-        setTemplateName(DEFAULT_TEMPLATE_NAME);
-        setDescription(DEFAULT_CERTIFICATE_DESCRIPTION);
-        setLogoFile(null);
-        setSealFile(null);
-        setSignatureFile(null);
-        setLogoPreview("");
-        setSealPreview("");
-        setSignaturePreview("");
-      } else {
-        Swal.fire("Failed", res?.message, "error");
+
+      if (resp?.status) {
+        setTemplates(resp.data);
       }
-    } catch (err) {
-      Swal.fire("Error", "Something went wrong", "error");
-    } finally {
-      setIsCreatingTemplate(false);
+
+      setIsTemplateModalOpen(false);
+      setTemplateName(DEFAULT_TEMPLATE_NAME);
+      setDescription(DEFAULT_CERTIFICATE_DESCRIPTION);
+      setLogoFile(null);
+      setSealFile(null);
+      setSignatureFile(null);
+      setLogoPreview("");
+      setSealPreview("");
+      setSignaturePreview("");
+    } else {
+      Swal.fire("Failed", res?.message, "error");
     }
-  };
+  } catch (err) {
+    Swal.fire("Error", "Something went wrong", "error");
+  } finally {
+    setIsCreatingTemplate(false);
+  }
+};
+
   
 
   const assetInputs = [
@@ -454,7 +448,7 @@ function CertificateGeneration() {
                         key={template.template_id || template.id} 
                         value={template.template_id || template.id}
                       >
-                        {template.template_name || "Unnamed Template"}
+                        {template.template_name || ""}
                       </option>
                     ))}
                   </select>
@@ -466,7 +460,7 @@ function CertificateGeneration() {
                     type="text"
                     value={templateName}
                     onChange={(e) => setTemplateName(e.target.value)}
-                    placeholder="Enter template name (e.g., Certificate of Completion)"
+                    placeholder="Enter template name"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   />
                 </div>
@@ -480,7 +474,7 @@ function CertificateGeneration() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={5}
-                  placeholder="Enter a detailed description for the certificate. This text will appear on the certificate to describe its purpose and significance."
+                  placeholder="Enter description"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 resize-y min-h-[120px]"
                 />
                 <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
@@ -748,13 +742,13 @@ function CertificateGeneration() {
 
               <div className="text-center mb-8">
                 <h1 className={`text-3xl font-bold italic mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                  {templateName?.trim() || DEFAULT_TEMPLATE_NAME}
+                  {templateName?.trim() || ""}
                 </h1>
                 <p
                   className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} max-w-2xl mx-auto leading-relaxed`}
                   style={{ whiteSpace: "pre-line" }}
                 >
-                  {description?.trim() || DEFAULT_CERTIFICATE_DESCRIPTION}
+                  {description?.trim() || ""}
                 </p>
               </div>
 
@@ -763,7 +757,7 @@ function CertificateGeneration() {
                   {student.name}
                 </h2>
                 <p className={`text-lg ${TAILWIND_COLORS.TEXT_PRIMARY} uppercase tracking-wide`}>
-                  {course?.title || "Selected Course"}
+                  {course?.title || ""}
                 </p>
               </div>
 
@@ -817,22 +811,22 @@ function CertificateGeneration() {
 
           <div className="text-center mb-8">
             <h1 className={`text-3xl font-bold italic mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              {templateName?.trim() || DEFAULT_TEMPLATE_NAME}
+              {templateName?.trim() || ""}
             </h1>
             <p
               className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} max-w-2xl mx-auto leading-relaxed`}
               style={{ whiteSpace: "pre-line" }}
             >
-              {description?.trim() || DEFAULT_CERTIFICATE_DESCRIPTION}
+              {description?.trim() || ""}
             </p>
           </div>
 
           <div className="text-center mb-8">
             <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-              Student Name
+              {""}
             </h2>
             <p className={`text-lg ${TAILWIND_COLORS.TEXT_PRIMARY} uppercase tracking-wide`}>
-              Course Name
+              {""}
             </p>
           </div>
 

@@ -283,6 +283,7 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     portfolio_link: a.portfolio_link || "",
     resume_url: a.resume_url || "",
     applied_date: a.applied_date || "",
+    social_links: Array.isArray(a.social_links) ? a.social_links : (a.social_links ? [a.social_links] : []),
   }));
 
 

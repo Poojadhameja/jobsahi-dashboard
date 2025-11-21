@@ -406,6 +406,32 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
                     </a>
                   </div>
                 )}
+
+                {/* Social Links */}
+                {candidate.social_links && Array.isArray(candidate.social_links) && candidate.social_links.length > 0 && (
+                  <div className="pt-2 border-t border-gray-200">
+                    <span
+                      className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} block mb-2`}
+                    >
+                      SOCIAL LINKS
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {candidate.social_links.map((link, index) => (
+                        <a
+                          key={index}
+                          href={link.profile_url || link.url || '#'}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center space-x-1 px-3 py-1.5 bg-blue-50 rounded-md transition-colors"
+                        >
+                          <LuLink className="w-4 h-4" />
+                          <span>{link.title || 'Link'}</span>
+                          <LuExternalLink className="w-3 h-3" />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

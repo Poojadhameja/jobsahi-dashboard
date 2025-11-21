@@ -40,7 +40,7 @@ const apiService = {
 
   // Certificate Templates
   createCertificateTemplate: "/certificate_templates/create_certificate_template.php",
-  certificateTemplatesList: "/certificate_templates/certificate_templates.php",
+  certificateTemplatesList: "/certificate_templates/get_certificate_templates.php",
 
   // ✅ FIXED ENDPOINT — now works correctly
   institute_view_students: `/institute/get_institute_students.php`,
