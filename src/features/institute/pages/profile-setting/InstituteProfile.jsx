@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { LuBuilding, LuUpload, LuSave, LuCheck, LuCircleAlert } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import Swal from 'sweetalert2'
 
 import { getMethod, putMethod, putMultipart } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
@@ -127,37 +128,34 @@ export default function InstituteProfile() {
       setLoadingInstituteTypes(true)
       const res = await getMethod({ apiUrl: apiService.getInstituteProfile })
 
+      // Required types that must always be available for PUT API
+      const requiredTypes = ['Public', 'Private', 'Government']
+      let apiTypes = []
+
       if (res?.success) {
         // Check if API returns available institute types
         if (res?.data?.institute_types && Array.isArray(res.data.institute_types)) {
-          setInstituteTypes(res.data.institute_types)
+          apiTypes = res.data.institute_types
         } 
         // Or extract unique types from profiles if multiple profiles exist
         else if (res?.data?.profiles && Array.isArray(res.data.profiles)) {
-          const uniqueTypes = [...new Set(res.data.profiles.map(p => p.institute_info?.institute_type).filter(Boolean))]
-          if (uniqueTypes.length > 0) {
-            setInstituteTypes(uniqueTypes)
-          } else {
-            // Fallback to common types if none found
-            setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
-          }
+          apiTypes = [...new Set(res.data.profiles.map(p => p.institute_info?.institute_type).filter(Boolean))]
         }
         // Or check if single profile response has types
         else if (res?.data?.institute_info?.available_types) {
-          setInstituteTypes(res.data.institute_info.available_types)
+          apiTypes = res.data.institute_info.available_types
         }
-        // Fallback to common types
-        else {
-          setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
-        }
-      } else {
-        // Fallback to common types
-        setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
       }
+
+      // Merge required types with API types, ensuring required types are always included and prioritized
+      // Required types (Public, Private, Government) are placed first, then API types
+      const allTypes = [...requiredTypes, ...apiTypes]
+      const mergedTypes = [...new Set(allTypes)]
+      setInstituteTypes(mergedTypes)
     } catch (err) {
       console.error('Error fetching institute types:', err)
-      // Fallback to common types
-      setInstituteTypes(['School', 'College', 'Coaching', 'Training Center', 'ITI', 'Other'])
+      // Fallback: always include required types (Public, Private, Government) for PUT API
+      setInstituteTypes(['Public', 'Private', 'Government'])
     } finally {
       setLoadingInstituteTypes(false)
     }
@@ -332,20 +330,37 @@ export default function InstituteProfile() {
         setTimeout(() => setSaveStatus(null), 3000)
         
         // Show success popup
-        alert('Institute profile updated successfully!')
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Institute profile updated successfully!',
+          confirmButtonColor: '#3085d6',
+          timer: 3000,
+          timerProgressBar: true
+        })
       } else {
         console.error('Update failed:', res?.message || 'Unknown error')
         setSaveStatus('error')
         
         // Show error popup
-        alert(res?.message || 'Failed to update institute profile. Please try again.')
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: res?.message || 'Failed to update institute profile. Please try again.',
+          confirmButtonColor: '#d33'
+        })
       }
     } catch (error) {
       console.error('Error updating profile:', error)
       setSaveStatus('error')
       
       // Show error popup for unexpected errors
-      alert('Something went wrong. Please try again.')
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong. Please try again.',
+        confirmButtonColor: '#d33'
+      })
     } finally {
       setIsSaving(false)
     }
