@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { LuBuilding, LuUpload, LuSave, LuCheck, LuCircleAlert } from 'react-icons/lu'
+import { LuBuilding, LuUpload, LuSave, LuCheck, LuCircleAlert, LuX, LuLightbulb } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Swal from 'sweetalert2'
@@ -117,6 +117,14 @@ export default function InstituteProfile() {
     }
 
     setFormData((p) => ({ ...p, logo: file }))
+    setLogoPreview(null)
+  }
+
+  /* ----------------------------------------
+          LOGO REMOVE HANDLER
+  ---------------------------------------- */
+  const handleLogoRemove = () => {
+    setFormData((p) => ({ ...p, logo: null }))
     setLogoPreview(null)
   }
 
@@ -431,23 +439,79 @@ export default function InstituteProfile() {
               <div
                 className={`border-2 border-dashed ${TAILWIND_COLORS.BORDER} rounded-lg p-8 text-center`}
               >
-                <div className={`mx-auto w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center mb-4`}>
+                <div 
+                  className="mx-auto w-48 h-48 bg-black rounded-xl flex items-center justify-center mb-4 relative overflow-hidden group"
+                  style={{ 
+                    border: '3px solid #FF8C00',
+                    boxShadow: '0 0 0 2px rgba(255, 140, 0, 0.2)',
+                    position: 'relative'
+                  }}
+                >
                   {formData.logo ? (
                     // ✅ Agar naya file select kiya hai
-                    <img
-                      src={URL.createObjectURL(formData.logo)}
-                      alt="Institute Logo"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
+                    <div className="w-full h-full flex items-center justify-center p-4">
+                      <img
+                        src={URL.createObjectURL(formData.logo)}
+                        alt="Institute Logo"
+                        className="max-w-full max-h-full object-contain rounded-lg"
+                      />
+                    </div>
                   ) : logoPreview ? (
                     // ✅ Existing logo from API
-                    <img
-                      src={logoPreview}
-                      alt="Institute Logo"
-                      className="w-full h-full object-cover rounded-lg"
-                    />
+                    <div className="w-full h-full flex items-center justify-center p-4">
+                      <img
+                        src={logoPreview}
+                        alt="Institute Logo"
+                        className="max-w-full max-h-full object-contain rounded-lg"
+                      />
+                    </div>
                   ) : (
-                    <LuBuilding className="w-8 h-8 text-gray-400" />
+                    <div className="flex flex-col items-center justify-center text-white p-6 relative w-full h-full">
+                      {/* Orange-gold circular outline */}
+                      <div 
+                        className="absolute rounded-full"
+                        style={{
+                          border: '2px solid #FF8C00',
+                          width: '140px',
+                          height: '140px',
+                          top: '50%',
+                          left: '50%',
+                          transform: 'translate(-50%, -50%)'
+                        }}
+                      />
+                      {/* Lightbulb icon with split colors (white and orange-gold) */}
+                      <div className="relative z-10 flex items-center justify-center mb-3 mt-2">
+                        <div className="relative w-14 h-14">
+                          {/* White half */}
+                          <div className="absolute inset-0 overflow-hidden" style={{ clipPath: 'inset(0 50% 0 0)' }}>
+                            <LuLightbulb className="w-14 h-14 text-white" />
+                          </div>
+                          {/* Orange-gold half */}
+                          <div className="absolute inset-0 overflow-hidden" style={{ clipPath: 'inset(0 0 0 50%)' }}>
+                            <LuLightbulb className="w-14 h-14" style={{ color: '#FF8C00' }} />
+                          </div>
+                        </div>
+                      </div>
+                      {/* Brightorial text */}
+                      <span className="text-base font-semibold text-white mb-1 relative z-10" style={{ fontFamily: 'serif', fontSize: '15px' }}>
+                        Brightorial
+                      </span>
+                      {/* Tagline */}
+                      <span className="text-xs text-white relative z-10" style={{ fontSize: '9px', letterSpacing: '0.8px', opacity: 0.9 }}>
+                        IGNITING BRIGHT MINDS
+                      </span>
+                    </div>
+                  )}
+                  {/* Close button overlay - White box visible, cross appears on hover with green background */}
+                  {(formData.logo || logoPreview) && (
+                    <button
+                      onClick={handleLogoRemove}
+                      className="absolute top-2 right-2 w-8 h-8 bg-white hover:bg-green-600 rounded-md shadow-lg flex items-center justify-center transition-all duration-200 z-10 group"
+                      type="button"
+                      aria-label="Remove logo"
+                    >
+                      <LuX className="w-4 h-4 opacity-0 group-hover:opacity-100 text-white transition-all duration-200" />
+                    </button>
                   )}
                 </div>
                 <input
