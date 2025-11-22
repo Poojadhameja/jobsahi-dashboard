@@ -12,11 +12,9 @@ function ManageTemplate() {
   const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [certificateInfo, setCertificateInfo] = useState({
     templateName: "",
-    completionDate: "",
-    description: "",
-    instituteLogo: null,
-    officialSeal: null,
-    authorizedSignature: null,
+    instituteLogo: null, // Can be File (for upload) or URL string (from database)
+    officialSeal: null, // Can be File (for upload) or URL string (from database)
+    authorizedSignature: null, // Can be File (for upload) or URL string (from database)
   });
 
   const [dragActiveLogo, setDragActiveLogo] = useState(false);
@@ -132,10 +130,28 @@ function ManageTemplate() {
 
           if (templateData) {
             console.log("✅ Template data loaded from API:", templateData);
+            console.log("✅ Extracted media URLs from API:", {
+              logo: templateData?.logo,
+              seal: templateData?.seal,
+              signature: templateData?.signature,
+              template_name: templateData?.template_name,
+              description: templateData?.description
+            });
+            
+            // Extract media URLs from database API response (logo, seal, signature fields)
+            // These are full URLs pointing to institute_certificate_templates folder
+            const logoUrl = templateData.logo || templateData.logo_url || null;
+            const sealUrl = templateData.seal || templateData.seal_url || null;
+            const signatureUrl = templateData.signature || templateData.signature_url || null;
+            
             setCertificateInfo((prev) => ({
               ...prev,
               templateName: templateData.template_name || templateData.name || "",
               description: templateData.description || templateData.footer_text || "",
+              // Load existing media URLs from database (users can see what's currently there before updating)
+              instituteLogo: logoUrl, // URL string from database
+              officialSeal: sealUrl, // URL string from database
+              authorizedSignature: signatureUrl, // URL string from database
             }));
           } else {
             // Fallback to local templates array
@@ -182,6 +198,9 @@ function ManageTemplate() {
         ...prev,
         templateName: "",
         description: "",
+        instituteLogo: null,
+        officialSeal: null,
+        authorizedSignature: null,
       }));
     }
   };
@@ -191,12 +210,23 @@ function ManageTemplate() {
     if (
       !selectedTemplateId ||
       !certificateInfo.templateName?.trim() ||
-      !certificateInfo.description ||
-      !certificateInfo.instituteLogo ||
-      !certificateInfo.officialSeal ||
-      !certificateInfo.authorizedSignature
+      !certificateInfo.description
     ) {
-      alert("Please select a template and fill all fields, including uploading logo, seal, and signature before saving.");
+      alert("Please select a template and fill all required fields (template name and description).");
+      return;
+    }
+    
+    // Media files are optional - if not provided, existing ones from database will be kept
+    // Only require media if none exist (neither File nor URL)
+    const hasLogo = certificateInfo.instituteLogo instanceof File || 
+                   (typeof certificateInfo.instituteLogo === 'string' && certificateInfo.instituteLogo.trim() !== '');
+    const hasSeal = certificateInfo.officialSeal instanceof File || 
+                   (typeof certificateInfo.officialSeal === 'string' && certificateInfo.officialSeal.trim() !== '');
+    const hasSignature = certificateInfo.authorizedSignature instanceof File || 
+                        (typeof certificateInfo.authorizedSignature === 'string' && certificateInfo.authorizedSignature.trim() !== '');
+    
+    if (!hasLogo || !hasSeal || !hasSignature) {
+      alert("Please ensure all media files (logo, seal, signature) are present. You can upload new files or keep existing ones from the database.");
       return;
     }
 
@@ -217,13 +247,17 @@ function ManageTemplate() {
       form.append("is_active", "1");
       form.append("admin_action", "approved");
 
-      // Append files if they exist (for update API)
-      if (certificateInfo.instituteLogo instanceof File)
+      // Append files only if they are File objects (new uploads)
+      // If they are URL strings (from database), they will be kept as-is (don't append)
+      if (certificateInfo.instituteLogo instanceof File) {
         form.append("logo", certificateInfo.instituteLogo);
-      if (certificateInfo.officialSeal instanceof File)
+      }
+      if (certificateInfo.officialSeal instanceof File) {
         form.append("seal", certificateInfo.officialSeal);
-      if (certificateInfo.authorizedSignature instanceof File)
+      }
+      if (certificateInfo.authorizedSignature instanceof File) {
         form.append("signature", certificateInfo.authorizedSignature);
+      }
 
       // Step 2: Call update_certificate_template.php using PUT method
       console.log("📤 Step 2: Updating template with ID:", selectedTemplateId);
@@ -245,6 +279,9 @@ function ManageTemplate() {
         alert("Template updated successfully!");
         setCertificateInfo((prev) => ({
           ...prev,
+          templateName: "",
+          description: "",
+          completionDate: "",
           instituteLogo: null,
           officialSeal: null,
           authorizedSignature: null,
@@ -356,12 +393,33 @@ function ManageTemplate() {
                 onDrop={(e) => handleDrop(e, "instituteLogo")}
               >
                 {certificateInfo.instituteLogo ? (
-                  <div>
-                    <LuFileImage className="w-10 h-10 text-green-600 mx-auto" />
-                    <p className="text-sm">{certificateInfo.instituteLogo.name}</p>
-                    <button onClick={() => removeFile("instituteLogo")} className="text-red-500">
-                      <LuX className="w-5 h-5 mx-auto" />
-                    </button>
+                  <div className="relative">
+                    {/* Show image preview if it's a URL string (from database) */}
+                    {typeof certificateInfo.instituteLogo === 'string' ? (
+                      <div className="space-y-2">
+                        <img 
+                          src={certificateInfo.instituteLogo} 
+                          alt="Current Logo" 
+                          className="w-full h-32 object-contain mx-auto rounded"
+                        />
+                        <p className="text-xs text-gray-500">Current logo from database</p>
+                        <button 
+                          onClick={() => setCertificateInfo(prev => ({ ...prev, instituteLogo: null }))} 
+                          className="text-red-500 text-sm hover:underline"
+                        >
+                          Remove / Replace
+                        </button>
+                      </div>
+                    ) : (
+                      /* Show file name if it's a File object (new upload) */
+                      <div>
+                        <LuFileImage className="w-10 h-10 text-green-600 mx-auto" />
+                        <p className="text-sm">{certificateInfo.instituteLogo.name}</p>
+                        <button onClick={() => removeFile("instituteLogo")} className="text-red-500">
+                          <LuX className="w-5 h-5 mx-auto" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <>
@@ -399,12 +457,33 @@ function ManageTemplate() {
                 onDrop={(e) => handleDrop(e, "officialSeal")}
               >
                 {certificateInfo.officialSeal ? (
-                  <div>
-                    <LuFileImage className="w-10 h-10 text-green-600 mx-auto" />
-                    <p className="text-sm">{certificateInfo.officialSeal.name}</p>
-                    <button onClick={() => removeFile("officialSeal")} className="text-red-500">
-                      <LuX className="w-5 h-5 mx-auto" />
-                    </button>
+                  <div className="relative">
+                    {/* Show image preview if it's a URL string (from database) */}
+                    {typeof certificateInfo.officialSeal === 'string' ? (
+                      <div className="space-y-2">
+                        <img 
+                          src={certificateInfo.officialSeal} 
+                          alt="Current Seal" 
+                          className="w-full h-32 object-contain mx-auto rounded"
+                        />
+                        <p className="text-xs text-gray-500">Current seal from database</p>
+                        <button 
+                          onClick={() => setCertificateInfo(prev => ({ ...prev, officialSeal: null }))} 
+                          className="text-red-500 text-sm hover:underline"
+                        >
+                          Remove / Replace
+                        </button>
+                      </div>
+                    ) : (
+                      /* Show file name if it's a File object (new upload) */
+                      <div>
+                        <LuFileImage className="w-10 h-10 text-green-600 mx-auto" />
+                        <p className="text-sm">{certificateInfo.officialSeal.name}</p>
+                        <button onClick={() => removeFile("officialSeal")} className="text-red-500">
+                          <LuX className="w-5 h-5 mx-auto" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <>
@@ -442,12 +521,33 @@ function ManageTemplate() {
                 onDrop={(e) => handleDrop(e, "authorizedSignature")}
               >
                 {certificateInfo.authorizedSignature ? (
-                  <div>
-                    <LuFileImage className="w-10 h-10 text-green-600 mx-auto" />
-                    <p className="text-sm">{certificateInfo.authorizedSignature.name}</p>
-                    <button onClick={() => removeFile("authorizedSignature")} className="text-red-500">
-                      <LuX className="w-5 h-5 mx-auto" />
-                    </button>
+                  <div className="relative">
+                    {/* Show image preview if it's a URL string (from database) */}
+                    {typeof certificateInfo.authorizedSignature === 'string' ? (
+                      <div className="space-y-2">
+                        <img 
+                          src={certificateInfo.authorizedSignature} 
+                          alt="Current Signature" 
+                          className="w-full h-32 object-contain mx-auto rounded bg-white border"
+                        />
+                        <p className="text-xs text-gray-500">Current signature from database</p>
+                        <button 
+                          onClick={() => setCertificateInfo(prev => ({ ...prev, authorizedSignature: null }))} 
+                          className="text-red-500 text-sm hover:underline"
+                        >
+                          Remove / Replace
+                        </button>
+                      </div>
+                    ) : (
+                      /* Show file name if it's a File object (new upload) */
+                      <div>
+                        <LuFileImage className="w-10 h-10 text-green-600 mx-auto" />
+                        <p className="text-sm">{certificateInfo.authorizedSignature.name}</p>
+                        <button onClick={() => removeFile("authorizedSignature")} className="text-red-500">
+                          <LuX className="w-5 h-5 mx-auto" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <>

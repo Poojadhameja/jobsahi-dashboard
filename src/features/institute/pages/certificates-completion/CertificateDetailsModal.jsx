@@ -233,9 +233,10 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
                   }
                   
                   // Use template API data only if not already extracted from certificates_issuance.php
-                  logoUrl = logoUrl || templateData?.logo_url || templateData?.logo || '';
-                  sealUrl = sealUrl || templateData?.seal_url || templateData?.seal || '';
-                  signatureUrl = signatureUrl || templateData?.signature_url || templateData?.signature || '';
+                  // New API response format: logo, seal, signature (not logo_url, seal_url, signature_url)
+                  logoUrl = logoUrl || templateData?.logo || templateData?.logo_url || '';
+                  sealUrl = sealUrl || templateData?.seal || templateData?.seal_url || '';
+                  signatureUrl = signatureUrl || templateData?.signature || templateData?.signature_url || '';
                   // Keep course_title as templateName (don't override with template API)
                   templateName = templateName || templateData?.template_name || templateData?.name || '';
                   description = description || templateData?.description || templateData?.footer_text || '';
