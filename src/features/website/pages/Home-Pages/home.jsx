@@ -277,8 +277,9 @@ const Home = () => {
   const browseJobHeaderContent = {
     title: (
       <>
-        Browse <span className={TEXT.ACCENT_SKY}>The Job</span> <br className="hidden sm:block" /> By{" "}
-        <span className={TEXT.ACCENT_SKY}>Category</span>
+        Browse <span className={TEXT.ACCENT_SKY}>The Job</span>{" "}
+        <span className="block sm:inline">By{" "}
+        <span className={TEXT.ACCENT_SKY}>Category</span></span>
       </>
     ),
     description: (
@@ -290,7 +291,7 @@ const Home = () => {
     cta: (
       <button
         onClick={navigateToFindJob}
-        className="inline-flex items-center text-[#A1E366] text-sm sm:text-base md:text-lg font-semibold border border-[#A1E366] rounded-full px-4 sm:px-5 py-1.5 sm:py-2 hover:bg-[#A1E366] hover:text-[#00395B] transition-colors duration-200"
+        className="inline-flex items-center justify-center text-[#A1E366] text-xs sm:text-sm md:text-base lg:text-lg font-semibold border border-[#A1E366] rounded-full px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 hover:bg-[#A1E366] hover:text-[#00395B] transition-colors duration-200 w-full sm:w-auto"
       >
         <span className="text-center">Explore Your Field And Start Applying Today</span>
         <FaArrowRight className="ml-2 text-xs sm:text-sm flex-shrink-0" />
@@ -426,17 +427,17 @@ const Home = () => {
             <div className="relative w-full max-w-6xl mx-auto">
               
               {/* Left green bubbles - horizontally aligned design with improved spacing */}
-              <div className="absolute -top-1 sm:-top-2 md:-top-3 left-0 sm:left-2 md:left-4 lg:left-6 z-40 animate-fade-in">
+              <div className="absolute -top-1 sm:-top-1.5 md:-top-2 left-0 sm:left-1 md:left-2 lg:left-4 z-40 animate-fade-in">
                 <div className="relative flex items-center">
                   {/* First pill - overlapping */}
-                  <div className="w-8 h-6 xs:w-10 xs:h-7 sm:w-12 sm:h-8 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-1.5 xs:-mr-2 sm:-mr-3 md:-mr-4" />
+                  <div className="w-6 h-4 xs:w-7 xs:h-5 sm:w-9 sm:h-6 md:w-11 md:h-7 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-1 xs:-mr-1.5 sm:-mr-2 md:-mr-2.5" />
                   {/* Second pill - overlapping */}
-                  <div className="w-8 h-6 xs:w-10 xs:h-7 sm:w-12 sm:h-8 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-1.5 xs:-mr-2 sm:-mr-3 md:-mr-4" />
+                  <div className="w-6 h-4 xs:w-7 xs:h-5 sm:w-9 sm:h-6 md:w-11 md:h-7 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-1 xs:-mr-1.5 sm:-mr-2 md:-mr-2.5" />
                   {/* Third pill - overlapping */}
-                  <div className="w-8 h-6 xs:w-10 xs:h-7 sm:w-12 sm:h-8 md:w-[72px] md:h-11 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-1 xs:-mr-1.5 sm:-mr-2 md:-mr-3" />
+                  <div className="w-6 h-4 xs:w-7 xs:h-5 sm:w-9 sm:h-6 md:w-11 md:h-7 bg-[#CFF49A] rounded-full shadow-[0_4px_15px_rgba(207,244,154,0.5)] -mr-0.5 xs:-mr-1 sm:-mr-1.5 md:-mr-2" />
                   {/* Plus icon circle */}
-                  <div className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-11 lg:h-11 bg-[#8CD63E] rounded-full flex items-center justify-center shadow-[0_4px_15px_rgba(140,214,62,0.4)] ring-2 ring-white/50">
-                    <FaPlus className="text-white text-[8px] xs:text-[10px] sm:text-xs md:text-sm" />
+                  <div className="w-5 h-5 xs:w-6 xs:h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 bg-[#8CD63E] rounded-full flex items-center justify-center shadow-[0_4px_15px_rgba(140,214,62,0.4)] ring-2 ring-white/50">
+                    <FaPlus className="text-white text-[7px] xs:text-[8px] sm:text-[9px] md:text-[10px]" />
                   </div>
                 </div>
               </div>
@@ -704,9 +705,9 @@ const Home = () => {
       <section className="py-6 sm:py-8 md:py-12 lg:py-16 bg-white overflow-hidden">
           <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-10 lg:gap-12 items-center">
           {/* Left visuals */}
-          <div className="relative mb-6 lg:mb-0">
-          <div className="w-[85%] sm:w-[80%] -mt-2 sm:-mt-3 md:-mt-4 lg:-mt-5 px-4 sm:px-5 md:px-6 pb-4 sm:pb-5 md:pb-6">
-            <div className="w-56 h-56 sm:w-60 sm:h-60 md:w-80 md:h-80 lg:w-96 lg:h-96 bg-blue-100 rounded-3xl relative overflow-hidden border-[6px] sm:border-[8px] md:border-[10px] lg:border-[12px] border-white">
+          <div className="relative mb-6 lg:mb-0 flex justify-center lg:justify-start">
+          <div className="w-[85%] sm:w-[80%] lg:w-auto -mt-2 sm:-mt-3 md:-mt-4 lg:-mt-5 px-4 sm:px-5 md:px-6 pb-4 sm:pb-5 md:pb-6">
+            <div className="w-56 h-56 sm:w-60 sm:h-60 md:w-80 md:h-80 lg:w-96 lg:h-96 bg-blue-100 rounded-3xl relative overflow-hidden border-[6px] sm:border-[8px] md:border-[10px] lg:border-[12px] border-white mx-auto lg:mx-0">
               <img 
                 src={homesq} 
                 alt="Home abstract shapes" 
@@ -714,18 +715,18 @@ const Home = () => {
               />
               <div className="absolute top-0 left-0 w-full h-full">
                 {/* Green Badge */}
-                <div className="absolute border-[5px] sm:border-[6px] md:border-[7px] lg:border-[8px] border-white -top-2 sm:-top-3 md:-top-4 -left-2 sm:-left-3 md:-left-4 bg-[#CFF49A] rounded-lg sm:rounded-xl md:rounded-2xl p-1.5 sm:p-2 md:p-2.5 lg:p-3 shadow-md z-10">
+                <div className="absolute border-[3px] sm:border-[4px] md:border-[5px] border-white -top-1 sm:-top-1.5 md:-top-2 -left-1 sm:-left-1.5 md:-left-2 bg-[#CFF49A] rounded-md sm:rounded-lg md:rounded-lg p-1 sm:p-1.5 md:p-2 shadow-md z-10">
                   <div className="text-center">
-                    <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 bg-white rounded-full flex items-center justify-center mx-auto mb-0.5 sm:mb-1 md:mb-1.5">
-                      <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 lg:w-3.5 lg:h-3.5 bg-[#CFF49A] rounded-full" />
+                    <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 bg-white rounded-full flex items-center justify-center mx-auto mb-0.5 sm:mb-0.5 md:mb-1">
+                      <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 bg-[#CFF49A] rounded-full" />
                     </div>
-                    <p className="text-black font-bold text-[9px] sm:text-[10px] md:text-xs">Top No. 1</p>
-                    <p className="text-black text-[7px] sm:text-[9px] md:text-[10px]">Portal Job Web</p>
+                    <p className="text-black font-bold text-[7px] sm:text-[8px] md:text-[9px]">Top No. 1</p>
+                    <p className="text-black text-[6px] sm:text-[7px] md:text-[8px]">Portal Job Web</p>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="absolute border-[5px] sm:border-[6px] md:border-[7px] lg:border-[8px] border-white -bottom-6 sm:-bottom-8 md:-bottom-10 left-12 sm:left-16 md:left-40 lg:left-72 w-20 h-16 sm:w-24 sm:h-20 md:w-32 md:h-24 lg:w-48 lg:h-40 bg-blue-100 rounded-2xl overflow-hidden">
+            <div className="absolute border-[5px] sm:border-[6px] md:border-[7px] lg:border-[8px] border-white -bottom-6 sm:-bottom-8 md:-bottom-10 left-1/2 sm:left-1/2 md:left-1/2 lg:left-72 transform -translate-x-1/2 lg:translate-x-0 w-20 h-16 sm:w-24 sm:h-20 md:w-32 md:h-24 lg:w-48 lg:h-40 bg-blue-100 rounded-2xl overflow-hidden">
               <img 
                 src={homesmall} 
                 alt="Home small" 
@@ -736,19 +737,19 @@ const Home = () => {
           </div>
 
           {/* Right content */}
-          <div className="w-full">
+          <div className="w-full flex flex-col justify-center text-center lg:text-left">
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight mb-3 sm:mb-4 md:mb-6">
               Find{" "}
               <span className={TEXT.PRIMARY_DEEP_BLUE}>The One</span> That&apos;s{" "}
               <span className={TEXT.PRIMARY_DEEP_BLUE}>Right For You</span>
             </h2>
             <p className="text-gray-700 text-base sm:text-lg leading-relaxed mb-5 sm:mb-6 md:mb-8 lg:mb-10">
-              With JobSahi, searching for the perfect job is quick, easy, and
-              tailored to your skills.
+              With JobSahi, searching for the perfect job is quick,{" "}
+              <span className="block">easy, and tailored to your skills.</span>
             </p>
 
-            <div className="space-y-3 sm:space-y-4 md:space-y-6">
-              <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
+            <div className="space-y-3 sm:space-y-4 md:space-y-6 flex flex-col items-center lg:items-start">
+              <div className="flex items-start sm:items-center space-x-2 sm:space-x-3 w-full lg:w-auto">
                 <FaCheckCircle
                   className={`${TEXT.ACCENT_GREEN} text-base sm:text-lg flex-shrink-0 mt-0.5 sm:mt-0`}
                 />
@@ -756,7 +757,7 @@ const Home = () => {
                   Fast &amp; Simple Job Search Experience
                 </span>
               </div>
-              <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
+              <div className="flex items-start sm:items-center space-x-2 sm:space-x-3 w-full lg:w-auto">
                 <FaCheckCircle
                   className={`${TEXT.ACCENT_GREEN} text-base sm:text-lg flex-shrink-0 mt-0.5 sm:mt-0`}
                 />
@@ -764,7 +765,7 @@ const Home = () => {
                   Top Job Listings Across Industries
                 </span>
               </div>
-              <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
+              <div className="flex items-start sm:items-center space-x-2 sm:space-x-3 w-full lg:w-auto">
                 <FaCheckCircle
                   className={`${TEXT.ACCENT_GREEN} text-base sm:text-lg flex-shrink-0 mt-0.5 sm:mt-0`}
                 />
@@ -774,7 +775,7 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="pt-2 sm:pt-4 md:pt-6">
+            <div className="pt-2 sm:pt-4 md:pt-6 flex justify-center lg:justify-start">
               <button
                 onClick={navigateToFindJob}
                 className={`border-2 ${BORDER.ACCENT_GREEN} ${TEXT.ACCENT_GREEN} px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 rounded-full font-semibold text-sm sm:text-base md:text-lg ${HOVER_BG.ACCENT_GREEN} hover:text-white flex items-center space-x-2 sm:space-x-3 transition-all duration-200`}
@@ -895,7 +896,7 @@ const Home = () => {
             {/* Arrows */}
             <button
               onClick={prevSlide}
-              className={`absolute left-0 sm:left-2 md:left-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-white border-2 ${BORDER.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT.ACCENT_GREEN} ${HOVER_BG.ACCENT_GREEN} hover:text-white transition-all duration-300 shadow-lg`}
+              className={`absolute left-0 sm:left-2 md:-left-4 lg:-left-6 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-white border-2 ${BORDER.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT.ACCENT_GREEN} ${HOVER_BG.ACCENT_GREEN} hover:text-white transition-all duration-300 shadow-lg hover:scale-110 active:scale-95`}
               aria-label="Previous slide"
             >
               <FaChevronLeft className="text-base sm:text-lg" />
@@ -903,14 +904,14 @@ const Home = () => {
 
             <button
               onClick={nextSlide}
-              className={`absolute right-0 sm:right-2 md:right-0 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-white border-2 ${BORDER.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT.ACCENT_GREEN} ${HOVER_BG.ACCENT_GREEN} hover:text-white transition-all duration-300 shadow-lg`}
+              className={`absolute right-0 sm:right-2 md:-right-4 lg:-right-6 top-1/2 transform -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 bg-white border-2 ${BORDER.ACCENT_GREEN} rounded-full flex items-center justify-center ${TEXT.ACCENT_GREEN} ${HOVER_BG.ACCENT_GREEN} hover:text-white transition-all duration-300 shadow-lg hover:scale-110 active:scale-95`}
               aria-label="Next slide"
             >
               <FaChevronRight className="text-base sm:text-lg" />
             </button>
 
-            {/* Cards */}
-            <div className="overflow-hidden px-8 sm:px-10 md:px-12 lg:px-5">
+            {/* Cards Container */}
+            <div className="overflow-hidden mx-8 sm:mx-10 md:mx-12 lg:mx-16">
               <div
                 className="flex transition-transform duration-500 ease-in-out"
                 style={{
@@ -922,29 +923,43 @@ const Home = () => {
                 {blogPosts.map((post, index) => (
                   <div
                     key={index}
-                    className="w-full md:w-1/3 flex-shrink-0 px-2 sm:px-3"
+                    className="w-full md:w-1/3 flex-shrink-0 px-2 sm:px-3 md:px-4"
                   >
-                    <article className="w-full bg-white rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
-                      <div className="w-full aspect-video min-h-[160px] xs:min-h-[180px] sm:min-h-[200px] md:min-h-[220px] bg-gray-200 flex items-center justify-center relative overflow-hidden">
-                        <span className="text-gray-500 text-xs sm:text-sm md:text-base">Blog Image</span>
+                    <article className="w-full h-full bg-white rounded-xl sm:rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col">
+                      {/* Image Section */}
+                      <div className="w-full aspect-[16/10] min-h-[180px] sm:min-h-[200px] md:min-h-[220px] lg:min-h-[240px] bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent"></div>
+                        <span className="text-gray-400 text-xs sm:text-sm md:text-base font-medium z-10">
+                          Blog Image
+                        </span>
                       </div>
 
-                      <div className="p-4 sm:p-5 md:p-6">
-                        <div className="flex items-center text-xs sm:text-sm text-gray-500 mb-2 sm:mb-3 flex-wrap">
-                          <span className="truncate">{post.location}</span>
-                          <span className="mx-1 sm:mx-2">•</span>
-                          <span className="truncate">{post.date}</span>
+                      {/* Content Section */}
+                      <div className="p-4 sm:p-5 md:p-6 flex-1 flex flex-col">
+                        {/* Location and Date */}
+                        <div className="flex items-center text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4 flex-wrap gap-1">
+                          <span className="truncate flex items-center">
+                            <FaMapMarkerAlt className="mr-1 text-[10px]" />
+                            {post.location}
+                          </span>
+                          <span className="mx-1">•</span>
+                          <span className="truncate flex items-center">
+                            <FaCalendarAlt className="mr-1 text-[10px]" />
+                            {post.date}
+                          </span>
                         </div>
 
-                        <h3 className="text-base sm:text-lg font-medium text-gray-800 mb-3 sm:mb-4 leading-tight line-clamp-2">
+                        {/* Title */}
+                        <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-800 mb-3 sm:mb-4 leading-tight line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
                           {post.title}
                         </h3>
 
-                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-auto">
                           {post.tags.map((tag, tagIndex) => (
                             <span
                               key={tagIndex}
-                              className="px-2 sm:px-3 py-0.5 sm:py-1 bg-gray-100 text-gray-700 text-[10px] sm:text-xs rounded-full"
+                              className="px-2.5 sm:px-3 py-1 sm:py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] sm:text-xs font-medium rounded-full transition-colors duration-200"
                             >
                               {tag}
                             </span>
@@ -957,14 +972,16 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Dots */}
-            <div className="flex justify-center mt-6 sm:mt-8 space-x-2">
+            {/* Dots Indicator */}
+            <div className="flex justify-center items-center mt-6 sm:mt-8 space-x-2">
               {Array.from({ length: getTotalSlides() }).map((_, index) => (
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-colors duration-300 ${
-                    index === currentSlide ? BG.ACCENT_GREEN : "bg-gray-300"
+                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
+                    index === currentSlide
+                      ? `${BG.ACCENT_GREEN} scale-125`
+                      : "bg-gray-300 hover:bg-gray-400"
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />

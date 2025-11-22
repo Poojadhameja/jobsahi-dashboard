@@ -3,25 +3,25 @@ import { FaArrowRight } from "react-icons/fa";
 
 const BrowseJobByCategory = ({ jobCategories = [], headerContent }) => {
   return (
-    <section className="py-16 bg-[#00395B]">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="py-8 sm:py-12 md:py-16 bg-[#00395B]">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6">
         {/* Header Section */}
         {headerContent && (
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12">
+          <div className="flex flex-col lg:flex-row justify-between items-center lg:items-center mb-8 sm:mb-10 md:mb-12 text-center lg:text-left">
             {/* Main Heading */}
-            <div className="mb-6 lg:mb-0">
-              <h2 className="text-4xl md:text-5xl font-semibold text-white leading-tight">
+            <div className="mb-6 lg:mb-0 w-full lg:w-auto">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-white leading-tight">
                 {headerContent.title}
               </h2>
             </div>
 
             {/* Descriptive Text and CTA */}
-            <div className="text-right">
-              <p className="text-white text-lg mb-4 max-w-md">
+            <div className="w-full lg:w-auto lg:text-right flex flex-col items-center lg:items-end">
+              <p className="text-white text-sm sm:text-base md:text-lg mb-4 max-w-md">
                 {headerContent.description}
               </p>
               {headerContent.cta && (
-                <div className="inline-flex items-center">
+                <div className="w-full sm:w-auto flex justify-center lg:justify-end">
                   {headerContent.cta}
                 </div>
               )}

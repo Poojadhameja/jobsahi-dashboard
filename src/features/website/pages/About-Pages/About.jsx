@@ -237,8 +237,8 @@ const About = () => {
                     </div>
                     
                     {/* Green Badge with Cube Icon */}
-                    <div className={`absolute -top-3 -left-3 sm:-top-4 sm:-left-4 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${COLOR_CLASSES.bg.accentLime} rounded-xl flex items-center justify-center shadow-lg z-10 border-[5px] sm:border-[6px] md:border-[7px] lg:border-[8px] ${COLOR_CLASSES.border.pureWhite}`}>
-                      <FaCube className={`${COLOR_CLASSES.text.pureWhite} text-lg sm:text-xl md:text-2xl`} />
+                    <div className={`absolute -top-2 -left-2 sm:-top-2.5 sm:-left-2.5 md:-top-3 md:-left-3 w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 ${COLOR_CLASSES.bg.accentLime} rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg z-10 border-[3px] sm:border-[4px] md:border-[5px] ${COLOR_CLASSES.border.pureWhite}`}>
+                      <FaCube className={`${COLOR_CLASSES.text.pureWhite} text-xs sm:text-sm md:text-base`} />
                     </div>
 
                     {/* Smaller Grey Block */}
