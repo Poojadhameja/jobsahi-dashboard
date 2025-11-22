@@ -8,6 +8,7 @@ import {
 } from "react-icons/lu";
 import { FiAlertCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import { TAILWIND_COLORS } from "@shared/WebConstant";
 import { Button, SaveButton } from "@shared/components/Button";
 import {
@@ -89,7 +90,7 @@ const CompanyInfo = () => {
             industry: professional.industry || professional.trade || "",
             email: personal.email || "",
             phone_number: personal.phone_number || personal.phone || "",
-            location: personal.location || "",
+            location: professional.location || personal.location || "",
             gst_pan: professional.gst_pan || professional.gstPan || docs.gst_pan || docs.gstPan || "",
           });
 
@@ -256,6 +257,14 @@ const CompanyInfo = () => {
       console.log('📤 Update Response:', res);
 
       if (res?.success || res?.status === true || res?.data?.success) {
+        // Show sweetalert popup
+        Swal.fire({
+          title: "Success!",
+          text: res?.message || "Profile updated successfully!",
+          icon: "success",
+          confirmButtonText: "OK"
+        });
+        
         toast.success("✅ Profile updated successfully!");
         
         // ✅ Refresh profile data after successful update

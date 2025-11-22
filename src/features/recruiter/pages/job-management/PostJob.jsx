@@ -25,6 +25,7 @@ const PostJob = ({ onJobSubmit }) => {
     vacancyStatus: "",
     no_of_vacancies: "",
     closingDate: "",
+    draftId: null, // For tracking if this is from a draft
   });
 
   const [errors, setErrors] = useState({});
@@ -118,6 +119,76 @@ const PostJob = ({ onJobSubmit }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // ✅ Save as Draft handler (saves to localStorage)
+  const handleSaveDraft = (e) => {
+    if (e) {
+      e.preventDefault(); // Prevent form submission
+      e.stopPropagation(); // Stop event bubbling
+    }
+    
+    try {
+      // Get category_id from selected category
+      const selectedCategory = jobCategories.find(
+        (cat) => cat.category_name === formData.jobSector
+      );
+
+      const draftData = {
+        jobTitle: formData.jobTitle || "",
+        jobSector: formData.jobSector || "",
+        jobSectorId: selectedCategory?.id || formData.jobSectorId || "",
+        category_id: selectedCategory?.id || formData.jobSectorId || "",
+        category_name: formData.jobSector || "",
+        jobDescription: formData.jobDescription || "",
+        minSalary: formData.minSalary || "",
+        maxSalary: formData.maxSalary || "",
+        jobType: formData.jobType || "",
+        requiredSkills: formData.requiredSkills || "",
+        experience: formData.experience || "",
+        location: formData.location || "",
+        contactPerson: formData.contactPerson || "",
+        phone: formData.phone || "",
+        additionalContact: formData.additionalContact || "",
+        vacancyStatus: formData.vacancyStatus || "",
+        no_of_vacancies: formData.no_of_vacancies || "",
+        closingDate: formData.closingDate || "",
+        savedAt: new Date().toISOString(),
+        isDraft: true,
+      };
+
+      // Get existing drafts from localStorage
+      const existingDrafts = JSON.parse(localStorage.getItem('job_drafts') || '[]');
+      
+      // Add new draft with unique ID
+      const draftId = `draft_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newDraft = { ...draftData, draftId };
+      
+      existingDrafts.push(newDraft);
+      
+      // Save to localStorage
+      localStorage.setItem('job_drafts', JSON.stringify(existingDrafts));
+      
+      // ✅ Trigger custom event to notify ManageJob to refresh
+      window.dispatchEvent(new Event('draftSaved'));
+      
+      Swal.fire({
+        title: "Draft Saved!",
+        text: "Your job has been saved as draft. You can view it in Manage Job section.",
+        icon: "success",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#3085d6",
+      });
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to save draft. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#d33",
+      });
+    }
+  };
+
   // ✅ Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -161,6 +232,28 @@ const PostJob = ({ onJobSubmit }) => {
       console.log("📦 [PostJob] ➜ API Response:", response);
 
       if (response?.status === true || response?.success === true) {
+        // ✅ If this was saved from a draft, remove it from cache
+        const draftId = formData.draftId;
+        if (draftId) {
+          const existingDrafts = JSON.parse(localStorage.getItem('job_drafts') || '[]');
+          const updatedDrafts = existingDrafts.filter(draft => draft.draftId !== draftId);
+          localStorage.setItem('job_drafts', JSON.stringify(updatedDrafts));
+        }
+        
+        // ✅ Also check if formData has draftId from localStorage match
+        const allDrafts = JSON.parse(localStorage.getItem('job_drafts') || '[]');
+        const matchingDraft = allDrafts.find(draft => 
+          draft.jobTitle === formData.jobTitle && 
+          draft.location === formData.location &&
+          draft.phone === formData.phone
+        );
+        if (matchingDraft && matchingDraft.draftId) {
+          const updatedDrafts = allDrafts.filter(draft => draft.draftId !== matchingDraft.draftId);
+          localStorage.setItem('job_drafts', JSON.stringify(updatedDrafts));
+          // Trigger refresh event
+          window.dispatchEvent(new Event('draftSaved'));
+        }
+
         Swal.fire({
           title: "Success!",
           text: "Job created successfully!",
@@ -269,6 +362,15 @@ const PostJob = ({ onJobSubmit }) => {
             className="rounded-full"
           >
             Cancel
+          </Button>
+          <Button
+            onClick={handleSaveDraft}
+            type="button"
+            variant="light"
+            size="md"
+            className="rounded-full border border-gray-300"
+          >
+            Save as Draft
           </Button>
           <Button
             type="submit"

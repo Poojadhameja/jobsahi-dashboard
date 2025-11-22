@@ -103,6 +103,13 @@ const JobManagement = () => {
 
   const handleTabChange = (tabIndex) => {
     setActiveTab(tabIndex)
+    // ✅ If switching to Manage Job tab, trigger refresh to show latest drafts
+    if (tabIndex === 0) {
+      // Small delay to ensure ManageJob component is mounted
+      setTimeout(() => {
+        window.dispatchEvent(new Event('draftSaved'));
+      }, 100);
+    }
   }
 
   return (
