@@ -62,7 +62,7 @@ function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }
         <div>
           <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Location:</span>
           <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>
-            {institute.city && institute.state ? `${institute.city}, ${institute.state}` : institute.location || 'N/A'}
+            {institute.address ? `${institute.address}${institute.postal_code ? `, ${institute.postal_code}` : ''}` : 'N/A'}
           </p>
         </div>
         <div>
@@ -258,18 +258,6 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
               <div>
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Address</label>
                 <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.address || 'N/A'}</p>
-              </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>City</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.city || 'N/A'}</p>
-              </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>State</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.state || 'N/A'}</p>
-              </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Country</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.country || 'N/A'}</p>
               </div>
               <div>
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Postal Code</label>
