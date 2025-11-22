@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { LuUpload, LuFileText, LuFileImage, LuX } from "react-icons/lu";
 import RichTextEditor from "../../../../shared/components/RichTextEditor";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
-import { postMultipart, getMethod } from "../../../../service/api";
+import { putMultipart, getMethod } from "../../../../service/api";
 import apiService from "../../services/serviceUrl";
 
 function ManageTemplate() {
@@ -105,20 +105,77 @@ function ManageTemplate() {
   };
 
   // ---------------- TEMPLATE SELECTION HANDLER ----------------
-  const handleTemplateChange = (e) => {
+  const handleTemplateChange = async (e) => {
     const templateId = e.target.value;
     setSelectedTemplateId(templateId);
 
     if (templateId) {
-      const selectedTemplate = templates.find(
-        (t) => String(t.template_id || t.id) === String(templateId)
-      );
-      if (selectedTemplate) {
-        setCertificateInfo((prev) => ({
-          ...prev,
-          templateName: selectedTemplate.template_name || "",
-          description: selectedTemplate.footer_text || "",
-        }));
+      try {
+        // Step 1: First call certificate_templates.php?id={templateId} to get template details
+        console.log("📥 Step 1: Fetching template details from API for ID:", templateId);
+        const templateResp = await getMethod({
+          apiUrl: `${apiService.getCertificateTemplate}?id=${templateId}`, // Call: certificate_templates.php?id=5
+        });
+
+        console.log("📥 Template API response:", templateResp);
+
+        if (templateResp?.status && templateResp?.data) {
+          // Extract template data from response (could be array or single object)
+          let templateData = null;
+          if (Array.isArray(templateResp.data)) {
+            templateData = templateResp.data.find(t => 
+              String(t.id || t.template_id) === String(templateId)
+            );
+          } else {
+            templateData = templateResp.data;
+          }
+
+          if (templateData) {
+            console.log("✅ Template data loaded from API:", templateData);
+            setCertificateInfo((prev) => ({
+              ...prev,
+              templateName: templateData.template_name || templateData.name || "",
+              description: templateData.description || templateData.footer_text || "",
+            }));
+          } else {
+            // Fallback to local templates array
+            const selectedTemplate = templates.find(
+              (t) => String(t.template_id || t.id) === String(templateId)
+            );
+            if (selectedTemplate) {
+              setCertificateInfo((prev) => ({
+                ...prev,
+                templateName: selectedTemplate.template_name || "",
+                description: selectedTemplate.description || selectedTemplate.footer_text || "",
+              }));
+            }
+          }
+        } else {
+          // Fallback to local templates array if API call fails
+          const selectedTemplate = templates.find(
+            (t) => String(t.template_id || t.id) === String(templateId)
+          );
+          if (selectedTemplate) {
+            setCertificateInfo((prev) => ({
+              ...prev,
+              templateName: selectedTemplate.template_name || "",
+              description: selectedTemplate.description || selectedTemplate.footer_text || "",
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("❌ Error fetching template details from API:", error);
+        // Fallback to local templates array
+        const selectedTemplate = templates.find(
+          (t) => String(t.template_id || t.id) === String(templateId)
+        );
+        if (selectedTemplate) {
+          setCertificateInfo((prev) => ({
+            ...prev,
+            templateName: selectedTemplate.template_name || "",
+            description: selectedTemplate.description || selectedTemplate.footer_text || "",
+          }));
+        }
       }
     } else {
       setCertificateInfo((prev) => ({
@@ -156,44 +213,48 @@ function ManageTemplate() {
         .trim();
 
       form.append("footer_text", footer || "Powered by JobSahi");
+      form.append("template_id", selectedTemplateId); // Required for update
       form.append("is_active", "1");
       form.append("admin_action", "approved");
 
-      if (certificateInfo.instituteLogo)
-        form.append("logo_url", certificateInfo.instituteLogo);
-      if (certificateInfo.officialSeal)
-        form.append("seal_url", certificateInfo.officialSeal);
-      if (certificateInfo.authorizedSignature)
-        form.append("signature_url", certificateInfo.authorizedSignature);
+      // Append files if they exist (for update API)
+      if (certificateInfo.instituteLogo instanceof File)
+        form.append("logo", certificateInfo.instituteLogo);
+      if (certificateInfo.officialSeal instanceof File)
+        form.append("seal", certificateInfo.officialSeal);
+      if (certificateInfo.authorizedSignature instanceof File)
+        form.append("signature", certificateInfo.authorizedSignature);
 
-      const resp = await postMultipart({
-        apiUrl: apiService.createCertificateTemplate,
-        formData: form,
+      // Step 2: Call update_certificate_template.php using PUT method
+      console.log("📤 Step 2: Updating template with ID:", selectedTemplateId);
+      const resp = await putMultipart({
+        apiUrl: apiService.updateCertificateTemplate,
+        data: form, // Use 'data' parameter for putMultipart
       });
 
       if (resp?.status) {
-        const newTemplate = {
-          id: resp.template_id,
-          template_name: certificateInfo.templateName.trim(),
-          header_text: "Certificate of Completion",
-          footer_text: footer || "Powered by JobSahi",
-          logo_url: getFullUrl(resp.logo_url),
-          seal_url: getFullUrl(resp.seal_url),
-          signature_url: getFullUrl(resp.signature_url),
-          created_at: new Date().toISOString(),
-        };
-        console.log("Template created:", newTemplate);
+        // Refresh templates list after successful update
+        const refreshResp = await getMethod({
+          apiUrl: apiService.certificateTemplatesList,
+        });
+        
+        if (refreshResp?.status && Array.isArray(refreshResp.data)) {
+          setTemplates(refreshResp.data);
+        }
+        
+        alert("Template updated successfully!");
         setCertificateInfo((prev) => ({
           ...prev,
           instituteLogo: null,
           officialSeal: null,
           authorizedSignature: null,
         }));
+        setSelectedTemplateId("");
         setDragActiveLogo(false);
         setDragActiveSeal(false);
         setDragActiveSignature(false);
       } else {
-        alert(resp?.message || "Failed to create template");
+        alert(resp?.message || "Failed to update template");
       }
     } catch (err) {
       console.error("Create template error", err);
