@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { LuCalendar, LuX } from "react-icons/lu";
-import { getMethod, putMethod } from "../../../../service/api";
+import { getMethod, putMethod, postMethod } from "../../../../service/api";
 import service from "../../services/serviceUrl";
 import Swal from "sweetalert2";
 import RichTextEditor from "@shared/components/RichTextEditor";
@@ -47,10 +47,37 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
     fetchCategories();
   }, []);
 
-  // ✅ Fetch Job Details
+  // ✅ Fetch Job Details or Load Draft
   useEffect(() => {
     if (!isOpen || !job?.id) return;
 
+    // ✅ If it's a draft, load directly from job object (no API call needed)
+    if (job.isDraft || job.draftId) {
+      setLoading(false);
+      setFormData({
+        jobTitle: job.jobTitle || job.title || "",
+        jobSector: job.jobSector || job.category_name || "",
+        jobSectorId: job.jobSectorId || job.category_id || "",
+        jobDescription: job.jobDescription || job.description || "",
+        salaryType: job.salaryType || "",
+        minSalary: job.minSalary || job.salary_min || "",
+        maxSalary: job.maxSalary || job.salary_max || "",
+        jobType: job.jobType || job.job_type || "",
+        requiredSkills: job.requiredSkills || job.skills_required || "",
+        experience: job.experience || job.experience_required || "",
+        location: job.location || "",
+        contactPerson: job.contactPerson || job.person_name || "",
+        phone: job.phone || "",
+        additionalContact: job.additionalContact || job.additional_contact || "",
+        vacancyStatus: job.vacancyStatus || job.status || "",
+        no_of_vacancies: job.no_of_vacancies || "",
+        closingDate: job.closingDate || job.application_deadline?.split(" ")[0] || "",
+        draftId: job.draftId || job.id, // Keep draftId for reference
+      });
+      return;
+    }
+
+    // ✅ Regular job - fetch from API
     const fetchJobDetails = async () => {
       try {
         setLoading(true);
@@ -64,7 +91,6 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
             jobTitle: d.title || "",
             jobSector: d.category_id?.toString() || "",
             jobSectorName: d.category_name || "",
-
             jobDescription: d.description || "",
             salaryType: d.salary_type
               ? d.salary_type.charAt(0).toUpperCase() +
@@ -218,31 +244,75 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
     console.log("📦 [EditCard] ➜ Payload ready:", payload);
 
     try {
-      const res = await putMethod({
-        apiUrl: `${service.updateJob}?id=${job.id}`,
-        payload,
-      });
-      console.log("✅ [EditCard] ➜ API Response:", res);
+      // ✅ If it's a draft, create new job (POST) instead of updating
+      if (job.isDraft || job.draftId || formData.draftId) {
+        const draftId = formData.draftId || job.draftId || job.id;
+        
+        // Create new job via POST API
+        const res = await postMethod({
+          apiUrl: service.createJob,
+          payload: {
+            ...payload,
+            category_id: formData.jobSectorId || formData.jobSector || payload.category_id,
+          },
+        });
+        console.log("✅ [EditCard] ➜ Draft saved as job - API Response:", res);
 
-      if (res?.status) {
-        Swal.fire({
-          title: "Success!",
-          text: "Job updated successfully!",
-          icon: "success",
-          confirmButtonText: "OK",
-          confirmButtonColor: "#3085d6",
-        }).then(() => {
-          if (onSave) onSave();
-          onClose();
-        });
+        if (res?.status || res?.success) {
+          // ✅ Remove draft from cache
+          const drafts = JSON.parse(localStorage.getItem('job_drafts') || '[]');
+          const updatedDrafts = drafts.filter(d => d.draftId !== draftId);
+          localStorage.setItem('job_drafts', JSON.stringify(updatedDrafts));
+          // Trigger refresh event
+          window.dispatchEvent(new Event('draftSaved'));
+
+          Swal.fire({
+            title: "Success!",
+            text: "Draft saved as job successfully!",
+            icon: "success",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#3085d6",
+          }).then(() => {
+            if (onSave) onSave();
+            onClose();
+          });
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: res?.message || "Failed to save draft as job. Please try again.",
+            icon: "error",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#d33",
+          });
+        }
       } else {
-        Swal.fire({
-          title: "Error!",
-          text: res?.message || "Failed to update job. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-          confirmButtonColor: "#d33",
+        // ✅ Regular job - update via PUT API
+        const res = await putMethod({
+          apiUrl: `${service.updateJob}?id=${job.id}`,
+          payload,
         });
+        console.log("✅ [EditCard] ➜ API Response:", res);
+
+        if (res?.status) {
+          Swal.fire({
+            title: "Success!",
+            text: "Job updated successfully!",
+            icon: "success",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#3085d6",
+          }).then(() => {
+            if (onSave) onSave();
+            onClose();
+          });
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: res?.message || "Failed to update job. Please try again.",
+            icon: "error",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#d33",
+          });
+        }
       }
     } catch (err) {
       console.error("🚨 [EditCard] ➜ Network or API error:", err);
