@@ -381,16 +381,51 @@ const PanelManagement = () => {
     try {
       setIsSubmitting(true)
 
+      // Get the correct ID field - try multiple possible field names
+      const feedbackId = selectedFeedback.id || 
+                        selectedFeedback.originalData?.id || 
+                        selectedFeedback.originalData?.panel_id || 
+                        selectedFeedback.originalData?.interview_panel_id
+
+      // Get interview_id from original data
+      const interviewId = selectedFeedback.interview_id || 
+                         selectedFeedback.originalData?.interview_id
+
+      // Validate required fields
+      if (!feedbackId) {
+        Swal.fire({
+          title: "Error",
+          text: "Feedback ID is missing. Please refresh and try again.",
+          icon: "error",
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      if (!interviewId) {
+        Swal.fire({
+          title: "Error",
+          text: "Interview ID is missing. Please refresh and try again.",
+          icon: "error",
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      // Build payload with correct field names
+      // Backend expects panel_id (not id) based on API structure
       const payload = {
-        id: selectedFeedback.id || selectedFeedback.originalData?.id,
-        interview_id: selectedFeedback.interview_id || selectedFeedback.originalData?.interview_id,
-        panelist_name: selectedFeedback.panelist || selectedFeedback.originalData?.panelist_name,
-        feedback: selectedFeedback.remarks || selectedFeedback.originalData?.feedback,
-        rating: selectedFeedback.rating || selectedFeedback.originalData?.rating,
+        panel_id: feedbackId, // Primary field name for update
+        interview_id: interviewId,
+        panelist_name: selectedFeedback.panelist || selectedFeedback.originalData?.panelist_name || '',
+        feedback: selectedFeedback.remarks || selectedFeedback.originalData?.feedback || '',
+        rating: parseInt(selectedFeedback.rating || selectedFeedback.originalData?.rating || 0),
         notes: selectedFeedback.decision || selectedFeedback.originalData?.notes || ''
       }
 
       console.log('📤 Update Panel Feedback Payload:', payload)
+      console.log('📤 Selected Feedback:', selectedFeedback)
+      console.log('📤 Original Data:', selectedFeedback.originalData)
 
       const response = await putMethod({
         apiUrl: apiService.updateInterviewPanel,
@@ -406,16 +441,24 @@ const PanelManagement = () => {
           title: "Success!",
           text: "Feedback updated successfully",
           icon: "success",
+          confirmButtonColor: '#5C9A24'
         }).then(() => {
           setShowUpdateModal(false)
           setSelectedFeedback(null)
           fetchPanelFeedbacks() // Refresh list
         })
       } else {
+        const errorMessage = response?.message || response?.error || "Failed to update feedback. Please try again."
+        console.error('❌ Update failed:', {
+          response,
+          payload,
+          selectedFeedback
+        })
         Swal.fire({
           title: "Error",
-          text: response?.message || "Failed to update feedback. Please try again.",
+          text: errorMessage,
           icon: "error",
+          confirmButtonColor: '#d33'
         })
       }
     } catch (error) {
@@ -424,6 +467,7 @@ const PanelManagement = () => {
         title: "Error",
         text: error?.message || "Something went wrong. Please try again.",
         icon: "error",
+        confirmButtonColor: '#d33'
       })
     } finally {
       setIsSubmitting(false)

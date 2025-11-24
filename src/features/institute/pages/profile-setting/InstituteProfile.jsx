@@ -300,7 +300,7 @@ export default function InstituteProfile() {
             payload: Object.fromEntries(fd.entries())
           })
 
-      if (res?.success || res?.status === 'success') {
+      if (res?.success || res?.status === 'success' || res?.status === true) {
         // Refresh profile data after successful update
         await fetchInstituteProfile()
         

@@ -4,6 +4,7 @@ import RichTextEditor from "../../../../shared/components/RichTextEditor";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { postMultipart, getMethod } from "../../../../service/api";
 import apiService from "../../services/serviceUrl";
+import Swal from "sweetalert2";
 
 function ManageTemplate() {
   const [creating, setCreating] = useState(false);
@@ -172,6 +173,24 @@ function ManageTemplate() {
       });
 
       if (resp?.status) {
+        // Show success message
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Template updated successfully!',
+          confirmButtonColor: '#5C9A24',
+          timer: 3000,
+          timerProgressBar: true
+        });
+        
+        // Refresh templates list
+        const refreshResp = await getMethod({
+          apiUrl: apiService.certificateTemplatesList,
+        });
+        if (refreshResp?.status && Array.isArray(refreshResp.data)) {
+          setTemplates(refreshResp.data);
+        }
+        
         const newTemplate = {
           id: resp.template_id,
           template_name: certificateInfo.templateName.trim(),
@@ -193,7 +212,12 @@ function ManageTemplate() {
         setDragActiveSeal(false);
         setDragActiveSignature(false);
       } else {
-        alert(resp?.message || "Failed to create template");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: resp?.message || "Failed to update template",
+          confirmButtonColor: '#d33'
+        });
       }
     } catch (err) {
       console.error("Create template error", err);

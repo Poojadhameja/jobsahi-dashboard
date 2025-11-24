@@ -277,9 +277,13 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
 
     // Status filter
     if (statusFilter) {
-      filtered = filtered.filter(
-        (job) => job.status && job.status.toLowerCase() === statusFilter.toLowerCase()
-      );
+      filtered = filtered.filter((job) => {
+        // Check both status field and isDraft flag for Draft status
+        if (statusFilter.toLowerCase() === 'draft') {
+          return job.isDraft === true || (job.status && job.status.toLowerCase() === 'draft');
+        }
+        return job.status && job.status.toLowerCase() === statusFilter.toLowerCase();
+      });
     }
 
     // Location filter - check if location contains the filter value

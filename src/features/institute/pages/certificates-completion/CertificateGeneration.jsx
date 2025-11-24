@@ -1224,6 +1224,50 @@ function CertificateGeneration() {
         {renderCertificateFormSections({ includeCreateButton: true })}
       </div>
 
+      {/* Generated Certificates List */}
+      {generatedCertificates.length > 0 && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
+            Generated Certificates ({generatedCertificates.length})
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {generatedCertificates.map((cert, index) => {
+              const certId = cert?.certificate_id || cert?.id || cert?.data?.certificate_id || index;
+              const studentName = cert?.student_name || cert?.data?.student_name || `Student ${index + 1}`;
+              const fileUrl = cert?.file_url || cert?.data?.file_url || cert?.certificate_url;
+              
+              return (
+                <div key={certId} className={`border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <LuAward className={`w-5 h-5 ${TAILWIND_COLORS.TEXT_PRIMARY}`} />
+                      <span className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                        {studentName}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        if (fileUrl) {
+                          window.open(fileUrl, '_blank');
+                        } else if (certId) {
+                          handleDownloadCertificate(certId);
+                        }
+                      }}
+                      className={`flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 ${TAILWIND_COLORS.TEXT_INVERSE} rounded-md text-sm transition-colors`}
+                    >
+                      <LuDownload className="w-4 h-4" />
+                      <span>Download</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Certificate Preview */}
       {/* {renderCertificatePreview()} */}
 

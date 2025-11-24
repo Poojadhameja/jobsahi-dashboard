@@ -13,7 +13,7 @@ import {postMethod, getMethod } from "../../../../service/api";
 import apiService from "../../services/serviceUrl.js";
 import { SERVICE_URL } from "../../../../service/api";
 
-const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle }) => {
+const CreateBatchModal = ({ isOpen, onClose, courseId, courseTitle, onBatchCreated }) => {
 
 
 
@@ -227,7 +227,9 @@ const [tempEnd, setTempEnd] = useState("");
       if (response.status) {
         // Refresh instructors list from database
         await fetchInstructors();
-        setFormData((prev) => ({ ...prev, instructor: response.data.name }));
+        // Set instructor name from response or newly created instructor
+        const newInstructorName = response.data?.name || newInstructorData.name.trim();
+        setFormData((prev) => ({ ...prev, instructor: newInstructorName }));
         setShowCreateInstructorModal(false);
         setNewInstructorData({ name: "", email: "", phone: "" });
         setSuccessMsg("Instructor created successfully");
@@ -317,6 +319,10 @@ const [tempEnd, setTempEnd] = useState("");
 
       if (result.status) {
         setSuccessMsg(result.message || "Batch created successfully");
+        // Notify parent component to refresh batch list
+        if (onBatchCreated) {
+          onBatchCreated();
+        }
         setTimeout(() => {
           onClose();
           resetState();
