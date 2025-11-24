@@ -68,7 +68,7 @@ const JobManagement = () => {
   const addJob = (newJob) => {
     const jobWithId = {
       ...newJob,
-      id: Math.max(...jobs.map(job => job.id)) + 1,
+      id: jobs.length > 0 ? Math.max(...jobs.map(job => job.id)) + 1 : 1,
       views: 0,
       instaMatch: 0,
       applicants: 0
@@ -130,7 +130,8 @@ const JobManagement = () => {
         <ManageJob 
           jobs={jobs} 
           onEditJob={editJob} 
-          onDeleteJob={deleteJob} 
+          onDeleteJob={deleteJob}
+          onNavigateToPostJob={() => setActiveTab(1)}
         />
       )}
       {activeTab === 1 && (
