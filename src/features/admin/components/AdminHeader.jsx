@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TAILWIND_COLORS, COLORS } from '../../../shared/WebConstant.js'
 import Button from '../../../shared/components/Button.jsx'
@@ -7,8 +7,47 @@ import DarkModeToggle from '../../../shared/components/DarkModeToggle.jsx'
 
 export default function Header({ toggleSidebar }) {
   const navigate = useNavigate()
-  var authUser = localStorage.getItem("authUser")
-  var user = JSON.parse(authUser);
+  const [user, setUser] = useState(() => {
+    try {
+      const authUser = localStorage.getItem("authUser")
+      return authUser ? JSON.parse(authUser) : { user_name: 'Admin User', role: 'Administrator' }
+    } catch {
+      return { user_name: 'Admin User', role: 'Administrator' }
+    }
+  })
+
+  // Listen for profile updates
+  useEffect(() => {
+    const handleProfileUpdate = (event) => {
+      try {
+        const authUser = localStorage.getItem("authUser")
+        if (authUser) {
+          setUser(JSON.parse(authUser))
+        }
+      } catch (error) {
+        console.error('Error updating user in header:', error)
+      }
+    }
+
+    // Listen to custom event
+    window.addEventListener('profileUpdated', handleProfileUpdate)
+    
+    // Also listen to storage events (for cross-tab updates)
+    window.addEventListener('storage', () => {
+      try {
+        const authUser = localStorage.getItem("authUser")
+        if (authUser) {
+          setUser(JSON.parse(authUser))
+        }
+      } catch (error) {
+        console.error('Error updating user from storage:', error)
+      }
+    })
+
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate)
+    }
+  }, [])
 
   return (
     <header className={`sticky top-0 z-30 flex items-center justify-between ${TAILWIND_COLORS.HEADER_BG} px-2 sm:px-4 md:px-6 py-2 sm:py-3 border-b ${TAILWIND_COLORS.BORDER}`}>
@@ -47,7 +86,7 @@ export default function Header({ toggleSidebar }) {
 
         {/* User Dropdown - Always visible but responsive */}
         <div className="block">
-          <UserDropdown user={{ user_name: 'Admin User', role: 'Administrator' }} />
+          <UserDropdown user={user} />
         </div>
       </div>
     </header>

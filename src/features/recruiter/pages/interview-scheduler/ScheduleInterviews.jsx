@@ -39,10 +39,13 @@ const ScheduleInterviews = () => {
     candidate_id: "",
     student_id: "",
     job_id: "",
+    application_id: "",
     date: new Date().toISOString().split("T")[0],
     timeSlot: "",
     interviewMode: "",
     location: "",
+    interview_link: "",
+    platform_name: "",
     status: "Scheduled",
     feedback: "",
   });
@@ -136,39 +139,81 @@ const ScheduleInterviews = () => {
     `${formData.date} ${formData.timeSlot || "00:00"}:00`;
 
   const handleCandidateSelect = (c) => {
-    setFormData((p) => ({
-      ...p,
-      candidates: c.candidate_name,
-      candidate_id: c.candidate_id,
-      student_id: c.candidate_id,
-      application_id: "",
-      job_id: "",
-      applicationTitle: "",
-    }));
+    // Check if same candidate is being selected again
+    const isSameCandidate = formData.candidate_id === c.candidate_id;
+    
+    // Use functional update to avoid state conflicts
+    setFormData((p) => {
+      // If selecting the same candidate, don't reset everything
+      if (isSameCandidate) {
+        return p; // Keep current state
+      }
+      
+      // If selecting different candidate, reset related fields
+      return {
+        ...p,
+        candidates: c.candidate_name,
+        candidate_id: c.candidate_id,
+        student_id: c.candidate_id,
+        application_id: "",
+        job_id: "",
+        applicationTitle: "",
+        // Reset other fields when changing candidate
+        timeSlot: "",
+        interviewMode: "",
+        location: "",
+        interview_link: "",
+        platform_name: "",
+        feedback: "",
+      };
+    });
+    
+    // Always update applications list for the selected candidate
     setApplications(c.applications || []);
+    
+    // Close dropdown
     setShowCandidateDropdown(false);
+    
+    // Reset application dropdown if candidate changed
+    if (!isSameCandidate) {
+      setShowApplicationDropdown(false);
+    }
   };
 const handleScheduleInterview = async () => {
   if (!formData.student_id)
     return Swal.fire("Missing Candidate", "Please select candidate.", "warning");
   if (!formData.job_id)
     return Swal.fire("Missing Job", "Please select a job.", "warning");
+  if (!formData.application_id)
+    return Swal.fire("Missing Application", "Please select an application.", "warning");
   if (!formData.date || !formData.timeSlot)
     return Swal.fire("Missing Date/Time", "Select date & time.", "warning");
   if (!formData.interviewMode)
     return Swal.fire("Missing Mode", "Select interview mode.", "warning");
+  
+  // Validate online interview requirements
+  if (formData.interviewMode === "online") {
+    if (!formData.interview_link || !formData.interview_link.trim())
+      return Swal.fire("Missing Interview Link", "interview_link is required for online interviews.", "error");
+    if (!formData.platform_name || !formData.platform_name.trim())
+      return Swal.fire("Missing Platform", "Please enter platform name (e.g., Google Meet, Zoom, Teams).", "warning");
+  }
+  
+  // Validate offline interview requirements
   if (formData.interviewMode === "offline" && !formData.location.trim())
     return Swal.fire("Missing Location", "Enter offline location.", "warning");
 
   const payload = {
+    application_id: formData.application_id,
     student_id: formData.student_id,
     job_id: formData.job_id,
     scheduled_at: buildScheduledAt(),
     mode: formData.interviewMode,
-    location:
-      formData.interviewMode === "offline" ? formData.location : "Online",
+    location: formData.interviewMode === "offline" ? formData.location.trim() : (formData.location || "Online"),
+    interview_link: formData.interviewMode === "online" ? formData.interview_link.trim() : null,
+    platform_name: formData.interviewMode === "online" ? formData.platform_name.trim() : null,
     status: formData.status || "Scheduled",
-    feedback: formData.feedback,
+    interview_info: formData.feedback || "",
   };
 
   console.log("📤 Payload Sent:", payload);
@@ -229,10 +274,13 @@ const handleScheduleInterview = async () => {
         candidate_id: "",
         student_id: "",
         job_id: "",
+        application_id: "",
         date: new Date().toISOString().split("T")[0],
         timeSlot: "",
         interviewMode: "",
         location: "",
+        interview_link: "",
+        platform_name: "",
         status: "Scheduled",
         feedback: "",
       });
@@ -617,27 +665,50 @@ const handleUpdateInterview = async () => {
               Select Candidate
             </label>
             <button
-              onClick={() => setShowCandidateDropdown(!showCandidateDropdown)}
-              className="w-full px-3 py-2 text-left border border-gray-300 rounded-lg flex justify-between"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowCandidateDropdown(!showCandidateDropdown);
+                // Close application dropdown when opening candidate dropdown
+                if (!showCandidateDropdown) {
+                  setShowApplicationDropdown(false);
+                }
+              }}
+              className="w-full px-3 py-2 text-left border border-gray-300 rounded-lg flex justify-between items-center hover:bg-gray-50 transition-colors"
             >
-              {formData.candidates ||
-                (loadingCandidates ? "Loading..." : "Choose candidate")}
+              <span className="flex-1 truncate">
+                {formData.candidates ||
+                  (loadingCandidates ? "Loading..." : "Choose candidate")}
+              </span>
               <LuChevronDown
-                className={`w-4 h-4 ${showCandidateDropdown ? "rotate-180" : ""
-                  }`}
+                className={`w-4 h-4 transition-transform ${showCandidateDropdown ? "rotate-180" : ""}`}
               />
             </button>
             {showCandidateDropdown && (
-              <div className="absolute mt-1 w-full bg-white border rounded-lg shadow max-h-56 overflow-y-auto">
-                {candidates.map((c) => (
-                  <button
-                    key={c.candidate_id}
-                    onClick={() => handleCandidateSelect(c)}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-50"
-                  >
-                    {c.candidate_name}
-                  </button>
-                ))}
+              <div className="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                {candidates.length > 0 ? (
+                  candidates.map((c) => (
+                    <button
+                      key={c.candidate_id}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleCandidateSelect(c);
+                      }}
+                      className={`block w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
+                        formData.candidate_id === c.candidate_id ? 'bg-blue-50 font-medium' : ''
+                      }`}
+                    >
+                      {c.candidate_name}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-2 text-sm text-gray-500">
+                    {loadingCandidates ? "Loading candidates..." : "No candidates available"}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -649,34 +720,58 @@ const handleUpdateInterview = async () => {
                 Select Application
               </label>
               <button
-                onClick={() => setShowApplicationDropdown(!showApplicationDropdown)}
-                className="w-full px-3 py-2 text-left border border-gray-300 rounded-lg flex justify-between"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowApplicationDropdown(!showApplicationDropdown);
+                }}
+                className="w-full px-3 py-2 text-left border border-gray-300 rounded-lg flex justify-between items-center hover:bg-gray-50 transition-colors"
               >
-                {formData.applicationTitle || "Choose application"}
+                <span className="flex-1 truncate">
+                  {formData.applicationTitle || "Choose application"}
+                </span>
                 <LuChevronDown
-                  className={`w-4 h-4 ${showApplicationDropdown ? "rotate-180" : ""
-                    }`}
+                  className={`w-4 h-4 transition-transform ${showApplicationDropdown ? "rotate-180" : ""}`}
                 />
               </button>
               {showApplicationDropdown && (
-                <div className="absolute mt-1 w-full bg-white border rounded-lg shadow max-h-56 overflow-y-auto">
-                  {applications.map((a) => (
-                    <button
-                      key={a.application_id}
-                      onClick={() => {
-                        setFormData((p) => ({
-                          ...p,
-                          application_id: a.application_id,
-                          job_id: a.job_id,
-                          applicationTitle: `${a.job_title}`,
-                        }));
-                        setShowApplicationDropdown(false);
-                      }}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-50"
-                    >
-                      {a.job_title}
-                    </button>
-                  ))}
+                <div className="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-56 overflow-y-auto">
+                  {applications.length > 0 ? (
+                    applications.map((a) => (
+                      <button
+                        key={a.application_id}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Use functional update to avoid conflicts
+                          setFormData((p) => {
+                            // Check if same application is being selected
+                            if (p.application_id === a.application_id) {
+                              return p; // Keep current state
+                            }
+                            return {
+                              ...p,
+                              application_id: a.application_id,
+                              job_id: a.job_id,
+                              applicationTitle: `${a.job_title}`,
+                            };
+                          });
+                          setShowApplicationDropdown(false);
+                        }}
+                        className={`block w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
+                          formData.application_id === a.application_id ? 'bg-blue-50 font-medium' : ''
+                        }`}
+                      >
+                        {a.job_title}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-4 py-2 text-sm text-gray-500">
+                      No applications available
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -724,9 +819,29 @@ const handleUpdateInterview = async () => {
                   name="interviewMode"
                   value="online"
                   checked={formData.interviewMode === "online"}
-                  onChange={(e) =>
-                    handleInputChange("interviewMode", e.target.value)
-                  }
+                  onChange={(e) => {
+                    const mode = e.target.value;
+                    // Reset opposite mode fields when switching
+                    if (mode === "online") {
+                      setFormData(prev => ({
+                        ...prev,
+                        interviewMode: mode,
+                        location: "", // Clear offline location
+                        interview_link: prev.interview_link || "",
+                        platform_name: prev.platform_name || ""
+                      }));
+                    } else if (mode === "offline") {
+                      setFormData(prev => ({
+                        ...prev,
+                        interviewMode: mode,
+                        interview_link: "", // Clear online link
+                        platform_name: "", // Clear platform name
+                        location: prev.location || ""
+                      }));
+                    } else {
+                      handleInputChange("interviewMode", mode);
+                    }
+                  }}
                   className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                 />
                 <div className="flex items-center space-x-2">
@@ -755,9 +870,29 @@ const handleUpdateInterview = async () => {
                   name="interviewMode"
                   value="offline"
                   checked={formData.interviewMode === "offline"}
-                  onChange={(e) =>
-                    handleInputChange("interviewMode", e.target.value)
-                  }
+                  onChange={(e) => {
+                    const mode = e.target.value;
+                    // Reset opposite mode fields when switching
+                    if (mode === "online") {
+                      setFormData(prev => ({
+                        ...prev,
+                        interviewMode: mode,
+                        location: "", // Clear offline location
+                        interview_link: prev.interview_link || "",
+                        platform_name: prev.platform_name || ""
+                      }));
+                    } else if (mode === "offline") {
+                      setFormData(prev => ({
+                        ...prev,
+                        interviewMode: mode,
+                        interview_link: "", // Clear online link
+                        platform_name: "", // Clear platform name
+                        location: prev.location || ""
+                      }));
+                    } else {
+                      handleInputChange("interviewMode", mode);
+                    }
+                  }}
                   className="w-4 h-4 text-primary border-gray-300 focus:ring-blue-500"
                 />
                 <div className="flex items-center space-x-2">
@@ -781,18 +916,57 @@ const handleUpdateInterview = async () => {
           </div>
 
 
+          {/* Online Interview Fields */}
+          {formData.interviewMode === "online" && (
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                  Interview Link <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://meet.google.com/xxx-xxxx-xxx or https://zoom.us/j/xxxxx"
+                  value={formData.interview_link}
+                  onChange={(e) => handleInputChange("interview_link", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+                <p className={`text-xs mt-1 ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                  Enter the meeting link (Google Meet, Zoom, Teams, etc.)
+                </p>
+              </div>
+              <div>
+                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
+                  Platform Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., Google Meet, Zoom, Microsoft Teams"
+                  value={formData.platform_name}
+                  onChange={(e) => handleInputChange("platform_name", e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+                <p className={`text-xs mt-1 ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                  Enter the platform name for the video call
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Location */}
           {formData.interviewMode === "offline" && (
             <div className="mt-4">
               <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                Location
+                Location <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 placeholder="Enter interview location"
                 value={formData.location}
                 onChange={(e) => handleInputChange("location", e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
               />
             </div>
           )}

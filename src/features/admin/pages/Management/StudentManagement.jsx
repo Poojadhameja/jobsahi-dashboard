@@ -1698,12 +1698,12 @@ export default function StudentManagement() {
                 icon: <span className="text-sm">📊</span>,
                 onClick: handleExportData,
               },
-              {
-                key: "notification",
-                label: "Send Bulk Notification",
-                icon: <LuMessageSquare size={16} />,
-                onClick: () => console.log("Send Notification"),
-              },
+              // {
+              //   key: "notification",
+              //   label: "Send Bulk Notification",
+              //   icon: <LuMessageSquare size={16} />,
+              //   onClick: () => console.log("Send Notification"),
+              // },
               // {
               //   key: "add",
               //   label: "Add Student",

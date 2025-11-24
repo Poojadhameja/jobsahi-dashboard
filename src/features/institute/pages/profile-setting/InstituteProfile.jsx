@@ -301,6 +301,20 @@ export default function InstituteProfile() {
           })
 
       if (res?.success || res?.status === 'success' || res?.status === true) {
+        // ✅ Update localStorage with new institute name
+        try {
+          const authUser = localStorage.getItem("authUser");
+          if (authUser && formData.instituteName) {
+            const user = JSON.parse(authUser);
+            user.user_name = formData.instituteName.trim();
+            localStorage.setItem("authUser", JSON.stringify(user));
+            // Dispatch custom event for real-time updates
+            window.dispatchEvent(new CustomEvent('profileUpdated', { detail: { user_name: formData.instituteName.trim() } }));
+          }
+        } catch (error) {
+          console.error('Error updating localStorage:', error);
+        }
+
         // Refresh profile data after successful update
         await fetchInstituteProfile()
         

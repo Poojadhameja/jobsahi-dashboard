@@ -228,13 +228,13 @@ else {
           className=""
         />
 
-        <div className="flex items-center justify-end gap-3">
+        {/* <div className="flex items-center justify-end gap-3">
           <MetricPillRow items={[
             { key: 'export', label: 'Export Data', icon: <LuDownload size={16} />, onClick: () => console.log('Export Data') },
             // { key: 'notification', label: 'Send Bulk Notification', icon: <LuMessageSquare size={16} />, onClick: () => console.log('Send Notification') },
             // { key: 'add', label: 'Add Employer', icon: <LuPlus size={16} />, onClick: () => console.log('Add Employer') }
           ]} />
-        </div>
+        </div> */}
       </div>
 
       {/* KPI Cards */}

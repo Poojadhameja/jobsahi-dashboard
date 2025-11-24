@@ -28,6 +28,9 @@ const service = {
     adminDashboard: '/admin/admin_dashboard.php',
     adminJobPostingAnalytics: '/admin/admin_job_posting_analytics.php',
 
+    //certificates
+    getCertificateIssuance: '/certificates/certificates_issuance.php',
+
 }
 
 export default service;
