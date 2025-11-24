@@ -20,17 +20,28 @@ const getHeaders = (includeAuth = true) => {
  */
 export const getMethod = async (data) => {
   try {
+    // Validate apiUrl exists and is a string
+    if (!data || !data.apiUrl || typeof data.apiUrl !== 'string') {
+      console.error('❌ GET Error: Invalid or missing apiUrl:', data);
+      return {
+        status: false,
+        message: 'Invalid API endpoint configuration',
+        data: []
+      };
+    }
+
     const headers = getHeaders();
     const token = localStorage.getItem("authToken");
 
+    const fullUrl = backendHost + data.apiUrl;
     console.log('🌐 GET Request:', {
-      url: backendHost + data.apiUrl,
+      url: fullUrl,
       token: token ? `${token.substring(0, 15)}...` : 'No token'
     });
 
     const respData = await axios({
       method: 'get',
-      url: backendHost + data.apiUrl,
+      url: fullUrl,
       params: data.params || {}, // ✅ use params for GET
       headers
     });
@@ -38,11 +49,13 @@ export const getMethod = async (data) => {
     console.log('✅ GET Response:', respData.data);
     return respChanges(respData.data);
   } catch (err) {
+    const errorUrl = data?.apiUrl ? backendHost + data.apiUrl : 'undefined';
     console.error('❌ GET Error:', {
       message: err.message,
       status: err.response?.status,
       data: err.response?.data,
-      url: backendHost + data.apiUrl
+      url: errorUrl,
+      apiUrl: data?.apiUrl
     });
     return {
       status: false,
@@ -223,6 +236,16 @@ export const deleteMethod = async (data) => {
  */
 export const postMultipart = async (data) => {
   try {
+    // Validate apiUrl exists and is a string
+    if (!data || !data.apiUrl || typeof data.apiUrl !== 'string') {
+      console.error('❌ POST Multipart Error: Invalid or missing apiUrl:', data);
+      return {
+        status: false,
+        message: 'Invalid API endpoint configuration',
+        data: []
+      };
+    }
+
     // Skip token for profile creation endpoints
     const skipToken = data?.apiUrl && (
       data.apiUrl.includes('create_recruiter_profile') ||
@@ -236,15 +259,16 @@ export const postMultipart = async (data) => {
     };
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
+    const fullUrl = backendHost + data.apiUrl;
     console.log("🌐 POST Multipart Request:", {
-      url: backendHost + data.apiUrl,
+      url: fullUrl,
       data: data.data instanceof FormData ? "[FormData]" : data.data,
       token: token ? `${token.substring(0, 15)}...` : "No token",
     });
 
     const respData = await axios({
       method: "post",
-      url: backendHost + data.apiUrl,
+      url: fullUrl,
       data: data.data, // ✅ This must be FormData
       headers,
     });
@@ -254,10 +278,12 @@ export const postMultipart = async (data) => {
     console.log("✅ POST Multipart Response:", response);
     return response;
   } catch (err) {
+    const errorUrl = data?.apiUrl ? backendHost + data.apiUrl : 'undefined';
     console.error("❌ POST Multipart Error:", {
       message: err.message,
       response: err.response?.data,
-      url: backendHost + data.apiUrl,
+      url: errorUrl,
+      apiUrl: data?.apiUrl
     });
 
     return {
