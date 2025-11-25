@@ -9,6 +9,7 @@ import {
   LuUsers,
   LuMapPin,
   LuPencil,
+  LuBriefcase,
 } from "react-icons/lu";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import EditCard from "./EditCard";
@@ -65,7 +66,7 @@ function CompanyLogo({ logo, companyName }) {
 /* ============================
    MAIN COMPONENT
 ============================ */
-const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
+const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob, onNavigateToPostJob }) => {
   const [jobs, setJobs] = useState(initialJobs);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -98,40 +99,8 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
         ? res.jobs
         : [];
 
-      // Fallback dummy data if no API result
-      const dataToUse =
-        rows.length > 0
-          ? rows
-          : [
-              {
-                id: 1,
-                title: "Assistant Technician",
-                company_name: "Maximoz Pvt Ltd",
-                salary_min: 14000,
-                salary_max: 25000,
-                description:
-                  "Work on electrical and mechanical systems, ensuring maintenance and support.",
-                location: "Indore, Madhya Pradesh",
-                status: "Open",
-                no_of_vacancies: 5,
-                views: 120,
-                admin_status: "approved",
-              },
-              {
-                id: 2,
-                title: "Software Developer",
-                company_name: "Tech Solutions",
-                salary_min: 30000,
-                salary_max: 45000,
-                description:
-                  "Responsible for developing web applications using React and Node.js.",
-                location: "Bangalore, Karnataka",
-                status: "Open",
-                no_of_vacancies: 3,
-                views: 95,
-                admin_status: "pending",
-              },
-            ];
+      // Use API data (no fallback dummy data)
+      const dataToUse = rows;
 
       // ✅ Get drafts from localStorage and merge with API jobs
       const drafts = JSON.parse(localStorage.getItem('job_drafts') || '[]');
@@ -478,9 +447,52 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
       </div>
 
       {/* Job Cards */}
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-  {Array.isArray(currentJobs) && currentJobs.length > 0 ? (
-    currentJobs.map((job) => {
+      {jobs.length === 0 ? (
+        /* Empty State - No Jobs */
+        <div className={`bg-white rounded-lg border border-gray-200 p-12 text-center`}>
+          <div className="max-w-md mx-auto">
+            <LuBriefcase className={`w-16 h-16 ${TAILWIND_COLORS.TEXT_MUTED} mx-auto mb-4`} />
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+              No Jobs Yet
+            </h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
+              Start by posting your first job to get started.
+            </p>
+            {onNavigateToPostJob && (
+              <button
+                onClick={onNavigateToPostJob}
+                className={`${TAILWIND_COLORS.BTN_PRIMARY} px-6 py-2 rounded-lg text-sm font-medium`}
+              >
+                Post Job
+              </button>
+            )}
+          </div>
+        </div>
+      ) : filteredJobs.length === 0 ? (
+        /* Empty State - No Results After Filtering */
+        <div className={`bg-white rounded-lg border border-gray-200 p-12 text-center`}>
+          <div className="max-w-md mx-auto">
+            <LuSearch className={`w-12 h-12 ${TAILWIND_COLORS.TEXT_MUTED} mx-auto mb-4`} />
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+              No Results Found
+            </h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
+              Try adjusting your search or filters
+            </p>
+            {(searchTerm || statusFilter || locationFilter || dateFilter) && (
+              <Button
+                onClick={handleClearFilters}
+                variant="unstyled"
+                className={`px-4 py-2 text-sm border border-gray-300 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100 transition-colors`}
+              >
+                Clear Filters
+              </Button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {currentJobs.map((job) => {
       const salaryDisplay =
         job.salary_min && job.salary_max
           ? `${money(job.salary_min)} – ${money(job.salary_max)}`
@@ -598,13 +610,9 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
           </div>
         </div>
       );
-    })
-  ) : (
-    <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-center col-span-2`}>
-      No jobs found.
-    </p>
-  )}
-</div>
+    })}
+        </div>
+      )}
 
 
       {/* Pagination */}
