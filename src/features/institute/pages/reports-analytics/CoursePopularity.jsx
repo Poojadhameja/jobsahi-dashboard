@@ -20,7 +20,6 @@ export default function CoursePopularity() {
   const [selectedCourse, setSelectedCourse] = useState(null)
 
   const handleExport = () => {
-    console.log('Exporting course popularity data...')
   }
 
   const getColors = (count) => {
@@ -71,10 +70,8 @@ export default function CoursePopularity() {
             ],
           })
         } else {
-          console.error('No course_popularity_chart data found in API response')
         }
       } catch (err) {
-        console.error('Error fetching course popularity chart:', err)
       }
     }
 

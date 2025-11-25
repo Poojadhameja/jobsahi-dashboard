@@ -25,7 +25,7 @@ export default function InstituteHeader({ toggleSidebar }) {
           setUser(JSON.parse(authUser))
         }
       } catch (error) {
-        console.error('Error updating user in header:', error)
+        // Error updating user in header
       }
     }
 
@@ -40,7 +40,7 @@ export default function InstituteHeader({ toggleSidebar }) {
           setUser(JSON.parse(authUser))
         }
       } catch (error) {
-        console.error('Error updating user from storage:', error)
+        // Error updating user from storage
       }
     })
 

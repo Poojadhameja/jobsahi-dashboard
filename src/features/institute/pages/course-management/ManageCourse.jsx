@@ -39,11 +39,9 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         if (res?.status && Array.isArray(res.categories)) {
           setCategories(res.categories)
         } else {
-          console.warn('⚠️ No categories found or invalid response:', res)
           setCategories([])
         }
       } catch (err) {
-        console.error('❌ Error fetching categories:', err)
         setCategories([])
       }
     }
@@ -94,14 +92,12 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
   const fetchCourses = async () => {
     try {
       setLoading(true)
-      console.log('📡 Fetching courses...')
       
       // Build query params if needed
       const queryParams = searchTerm ? `?q=${encodeURIComponent(searchTerm)}` : ''
       const apiUrl = `${apiService.getCourses}${queryParams}`
       
       const res = await getMethod({ apiUrl })
-      console.log('📥fetch data API Response:', res)
 
       if (res?.status && Array.isArray(res.courses)) {
         // Transform backend data to frontend format
@@ -131,13 +127,10 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         }))
         
         setCoursesData(transformedCourses)
-        console.log('✅ Courses loaded:', transformedCourses.length)
       } else {
-        console.warn('⚠️ No courses found or invalid response:', res)
         setCoursesData([])
       }
     } catch (err) {
-      console.error('❌ Error fetching courses:', err)
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -240,7 +233,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
   }
 
   const handleBuyNow = (courseId) => {
-    console.log('Buy now clicked for course:', courseId)
     // Implement buy now logic
   }
 
@@ -287,7 +279,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         module_description: updatedCourse.moduleDescription,
         media: updatedCourse.media
       }
-      console.log(updatedCourse.fee );
 
       // Update in backend - uncomment when update API is ready
       // const res = await putMethod({ 
@@ -316,7 +307,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
       // Refresh from backend
       fetchCourses()
     } catch (err) {
-      console.error('❌ Error updating course:', err)
       Swal.fire({
         icon: 'error',
         title: 'Error',

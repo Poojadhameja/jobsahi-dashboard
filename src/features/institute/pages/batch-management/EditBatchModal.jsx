@@ -45,7 +45,6 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
         setCourses(res.courses)
       }
     } catch (err) {
-      console.error('Error fetching courses:', err)
     }
   }
 
@@ -57,7 +56,6 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
         setInstructors(res.data)
       }
     } catch (err) {
-      console.error('Error fetching instructors:', err)
     }
   }
 
@@ -83,7 +81,6 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
         })
       }
     } catch (err) {
-      console.error('Error fetching batch detail:', err)
     }
   }
 
@@ -183,7 +180,6 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
         alert(`❌ ${res?.message || 'Failed to update batch.'}`)
       }
     } catch (err) {
-      console.error('Update Batch Error:', err)
       alert('⚠️ Something went wrong while updating the batch.')
     } finally {
       setLoading(false)

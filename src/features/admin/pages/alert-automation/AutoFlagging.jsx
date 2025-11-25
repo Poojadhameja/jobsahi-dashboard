@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
 
 // Toggle Switch Component
 const Toggle = ({ checked, onChange, label }) => (
@@ -133,7 +135,12 @@ const RecentExpiryAlerts = ({ alerts, onReviewAlert }) => {
 
       {/* Alerts List */}
       <div className="space-y-3 flex-1">
-        {alerts.map((alert, index) => (
+        {alerts.length === 0 ? (
+          <div className="text-center py-8">
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No expiring plans found in next 30 days</p>
+          </div>
+        ) : (
+          alerts.map((alert, index) => (
           <div 
             key={index} 
             className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200"
@@ -162,7 +169,8 @@ const RecentExpiryAlerts = ({ alerts, onReviewAlert }) => {
               </span>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </div>
   )
@@ -177,24 +185,97 @@ const AutoFlagging = () => {
     enableReminders: true
   })
 
-  // Sample alerts data
-  const [alerts, setAlerts] = useState([
-    {
-      name: "Rahul Singh",
-      details: "Premium plan expires in 7 days",
-      status: "Sent"
-    },
-    {
-      name: "Rahul Singh", 
-      details: "Basic plan expires in 7 days",
-      status: "Reviewed"
-    },
-    {
-      name: "Rahul Singh",
-      details: "Pro plan expires in 7 days", 
-      status: "Sent"
+  // Expiry alerts from API
+  const [alerts, setAlerts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Calculate days remaining
+  const getDaysRemaining = (expiryDate) => {
+    const today = new Date()
+    const expiry = new Date(expiryDate)
+    const diffTime = expiry - today
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    return diffDays
+  }
+
+  // Fetch expiring plans
+  const fetchExpiringPlans = useCallback(async () => {
+    try {
+      setLoading(true)
+      
+      // Fetch employers
+      const employersResponse = await getMethod({
+        apiUrl: apiService.employersList
+      })
+      
+      // Fetch institutes
+      const institutesResponse = await getMethod({
+        apiUrl: apiService.institutesList
+      })
+
+      const expiringAlerts = []
+      const today = new Date()
+      const thirtyDaysLater = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000)
+
+      // Process employers
+      if (employersResponse?.status === true || employersResponse?.status === 'success' || employersResponse?.success === true) {
+        const employers = Array.isArray(employersResponse?.data) ? employersResponse.data : []
+        employers.forEach(emp => {
+          const expiryDate = emp.profile?.subscription_expiry || emp.subscription_expiry
+          if (expiryDate) {
+            const expiry = new Date(expiryDate)
+            if (expiry >= today && expiry <= thirtyDaysLater) {
+              const daysRemaining = getDaysRemaining(expiryDate)
+              expiringAlerts.push({
+                id: emp.user_id || emp.id,
+                name: emp.profile?.company_name || emp.company_name || emp.email || 'Unknown',
+                details: `${emp.profile?.subscription_plan || emp.subscription_plan || 'Plan'} expires in ${daysRemaining} days`,
+                status: daysRemaining <= 7 ? 'Sent' : 'Pending',
+                expiryDate: expiryDate,
+                daysRemaining: daysRemaining
+              })
+            }
+          }
+        })
+      }
+
+      // Process institutes
+      if (institutesResponse?.status === true || institutesResponse?.status === 'success' || institutesResponse?.success === true) {
+        const institutes = Array.isArray(institutesResponse?.data) ? institutesResponse.data : []
+        institutes.forEach(inst => {
+          const expiryDate = inst.institute_info?.subscription_expiry || inst.subscription_expiry
+          if (expiryDate) {
+            const expiry = new Date(expiryDate)
+            if (expiry >= today && expiry <= thirtyDaysLater) {
+              const daysRemaining = getDaysRemaining(expiryDate)
+              expiringAlerts.push({
+                id: inst.user_id || inst.id,
+                name: inst.institute_info?.institute_name || inst.institute_name || inst.email || 'Unknown',
+                details: `${inst.institute_info?.subscription_plan || inst.subscription_plan || 'Plan'} expires in ${daysRemaining} days`,
+                status: daysRemaining <= 7 ? 'Sent' : 'Pending',
+                expiryDate: expiryDate,
+                daysRemaining: daysRemaining
+              })
+            }
+          }
+        })
+      }
+
+      // Sort by days remaining (ascending)
+      expiringAlerts.sort((a, b) => a.daysRemaining - b.daysRemaining)
+      
+      // Limit to 10 items
+      setAlerts(expiringAlerts.slice(0, 10))
+    } catch (error) {
+      // Error handling
+    } finally {
+      setLoading(false)
     }
-  ])
+  }, [])
+
+  useEffect(() => {
+    fetchExpiringPlans()
+  }, [fetchExpiringPlans])
 
   const handleSettingsChange = (newSettings) => {
     setSettings(newSettings)

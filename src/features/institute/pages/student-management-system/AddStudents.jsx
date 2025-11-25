@@ -46,7 +46,6 @@ const AddStudents = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log('Adding student:', formData)
     // Here you would typically send the data to your API
     alert('Student added successfully!')
   }
@@ -93,7 +92,6 @@ const AddStudents = () => {
 
   const handleBulkUpload = () => {
     if (uploadedFile) {
-      console.log('Uploading file:', uploadedFile)
       // Here you would typically process the file and upload students
       alert('Students uploaded successfully!')
       setUploadedFile(null)

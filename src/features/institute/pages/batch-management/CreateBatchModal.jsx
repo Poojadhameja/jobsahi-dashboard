@@ -45,11 +45,9 @@ const [tempEnd, setTempEnd] = useState("");
       if (response.status && response.courses) {
         setCourses(response.courses);
       } else {
-        console.error("Failed to fetch courses:", response.message);
         setCourses([]);
       }
     } catch (err) {
-      console.error("Error fetching courses:", err);
       setCourses([]);
     } finally {
       setLoadingCourses(false);
@@ -215,14 +213,12 @@ const [tempEnd, setTempEnd] = useState("");
         phone: newInstructorData.phone.trim(),
       };
 
-      console.log("Creating faculty with payload:", payload);
 
       const response = await postMethod({
         apiUrl: apiService.createFaculty,
         payload,
       });
 
-      console.log("Faculty creation response:", response);
 
       if (response.status) {
         // Refresh instructors list from database
@@ -237,7 +233,6 @@ const [tempEnd, setTempEnd] = useState("");
         setErrorMsg(response.message || "Failed to create instructor");
       }
     } catch (err) {
-      console.error("Create instructor error:", err);
       setErrorMsg("Unexpected error occurred.");
     }
   };
@@ -262,11 +257,9 @@ const [tempEnd, setTempEnd] = useState("");
       if (response.status && response.data) {
         setInstructors(response.data);
       } else {
-        console.error("Failed to fetch instructors:", response.message);
         setInstructors([]);
       }
     } catch (err) {
-      console.error("Error fetching instructors:", err);
       setInstructors([]);
     } finally {
       setLoadingInstructors(false);
@@ -307,7 +300,6 @@ const [tempEnd, setTempEnd] = useState("");
           : null,
       };
 
-      console.log("Creating batch with payload:", payload);
 
       // ✅ Use the proper API service method
       const result = await postMethod({
@@ -331,7 +323,6 @@ const [tempEnd, setTempEnd] = useState("");
         setErrorMsg(result.message || "Failed to create batch");
       }
     } catch (err) {
-      console.error("Batch creation failed:", err);
       setIsSubmitting(false);
       setErrorMsg("An unexpected error occurred. Please try again.");
     }

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Line } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -18,6 +18,8 @@ import {
 } from 'react-icons/lu'
 import Swal from 'sweetalert2'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
 
 // Register Chart.js components
 ChartJS.register(
@@ -31,10 +33,72 @@ ChartJS.register(
 )
 
 export default function HiringFunnel() {
-  // Chart data for Monthly Conversion Trends (empty chart as shown in image)
+  const [funnelData, setFunnelData] = useState({
+    applications: 0,
+    interviews: 0,
+    active_courses: 0,
+    hired: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  // Fetch dashboard data
+  const fetchFunnelData = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await getMethod({
+        apiUrl: apiService.adminDashboard
+      })
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+
+      if (isSuccess && response?.data) {
+        const placementFunnel = response.data.placement_funnel || {}
+        setFunnelData({
+          applications: Number(placementFunnel.applications || 0),
+          interviews: Number(placementFunnel.interviews || 0),
+          active_courses: Number(placementFunnel.active_courses || 0),
+          hired: Number(placementFunnel.hired || 0)
+        })
+      }
+    } catch (error) {
+      // Error handling
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchFunnelData()
+  }, [fetchFunnelData])
+
+  // Calculate max value for chart scaling
+  const maxValue = Math.max(
+    funnelData.applications,
+    funnelData.interviews,
+    funnelData.active_courses,
+    funnelData.hired,
+    1
+  )
+
+  // Chart data for Monthly Conversion Trends
   const chartData = {
-    labels: ['Jan', '0.25', '0.5', '0.75'],
-    datasets: []
+    labels: ['Job Posted', 'Applications', 'Interviews', 'Offers', 'Hires'],
+    datasets: [
+      {
+        label: 'Hiring Funnel',
+        data: [
+          maxValue, // Job Posted (normalized)
+          funnelData.applications,
+          funnelData.interviews,
+          funnelData.active_courses,
+          funnelData.hired
+        ],
+        borderColor: 'rgb(34, 197, 94)',
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        fill: true,
+        tension: 0.4
+      }
+    ]
   }
 
   const chartOptions = {
@@ -48,12 +112,13 @@ export default function HiringFunnel() {
     scales: {
       y: {
         type: 'linear',
+        beginAtZero: true,
+        max: maxValue * 1.2,
         ticks: {
-          callback: function(value, index) {
-            const labels = ['0', 'job posted', 'Applications received', 'interviews scheduled', 'offers Made', 'Hires completed'];
-            return labels[index] || '';
+          callback: function(value) {
+            return value.toLocaleString()
           },
-          stepSize: 1
+          stepSize: Math.ceil(maxValue / 5)
         },
         grid: {
           borderDash: [5, 5],
@@ -74,24 +139,24 @@ export default function HiringFunnel() {
       Generated on: ${new Date().toLocaleDateString()}
       
       MONTHLY CONVERSION TRENDS:
-      - Job Posted: 0
-      - Applications Received: 0.25
-      - Interviews Scheduled: 0.5
-      - Offers Made: 0.75
-      - Hires Completed: 1.0
+      - Job Posted: ${maxValue.toLocaleString()}
+      - Applications Received: ${funnelData.applications.toLocaleString()}
+      - Interviews Scheduled: ${funnelData.interviews.toLocaleString()}
+      - Offers Made: ${funnelData.active_courses.toLocaleString()}
+      - Hires Completed: ${funnelData.hired.toLocaleString()}
       
       HIRING FUNNEL METRICS:
-      - Total Job Postings: 1,000
-      - Applications Received: 750
-      - Interviews Scheduled: 500
-      - Offers Made: 300
-      - Hires Completed: 200
+      - Total Job Postings: ${maxValue.toLocaleString()}
+      - Applications Received: ${funnelData.applications.toLocaleString()}
+      - Interviews Scheduled: ${funnelData.interviews.toLocaleString()}
+      - Offers Made: ${funnelData.active_courses.toLocaleString()}
+      - Hires Completed: ${funnelData.hired.toLocaleString()}
       
       CONVERSION RATES:
-      - Application Rate: 75%
-      - Interview Rate: 66.7%
-      - Offer Rate: 60%
-      - Hire Rate: 66.7%
+      - Application Rate: ${maxValue > 0 ? ((funnelData.applications / maxValue) * 100).toFixed(1) : 0}%
+      - Interview Rate: ${funnelData.applications > 0 ? ((funnelData.interviews / funnelData.applications) * 100).toFixed(1) : 0}%
+      - Offer Rate: ${funnelData.interviews > 0 ? ((funnelData.active_courses / funnelData.interviews) * 100).toFixed(1) : 0}%
+      - Hire Rate: ${funnelData.active_courses > 0 ? ((funnelData.hired / funnelData.active_courses) * 100).toFixed(1) : 0}%
     `
     
     const blob = new Blob([pdfContent], { type: 'text/plain' })
@@ -115,11 +180,11 @@ export default function HiringFunnel() {
 
   const handleExportExcel = () => {
     const csvContent = `Stage,Value,Conversion Rate
-Job Posted,1000,100%
-Applications Received,750,75%
-Interviews Scheduled,500,66.7%
-Offers Made,300,60%
-Hires Completed,200,66.7%`
+Job Posted,${maxValue},100%
+Applications Received,${funnelData.applications},${maxValue > 0 ? ((funnelData.applications / maxValue) * 100).toFixed(1) : 0}%
+Interviews Scheduled,${funnelData.interviews},${funnelData.applications > 0 ? ((funnelData.interviews / funnelData.applications) * 100).toFixed(1) : 0}%
+Offers Made,${funnelData.active_courses},${funnelData.interviews > 0 ? ((funnelData.active_courses / funnelData.interviews) * 100).toFixed(1) : 0}%
+Hires Completed,${funnelData.hired},${funnelData.active_courses > 0 ? ((funnelData.hired / funnelData.active_courses) * 100).toFixed(1) : 0}%`
     
     const blob = new Blob([csvContent], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
@@ -276,15 +341,21 @@ Hires Completed,200,66.7%`
       {/* Monthly Conversion Trends Chart */}
       <div className="bg-white rounded-lg border border-[var(--color-primary)28] shadow-sm p-6">
         <h3 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-          Monthly Conversion Trends
+          Hiring Funnel Overview
         </h3>
         <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
-          6 month performance overview
+          Track progression from job postings to successful hires
         </p>
         
-        <div className="h-96">
-          <Line data={chartData} options={chartOptions} />
-        </div>
+        {loading ? (
+          <div className="h-96 flex items-center justify-center">
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Loading data...</p>
+          </div>
+        ) : (
+          <div className="h-96">
+            <Line data={chartData} options={chartOptions} />
+          </div>
+        )}
       </div>
 
       {/* Export Options */}

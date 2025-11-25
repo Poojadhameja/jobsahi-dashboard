@@ -64,7 +64,6 @@ function CertificateGeneration() {
         const nestedRes = await getMethod({
           apiUrl: apiService.CourseBatchStudents, // ✅ fixed key name
         });
-        console.log("📘 Nested data:", nestedRes);
 
         if (nestedRes?.status && Array.isArray(nestedRes.data)) {
           const formattedCourses = nestedRes.data.map((course) => ({
@@ -74,11 +73,9 @@ function CertificateGeneration() {
           }));
           setCourses(formattedCourses);
         } else {
-          console.warn("⚠️ Invalid nested response:", nestedRes);
           setCourses([]);
         }
       } catch (err) {
-        console.error("❌ Error fetching nested data:", err);
         setCourses([]);
       }
     };
@@ -92,11 +89,9 @@ function CertificateGeneration() {
         apiUrl: apiService.certificateTemplatesList, // Fixed: use correct endpoint
       });
   
-      console.log("📋 Templates fetch response:", resp);
   
       if (resp?.status && Array.isArray(resp.data)) {
         setTemplates(resp.data);
-        console.log("✅ Templates loaded:", resp.data.length);
   
         // Don't auto-select first template - let user choose
         // Reset to default "Choose a template"
@@ -107,12 +102,10 @@ function CertificateGeneration() {
         setSealPreview("");
         setSignaturePreview("");
       } else {
-        console.warn("⚠️ Templates response format issue:", resp);
         setTemplates([]);
         setSelectedTemplateId("");
       }
     } catch (error) {
-      console.error("❌ Error fetching templates:", error);
       setTemplates([]);
     }
   };
@@ -236,8 +229,6 @@ function CertificateGeneration() {
 
   // ✅ Generate certificates
   const handleGenerateCertificate = async () => {
-    console.log("🚀 Starting certificate generation...");
-    console.log("📋 Current state:", {
       selectedCourse,
       selectedBatch,
       completionDate,
@@ -268,7 +259,6 @@ function CertificateGeneration() {
 
     // Validate template_id is selected (required by API)
     if (!selectedTemplateId) {
-      console.error("❌ Template ID is missing!");
       Swal.fire({
         icon: 'warning',
         title: 'Validation Error',
@@ -303,9 +293,6 @@ function CertificateGeneration() {
           issue_date: completionDate || new Date().toISOString().split('T')[0] // Format: YYYY-MM-DD
         };
 
-        console.log("📤 Generating certificate for student:", studentId);
-        console.log("📤 Payload:", payload);
-        console.log("📤 Template ID:", templateIdInt);
 
         try {
           // Changed: Use postMethod with JSON payload instead of postMultipart
@@ -314,12 +301,6 @@ function CertificateGeneration() {
             payload: payload
           });
 
-          console.log("📩 Full API Response:", JSON.stringify(res, null, 2));
-          console.log("📩 Response status:", res?.status);
-          console.log("📩 Response message:", res?.message);
-          console.log("📩 Response data:", res?.data);
-          console.log("📩 Response success:", res?.success);
-          console.log("📩 Full response object keys:", Object.keys(res || {}));
 
           // Check multiple possible success indicators
           const isSuccess = 
@@ -332,20 +313,8 @@ function CertificateGeneration() {
             (res?.data && Object.keys(res.data).length > 0) ||
             (res?.message && typeof res.message === 'string' && res.message.toLowerCase().includes('success'));
           
-          console.log("🔍 Success check result:", isSuccess);
-
-          // Always log the response for debugging
-          console.log("🔍 Analyzing response for student:", studentId, {
-            hasStatus: !!res?.status,
-            hasData: !!res?.data,
-            hasMessage: !!res?.message,
-            statusValue: res?.status,
-            dataKeys: res?.data ? Object.keys(res.data) : [],
-            fullResponse: res
-          });
 
           if (isSuccess) {
-            console.log("✅ Certificate generated successfully for student:", studentId);
             
             // Get student and course info from form data (fallback if API doesn't return)
             const student = students.find(s => String(s.id) === String(studentId));
@@ -369,10 +338,8 @@ function CertificateGeneration() {
               description_used: res?.data?.description_used || description
             };
             results.push(certificateData);
-            console.log("✅ Added certificate to results array. Total results:", results.length, certificateData);
           } else if (res && (res.data || res.certificate_id || res.id)) {
             // Even if status check failed, if we have data, try to use it
-            console.warn("⚠️ Status check failed but response contains data. Attempting to use response:", res);
             const certificateData = {
               ...(res.data || {}),
               ...res,
@@ -386,17 +353,7 @@ function CertificateGeneration() {
                             res?.id
             };
             results.push(certificateData);
-            console.log("⚠️ Added certificate to results with warning. Total results:", results.length);
           } else {
-            console.error(`❌ Certificate generation failed for student ${studentId}:`, {
-              status: res?.status,
-              message: res?.message,
-              data: res?.data,
-              fullResponse: res,
-              isSuccess,
-              hasData: !!res?.data,
-              hasCertificateId: !!(res?.data?.certificate_id || res?.certificate_id || res?.id)
-            });
             // Check if error is due to certificate already existing
             const errorMessage = res?.message || '';
             const isAlreadyExists = errorMessage.toLowerCase().includes('already exists') || 
@@ -411,7 +368,6 @@ function CertificateGeneration() {
             });
           }
         } catch (apiError) {
-          console.error(`❌ API Error for student ${studentId}:`, apiError);
           Swal.fire({
             icon: 'error',
             title: 'API Error',
@@ -421,7 +377,6 @@ function CertificateGeneration() {
         }
       }
 
-      console.log("📊 Generation results summary:", {
         resultsCount: results.length,
         results: results
       });
@@ -440,7 +395,6 @@ function CertificateGeneration() {
             // API returns certificate_id as "CERT-2025-001" format
             const certificateId = result?.certificate_id;
             
-            console.log("🔍 Extracting certificate ID for preview:", { 
               certificateId, 
               resultKeys: Object.keys(result),
               result
@@ -448,12 +402,10 @@ function CertificateGeneration() {
             
             if (certificateId) {
               try {
-                console.log("📥 Fetching certificate preview for ID:", certificateId);
                 const certRes = await getMethod({
                   apiUrl: `${apiService.getCertificate}?id=${certificateId}`, // Call get-certificate.php for preview
                 });
                 
-                console.log("📥 Certificate preview API response:", certRes);
                 
                 if (certRes?.status && certRes?.data) {
                   // Merge fetched certificate data with generation response data to preserve student_id, course_id, etc.
@@ -465,26 +417,20 @@ function CertificateGeneration() {
                     certificate_id: certificateId // Ensure certificate_id is set
                   };
                   previewData.push(mergedData);
-                  console.log("✅ Successfully fetched certificate preview with merged data");
                 } else {
-                  console.warn("⚠️ Certificate preview fetch returned no data, using generation response");
                   // If fetching fails, use the generation response data
                   previewData.push(result);
                 }
               } catch (fetchError) {
-                console.error("❌ Error fetching certificate preview:", fetchError);
                 // Use the generation response data as fallback
                 previewData.push(result);
-                console.log("✅ Using generation response as fallback for preview");
               }
             } else {
-              console.warn("⚠️ No certificate ID found in response, using generation response directly");
               // No certificate ID, use the result directly - this allows preview even without ID
               previewData.push(result);
             }
           }
           
-          console.log("📋 Preview data prepared:", previewData);
           setPreviewCertificates(previewData);
           
           // Only show success message if we have preview data
@@ -505,7 +451,6 @@ function CertificateGeneration() {
             });
           }
         } catch (previewError) {
-          console.error("❌ Error loading certificate preview:", previewError);
           // Still show preview with generation response data
           setPreviewCertificates(results);
           Swal.fire({
@@ -518,7 +463,6 @@ function CertificateGeneration() {
           setIsLoadingPreview(false);
         }
       } else {
-        console.error("❌ No certificates were generated. Results array is empty.");
         Swal.fire({
           icon: 'info',
           title: 'No Certificates Generated',
@@ -527,7 +471,6 @@ function CertificateGeneration() {
         });
       }
     } catch (err) {
-      console.error("❌ Certificate generation failed:", err);
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -562,7 +505,6 @@ function CertificateGeneration() {
         })
       }
     } catch (err) {
-      console.error("❌ Error fetching certificate details:", err);
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -574,12 +516,8 @@ function CertificateGeneration() {
 
   // ✅ Create template
   const handleCreateTemplate = async () => {
-  console.log("🔍 Template name value:", templateName);
-  console.log("🔍 Template name trimmed:", templateName.trim());
-  console.log("🔍 Template name length:", templateName.trim().length);
   
   if (!templateName.trim()) {
-    console.log("❌ Template name validation failed - empty or whitespace");
     Swal.fire({
       icon: 'warning',
       title: 'Validation Error',
@@ -616,8 +554,6 @@ function CertificateGeneration() {
 
   try {
     // First, refresh templates list to get latest data
-    console.log("📋 Current templates before create:", templates);
-    console.log("📝 Template name to create:", templateName.trim());
     
     const refreshResp = await getMethod({
       apiUrl: apiService.certificateTemplatesList,
@@ -627,7 +563,6 @@ function CertificateGeneration() {
     if (refreshResp?.status && Array.isArray(refreshResp.data)) {
       latestTemplates = refreshResp.data;
       setTemplates(latestTemplates);
-      console.log("✅ Refreshed templates:", latestTemplates.length);
     }
 
     // Check if template name already exists in latest templates list
@@ -641,7 +576,6 @@ function CertificateGeneration() {
 
     if (existingTemplate) {
       setIsCreatingTemplate(false);
-      console.log("⚠️ Template already exists:", existingTemplate);
       return Swal.fire({
         title: "Template Exists",
         text: `Template "${templateName}" already exists. Please use a different name.`,
@@ -649,7 +583,6 @@ function CertificateGeneration() {
       });
     }
 
-    console.log("✅ No duplicate found, proceeding with create...");
 
     const formData = new FormData();
 
@@ -677,18 +610,12 @@ function CertificateGeneration() {
       formData.append("signature_url", lastTemplateSignatureUrl);
     }
 
-    console.log("📤 Creating template with name:", templateName.trim());
-    console.log("📤 FormData keys:", Array.from(formData.keys()));
     
     const res = await postMultipart({
       apiUrl: apiService.createCertificateTemplate,
       data: formData, // Fixed: use 'data' instead of 'formData'
     });
 
-    console.log("📥 Create template response:", res);
-    console.log("📥 Response status:", res?.status);
-    console.log("📥 Response message:", res?.message);
-    console.log("📥 Full response:", JSON.stringify(res, null, 2));
 
     if (res?.status) {
       Swal.fire("Success", "Template created successfully", "success");
@@ -715,20 +642,17 @@ function CertificateGeneration() {
     } else {
       // If backend says "already exists" but template not in our list, refresh and check
       const errorMessage = res?.message || res?.data?.message || "";
-      console.log("❌ Error message:", errorMessage);
       
       if (errorMessage.toLowerCase().includes("already exists") || 
           // errorMessage.toLowerCase().includes("already exist") ||
           errorMessage.toLowerCase().includes("duplicate")) {
         
-        console.log("🔄 Refreshing templates list to verify...");
         
         // Refresh templates list to verify
         const resp = await getMethod({
           apiUrl: apiService.certificateTemplatesList,
         });
 
-        console.log("📋 Refreshed templates response:", resp);
 
         if (resp?.status && Array.isArray(resp.data)) {
           setTemplates(resp.data);
@@ -742,9 +666,7 @@ function CertificateGeneration() {
             }
           );
 
-          console.log("🔍 Template exists after refresh?", !!existsAfterRefresh);
           if (existsAfterRefresh) {
-            console.log("✅ Found existing template:", existsAfterRefresh);
             Swal.fire({
               title: "Template Exists",
               text: `Template "${templateName}" already exists in the system.`,
@@ -752,7 +674,6 @@ function CertificateGeneration() {
             });
           } else {
             // Template doesn't exist, might be backend issue - show detailed error
-            console.error("⚠️ Backend says exists but not found in list. Backend might have case-sensitive check or other validation.");
             Swal.fire({
               title: "Validation Error",
               text: `Backend validation failed: ${errorMessage}. Please check if a similar template name exists (case-sensitive) or try a different name.`,
@@ -760,7 +681,6 @@ function CertificateGeneration() {
             });
           }
         } else {
-          console.error("❌ Failed to refresh templates:", resp);
           Swal.fire("Failed", errorMessage || "Could not verify template existence", "error");
         }
       } else {
@@ -768,7 +688,6 @@ function CertificateGeneration() {
       }
     }
   } catch (err) {
-    console.error("Create template error:", err);
     Swal.fire("Error", err?.message || "Something went wrong", "error");
   } finally {
     setIsCreatingTemplate(false);
@@ -850,7 +769,6 @@ function CertificateGeneration() {
                     type="text"
                     value={templateName || ""}
                     onChange={(e) => {
-                      console.log("📝 Template name input changed:", e.target.value);
                       setTemplateName(e.target.value);
                     }}
                     placeholder="Enter template name"
@@ -1244,7 +1162,6 @@ function CertificateGeneration() {
                                   certInfo?.description_used || 
                                   description;
             
-            console.log("📋 Preview data for certificate:", {
               certificateId,
               displayStudentName,
               displayCourseTitle,
@@ -1553,7 +1470,6 @@ function CertificateGeneration() {
                     setSignaturePreview(lastTemplate.signature);
                     setLastTemplateSignatureUrl(lastTemplate.signature);
                   }
-                  console.log("📋 Pre-populated with last template:", lastTemplate);
                 }
               }
               setIsTemplateModalOpen(true);

@@ -50,7 +50,6 @@ function ManageTemplate() {
           setTemplates([]);
         }
       } catch (error) {
-        console.error("❌ Error fetching templates:", error);
         setTemplates([]);
       } finally {
         setLoadingTemplates(false);
@@ -111,12 +110,10 @@ function ManageTemplate() {
     if (templateId) {
       try {
         // Step 1: First call certificate_templates.php?id={templateId} to get template details
-        console.log("📥 Step 1: Fetching template details from API for ID:", templateId);
         const templateResp = await getMethod({
           apiUrl: `${apiService.getCertificateTemplate}?id=${templateId}`, // Call: certificate_templates.php?id=5
         });
 
-        console.log("📥 Template API response:", templateResp);
 
         if (templateResp?.status && templateResp?.data) {
           // Extract template data from response (could be array or single object)
@@ -130,8 +127,6 @@ function ManageTemplate() {
           }
 
           if (templateData) {
-            console.log("✅ Template data loaded from API:", templateData);
-            console.log("✅ Extracted media URLs from API:", {
               logo: templateData?.logo,
               seal: templateData?.seal,
               signature: templateData?.signature,
@@ -181,7 +176,6 @@ function ManageTemplate() {
           }
         }
       } catch (error) {
-        console.error("❌ Error fetching template details from API:", error);
         // Fallback to local templates array
         const selectedTemplate = templates.find(
           (t) => String(t.template_id || t.id) === String(templateId)
@@ -261,7 +255,6 @@ function ManageTemplate() {
       }
 
       // Step 2: Call update_certificate_template.php using PUT method
-      console.log("📤 Step 2: Updating template with ID:", selectedTemplateId);
       const resp = await putMultipart({
         apiUrl: apiService.updateCertificateTemplate,
         data: form, // Use 'data' parameter for putMultipart
@@ -295,7 +288,6 @@ function ManageTemplate() {
         alert(resp?.message || "Failed to update template");
       }
     } catch (err) {
-      console.error("Create template error", err);
       alert("Error creating template. Check console for details.");
     } finally {
       setCreating(false);

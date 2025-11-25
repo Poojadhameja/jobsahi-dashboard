@@ -39,11 +39,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
         if (res?.status && Array.isArray(res.categories)) {
           setCategories(res.categories)
         } else {
-          console.error('Failed to load categories:', res)
           setCategories([])
         }
       } catch (err) {
-        console.error('Error fetching categories:', err)
         setCategories([])
       }
     }
@@ -60,11 +58,9 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
         if (res?.status && Array.isArray(res.data)) {
           setInstructors(res.data)
         } else {
-          console.warn('⚠️ No instructors found or invalid response:', res)
           setInstructors([])
         }
       } catch (error) {
-        console.error('❌ Error fetching instructors:', error)
         setInstructors([])
       } finally {
         setLoadingInstructors(false)
@@ -243,7 +239,6 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
         alert(`❌ Update failed: ${res?.message || 'Unknown error'}`)
       }
     } catch (err) {
-      console.error('Update Error:', err)
       alert('Something went wrong while updating the course.')
     }
   }
