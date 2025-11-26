@@ -7,14 +7,55 @@ import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import apiService from '../../shared/services/serviceUrl'
 
-const UserDropdown = ({ user = { user_name: 'Admin', role: 'Administrator' } }) => {
+const UserDropdown = ({ user: propUser = { user_name: 'Admin', role: 'Administrator' } }) => {
   const [isOpen, setIsOpen] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const dropdownRef = useRef(null)
   const navigate = useNavigate()
-  var authUser = localStorage.getItem("authUser")
-  var user = JSON.parse(authUser)
+  
+  // Get user from localStorage or use prop
+  const [user, setUser] = useState(() => {
+    try {
+      const authUser = localStorage.getItem("authUser")
+      return authUser ? JSON.parse(authUser) : propUser
+    } catch {
+      return propUser
+    }
+  })
+
+  // Listen for profile updates
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      try {
+        const authUser = localStorage.getItem("authUser")
+        if (authUser) {
+          setUser(JSON.parse(authUser))
+        }
+      } catch (error) {
+        console.error('Error updating user in dropdown:', error)
+      }
+    }
+
+    // Listen to custom event
+    window.addEventListener('profileUpdated', handleProfileUpdate)
+    
+    // Also listen to storage events (for cross-tab updates)
+    window.addEventListener('storage', () => {
+      try {
+        const authUser = localStorage.getItem("authUser")
+        if (authUser) {
+          setUser(JSON.parse(authUser))
+        }
+      } catch (error) {
+        console.error('Error updating user from storage:', error)
+      }
+    })
+
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate)
+    }
+  }, [])
 
   // Close dropdown when clicking outside
   useEffect(() => {

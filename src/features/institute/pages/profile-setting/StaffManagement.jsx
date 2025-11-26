@@ -58,7 +58,6 @@ export default function StaffManagement() {
         setInstructors([])
       }
     } catch (err) {
-      console.error('Error fetching faculty list:', err)
       setInstructors([])
     } finally {
       setIsLoading(false)
@@ -198,7 +197,6 @@ export default function StaffManagement() {
 
       setFormData({ name: '', email: '', phone: '' })
     } catch (err) {
-      console.error('Error saving faculty:', err)
       // Show error popup for unexpected errors
       Swal.fire({
         icon: 'error',

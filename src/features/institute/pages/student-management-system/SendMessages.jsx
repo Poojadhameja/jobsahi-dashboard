@@ -116,7 +116,6 @@ const SendMessages = ({ onComingSoonClose }) => {
       return
     }
 
-    console.log('Sending message:', messageData)
     alert('Message sent successfully!')
     
     // Reset form

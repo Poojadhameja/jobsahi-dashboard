@@ -44,7 +44,6 @@ useEffect(() => {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      console.log("📥 Fetching issuance logs from:", apiService.certificatesIssuance);
       
       // Use postMultipart for consistency (send empty FormData for list view)
       const formData = new FormData();
@@ -55,8 +54,7 @@ useEffect(() => {
         data: formData, // Empty FormData for list view
       });
 
-      console.log("📥 Issuance Logs API Response:", response);
-      console.log("📥 Response structure:", {
+      console.log({
         status: response?.status,
         message: response?.message,
         count: response?.count,
@@ -72,7 +70,7 @@ useEffect(() => {
                        (response?.data && Array.isArray(response.data) && response.data.length > 0);
 
       if (!isSuccess) {
-        console.warn("⚠️ API response indicates failure:", {
+        console.log({
           status: response?.status,
           message: response?.message,
           data: response?.data,
@@ -88,25 +86,20 @@ useEffect(() => {
         dataArray = response.data;
       } else if (response?.data && typeof response.data === 'object' && !Array.isArray(response.data)) {
         // If data is a single object (shouldn't happen in list mode, but handle gracefully)
-        console.warn("⚠️ Expected array but got object, wrapping in array");
         dataArray = [response.data];
       } else {
-        console.warn("⚠️ Invalid data format:", response?.data);
         setLogs([]);
         return;
       }
 
-      console.log("🔍 Processing", dataArray.length, "certificate records");
 
       if (dataArray.length === 0) {
-        console.log("ℹ️ No certificates found in response");
         setLogs([]);
         return;
       }
 
       // Step 2: Fetch template data for each certificate using getCertificate and getCertificateTemplate APIs
       // First, get template_id from getCertificate API for each certificate
-      console.log("📥 Step 2: Fetching template data for all certificates...");
       
       const enrichedLogs = await Promise.all(
         dataArray.map(async (log) => {
@@ -116,7 +109,6 @@ useEffect(() => {
           
           // Step 2a: Get template_id from getCertificate API
           try {
-            console.log(`📥 Step 2a: Fetching template_id for certificate ${certificateId} from get-certificate.php`);
             const certificateResponse = await getMethod({
               apiUrl: `${apiService.getCertificate}?id=${certificateId}`, // Use get-certificate.php to get template_id
             });
@@ -124,16 +116,13 @@ useEffect(() => {
             if (certificateResponse?.status && certificateResponse?.data) {
               const certData = Array.isArray(certificateResponse.data) ? certificateResponse.data[0] : certificateResponse.data;
               templateId = certData.template_id || certData.templateId || certData.template?.id || certData.template?.template_id;
-              console.log(`✅ Extracted template_id ${templateId} for certificate ${certificateId}`);
             }
           } catch (certError) {
-            console.warn(`⚠️ Error fetching template_id from get-certificate.php for certificate ${certificateId}:`, certError);
           }
           
           // Step 2b: Get template details from getCertificateTemplate API
           if (templateId) {
             try {
-              console.log(`📥 Step 2b: Fetching template details for template_id ${templateId} from certificate_templates.php`);
               const templateResponse = await getMethod({
                 apiUrl: `${apiService.getCertificateTemplate}?id=${templateId}`, // Call certificate_templates.php?id={template_id} to get template_name and template_description
               });
@@ -147,13 +136,12 @@ useEffect(() => {
                 } else {
                   templateData = templateResponse.data;
                 }
-                console.log(`✅ Template data loaded for certificate ${certificateId}:`, {
+                console.log({
                   template_name: templateData?.template_name || templateData?.name,
                   template_description: templateData?.description || templateData?.footer_text
                 });
               }
             } catch (templateError) {
-              console.warn(`⚠️ Error fetching template details from certificate_templates.php for template_id ${templateId}:`, templateError);
             }
           }
           
@@ -166,7 +154,6 @@ useEffect(() => {
         })
       );
       
-      console.log("✅ Enriched logs with template data:", enrichedLogs.length);
 
       // Transform API response to component expected fields
       // Map snake_case API fields to camelCase component fields
@@ -214,7 +201,7 @@ useEffect(() => {
                                      log.template?.footer_text ||
                                      '';
           
-          console.log("🔍 Extracting log data for certificate:", certificateId, {
+          console.log({
             batch_name: log.batch_name,
             batch: log.batch,
             phone_number: log.phone_number,
@@ -271,15 +258,9 @@ useEffect(() => {
         })
         .filter((log) => log.certificateId); // Remove entries without certificate_id
 
-      console.log("✅ Successfully transformed", transformedLogs.length, "logs");
-      console.log("📊 API count:", response?.count, "| Transformed count:", transformedLogs.length);
-      console.log("📋 Sample transformed log:", transformedLogs[0]);
       
       setLogs(transformedLogs);
     } catch (error) {
-      console.error("❌ Error fetching issuance logs:", error);
-      console.error("   Error message:", error?.message);
-      console.error("   Error response:", error?.response);
       setLogs([]);
     } finally {
       setLoading(false);
@@ -316,8 +297,6 @@ useEffect(() => {
   // 3. certificate_templates.php?id={templateId} (Step 2b) - for template assets (logo, seal, signature)
   const handleViewCertificate = (certificate) => {
     const certificateId = certificate.certificate_id || certificate.id;
-    console.log("🔍 Opening certificate modal with ID:", certificateId);
-    console.log("📋 Modal will call: certificates_issuance.php, then get-certificate.php, then certificate_templates.php");
     setSelectedCertificate(certificateId); // Store certificateId - modal will fetch APIs in sequence
     setIsModalOpen(true);
   };

@@ -373,13 +373,16 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Profile Photo (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Profile Photo <span className="text-gray-500 font-normal">(Optional)</span>
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setForm((f) => ({ ...f, profilePhoto: e.target.files[0] }))}
                     className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                   />
+                  <p className="text-xs text-gray-500 mt-1">You can add this later from your profile settings</p>
                 </div>
                 </div>
               </>
@@ -464,13 +467,16 @@ export default function CreateAccount() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Logo (Optional)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Company Logo <span className="text-gray-500 font-normal">(Optional)</span>
+                    </label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => setForm((f) => ({ ...f, companyLogo: e.target.files[0] }))}
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     />
+                    <p className="text-xs text-gray-500 mt-1">You can add this later from your profile settings</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">GST / PAN (If Required)</label>
@@ -588,13 +594,16 @@ export default function CreateAccount() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Logo (Optional)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Institute Logo <span className="text-gray-500 font-normal">(Optional)</span>
+                    </label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => setForm((f) => ({ ...f, instituteLogo: e.target.files[0] }))}
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     />
+                    <p className="text-xs text-gray-500 mt-1">You can add this later from your profile settings</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Institute Website (If Available)</label>
@@ -728,13 +737,16 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Profile Photo (Optional)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Profile Photo <span className="text-gray-500 font-normal">(Optional)</span>
+                    </label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => setForm((f) => ({ ...f, studentProfilePhoto: e.target.files[0] }))}
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     />
+                    <p className="text-xs text-gray-500 mt-1">You can add this later from your profile settings</p>
                   </div>
                 </div>
 

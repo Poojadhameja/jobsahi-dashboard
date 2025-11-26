@@ -33,7 +33,6 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
 
       try {
         // Step 1: Fetch certificate details using certificates_issuance.php with postMultipart (like CertificateGeneration.jsx)
-        console.log("📥 Step 1: Fetching certificate details using certificates_issuance.php?id=", certificateId);
         
         // Create FormData to send certificate_id (like CertificateGeneration.jsx uses postMultipart)
         const formData = new FormData();
@@ -44,8 +43,6 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
           data: formData, // Send FormData with id
         })
 
-        console.log("📥 Certificate details API response from certificates_issuance.php:", response)
-        console.log("📥 Full response structure:", JSON.stringify(response, null, 2))
 
         // Expected API Response structure from certificates_issuance.php?id={certificateId}:
         // {
@@ -75,30 +72,8 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
           // Extract certificate data - handle both object and array formats
           const certificateData = Array.isArray(response.data) ? response.data[0] : response.data
           
-          console.log("📥 Certificate data from certificates_issuance.php:", certificateData);
-          console.log("📥 Full certificate data object:", JSON.stringify(certificateData, null, 2));
-          console.log("📥 Extracted fields:", {
-            certificate_id: certificateData?.certificate_id,
-            file_url: certificateData?.file_url,
-            student_name: certificateData?.student_name,
-            student_email: certificateData?.student_email,
-            phone_number: certificateData?.phone_number,
-            phone: certificateData?.phone,
-            course_title: certificateData?.course_title,
-            course: certificateData?.course,
-            batch_name: certificateData?.batch_name,
-            batch: certificateData?.batch,
-            issue_date: certificateData?.issue_date,
-            template_description: certificateData?.template_description, // ✅ From certificates_issuance.php (database)
-            template_logo: certificateData?.template_logo, // ✅ NEW: Full URL from certificates_issuance.php (institute_certificate_templates folder)
-            template_seal: certificateData?.template_seal, // ✅ NEW: Full URL from certificates_issuance.php (institute_certificate_templates folder)
-            template_signature: certificateData?.template_signature, // ✅ NEW: Full URL from certificates_issuance.php (institute_certificate_templates folder)
-            status: certificateData?.status
-          });
-          
           // Validate that we have the required certificate data
           if (!certificateData || typeof certificateData !== 'object') {
-            console.error("❌ Invalid certificate data format:", certificateData);
             setError("Invalid certificate data received from server.");
             return;
           }
@@ -120,17 +95,6 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
                            certificateData.batchName ||
                            certificateData.batch?.name ||
                            '';
-          
-          console.log("🔗 Extracted file_url:", extractedFileUrl);
-          console.log("🔗 Certificate ID for download:", certificateData.certificate_id || certificateData.id || certificateId);
-          console.log("🔍 Extracted phone and batch:", {
-            phone_number: certificateData?.phone_number,
-            phone: certificateData?.phone,
-            batch_name: certificateData?.batch_name,
-            batch: certificateData?.batch,
-            extractedPhone: phoneNumber,
-            extractedBatch: batchName
-          });
           
           // Step 2: Extract template data directly from certificates_issuance.php response (no additional API calls needed)
           // The API now returns template_logo, template_seal, template_signature, template_description directly
@@ -171,25 +135,11 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
                         certificateData.template_name || 
                         '';
           
-          console.log("✅ Extracted template media URLs directly from certificates_issuance.php response:", {
-            template_logo: certificateData?.template_logo,
-            template_seal: certificateData?.template_seal,
-            template_signature: certificateData?.template_signature,
-            template_description: certificateData?.template_description,
-            course_title: certificateData?.course_title,
-            extractedLogo: logoUrl,
-            extractedSeal: sealUrl,
-            extractedSignature: signatureUrl,
-            extractedDescription: description,
-            extractedTemplateName: templateName
-          });
-          
           // ✅ FALLBACK: If template media URLs are not in certificates_issuance.php response, fetch from certificate_templates.php
           // This is a fallback for backward compatibility (if API doesn't return media URLs)
           const needsTemplateAPI = !logoUrl || !sealUrl || !signatureUrl;
           
           if (needsTemplateAPI) {
-            console.log("⚠️ Template media URLs not found in certificates_issuance.php, falling back to certificate_templates.php API");
             
             // Try to get template_id to fetch template details
             templateId = certificateData.template_id || 
@@ -201,7 +151,6 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
             // If template_id not in response, try get-certificate.php
             if (!templateId) {
               try {
-                console.log("📥 Fetching template_id from get-certificate.php for fallback");
                 const templateIdResponse = await getMethod({
                   apiUrl: `${apiService.getCertificate}?id=${certificateId}`,
                 });
@@ -211,14 +160,12 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
                   templateId = templateIdData.template_id || templateIdData.templateId || templateIdData.id || null;
                 }
               } catch (templateIdError) {
-                console.warn("⚠️ Error fetching template_id from get-certificate.php:", templateIdError);
               }
             }
             
             // Fetch template details from certificate_templates.php if template_id found
             if (templateId && templateId !== '' && templateId !== '0' && templateId !== 0) {
               try {
-                console.log("📥 Fetching template details from getCertificateTemplate (fallback) for template_id:", templateId);
                 const templateResponse = await getMethod({
                   apiUrl: `${apiService.getCertificateTemplate}?id=${templateId}`,
                 });
@@ -240,31 +187,11 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
                   // Keep course_title as templateName (don't override with template API)
                   templateName = templateName || templateData?.template_name || templateData?.name || '';
                   description = description || templateData?.description || templateData?.footer_text || '';
-                  
-                  console.log("✅ Template data loaded from fallback API (certificate_templates.php):", {
-                    template_id: templateId,
-                    logo_url: logoUrl,
-                    seal_url: sealUrl,
-                    signature_url: signatureUrl,
-                    template_name: templateName,
-                    description: description
-                  });
                 }
               } catch (templateError) {
-                console.warn("⚠️ Error fetching template details from certificate_templates.php (fallback):", templateError);
               }
             }
-          } else {
-            console.log("✅ All template data (logo, seal, signature, description) extracted directly from certificates_issuance.php - no additional API calls needed");
           }
-          
-          console.log("🎨 Final extracted template data from database API:", {
-            logoUrl: logoUrl,
-            sealUrl: sealUrl,
-            signatureUrl: signatureUrl,
-            templateName: templateName,
-            description: description
-          });
           
           const transformedData = {
             studentName: certificateData.student_name || 
@@ -310,14 +237,11 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
             signatureUrl: signatureUrl, // ✅ From certificates_issuance.php (template_signature) - institute_certificate_templates folder - no static data
           }
 
-          console.log("✅ Transformed certificate data:", transformedData);
-          console.log("✅ file_url available:", !!transformedData.fileUrl, transformedData.fileUrl ? "✅ YES" : "❌ NO");
           setCertificate(transformedData)
         } else {
           setError(response?.message || "Failed to fetch certificate details.")
         }
       } catch (err) {
-        console.error("❌ Error fetching certificate details:", err)
         // Provide more specific error messages
         if (err?.message?.includes('Network Error') || err?.message?.includes('CORS')) {
           setError("Network Error: Unable to connect to the server. Please check your connection or contact support.")

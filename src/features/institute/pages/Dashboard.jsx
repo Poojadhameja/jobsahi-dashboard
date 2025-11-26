@@ -209,7 +209,6 @@ export default function Dashboard() {
         }
 
       } catch (err) {
-        console.error('Dashboard stats error:', err)
         setError(err.message || 'Something went wrong')
       } finally {
         setLoading(false)
@@ -248,7 +247,6 @@ export default function Dashboard() {
         setStaffMembers(mappedStaff)
 
       } catch (err) {
-        console.error('Faculty fetch error:', err)
         // Keep fallback data on error
       } finally {
         setStaffLoading(false)
@@ -277,7 +275,6 @@ export default function Dashboard() {
           }
         }
       } catch (err) {
-        console.error('Error fetching institute name:', err)
         // Keep default 'Brightorial' on error
       }
     }

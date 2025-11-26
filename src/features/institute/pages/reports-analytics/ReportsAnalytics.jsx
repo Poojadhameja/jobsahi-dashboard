@@ -39,10 +39,8 @@ export default function ReportsAnalytics() {
             active_batches: res.data.metrics.active_batches ?? 0
           })
         } else {
-          console.warn('⚠️ Metrics not found in API response')
         }
       } catch (err) {
-        console.error('❌ Error fetching metrics:', err)
       }
     }
     fetchMetrics()

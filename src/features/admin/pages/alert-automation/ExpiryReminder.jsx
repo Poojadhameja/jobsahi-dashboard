@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
 
 // Toggle Switch Component
 const Toggle = ({ checked, onChange, label }) => (
@@ -120,7 +122,12 @@ const FlaggedItemsReview = ({ flaggedItems, onReviewItem }) => {
 
       {/* Flagged Items List */}
       <div className="space-y-3 flex-1">
-        {flaggedItems.map((item, index) => (
+        {flaggedItems.length === 0 ? (
+          <div className="text-center py-8">
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No flagged items found</p>
+          </div>
+        ) : (
+          flaggedItems.map((item, index) => (
           <div 
             key={index} 
             className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors duration-200"
@@ -159,7 +166,8 @@ const FlaggedItemsReview = ({ flaggedItems, onReviewItem }) => {
               )}
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </div>
   )
@@ -175,24 +183,76 @@ const ExpiryReminder = () => {
     flagInactive: true
   })
 
-  // Sample flagged items data
-  const [flaggedItems, setFlaggedItems] = useState([
-    {
-      title: "Work from home opportunity",
-      reason: "Job post - spam keywords",
-      status: "Pending"
-    },
-    {
-      title: "inactive_user@gmail.com", 
-      reason: "User - 90+ days inactive",
-      status: "Reviewed"
-    },
-    {
-      title: "Easy money fast",
-      reason: "Job post - suspicious content",
-      status: "Pending"
+  // Flagged items from API
+  const [flaggedItems, setFlaggedItems] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch flagged jobs
+  const fetchFlaggedJobs = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await getMethod({
+        apiUrl: apiService.getJobFlags
+      })
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+
+      if (isSuccess) {
+        let flagsArray = []
+        
+        if (response?.data?.flags && Array.isArray(response.data.flags)) {
+          flagsArray = response.data.flags
+        } else if (Array.isArray(response?.data)) {
+          flagsArray = response.data
+        } else if (Array.isArray(response?.flags)) {
+          flagsArray = response.flags
+        }
+
+        // Filter pending flags and map to display format
+        const pendingFlags = flagsArray
+          .filter(flag => {
+            const adminAction = (flag.admin_action || '').toLowerCase()
+            const reviewed = flag.reviewed === 1 || flag.reviewed === true
+            return adminAction !== 'approved' && !reviewed
+          })
+          .map(flag => ({
+            id: flag.flag_id || flag.id,
+            jobId: flag.job_id,
+            title: flag.job_title || flag.title || `Job ID: ${flag.job_id}`,
+            reason: flag.reason || flag.flag_reason || 'Job flagged for review',
+            status: 'Pending',
+            flagDate: flag.created_at || flag.flag_date
+          }))
+
+        // Also add reviewed flags
+        const reviewedFlags = flagsArray
+          .filter(flag => {
+            const reviewed = flag.reviewed === 1 || flag.reviewed === true
+            return reviewed
+          })
+          .slice(0, 3) // Show only 3 reviewed items
+          .map(flag => ({
+            id: flag.flag_id || flag.id,
+            jobId: flag.job_id,
+            title: flag.job_title || flag.title || `Job ID: ${flag.job_id}`,
+            reason: flag.reason || flag.flag_reason || 'Job reviewed',
+            status: 'Reviewed',
+            flagDate: flag.created_at || flag.flag_date
+          }))
+
+        // Combine and limit to 10 items
+        setFlaggedItems([...pendingFlags, ...reviewedFlags].slice(0, 10))
+      }
+    } catch (error) {
+      // Error handling
+    } finally {
+      setLoading(false)
     }
-  ])
+  }, [])
+
+  useEffect(() => {
+    fetchFlaggedJobs()
+  }, [fetchFlaggedJobs])
 
   const handleRulesChange = (newRules) => {
     setRules(newRules)

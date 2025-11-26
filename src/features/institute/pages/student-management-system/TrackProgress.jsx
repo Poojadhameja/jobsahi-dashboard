@@ -93,7 +93,6 @@ const TrackProgress = () => {
   }
 
   const handleViewDetailedProgress = (studentId) => {
-    console.log('View detailed progress for student:', studentId)
     // Here you would typically navigate to a detailed progress page or open a modal
     Swal.fire({
       title: 'localhost:5173 says',

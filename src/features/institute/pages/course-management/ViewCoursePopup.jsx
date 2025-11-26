@@ -25,7 +25,6 @@ const ViewCoursePopup = ({ course, onClose }) => {
           setError(res?.message || 'Failed to fetch course details')
         }
       } catch (err) {
-        console.error('❌ Error fetching course:', err)
         setError('Unable to load course details.')
       } finally {
         setLoading(false)

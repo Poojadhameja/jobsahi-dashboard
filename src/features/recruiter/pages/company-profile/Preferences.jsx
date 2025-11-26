@@ -224,6 +224,7 @@ const Preferences = ({ onBack }) => {
         </SaveButton>
       </div>
 
+
       <div className="col-span-full mt-6">
         <div className={`${TAILWIND_COLORS.CARD} p-4`}>
           <h4 className={`font-semibold text-sm mb-3 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>

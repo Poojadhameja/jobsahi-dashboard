@@ -27,7 +27,6 @@ export default function BatchManagement() {
       })
       // Handle response structure: { status: true, courses: [...], count: number, message: string }
       if (response.status && Array.isArray(response.courses)) {
-        console.log('API Response:', response)
         const mapped = response.courses.map((c) => {
           // Handle admin_action - normalize to lowercase
           let adminAction = c.admin_action
@@ -48,14 +47,12 @@ export default function BatchManagement() {
             admin_action: adminAction,
           }
         })
-        console.log('Mapped courses:', mapped)
         setCourses(mapped)
       } else {
         setCourses([])
         setError('No courses found')
       }
     } catch (err) {
-      console.error('Error fetching courses:', err)
       setError('Failed to load data')
     } finally {
       setLoading(false)
@@ -103,7 +100,6 @@ export default function BatchManagement() {
       }
     } catch (err) {
       if (isMounted) {
-        console.error('Error loading course detail:', err)
         setError('Failed to load course details')
       }
     }

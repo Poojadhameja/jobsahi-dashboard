@@ -19,18 +19,15 @@ const ViewStudents = () => {
   const fetchBatchesByCourse = async (course_id) => {
     try {
       if (!course_id) {
-        console.warn("No course_id provided for batch fetch");
         return [];
       }
   
-      console.log("Fetching batches for course_id:", course_id);
       
       const resp = await getMethod({
         apiUrl: apiService.getBatches,
         params: { course_id: Number(course_id) }
       });
   
-      console.log("Batches API response for course_id", course_id, ":", resp);
   
       // Handle different response structures
       if (resp?.status) {
@@ -51,14 +48,11 @@ const ViewStudents = () => {
           return Number(batchCourseId) === Number(course_id);
         });
         
-        console.log("Filtered batches for course_id", course_id, ":", filteredBatches);
         return filteredBatches;
       }
       
-      console.warn("No batches found in response for course_id:", course_id);
       return [];
     } catch (e) {
-      console.error("Batch fetch error for course_id", course_id, ":", e);
       return [];
     }
   };
@@ -85,7 +79,6 @@ const ViewStudents = () => {
         apiUrl: apiService.institute_view_students,  // ✅ ab defined
       })
   
-      console.log("ViewStudents API response:", resp)
   
       if (resp?.status) {
         setStudents(
@@ -108,10 +101,8 @@ const ViewStudents = () => {
           })
         }
       } else {
-        console.error("ViewStudents API error:", resp?.message)
       }
     } catch (error) {
-      console.error("ViewStudents API exception:", error)
     } finally {
       setLoading(false)
     }
@@ -125,7 +116,6 @@ const fetchStudentDetails = async (studentId) => {
       apiUrl: `${apiService.get_student_profile}?id=${studentId}`
     });
 
-    console.log("View student detail response:", resp);
 
     if (resp?.success && resp.data?.profiles?.length > 0) {
       const profile = resp.data.profiles[0];
@@ -143,7 +133,6 @@ const fetchStudentDetails = async (studentId) => {
       setSelectedStudent(mapped);
       setShowViewPopup(true);
     } else {
-      console.warn("No profile found for this student");
       Swal.fire({
         icon: 'info',
         title: 'No Profile Found',
@@ -152,7 +141,6 @@ const fetchStudentDetails = async (studentId) => {
       })
     }
   } catch (error) {
-    console.error("Error fetching student details:", error);
   } finally {
     setLoading(false);
   }
@@ -174,10 +162,8 @@ const fetchStudentDetails = async (studentId) => {
         setCourses(mappedCourses)
       } else {
         setCourses([])
-        console.warn('No courses found for dropdown', resp)
       }
     } catch (err) {
-      console.error('Error fetching courses for dropdown:', err)
       setCourses([])
     }
   }
@@ -278,11 +264,8 @@ const fetchStudentDetails = async (studentId) => {
     let batches = [];
     // Only fetch batches if student has a course_id
     if (student.course_id) {
-      console.log("Loading batches for student:", student.name, "course:", student.course, "course_id:", student.course_id);
       batches = await fetchBatchesByCourse(student.course_id);
-      console.log("Fetched batches for course:", batches);
     } else {
-      console.warn("Student has no course_id, cannot fetch batches. Student:", student.name);
     }
   
     // store fetched batches for dropdown use (only batches for this specific course)
@@ -353,21 +336,12 @@ const fetchStudentDetails = async (studentId) => {
         status: normalizedStatus,
       };
 
-      console.log("📤 Update Payload:", JSON.stringify(payload, null, 2));
-      console.log("📤 Update API URL:", apiService.update_student);
-      console.log("📤 Student ID:", foundStudent.student_id);
-      console.log("📤 Batch ID:", batchId);
-      console.log("📤 Status:", normalizedStatus);
 
       const resp = await putMethod({
         apiUrl: apiService.update_student,
         payload: payload,
       });
 
-      console.log("📥 Update API Response (Full):", JSON.stringify(resp, null, 2));
-      console.log("📥 Response status:", resp?.status);
-      console.log("📥 Response success:", resp?.success);
-      console.log("📥 Response message:", resp?.message);
 
       // Check for success - backend returns {status: true, ...}
       // respChanges might convert it to {status: 'success', success: true}
@@ -376,7 +350,6 @@ const fetchStudentDetails = async (studentId) => {
                        resp?.status === 'success' ||
                        (typeof resp?.status === 'string' && resp.status.toLowerCase() === 'success');
       
-      console.log("📥 Is Success:", isSuccess);
 
       if (isSuccess) {
         // Find the batch name from batchOptions using batch_id
@@ -415,7 +388,6 @@ const fetchStudentDetails = async (studentId) => {
           confirmButtonColor: '#5C9A24'
         })
       } else {
-        console.error("Update failed - Full response:", resp);
         const errorMsg = resp?.message || resp?.error?.message || "Update failed. Please check console for details.";
         Swal.fire({
           icon: 'error',
@@ -425,8 +397,7 @@ const fetchStudentDetails = async (studentId) => {
         })
       }
     } catch (err) {
-      console.error("Update error:", err);
-      console.error("Error details:", {
+      console.log({
         message: err.message,
         response: err.response?.data,
         status: err.response?.status
@@ -696,7 +667,7 @@ const fetchStudentDetails = async (studentId) => {
             return;
           }
 
-          console.log("📝 Form Submission:", {
+          console.log({
             batch: batchValue,
             status: normalizedStatus,
             originalStatus: statusValue

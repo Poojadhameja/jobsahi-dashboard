@@ -22,6 +22,8 @@ const JobPosting = () => {
   const [jobPostings, setJobPostings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [flaggedJobIds, setFlaggedJobIds] = useState([]);
+  const [flaggedJobsMap, setFlaggedJobsMap] = useState({}); // Map of job_id to flag_id
+  const [jobFlagsStatus, setJobFlagsStatus] = useState({}); // Map of job_id to {admin_action, reviewed}
 
   // ====== API CALL ======
   const fetchJobs = useCallback(async () => {
@@ -79,22 +81,84 @@ const JobPosting = () => {
       const response = await getMethod({
         apiUrl: apiService.getJobFlags
       });
+         const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true;
 
-      console.log('📊 Flagged Jobs API Response:', response);
-
-      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true;
-
-      if (isSuccess && response?.data) {
-        // Extract job_ids from flagged jobs (only those that are not reviewed or pending)
-        const flaggedIds = Array.isArray(response.data)
-          ? response.data
-              .filter(flag => flag.reviewed === 0 || flag.admin_action === 'pending')
-              .map(flag => flag.job_id)
-          : [];
+      if (isSuccess) {
+        // Check multiple possible response structures
+        let flagsArray = null;
         
-        console.log('🚩 Flagged Job IDs:', flaggedIds);
-        setFlaggedJobIds(flaggedIds);
+        if (response?.data?.flags && Array.isArray(response.data.flags)) {
+          flagsArray = response.data.flags;
+          console.log('✅ Found flags in response.data.flags');
+        } else if (Array.isArray(response?.data)) {
+          flagsArray = response.data;
+          console.log('✅ Found flags in response.data (direct array)');
+        } else if (Array.isArray(response?.flags)) {
+          flagsArray = response.flags;
+          console.log('✅ Found flags in response.flags');
+        }
+        
+        if (flagsArray && flagsArray.length > 0) {
+          // Create maps: job_id to flag info (store ALL flags - both approved and pending)
+          const flaggedIds = [];
+          const flaggedMap = {};
+          const flagsStatusMap = {};
+          
+          flagsArray.forEach(flag => {
+            const jobId = flag.job_id || flag.id || flag.jobId;
+            const flagId = flag.flag_id || flag.id;
+            const adminAction = (flag.admin_action || '').toLowerCase();
+            const reviewed = flag.reviewed === 1 || flag.reviewed === true;
+            
+            if (jobId !== undefined && jobId !== null && flagId !== undefined && flagId !== null) {
+              // Store flag info for this job (ALL flags - approved and pending)
+              flagsStatusMap[jobId] = {
+                admin_action: adminAction,
+                reviewed: reviewed,
+                status: flag.status || '',
+                flag_id: flagId
+              };
+              
+              // Always store flag_id mapping (needed for resolve API)
+              flaggedMap[jobId] = flagId;
+              
+              // If flag is not approved (pending/flagged/under review), add to flagged list
+              if (adminAction !== 'approved' && !reviewed) {
+                flaggedIds.push(jobId);
+                console.log('🚩 Flagged job - job_id:', jobId, 'flag_id:', flagId, 'admin_action:', adminAction);
+              } else if (adminAction === 'approved') {
+                console.log('✅ Approved flag - job_id:', jobId, 'flag_id:', flagId, 'admin_action:', adminAction);
+              }
+            }
+          });
+          
+          console.log('🚩 Flagged Job IDs (pending):', flaggedIds);
+          console.log('🚩 All Job Flags Status Map:', flagsStatusMap);
+          console.log('🚩 Flagged Jobs Map (flag_id):', flaggedMap);
+          setFlaggedJobIds(flaggedIds);
+          setFlaggedJobsMap(flaggedMap);
+          setJobFlagsStatus(flagsStatusMap);
+          
+          // Update jobPostings to include flag_id (hidden column)
+          setJobPostings(prev => prev.map(job => {
+            const jobId = job.id || job.job_id;
+            if (flaggedMap[jobId]) {
+              return {
+                ...job,
+                flag_id: flaggedMap[jobId], // Store flag_id in job object (hidden column)
+                _flag_id: flaggedMap[jobId] // Alternative key for easy access
+              };
+            }
+            return job;
+          }));
+        } else {
+          console.log('⚠️ No flags array found in response');
+          setFlaggedJobIds([]);
+          setFlaggedJobsMap({});
+          setJobFlagsStatus({});
+        }
       } else {
+        console.log('⚠️ API response not successful');
         setFlaggedJobIds([]);
       }
     } catch (error) {
@@ -104,9 +168,12 @@ const JobPosting = () => {
   }, []);
 
   useEffect(() => {
-    fetchJobs();
-    fetchFlaggedJobs();
-  }, [fetchJobs, fetchFlaggedJobs]);
+    const loadData = async () => {
+      await fetchJobs();
+      await fetchFlaggedJobs();
+    };
+    loadData();
+  }, []);
 
 
   // ====== COMPUTED VALUES ======
@@ -144,18 +211,37 @@ const JobPosting = () => {
 
   const handleApproveJob = async (jobId) => {
     try {
+      // Get flag_id from multiple sources (priority order):
+      // 1. From job object itself (hidden column)
+      // 2. From flaggedJobsMap
+      // 3. From jobFlagsStatus
+      const job = jobPostings.find(j => (j.id || j.job_id) === jobId);
+      const flagIdFromJob = job?.flag_id || job?._flag_id;
+      const flagIdFromMap = flaggedJobsMap[jobId];
+      const flagIdFromStatus = jobFlagsStatus[jobId]?.flag_id;
+      
+      // Use the first available flag_id
+      const flagId = flagIdFromJob || flagIdFromMap || flagIdFromStatus;
+      
+      console.log('🔍 Approve - Flag ID lookup - jobId:', jobId, 'flagIdFromJob:', flagIdFromJob, 'flagIdFromMap:', flagIdFromMap, 'flagId:', flagId);
+      
+      if (!flagId) {
+        Swal.fire('Error!', 'Flag ID not found for this job. Please refresh the page and try again.', 'error');
+        return;
+      }
+
       const { value: reason } = await Swal.fire({
-        title: 'Approve Job',
+        title: 'Approve/Resolve Job Flag',
         input: 'textarea',
         inputLabel: 'Reason for approval',
-        inputPlaceholder: 'Enter the reason for approving this job...',
+        inputPlaceholder: 'Enter the reason for approving/resolving this flagged job...',
         inputAttributes: {
           'aria-label': 'Enter reason for approval'
         },
         showCancelButton: true,
         confirmButtonColor: COLORS.GREEN_PRIMARY,
         cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Approve Job',
+        confirmButtonText: 'Approve & Resolve',
         cancelButtonText: 'Cancel',
         inputValidator: (value) => {
           if (!value) {
@@ -165,30 +251,71 @@ const JobPosting = () => {
       });
 
       if (reason) {
+        console.log('📤 Resolving flag - flag_id:', flagId, 'job_id:', jobId);
+        
+        // API expects flag_id in URL parameter (primary key of job_flags table)
         const response = await putMethod({
-          apiUrl: `${apiService.resolveJobFlag}?id=${jobId}`
+          apiUrl: `${apiService.resolveJobFlag}?id=${flagId}`,
+          payload: {
+            reason: reason,
+            admin_action: 'approved'
+          }
         });
 
+        console.log('📥 Resolve Flag Response:', response);
+
         if (response?.status === true || response?.success === true) {
-          setLastAction({ type: 'approved', message: 'Job approved successfully' });
-          Swal.fire('Success!', 'Job approved/resolved successfully', 'success');
-          fetchJobs(); // Refresh jobs list
-          fetchFlaggedJobs(); // Refresh flagged jobs list
+          // Update local state immediately
+          const updatedFlagStatus = { ...jobFlagsStatus };
+          if (updatedFlagStatus[jobId]) {
+            updatedFlagStatus[jobId] = {
+              ...updatedFlagStatus[jobId],
+              admin_action: 'approved',
+              reviewed: true
+            };
+          }
+          setJobFlagsStatus(updatedFlagStatus);
+          
+          // Remove from flagged list
+          setFlaggedJobIds(prev => prev.filter(id => id !== jobId));
+          
+          setLastAction({ type: 'approved', message: 'Job flag resolved successfully' });
+          Swal.fire('Success!', 'Job flag resolved successfully', 'success');
+          
+          // Refresh data
+          await fetchFlaggedJobs();
+          await fetchJobs();
+          
           setTimeout(() => setLastAction(null), 3000);
         } else {
-          Swal.fire('Error!', response?.message || 'Failed to approve job', 'error');
+          Swal.fire('Error!', response?.message || 'Failed to resolve job flag', 'error');
         }
       }
     } catch (error) {
-      console.error('❌ Error approving job:', error);
-      Swal.fire('Error!', 'Failed to approve job', 'error');
+      console.error('❌ Error resolving job flag:', error);
+      Swal.fire('Error!', error?.message || 'Failed to resolve job flag', 'error');
     }
   };
 
   const handleFlaggedJob = async (jobId) => {
     try {
+      // Get flag_id from multiple sources (priority order):
+      // 1. From job object itself (hidden column)
+      // 2. From flaggedJobsMap
+      // 3. From jobFlagsStatus
+      const job = jobPostings.find(j => (j.id || j.job_id) === jobId);
+      const flagIdFromJob = job?.flag_id || job?._flag_id;
+      const flagIdFromMap = flaggedJobsMap[jobId];
+      const flagIdFromStatus = jobFlagsStatus[jobId]?.flag_id;
+      
+      // Use the first available flag_id
+      const existingFlagId = flagIdFromJob || flagIdFromMap || flagIdFromStatus;
+      const existingFlagInfo = jobFlagsStatus[jobId];
+      
+      console.log('🔍 Flag ID lookup - jobId:', jobId, 'flagIdFromJob:', flagIdFromJob, 'flagIdFromMap:', flagIdFromMap, 'existingFlagId:', existingFlagId);
+      
       const { value: reason } = await Swal.fire({
-        title: 'Flag Job',
+        title: existingFlagId ? 'Re-flag Job' : 'Flag Job',
         input: 'textarea',
         inputLabel: 'Reason for flagging',
         inputPlaceholder: 'Enter the reason for flagging this job...',
@@ -208,27 +335,147 @@ const JobPosting = () => {
       });
 
       if (reason) {
-        const response = await postMethod({
-          apiUrl: apiService.flagJob,
-          payload: {
-            job_id: jobId,
-            reason: reason
-          }
-        });
+        // If flag already exists (even if approved), update it using resolve API
+        if (existingFlagId) {
+          console.log('📤 Re-flagging job - flag_id:', existingFlagId, 'job_id:', jobId);
+          
+          // Use resolve API to update existing flag back to pending
+          // Backend now accepts admin_action from payload
+          const response = await putMethod({
+            apiUrl: `${apiService.resolveJobFlag}?id=${existingFlagId}`,
+            payload: {
+              reason: reason,
+              admin_action: 'pending'
+            }
+          });
 
-        if (response?.status === true || response?.success === true) {
-          setLastAction({ type: 'flagged', message: 'Job flagged successfully' });
-          Swal.fire('Success!', 'Job flagged successfully', 'success');
-          fetchJobs(); // Refresh jobs list
-          fetchFlaggedJobs(); // Refresh flagged jobs list
-          setTimeout(() => setLastAction(null), 3000);
+          console.log('📥 Re-flag Response:', response);
+
+          if (response?.status === true || response?.success === true) {
+            // Update local state immediately
+            setJobFlagsStatus(prev => ({
+              ...prev,
+              [jobId]: {
+                admin_action: 'pending',
+                reviewed: false,
+                status: 'Under Review',
+                flag_id: existingFlagId
+              }
+            }));
+            
+            // Update flaggedJobsMap to ensure flag_id is stored
+            setFlaggedJobsMap(prev => ({
+              ...prev,
+              [jobId]: existingFlagId
+            }));
+            
+            // Update jobPostings to include flag_id (hidden column)
+            setJobPostings(prev => prev.map(job => {
+              const jId = job.id || job.job_id;
+              if (jId === jobId) {
+                return {
+                  ...job,
+                  flag_id: existingFlagId,
+                  _flag_id: existingFlagId
+                };
+              }
+              return job;
+            }));
+            
+            // Add to flagged list
+            setFlaggedJobIds(prev => {
+              if (!prev.includes(jobId)) {
+                return [...prev, jobId];
+              }
+              return prev;
+            });
+            
+            setLastAction({ type: 'flagged', message: 'Job re-flagged successfully' });
+            Swal.fire('Success!', 'Job re-flagged successfully', 'success');
+            
+            // Refresh data
+            await fetchFlaggedJobs();
+            await fetchJobs();
+            
+            setTimeout(() => setLastAction(null), 3000);
+          } else {
+            Swal.fire('Error!', response?.message || 'Failed to re-flag job', 'error');
+          }
         } else {
-          Swal.fire('Error!', response?.message || 'Failed to flag job', 'error');
+          // New flag - create using flag API
+          console.log('📤 Flagging new job - job_id:', jobId);
+          
+          const response = await postMethod({
+            apiUrl: apiService.flagJob,
+            payload: {
+              job_id: jobId,
+              reason: reason,
+              admin_action: 'pending'
+            }
+          });
+
+          console.log('📥 Flag Job Response:', response);
+
+          if (response?.status === true || response?.success === true) {
+            // Update local state immediately
+            const flagId = response?.flag_id || response?.data?.flag_id;
+            
+            if (flagId) {
+              // Update flagged jobs map
+              setFlaggedJobsMap(prev => ({
+                ...prev,
+                [jobId]: flagId
+              }));
+              
+              // Update jobPostings to include flag_id (hidden column)
+              setJobPostings(prev => prev.map(job => {
+                const jId = job.id || job.job_id;
+                if (jId === jobId) {
+                  return {
+                    ...job,
+                    flag_id: flagId,
+                    _flag_id: flagId
+                  };
+                }
+                return job;
+              }));
+              
+              // Update job flags status
+              setJobFlagsStatus(prev => ({
+                ...prev,
+                [jobId]: {
+                  admin_action: 'pending',
+                  reviewed: false,
+                  status: 'Under Review',
+                  flag_id: flagId
+                }
+              }));
+              
+              // Add to flagged list
+              setFlaggedJobIds(prev => {
+                if (!prev.includes(jobId)) {
+                  return [...prev, jobId];
+                }
+                return prev;
+              });
+            }
+            
+            setLastAction({ type: 'flagged', message: 'Job flagged successfully' });
+            Swal.fire('Success!', 'Job flagged successfully', 'success');
+            
+            // Refresh data
+            await fetchFlaggedJobs();
+            await fetchJobs();
+            
+            setTimeout(() => setLastAction(null), 3000);
+          } else {
+            Swal.fire('Error!', response?.message || 'Failed to flag job', 'error');
+          }
         }
       }
     } catch (error) {
       console.error('❌ Error flagging job:', error);
-      Swal.fire('Error!', 'Failed to flag job', 'error');
+      Swal.fire('Error!', error?.message || 'Failed to flag job', 'error');
     }
   };
 
@@ -363,15 +610,46 @@ const JobPosting = () => {
                       <td className={`w-1/4 px-4 py-4 text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                         <div className="flex items-center gap-2">
                           <span className="truncate" title={job.title}>{job.title}</span>
-                          {flaggedJobIds.includes(job.id) ? (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-700 font-medium whitespace-nowrap">
-                              Flagged
-                            </span>
-                          ) : (job.admin_action === 'approved' || job.status === 'Approved') ? (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium whitespace-nowrap">
-                              Approved
-                            </span>
-                          ) : null}
+                          {/* Show badge based on job_flags table admin_action */}
+                          {(() => {
+                            const jobId = job.id || job.job_id;
+                            const flagInfo = jobFlagsStatus[jobId];
+                            
+                            // If job has a flag record, use its admin_action
+                            if (flagInfo) {
+                              const flagAdminAction = flagInfo.admin_action;
+                              
+                              // If admin_action is "approved" in job_flags table → Show "Approved"
+                              if (flagAdminAction === 'approved') {
+                                return (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium whitespace-nowrap">
+                                    Approved
+                                  </span>
+                                );
+                              }
+                              
+                              // If admin_action is "pending" or "flagged" or not approved → Show "Flagged"
+                              if (flagAdminAction === 'pending' || flagAdminAction === 'flagged' || !flagAdminAction || flagAdminAction === '') {
+                                return (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-700 font-medium whitespace-nowrap">
+                                    Flagged
+                                  </span>
+                                );
+                              }
+                            }
+                            
+                            // If no flag record, check job's own admin_action
+                            const jobAdminAction = (job.admin_action || '').toLowerCase();
+                            if (jobAdminAction === 'approved') {
+                              return (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium whitespace-nowrap">
+                                  Approved
+                                </span>
+                              );
+                            }
+                            
+                            return null;
+                          })()}
                         </div>
                       </td>
                       <td className={`w-1/5 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED} truncate`} title={job.company}>{job.company}</td>

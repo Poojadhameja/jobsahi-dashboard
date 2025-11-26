@@ -157,7 +157,6 @@ export default function InstituteProfile() {
       const mergedTypes = [...new Set(allTypes)]
       setInstituteTypes(mergedTypes)
     } catch (err) {
-      console.error('Error fetching institute types:', err)
       // Fallback: always include required types (Public, Private, Government) for PUT API
       setInstituteTypes(['Public', 'Private', 'Government'])
     } finally {
@@ -205,7 +204,7 @@ export default function InstituteProfile() {
       }
 
     } catch (err) {
-      console.log('Error:', err)
+      // Error fetching profile
     } finally {
       setIsLoadingProfile(false)
     }
@@ -281,13 +280,10 @@ export default function InstituteProfile() {
       // Check if we have any fields to send
       const formDataEntries = Array.from(fd.entries())
       if (formDataEntries.length === 0) {
-        console.error('No fields to update')
         setSaveStatus('error')
         setIsSaving(false)
         return
       }
-
-      console.log('FormData entries:', formDataEntries.map(([key]) => key))
 
       // Use putMultipart if logo is being uploaded, otherwise use putMethod
       const res = formData.logo instanceof File
@@ -301,6 +297,20 @@ export default function InstituteProfile() {
           })
 
       if (res?.success || res?.status === 'success' || res?.status === true) {
+        // ✅ Update localStorage with new institute name
+        try {
+          const authUser = localStorage.getItem("authUser");
+          if (authUser && formData.instituteName) {
+            const user = JSON.parse(authUser);
+            user.user_name = formData.instituteName.trim();
+            localStorage.setItem("authUser", JSON.stringify(user));
+            // Dispatch custom event for real-time updates
+            window.dispatchEvent(new CustomEvent('profileUpdated', { detail: { user_name: formData.instituteName.trim() } }));
+          }
+        } catch (error) {
+          // Error updating localStorage
+        }
+
         // Refresh profile data after successful update
         await fetchInstituteProfile()
         
@@ -318,7 +328,6 @@ export default function InstituteProfile() {
           timerProgressBar: true
         })
       } else {
-        console.error('Update failed:', res?.message || 'Unknown error')
         setSaveStatus('error')
         
         // Show error popup
@@ -330,7 +339,6 @@ export default function InstituteProfile() {
         })
       }
     } catch (error) {
-      console.error('Error updating profile:', error)
       setSaveStatus('error')
       
       // Show error popup for unexpected errors
