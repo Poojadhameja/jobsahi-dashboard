@@ -140,11 +140,24 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     try {
       const res = await getMethod({ apiUrl: service.getInterviewDetails });
       if (res?.status) {
-        const dataArr = Array.isArray(res.current_month_interviews)
-          ? res.current_month_interviews
-          : res.candidate_interview_details
-            ? [res.candidate_interview_details]
-            : [];
+        // Handle multiple possible response structures
+        let dataArr = []
+        
+        if (Array.isArray(res.current_month_interviews)) {
+          dataArr = res.current_month_interviews
+        } else if (Array.isArray(res.candidate_interview_details)) {
+          dataArr = res.candidate_interview_details
+        } else if (res.candidate_interview_details && typeof res.candidate_interview_details === 'object') {
+          dataArr = [res.candidate_interview_details]
+        } else if (Array.isArray(res.data)) {
+          dataArr = res.data
+        } else if (Array.isArray(res.interviews)) {
+          dataArr = res.interviews
+        } else if (res.data && Array.isArray(res.data.interviews)) {
+          dataArr = res.data.interviews
+        } else if (res.data && Array.isArray(res.data.current_month_interviews)) {
+          dataArr = res.data.current_month_interviews
+        }
 
         setInterviewDetails(dataArr);
 
@@ -459,144 +472,178 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
             </div>
 
             {/* Candidate Interview Section */}
-            <div className="bg-[var(--color-bg-primary)] rounded-2xl border border-gray-200 shadow-sm p-6">
-              <h4 className="text-xl font-semibold text-[var(--color-primary)] mb-4 text-center sm:text-left">
+            <div className="bg-[var(--color-bg-primary)] rounded-2xl border border-gray-200 shadow-sm p-3 sm:p-4 md:p-5 lg:p-6">
+              <h4 className="text-base sm:text-lg md:text-xl font-semibold text-[var(--color-primary)] mb-3 sm:mb-4 text-center sm:text-left">
                 Candidate Interview Details
               </h4>
 
               {(() => {
                 // Filter interviews for selected date
-                const filteredInterviews = interviewDetails.filter((item) => {
-                  const interviewDate = item.scheduled_at || item.scheduled_date || item.date || item.interview_date
-                  if (!interviewDate) return false
-                  try {
-                    const date = new Date(interviewDate)
-                    return date.getDate() === selectedDate
-                  } catch {
-                    return false
+                // If selectedDate is set and valid, filter by date, otherwise show all interviews
+                let filteredInterviews = interviewDetails
+                
+                if (selectedDate && selectedDate > 0) {
+                  filteredInterviews = interviewDetails.filter((item) => {
+                    const interviewDate = item.scheduled_at || item.scheduled_date || item.date || item.interview_date
+                    if (!interviewDate) return false
+                    try {
+                      const date = new Date(interviewDate)
+                      // Check if date is valid and matches selected date
+                      if (isNaN(date.getTime())) return false
+                      const dayOfMonth = date.getDate()
+                      return dayOfMonth === selectedDate
+                    } catch {
+                      return false
+                    }
+                  })
+                  
+                  // If filtering by date returns no results, show all interviews as fallback
+                  if (filteredInterviews.length === 0 && interviewDetails.length > 0) {
+                    filteredInterviews = interviewDetails
                   }
-                })
+                }
+
+                // Format date helper
+                const formatDate = (dateString) => {
+                  if (!dateString) return "—"
+                  try {
+                    const date = new Date(dateString)
+                    if (isNaN(date.getTime())) return dateString
+                    return date.toLocaleDateString('en-GB', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric'
+                    })
+                  } catch {
+                    return dateString
+                  }
+                }
+
+                // Format time helper
+                const formatTime = (timeString) => {
+                  if (!timeString) return "—"
+                  try {
+                    // If it's a full datetime string, extract time
+                    if (timeString.includes('T') || timeString.includes(' ')) {
+                      const date = new Date(timeString)
+                      if (!isNaN(date.getTime())) {
+                        return date.toLocaleTimeString('en-GB', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: false
+                        })
+                      }
+                    }
+                    // If it's already in HH:MM format, return as is
+                    return timeString
+                  } catch {
+                    return timeString
+                  }
+                }
 
                 return filteredInterviews.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="grid gap-3 sm:gap-4 md:gap-5 grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2 overflow-y-auto max-h-[300px] sm:max-h-[400px] md:max-h-[500px] lg:max-h-[600px] xl:max-h-[450px] 2xl:max-h-[500px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 px-1">
                     {filteredInterviews.map((item, i) => {
-                    // Format date
-                    const formatDate = (dateString) => {
-                      if (!dateString) return "—"
-                      try {
-                        const date = new Date(dateString)
-                        if (isNaN(date.getTime())) return dateString
-                        return date.toLocaleDateString('en-GB', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric'
-                        })
-                      } catch {
-                        return dateString
-                      }
-                    }
+                      // Extract job title from various possible fields
+                      const jobTitle = item.job_title || item.jobTitle || item.job_name || item.title || "—"
+                      
+                      // Extract mode from various possible fields
+                      const mode = item.mode || item.interview_mode || item.platform_name || "—"
+                      
+                      // Extract location from various possible fields
+                      const location = item.location || item.interview_location || item.address || "—"
+                      
+                      // Extract time from various possible fields
+                      const time = formatTime(item.time || item.scheduled_time || item.interview_time || item.scheduled_at)
+                      
+                      // Extract date from various possible fields
+                      const date = formatDate(item.scheduled_at || item.scheduled_date || item.date || item.interview_date)
 
-                    // Format time
-                    const formatTime = (timeString) => {
-                      if (!timeString) return "—"
-                      try {
-                        // If it's a full datetime string, extract time
-                        if (timeString.includes('T') || timeString.includes(' ')) {
-                          const date = new Date(timeString)
-                          if (!isNaN(date.getTime())) {
-                            return date.toLocaleTimeString('en-GB', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                              hour12: false
-                            })
-                          }
-                        }
-                        // If it's already in HH:MM format, return as is
-                        return timeString
-                      } catch {
-                        return timeString
-                      }
-                    }
-
-                    // Extract job title from various possible fields
-                    const jobTitle = item.job_title || item.jobTitle || item.job_name || item.title || "—"
-                    
-                    // Extract mode from various possible fields
-                    const mode = item.mode || item.interview_mode || item.platform_name || "—"
-                    
-                    // Extract location from various possible fields
-                    const location = item.location || item.interview_location || item.address || "—"
-                    
-                    // Extract time from various possible fields
-                    const time = formatTime(item.time || item.scheduled_time || item.interview_time || item.scheduled_at)
-                    
-                    // Extract date from various possible fields
-                    const date = formatDate(item.scheduled_at || item.scheduled_date || item.date || item.interview_date)
-
-                    return (
-                      <div
-                        key={i}
-                        className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 p-5"
-                      >
-                        {/* Date Header */}
-                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
-                          <h5 className="font-semibold text-gray-800 text-base">
-                            Interview Details
-                          </h5>
-                          <p className="text-sm font-medium text-gray-600">
-                            {date}
-                          </p>
-                        </div>
-
-                        {/* Details Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="space-y-1">
-                            <span className="text-xs text-gray-500 block">Job Title</span>
-                            <span className="text-sm font-medium text-gray-800 block">
-                              {jobTitle}
-                            </span>
+                      return (
+                        <div
+                          key={i}
+                          className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-200 p-4 sm:p-5 md:p-6 h-full flex flex-col"
+                        >
+                          {/* Date Header */}
+                          <div className="flex items-center justify-between mb-3 sm:mb-4 pb-2 sm:pb-3 border-b border-gray-200">
+                            <div className="flex items-center gap-2">
+                              <FaCalendarAlt className="text-blue-600 text-xs sm:text-sm flex-shrink-0" />
+                              <h5 className="font-semibold text-gray-800 text-xs sm:text-sm md:text-base truncate">
+                                Interview Details
+                              </h5>
+                            </div>
+                            <p className="text-xs sm:text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded whitespace-nowrap flex-shrink-0 ml-2">
+                              {date}
+                            </p>
                           </div>
 
-                          <div className="space-y-1">
-                            <span className="text-xs text-gray-500 block">Mode</span>
-                            <span className="text-sm font-medium text-gray-800 block capitalize">
-                              {mode}
-                            </span>
-                          </div>
+                          {/* Candidate Name (if available) */}
+                          {(item.name || item.candidate_name || item.student_name) && (
+                            <div className="mb-3 sm:mb-4 pb-2 sm:pb-3 border-b border-gray-100">
+                              <span className="text-xs text-gray-500 block mb-1">Candidate</span>
+                              <span className="text-xs sm:text-sm font-semibold text-gray-800 block truncate">
+                                {item.name || item.candidate_name || item.student_name}
+                              </span>
+                            </div>
+                          )}
 
-                          <div className="space-y-1">
-                            <span className="text-xs text-gray-500 block">Location</span>
-                            <span className="text-sm font-medium text-gray-800 block">
-                              {location}
-                            </span>
-                          </div>
+                          {/* Details Grid */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 flex-1">
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 block flex items-center gap-1">
+                                <FaBriefcase className="text-gray-400 text-xs flex-shrink-0" />
+                                <span className="truncate">Job Title</span>
+                              </span>
+                              <span className="text-xs sm:text-sm font-medium text-gray-800 block min-h-[20px] break-words">
+                                {jobTitle !== "—" ? jobTitle : <span className="text-gray-400 italic">Not specified</span>}
+                              </span>
+                            </div>
 
-                          <div className="space-y-1">
-                            <span className="text-xs text-gray-500 block">Time</span>
-                            <span className="text-sm font-medium text-gray-800 block">
-                              {time}
-                            </span>
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 block flex items-center gap-1">
+                                <FaPhone className="text-gray-400 text-xs flex-shrink-0" />
+                                <span className="truncate">Mode</span>
+                              </span>
+                              <span className="text-xs sm:text-sm font-medium text-gray-800 block capitalize break-words">
+                                {mode !== "—" ? mode : <span className="text-gray-400 italic">Not specified</span>}
+                              </span>
+                            </div>
+
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 block flex items-center gap-1">
+                                <FaMapMarkerAlt className="text-gray-400 text-xs flex-shrink-0" />
+                                <span className="truncate">Location</span>
+                              </span>
+                              <span className="text-xs sm:text-sm font-medium text-gray-800 block break-words">
+                                {location !== "—" ? location : <span className="text-gray-400 italic">Not specified</span>}
+                              </span>
+                            </div>
+
+                            <div className="space-y-1">
+                              <span className="text-xs text-gray-500 block flex items-center gap-1">
+                                <FaCalendarAlt className="text-gray-400 text-xs flex-shrink-0" />
+                                <span className="truncate">Time</span>
+                              </span>
+                              <span className="text-xs sm:text-sm font-medium text-gray-800 block break-words">
+                                {time !== "—" ? time : <span className="text-gray-400 italic">Not specified</span>}
+                              </span>
+                            </div>
                           </div>
                         </div>
-
-                        {/* Candidate Name (if available) */}
-                        {(item.name || item.candidate_name || item.student_name) && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <span className="text-xs text-gray-500 block">Candidate</span>
-                            <span className="text-sm font-semibold text-gray-800 block">
-                              {item.name || item.candidate_name || item.student_name}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
+                ) : interviewDetails.length > 0 ? (
+                  <div className="text-center py-6 sm:py-8 md:py-12 text-gray-400 text-xs sm:text-sm flex flex-col items-center justify-center">
+                    <FaCalendarAlt className="text-xl sm:text-2xl md:text-3xl mb-2" />
+                    <p className="text-xs sm:text-sm">No interviews found for selected date</p>
+                    <p className="text-xs mt-1">Try selecting a different date from the calendar</p>
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-gray-400 text-sm flex flex-col items-center justify-center">
-                    <FaCalendarAlt className="text-3xl mb-2" />
-                    <p>No interviews scheduled for selected date</p>
-                    <p className="text-xs mt-1">Select a date with scheduled interviews</p>
+                  <div className="text-center py-6 sm:py-8 md:py-12 text-gray-400 text-xs sm:text-sm flex flex-col items-center justify-center">
+                    <FaCalendarAlt className="text-xl sm:text-2xl md:text-3xl mb-2" />
+                    <p className="text-xs sm:text-sm">No interviews scheduled</p>
+                    <p className="text-xs mt-1">Schedule interviews to see them here</p>
                   </div>
                 )
               })()}

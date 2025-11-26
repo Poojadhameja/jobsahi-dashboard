@@ -75,39 +75,92 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
           interviews = response;
         }
 
-        // Find interview for this candidate - try multiple matching strategies
-        const foundInterview = interviews.find((interview) => {
-          // Strategy 1: Match by application_id (preferred)
-          if (applicationId) {
-            const interviewAppId = interview.application_id || interview.applicationId || interview.application_id;
+        // Find interview for this candidate - prioritize by application_id that has scheduled interview
+        // If candidate has multiple applications, only show the one with scheduled interview
+        let foundInterview = null;
+        
+        // Strategy 1: First try to find interview by exact application_id match
+        if (applicationId) {
+          foundInterview = interviews.find((interview) => {
+            const interviewAppId = interview.application_id || interview.applicationId;
             if (interviewAppId && (interviewAppId == applicationId || String(interviewAppId) === String(applicationId))) {
               return true;
             }
-          }
+            return false;
+          });
+        }
+        
+        // Strategy 2: If no match by application_id, find any interview for this student
+        // This ensures we show the application that has scheduled interview, not all applications
+        if (!foundInterview && studentId) {
+          foundInterview = interviews.find((interview) => {
+            const interviewStudentId = interview.student_id || interview.studentId || interview.user_id || interview.candidate_id;
+            if (interviewStudentId && (interviewStudentId == studentId || String(interviewStudentId) === String(studentId))) {
+              return true;
+            }
+            return false;
+          });
           
-          // Strategy 2: Match by job_id and student_id
-          if (jobId && studentId) {
-            const interviewJobId = interview.job_id || interview.jobId || interview.job_id;
+          // If we found an interview by student_id, update candidate's application_id to match
+          if (foundInterview) {
+            const scheduledAppId = foundInterview.application_id || foundInterview.applicationId;
+            if (scheduledAppId && candidate) {
+              // Update candidate object to reflect the application_id that has scheduled interview
+              candidate.application_id = scheduledAppId;
+              candidate.applicationId = scheduledAppId;
+            }
+          }
+        }
+        
+        // Strategy 3: Match by job_id and student_id (fallback)
+        if (!foundInterview && jobId && studentId) {
+          foundInterview = interviews.find((interview) => {
+            const interviewJobId = interview.job_id || interview.jobId;
             const interviewStudentId = interview.student_id || interview.studentId || interview.user_id || interview.candidate_id;
             if (interviewJobId && interviewStudentId && 
                 (interviewJobId == jobId || String(interviewJobId) === String(jobId)) &&
                 (interviewStudentId == studentId || String(interviewStudentId) === String(studentId))) {
               return true;
             }
-          }
-          
-          // Strategy 3: Match by candidate name (fallback)
-          if (candidateName) {
+            return false;
+          });
+        }
+        
+        // Strategy 4: Match by candidate name (last resort)
+        if (!foundInterview && candidateName) {
+          foundInterview = interviews.find((interview) => {
             const interviewCandidateName = interview.candidate_name || interview.candidateName || interview.name || '';
             if (interviewCandidateName && interviewCandidateName.toLowerCase().trim() === candidateName.toLowerCase().trim()) {
               return true;
             }
-          }
-          
-          return false;
-        });
+            return false;
+          });
+        }
 
         if (foundInterview) {
+          // Get the application_id from the found interview (this is the one with scheduled interview)
+          const scheduledAppId = foundInterview.application_id || foundInterview.applicationId;
+          
+          // If the interview is for a different application_id than the candidate's current one,
+          // we should only show this interview if it matches the candidate's student_id
+          // This ensures we show the interview for the correct application
+          if (scheduledAppId && candidate) {
+            // Update candidate's application_id to match the one with scheduled interview
+            // This ensures the view shows data for the application that has the interview
+            if (candidate.application_id !== scheduledAppId && candidate.applicationId !== scheduledAppId) {
+              // Only update if student_id matches (same candidate, different application)
+              const interviewStudentId = foundInterview.student_id || foundInterview.studentId || foundInterview.user_id || foundInterview.candidate_id;
+              const candidateStudentId = candidate.student_id || candidate.studentId || candidate.user_id;
+              
+              if (interviewStudentId && candidateStudentId && 
+                  (String(interviewStudentId) === String(candidateStudentId))) {
+                // Update candidate to reflect the application_id that has scheduled interview
+                candidate.application_id = scheduledAppId;
+                candidate.applicationId = scheduledAppId;
+              }
+            }
+          }
+          
           // Normalize interview data - handle different field names from API
           const normalizedInterview = {
             ...foundInterview,
@@ -117,7 +170,8 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
             location: foundInterview.location || foundInterview.interview_location || foundInterview.address,
             platform_name: foundInterview.platform_name || foundInterview.platformName || foundInterview.platform,
             status: foundInterview.status || foundInterview.interview_status,
-            interview_info: foundInterview.interview_info || foundInterview.interviewInfo || foundInterview.feedback || foundInterview.notes || foundInterview.description
+            interview_info: foundInterview.interview_info || foundInterview.interviewInfo || foundInterview.feedback || foundInterview.notes || foundInterview.description,
+            application_id: scheduledAppId // Store the application_id that has the scheduled interview
           };
           
           setExistingInterview(normalizedInterview);
