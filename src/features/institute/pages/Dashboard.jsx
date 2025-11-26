@@ -217,15 +217,19 @@ export default function Dashboard() {
         }
 
         // ✅ 2) UPDATE RECENT ACTIVITIES
-        if (Array.isArray(recent_activities)) {
+        if (Array.isArray(recent_activities) && recent_activities.length > 0) {
           const mappedActivities = recent_activities.map((item, idx) => ({
             id: idx + 1,
-            text: item.title,
-            time: formatTimeAgo(item.timestamp),
-            color: getActivityColor(item.type)
+            text: item.title || item.text || item.message || 'Activity',
+            time: formatTimeAgo(item.timestamp || item.created_at || item.date),
+            color: getActivityColor(item.type || item.activity_type || 'default')
           }))
           setRecentActivities(mappedActivities)
+        } else if (Array.isArray(recent_activities) && recent_activities.length === 0) {
+          // If API returns empty array, show empty state (don't use fallback)
+          setRecentActivities([])
         }
+        // If recent_activities is missing/null, keep fallback data
 
         // ✅ 3) UPDATE COURSE STATISTICS
         if (Array.isArray(course_statistics)) {
@@ -427,15 +431,21 @@ export default function Dashboard() {
           <p className={`${TAILWIND_COLORS.TEXT_MUTED} mb-5`}>Latest updates and activities in your institute.</p>
           
           <div className="space-y-4">
-            {recentActivities.map((activity) => (
-              <div key={activity.id} className="flex items-start space-x-3">
-                <div className={`w-3 h-3 rounded-full ${activity.color} mt-2 flex-shrink-0`}></div>
-                <div className="flex-1">
-                  <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>{activity.text}</p>
-                  <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs`}>{activity.time}</p>
+            {recentActivities.length > 0 ? (
+              recentActivities.map((activity) => (
+                <div key={activity.id} className="flex items-start space-x-3">
+                  <div className={`w-3 h-3 rounded-full ${activity.color} mt-2 flex-shrink-0`}></div>
+                  <div className="flex-1">
+                    <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>{activity.text}</p>
+                    <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs`}>{activity.time}</p>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm`}>No recent activities found</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

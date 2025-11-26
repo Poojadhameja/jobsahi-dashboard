@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
+import { LuLock, LuEye, LuEyeOff } from 'react-icons/lu'
 import { TAILWIND_COLORS, COLORS } from '../WebConstant'
 import { postMethod } from '../../service/api'
 import { getMethod } from '../../service/api'
 import { putMethod } from '../../service/api'
 import apiService from '../../shared/services/serviceUrl'
+import { Button } from '../components/Button'
 import LogoutConfirmationModal from '../components/LogoutConfirmationModal'
 
 export default function AdminProfile() {
@@ -28,6 +30,20 @@ export default function AdminProfile() {
     role: user.role,
   })
   const [phoneError, setPhoneError] = useState('')
+
+  // Change Password State
+  const [passwordData, setPasswordData] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_password: ""
+  })
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  })
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [passwordErrors, setPasswordErrors] = useState({})
 
   const handleLogout = () => {
     setShowLogoutModal(true)
@@ -115,7 +131,17 @@ export default function AdminProfile() {
       console.log(response);
 
       if (response.status === true) {
-        //alert(response.message || "User updated successfully!")
+        // Update localStorage for real-time name update
+        const authUser = localStorage.getItem("authUser")
+        if (authUser) {
+          const userObj = JSON.parse(authUser)
+          userObj.user_name = profile.name
+          localStorage.setItem("authUser", JSON.stringify(userObj))
+          
+          // Dispatch custom event for real-time header update
+          window.dispatchEvent(new CustomEvent('profileUpdated'))
+        }
+
         Swal.fire({
           title: "Success",
           text: response.message || "User updated successfully!",
@@ -156,47 +182,255 @@ export default function AdminProfile() {
         </div>
       </div>
 
-      <div className={`grid grid-cols-1 lg:grid-cols-3 gap-4`}>
-        <div className={`${TAILWIND_COLORS.CARD} p-4 lg:col-span-2`}>
-          <div className="font-medium mb-3">Profile Information</div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Full Name</label>
-              <input className="w-full h-11 rounded-lg border border-gray-300 px-3 bg-white" value={profile.name} onChange={onChangeField('name')} />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Email</label>
-              <input className="w-full h-11 rounded-lg border border-gray-300 px-3 bg-white" value={profile.email} onChange={onChangeField('email')} />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Phone</label>
-              <input
-                className={`w-full h-11 rounded-lg px-3 bg-white border ${phoneError ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-[#5B9821]'}`}
-                value={profile.phone}
-                onChange={onChangeField('phone')}
-                inputMode="numeric"
-                placeholder="Enter 10-digit phone"
-              />
-              {phoneError ? <div className="mt-1 text-xs text-red-600">{phoneError}</div> : null}
-            </div>
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Role</label>
-              <input className="w-full h-11 rounded-lg border border-gray-300 px-3 bg-gray-50" readOnly value={profile.role} />
-            </div>
+      <div className={`${TAILWIND_COLORS.CARD} p-4`}>
+        <div className="font-medium mb-3">Profile Information</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Full Name</label>
+            <input className="w-full h-11 rounded-lg border border-gray-300 px-3 bg-white" value={profile.name} onChange={onChangeField('name')} />
           </div>
-          <div className="mt-4">
-            <button onClick={onSave} className={`px-4 py-2 rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}>Save Changes</button>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Email</label>
+            <input className="w-full h-11 rounded-lg border border-gray-300 px-3 bg-white" value={profile.email} onChange={onChangeField('email')} />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Phone</label>
+            <input
+              className={`w-full h-11 rounded-lg px-3 bg-white border ${phoneError ? 'border-red-400 focus:ring-red-300' : 'border-gray-300 focus:ring-[#5B9821]'}`}
+              value={profile.phone}
+              onChange={onChangeField('phone')}
+              inputMode="numeric"
+              placeholder="Enter 10-digit phone"
+            />
+            {phoneError ? <div className="mt-1 text-xs text-red-600">{phoneError}</div> : null}
+          </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Role</label>
+            <input className="w-full h-11 rounded-lg border border-gray-300 px-3 bg-gray-50" readOnly value={profile.role} />
+          </div>
+        </div>
+        <div className="mt-4">
+          <button onClick={onSave} className={`px-4 py-2 rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}>Save Changes</button>
+        </div>
+      </div>
+
+      {/* Change Password Section */}
+      <div className={`${TAILWIND_COLORS.CARD} p-6`}>
+        <div className="flex items-center gap-3 mb-4">
+          <LuLock className={`${TAILWIND_COLORS.SECONDARY}`} size={20} />
+          <h3 className={`font-semibold text-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+            Change Password
+          </h3>
+        </div>
+        <p className={`text-sm mb-6 ${TAILWIND_COLORS.TEXT_MUTED}`}>
+          Update your account password to keep your account secure.
+        </p>
+
+        <div className="space-y-4">
+          {/* Current Password */}
+          <div>
+            <label className={`text-sm font-medium mb-2 block ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Current Password <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showPasswords.current ? "text" : "password"}
+                value={passwordData.current_password}
+                onChange={(e) => {
+                  setPasswordData(prev => ({ ...prev, current_password: e.target.value }));
+                  if (passwordErrors.current_password) {
+                    setPasswordErrors(prev => ({ ...prev, current_password: "" }));
+                  }
+                }}
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 pr-10 ${
+                  passwordErrors.current_password ? "border-red-500" : "border-gray-300"
+                }`}
+                placeholder="Enter current password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY}`}
+              >
+                {showPasswords.current ? <LuEyeOff size={18} /> : <LuEye size={18} />}
+              </button>
+            </div>
+            {passwordErrors.current_password && (
+              <p className="text-red-500 text-xs mt-1">{passwordErrors.current_password}</p>
+            )}
+          </div>
+
+          {/* New Password */}
+          <div>
+            <label className={`text-sm font-medium mb-2 block ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              New Password <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showPasswords.new ? "text" : "password"}
+                value={passwordData.new_password}
+                onChange={(e) => {
+                  setPasswordData(prev => ({ ...prev, new_password: e.target.value }));
+                  if (passwordErrors.new_password) {
+                    setPasswordErrors(prev => ({ ...prev, new_password: "" }));
+                  }
+                }}
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 pr-10 ${
+                  passwordErrors.new_password ? "border-red-500" : "border-gray-300"
+                }`}
+                placeholder="Enter new password (min 6 characters)"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY}`}
+              >
+                {showPasswords.new ? <LuEyeOff size={18} /> : <LuEye size={18} />}
+              </button>
+            </div>
+            {passwordErrors.new_password && (
+              <p className="text-red-500 text-xs mt-1">{passwordErrors.new_password}</p>
+            )}
+          </div>
+
+          {/* Confirm Password */}
+          <div>
+            <label className={`text-sm font-medium mb-2 block ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Confirm New Password <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                type={showPasswords.confirm ? "text" : "password"}
+                value={passwordData.confirm_password}
+                onChange={(e) => {
+                  setPasswordData(prev => ({ ...prev, confirm_password: e.target.value }));
+                  if (passwordErrors.confirm_password) {
+                    setPasswordErrors(prev => ({ ...prev, confirm_password: "" }));
+                  }
+                }}
+                className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 pr-10 ${
+                  passwordErrors.confirm_password ? "border-red-500" : "border-gray-300"
+                }`}
+                placeholder="Confirm new password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} hover:${TAILWIND_COLORS.TEXT_PRIMARY}`}
+              >
+                {showPasswords.confirm ? <LuEyeOff size={18} /> : <LuEye size={18} />}
+              </button>
+            </div>
+            {passwordErrors.confirm_password && (
+              <p className="text-red-500 text-xs mt-1">{passwordErrors.confirm_password}</p>
+            )}
           </div>
         </div>
 
-        <div className={`${TAILWIND_COLORS.CARD} p-4 space-y-3`}>
-          <div className="font-medium">Security</div>
-          <button className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`}>Change Password</button>
-          <button className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`}>Two-Factor Authentication</button>
-          <button className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_LIGHT}`} style={{ color: COLORS.ERROR, borderColor: '#FEE2E2' }}>Delete Account</button>
-          <div className="pt-1">
-            <button onClick={handleLogout} className={`w-full h-10 rounded-lg ${TAILWIND_COLORS.BTN_PRIMARY}`}>Logout</button>
-          </div>
+        <div className="flex justify-end mt-6">
+          <Button
+            variant="primary"
+            onClick={async () => {
+              // Validate form
+              const errors = {};
+              if (!passwordData.current_password.trim()) {
+                errors.current_password = "Current password is required";
+              }
+              if (!passwordData.new_password.trim()) {
+                errors.new_password = "New password is required";
+              } else if (passwordData.new_password.length < 6) {
+                errors.new_password = "Password must be at least 6 characters";
+              }
+              if (!passwordData.confirm_password.trim()) {
+                errors.confirm_password = "Please confirm your new password";
+              } else if (passwordData.new_password !== passwordData.confirm_password) {
+                errors.confirm_password = "Passwords do not match";
+              }
+              if (passwordData.current_password === passwordData.new_password) {
+                errors.new_password = "New password must be different from current password";
+              }
+
+              setPasswordErrors(errors);
+              if (Object.keys(errors).length > 0) return;
+
+              try {
+                setIsChangingPassword(true);
+                const authUser = localStorage.getItem("authUser");
+                if (!authUser) {
+                  Swal.fire({
+                    title: "Error",
+                    text: "User information not found. Please login again.",
+                    icon: "error",
+                    confirmButtonColor: '#d33'
+                  });
+                  return;
+                }
+
+                const userObj = JSON.parse(authUser);
+                const userId = userObj.id || userObj.user_id || userObj.uid;
+
+                if (!userId) {
+                  Swal.fire({
+                    title: "Error",
+                    text: "User ID not found. Please login again.",
+                    icon: "error",
+                    confirmButtonColor: '#d33'
+                  });
+                  return;
+                }
+
+                const payload = {
+                  user_id: userId,
+                  current_password: passwordData.current_password.trim(),
+                  new_password: passwordData.new_password.trim()
+                };
+
+                const response = await putMethod({
+                  apiUrl: apiService.changePassword,
+                  payload: payload
+                });
+
+                const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true;
+
+                if (isSuccess) {
+                  Swal.fire({
+                    title: "Success!",
+                    text: response?.message || "Password changed successfully!",
+                    icon: "success",
+                    confirmButtonColor: '#5C9A24'
+                  }).then(() => {
+                    setPasswordData({
+                      current_password: "",
+                      new_password: "",
+                      confirm_password: ""
+                    });
+                    setPasswordErrors({});
+                  });
+                } else {
+                  const errorMessage = response?.message || response?.error || "Failed to change password. Please try again.";
+                  Swal.fire({
+                    title: "Error",
+                    text: errorMessage,
+                    icon: "error",
+                    confirmButtonColor: '#d33'
+                  });
+                }
+              } catch (error) {
+                Swal.fire({
+                  title: "Error",
+                  text: error?.message || "Something went wrong. Please try again.",
+                  icon: "error",
+                  confirmButtonColor: '#d33'
+                });
+              } finally {
+                setIsChangingPassword(false);
+              }
+            }}
+            disabled={isChangingPassword}
+            className="min-w-[150px]"
+          >
+            {isChangingPassword ? "Changing..." : "Change Password"}
+          </Button>
         </div>
       </div>
 

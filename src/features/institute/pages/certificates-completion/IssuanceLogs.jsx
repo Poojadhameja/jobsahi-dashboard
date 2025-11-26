@@ -54,14 +54,6 @@ useEffect(() => {
         data: formData, // Empty FormData for list view
       });
 
-        status: response?.status,
-        message: response?.message,
-        count: response?.count,
-        dataType: typeof response?.data,
-        isArray: Array.isArray(response?.data),
-        dataLength: response?.data?.length,
-      });
-
       // Check if response is successful
       const isSuccess = response?.status === true || 
                        response?.status === 1 || 
@@ -69,10 +61,6 @@ useEffect(() => {
                        (response?.data && Array.isArray(response.data) && response.data.length > 0);
 
       if (!isSuccess) {
-          status: response?.status,
-          message: response?.message,
-          data: response?.data,
-        });
         setLogs([]);
         return;
       }
@@ -134,11 +122,9 @@ useEffect(() => {
                 } else {
                   templateData = templateResponse.data;
                 }
-                  template_name: templateData?.template_name || templateData?.name,
-                  template_description: templateData?.description || templateData?.footer_text
-                });
               }
             } catch (templateError) {
+              // Error fetching template, use fallback data
             }
           }
           
@@ -197,18 +183,6 @@ useEffect(() => {
                                      log.footer_text ||
                                      log.template?.footer_text ||
                                      '';
-          
-            batch_name: log.batch_name,
-            batch: log.batch,
-            phone_number: log.phone_number,
-            phone: log.phone,
-            template_name: log.template_name,
-            template_description: log.template_description,
-            extractedBatch: batchName,
-            extractedPhone: phoneNumber,
-            extractedTemplateName: templateName,
-            extractedTemplateDescription: templateDescription
-          });
           
           return {
             // Component fields (camelCase)

@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { COLORS, TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import Button from "../../../../shared/components/Button.jsx";
+import { getMethod, putMethod } from '../../../../service/api';
+import apiService from '../../services/serviceUrl';
+import Swal from 'sweetalert2';
 
 // ========= Toggle (kept as a separate component) =========
 const Toggle = ({ checked, onChange, label }) => (
@@ -28,7 +31,7 @@ const Toggle = ({ checked, onChange, label }) => (
 );
 
 // AI Resume Feedback Card Component
-const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) => {
+const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings, savingSettings }) => {
   const responseOptions = [
     { value: "", label: "select response time" },
     { value: "instant", label: "Instant (beta)" },
@@ -134,6 +137,7 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
             variant="primary"
             size="md"
             className="font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-30"
+            disabled={savingSettings}
             icon={
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -141,7 +145,7 @@ const AIResumeFeedbackCard = ({ settings, onSettingsChange, onUpdateSettings }) 
               </svg>
             }
           >
-            Configure LLM Integration
+            {savingSettings ? 'Saving...' : 'Configure LLM Integration'}
           </Button>
         </div>
       </div>
@@ -159,12 +163,92 @@ const ResumeFeedback = () => {
     responseTime: "",
   });
 
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  // Fetch resume feedback settings
+  const fetchResumeFeedbackSettings = useCallback(async () => {
+    try {
+      const response = await getMethod({
+        apiUrl: apiService.getAlertSettings,
+        params: { type: 'resume_feedback' }
+      })
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+
+      if (isSuccess) {
+        let settingsData = response?.settings || response?.data?.settings || response?.data
+
+        if (settingsData) {
+          setSettings({
+            emailNotifications: settingsData.email_notifications !== false && settingsData.emailNotifications !== false,
+            pushNotifications: settingsData.push_notifications !== false && settingsData.pushNotifications !== false,
+            contentQuality: settingsData.content_quality !== false && settingsData.contentQuality !== false,
+            grammarLanguage: settingsData.grammar_language !== false && settingsData.grammarLanguage !== false,
+            responseTime: settingsData.response_time || settingsData.responseTime || ""
+          })
+        }
+      }
+    } catch (error) {
+      // If no settings found, use defaults (already set in useState)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchResumeFeedbackSettings()
+  }, [fetchResumeFeedbackSettings])
+
   const handleSettingsChange = (newSettings) => setSettings(newSettings);
 
-  const handleUpdateSettings = (updatedSettings) => {
-    // Hook up to API later
-    console.log("Updated settings:", updatedSettings);
-    alert("Settings updated successfully!");
+  const handleUpdateSettings = async (updatedSettings) => {
+    try {
+      setSavingSettings(true)
+
+      // Map UI fields to API format
+      const settingsObject = {
+        email_notifications: updatedSettings.emailNotifications === true,
+        push_notifications: updatedSettings.pushNotifications === true,
+        content_quality: updatedSettings.contentQuality === true,
+        grammar_language: updatedSettings.grammarLanguage === true,
+        response_time: updatedSettings.responseTime || "",
+        // Also include UI fields for backward compatibility
+        emailNotifications: updatedSettings.emailNotifications,
+        pushNotifications: updatedSettings.pushNotifications,
+        contentQuality: updatedSettings.contentQuality,
+        grammarLanguage: updatedSettings.grammarLanguage,
+        responseTime: updatedSettings.responseTime
+      }
+
+      const response = await putMethod({
+        apiUrl: apiService.updateAlertSettings,
+        payload: {
+          type: 'resume_feedback',
+          settings: settingsObject
+        }
+      })
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+
+      if (isSuccess) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: response?.message || 'Resume feedback settings updated successfully',
+          timer: 2000,
+          showConfirmButton: false
+        })
+      } else {
+        throw new Error(response?.message || 'Failed to update settings')
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: error.message || 'Failed to update resume feedback settings. Please try again.',
+        confirmButtonText: 'OK'
+      })
+    } finally {
+      setSavingSettings(false)
+    }
   };
 
   return (
@@ -173,6 +257,7 @@ const ResumeFeedback = () => {
         settings={settings}
         onSettingsChange={handleSettingsChange}
         onUpdateSettings={handleUpdateSettings}
+        savingSettings={savingSettings}
       />
     </div>
   );

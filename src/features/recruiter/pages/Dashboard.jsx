@@ -534,7 +534,7 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
           <div className="bg-white rounded-xl border border-[var(--color-primary)3C] p-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-2">
               <h3 className="text-lg font-semibold text-gray-900 text-center sm:text-left">
-                Total applicants this week by trades
+                Total applicants this Month by trades
               </h3>
               <span className="text-sm text-gray-500 text-center sm:text-right">
                 {weekRange || "—"}

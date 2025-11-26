@@ -31,6 +31,11 @@ const service = {
     //certificates
     getCertificateIssuance: '/certificates/certificates_issuance.php',
 
+    //alert settings
+    getAlertSettings: '/admin/get_alert_settings.php',
+    updateAlertSettings: '/admin/update_alert_settings.php',
+    getUpcomingCourseDeadlines: '/admin/get_upcoming_course_deadlines.php',
+
 }
 
 export default service;
