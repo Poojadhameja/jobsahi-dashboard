@@ -20,6 +20,7 @@ const service = {
 
     getRecentApplicants: "/employer/get_recent_applicants.php",
 
+    
     //interview schedule
     scheduleInterview: "/applications/schedule_interview.php",
     getScheduledInterviews: "/applications/schedule_interview.php",

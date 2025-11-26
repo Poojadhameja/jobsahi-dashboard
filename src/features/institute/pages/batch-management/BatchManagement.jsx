@@ -18,65 +18,65 @@ export default function BatchManagement() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const response = await getMethod({
+        apiUrl: apiService.courseByBatch
+      })
+      // Handle response structure: { status: true, courses: [...], count: number, message: string }
+      if (response.status && Array.isArray(response.courses)) {
+        const mapped = response.courses.map((c) => {
+          // Handle admin_action - normalize to lowercase
+          let adminAction = c.admin_action
+          if (adminAction !== null && adminAction !== undefined) {
+            adminAction = String(adminAction).toLowerCase().trim()
+          }
+          // Default to 'pending' only if truly missing
+          adminAction = adminAction || 'pending'
+          
+          return {
+            id: c.course_id,
+            title: c.course_title,
+            instructor: c.instructor_name,
+            fee: c.fee || 0,
+            totalBatches: c.total_batches || 0,
+            activeBatches: c.active_batches || 0,
+            progress: c.overall_progress || 0,
+            admin_action: adminAction,
+          }
+        })
+        setCourses(mapped)
+      } else {
+        setCourses([])
+        setError('No courses found')
+      }
+    } catch (err) {
+      setError('Failed to load data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     let isSubscribed = true
     
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const response = await getMethod({
-          apiUrl: apiService.courseByBatch
-        })
-        if (isSubscribed) {
-          // Handle response structure: { status: true, courses: [...], count: number, message: string }
-          if (response.status && Array.isArray(response.courses)) {
-            console.log('API Response:', response)
-            const mapped = response.courses.map((c) => {
-              // Handle admin_action - normalize to lowercase
-              let adminAction = c.admin_action
-              if (adminAction !== null && adminAction !== undefined) {
-                adminAction = String(adminAction).toLowerCase().trim()
-              }
-              // Default to 'pending' only if truly missing
-              adminAction = adminAction || 'pending'
-              
-              return {
-                id: c.course_id,
-                title: c.course_title,
-                instructor: c.instructor_name,
-                fee: c.fee || 0,
-                totalBatches: c.total_batches || 0,
-                activeBatches: c.active_batches || 0,
-                progress: c.overall_progress || 0,
-                admin_action: adminAction,
-              }
-            })
-            console.log('Mapped courses:', mapped)
-            setCourses(mapped)
-          } else {
-            setCourses([])
-            setError('No courses found')
-          }
-        }
-      } catch (err) {
-        if (isSubscribed) {
-          console.error('Error fetching courses:', err)
-          setError('Failed to load data')
-        }
-      } finally {
-        if (isSubscribed) {
-          setLoading(false)
-        }
-      }
+    const loadData = async () => {
+      await fetchData()
     }
 
-    fetchData()
+    loadData()
 
     return () => {
       isSubscribed = false
     }
   }, [])
+
+  // Handle batch creation refresh
+  const handleBatchCreated = () => {
+    fetchData()
+  }
 
   // ✅ View course detail (fetch from same API using course_id)
   const handleViewCourse = async (courseId) => {
@@ -100,7 +100,6 @@ export default function BatchManagement() {
       }
     } catch (err) {
       if (isMounted) {
-        console.error('Error loading course detail:', err)
         setError('Failed to load course details')
       }
     }
@@ -283,6 +282,7 @@ export default function BatchManagement() {
         onClose={handleCloseCreateModal}
         courseId={selectedCourseForBatch?.id}
         courseTitle={selectedCourseForBatch?.title}
+        onBatchCreated={handleBatchCreated}
       />
     </div>
   )

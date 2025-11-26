@@ -7,8 +7,6 @@ import { LuGraduationCap } from 'react-icons/lu'
 import { FaUserShield, FaBuilding, FaSchool, FaEye, FaEyeSlash } from 'react-icons/fa'
 import { postMethod, putMethod, putMultipart, postMultipart } from '../../service/api'
 import apiService from '../../shared/services/serviceUrl'
-import axios from '../../service/axios'
-import { env } from '../../service/envConfig'
 
 function Pills({ items = [], activeKey, onChange }) {
   return (
@@ -90,6 +88,9 @@ export default function CreateAccount() {
     coursesOffered: [],
     instituteAddress: '',
     instituteWebsite: '',
+    postalCode: '',
+    establishedYear: '',
+    instituteDescription: '',
     // Student fields
     studentFullName: '',
     dateOfBirth: '',
@@ -97,18 +98,37 @@ export default function CreateAccount() {
     studentEmail: '',
     studentMobileNumber: '',
     studentProfilePhoto: null,
-    city: '',
-    state: '',
-    country: '',
-    pinCode: '',
-    highestQualification: '',
-    collegeName: '',
-    passingYear: '',
-    marksCgpa: '',
-    skills: [],
+    bio: '',
+    location: '', // Single address field
+    skills: '', // Comma-separated string
     resumeCv: null,
-    preferredJobLocation: '',
-    linkedinPortfolioLink: '',
+    education: [{ // Array of education entries
+      qualification: '',
+      institute: '',
+      start_year: '',
+      end_year: '',
+      is_pursuing: false,
+      pursuing_year: null,
+      cgpa: null
+    }],
+    socialLinks: [{ // Array of social links
+      title: '',
+      profile_url: ''
+    }],
+    experience: [{ // Array of experience entries
+      company: '',
+      position: '',
+      start_date: '',
+      end_date: '',
+      is_current: false,
+      description: ''
+    }],
+    projects: [{ // Array of projects
+      name: '',
+      description: '',
+      technologies: '',
+      link: ''
+    }],
   })
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
@@ -126,69 +146,118 @@ export default function CreateAccount() {
       return;
     }
     
-    // Step 1: Prepare user creation payload (only basic fields for users table)
     // is_verified: 0 for Recruiter and Institute (admin approval required)
     // is_verified: 1 for Admin and Student (directly verified)
     const isVerified = (role === 'Recruiter' || role === 'Institute') ? 0 : 1;
     
-    let userPayload = {
-      password: form.password,
-      role: role.toLowerCase(), // Convert to lowercase for API
-      is_verified: isVerified,
-      status: 'active'
-    }
-
-    // Add role-specific basic fields for users table
-    if (role === 'Admin') {
-      userPayload = {
-        ...userPayload,
-        user_name: form.fullName,
-        email: form.officialEmail,
-        phone_number: form.mobileNumber
-      }
-    } else if (role === 'Recruiter') {
-      userPayload = {
-        ...userPayload,
-        user_name: form.companyName,
-        email: form.companyEmail,
-        phone_number: form.companyContact
-      }
-    } else if (role === 'Institute') {
-      userPayload = {
-        ...userPayload,
-        user_name: form.instituteName,
-        email: form.instituteEmail,
-        phone_number: form.instituteContact
-      }
-    } else if (role === 'Student') {
-      userPayload = {
-        ...userPayload,
-        user_name: form.studentFullName,
-        email: form.studentEmail,
-        phone_number: form.studentMobileNumber
-      }
-    }
-
-    // Show loading - user को loading दिखाओ
+    // Show loading
     setIsLoading(true);
     setLoadingText('Creating Account...');
 
     try {
       // ============================================
-      // STEP 1: Create User Account (Signup API)
+      // Single API Call: Create User + Profile with all fields
       // ============================================
-      console.log('📤 Step 1: Calling signup API...');
-      setLoadingText('Creating Account...');
-      var userData = {
-        apiUrl: apiService.signup,
-        payload: userPayload,
-      };
-
-      var userResponse = await postMethod(userData);
-      console.log('✅ Step 1 Response - User Creation:', userResponse)
+      console.log('📤 Creating account with all fields in single API call...');
       
-      // Check if user creation was successful
-      const isUserSuccess = (userResponse.status === 'success' || 
+      const formData = new FormData();
+      
+      // Common fields for users table
+      formData.append('password', form.password);
+      formData.append('role', role.toLowerCase());
+      formData.append('is_verified', isVerified);
+      formData.append('status', 'active');
+      
+      // Role-specific fields
+      if (role === 'Admin') {
+        formData.append('user_name', form.fullName);
+        formData.append('email', form.officialEmail);
+        formData.append('phone_number', form.mobileNumber);
+        if (form.employeeId) formData.append('employee_id', form.employeeId);
+        if (form.profilePhoto) formData.append('profile_photo', form.profilePhoto);
+        
+      } else if (role === 'Recruiter') {
+        formData.append('user_name', form.companyName);
+        formData.append('email', form.companyEmail);
+        formData.append('phone_number', form.companyContact);
+        if (form.companyWebsite) formData.append('company_website', form.companyWebsite);
+        if (form.designation) formData.append('designation', form.designation);
+        if (form.industryType) formData.append('industry_type', form.industryType);
+        if (form.officeAddress) formData.append('office_address', form.officeAddress);
+        if (form.gstPan) formData.append('gst_pan', form.gstPan);
+        if (form.companyLogo) formData.append('company_logo', form.companyLogo);
+        
+      } else if (role === 'Institute') {
+        formData.append('user_name', form.instituteName);
+        formData.append('email', form.instituteEmail);
+        formData.append('phone_number', form.instituteContact);
+        if (form.instituteType) formData.append('institute_type', form.instituteType);
+        if (form.registrationNumber) formData.append('registration_number', form.registrationNumber);
+        if (form.affiliationDetails) formData.append('affiliation_details', form.affiliationDetails);
+        if (form.principalName) formData.append('principal_name', form.principalName);
+        if (form.instituteAddress) formData.append('institute_address', form.instituteAddress);
+        if (form.instituteWebsite) formData.append('institute_website', form.instituteWebsite);
+        if (form.postalCode) formData.append('postal_code', form.postalCode);
+        if (form.establishedYear) formData.append('established_year', form.establishedYear);
+        if (form.instituteDescription) formData.append('description', form.instituteDescription);
+        if (form.coursesOffered && form.coursesOffered.length > 0) {
+          formData.append('courses_offered', Array.isArray(form.coursesOffered) ? form.coursesOffered.join(', ') : form.coursesOffered);
+        }
+        if (form.instituteLogo) formData.append('institute_logo', form.instituteLogo);
+        
+      } else if (role === 'Student') {
+        formData.append('user_name', form.studentFullName);
+        formData.append('email', form.studentEmail);
+        formData.append('phone_number', form.studentMobileNumber);
+        if (form.dateOfBirth) formData.append('date_of_birth', form.dateOfBirth);
+        if (form.gender) formData.append('gender', form.gender.toLowerCase());
+        if (form.bio) formData.append('bio', form.bio);
+        if (form.location) formData.append('location', form.location);
+        if (form.skills) formData.append('skills', form.skills);
+        if (form.education && form.education.length > 0) {
+          // Filter out empty entries and stringify
+          const validEducation = form.education.filter(edu => edu.qualification || edu.institute);
+          if (validEducation.length > 0) {
+            formData.append('education', JSON.stringify(validEducation));
+          }
+        }
+        if (form.socialLinks && form.socialLinks.length > 0) {
+          // Filter out empty entries and stringify
+          const validSocialLinks = form.socialLinks.filter(link => link.title || link.profile_url);
+          if (validSocialLinks.length > 0) {
+            formData.append('socials', JSON.stringify(validSocialLinks));
+          }
+        }
+        if (form.experience && form.experience.length > 0) {
+          // Filter out empty entries and stringify
+          const validExperience = form.experience.filter(exp => exp.company || exp.position);
+          if (validExperience.length > 0) {
+            formData.append('experience', JSON.stringify(validExperience));
+          }
+        }
+        if (form.projects && form.projects.length > 0) {
+          // Filter out empty entries and stringify
+          const validProjects = form.projects.filter(proj => proj.name);
+          if (validProjects.length > 0) {
+            formData.append('projects', JSON.stringify(validProjects));
+          }
+        }
+        if (form.studentProfilePhoto) formData.append('profile_photo', form.studentProfilePhoto);
+        if (form.resumeCv) formData.append('resume', form.resumeCv);
+      }
+      
+      console.log('📤 FormData keys:', Array.from(formData.keys()));
+      
+      const userResponse = await postMultipart({
+        apiUrl: apiService.signup,
+        data: formData
+      });
+      
+      console.log('✅ Response - User + Profile Creation:', userResponse)
+      
+      // Check if registration was successful
+      const isSuccess = (userResponse.status === true || 
+          userResponse.status === 'success' || 
           userResponse.success === true || 
           (userResponse.data && userResponse.data.success === true) ||
           userResponse.message === 'User registered successfully' ||
@@ -198,270 +267,23 @@ export default function CreateAccount() {
           !userResponse.message?.includes('failed') &&
           !userResponse.message?.includes('error');
       
-      if (!isUserSuccess) {
-        setIsLoading(false);
-        Swal.fire({
-          title: "Failed",
-          text: userResponse.message || "User registration failed",
-          icon: "error"
-        });
-        return;
-      }
-
-      // ============================================
-      // STEP 2: Extract user_id from signup response
-      // ============================================
-      const userId = userResponse.data?.user_id || 
-                     userResponse.data?.id || 
-                     userResponse.user_id || 
-                     userResponse.id;
-      
-      if (!userId) {
-        setIsLoading(false);
-        Swal.fire({
-          title: "Error",
-          text: "User created but user ID not found in response",
-          icon: "error"
-        });
-        return;
-      }
-
-      console.log('✅ User ID:', userId);
-
-      // ============================================
-      // STEP 3: Get Token by calling Login API with email and password
-      // ============================================
-      let authToken = null;
-      const previousToken = localStorage.getItem('authToken');
-      
-      // Get email and password for login
-      const userEmail = userPayload.email;
-      const userPassword = userPayload.password;
-      
-      if (userEmail && userPassword) {
-        try {
-          console.log('📤 Step 2: Getting token by calling login API...');
-          
-          const loginData = {
-            apiUrl: apiService.signin,
-            payload: {
-              email: userEmail,
-              password: userPassword
-            }
-          };
-
-          const loginResponse = await postMethod(loginData);
-          console.log('✅ Login Response:', loginResponse);
-
-          // Extract token from login response (same as Login.jsx)
-          authToken = loginResponse.token || 
-                     loginResponse.data?.token ||
-                     loginResponse.authToken ||
-                     loginResponse.data?.authToken;
-
-          if (authToken) {
-            localStorage.setItem('authToken', authToken);
-            console.log('✅ Token received from login API:', authToken.substring(0, 20) + '...');
-          } else {
-            console.log('⚠️ No token in login response');
-          }
-        } catch (loginError) {
-          console.error('❌ Login error:', loginError);
-          // Continue without token - will try profile update anyway
-        }
-      } else {
-        console.log('⚠️ Email or password not available for login');
-      }
-
-      // ============================================
-      // STEP 4: Update Profile (PUT API with token)
-      // ============================================
-      let profileResponse = null;
-      
-      try {
-        console.log('📤 Step 3: Calling profile update API with user_id:', userId);
-        
-        if (role === 'Recruiter') {
-          const profilePayload = {
-            user_id: userId,
-            company_name: form.companyName,
-            industry: form.industryType,
-            website: form.companyWebsite,
-            location: form.officeAddress,
-            gst_pan: form.gstPan || null
-          };
-
-          console.log('📤 Recruiter Profile Payload:', profilePayload);
-
-          if (form.companyLogo) {
-            const formData = new FormData();
-            Object.entries(profilePayload).forEach(([key, val]) => {
-              if (val !== null && val !== undefined && val !== '') {
-                formData.append(key, val);
-              }
-            });
-            formData.append('company_logo', form.companyLogo);
-            
-            console.log('📤 Calling PUT multipart API with user_id:', userId, 'and token');
-            // PUT method with token - user_id के साथ
-            profileResponse = await putMultipart({ 
-              apiUrl: apiService.updateRecruiterProfile, 
-              data: formData 
-            });
-          } else {
-            console.log('📤 Calling PUT method API with user_id:', userId, 'and token');
-            // PUT method with token - user_id के साथ
-            profileResponse = await putMethod({ 
-              apiUrl: apiService.updateRecruiterProfile, 
-              payload: profilePayload 
-            });
-          }
-
-        } else if (role === 'Institute') {
-          const profilePayload = {
-            user_id: userId,
-            institute_name: form.instituteName,
-            institute_type: form.instituteType,
-            website: form.instituteWebsite,
-            description: form.affiliationDetails,
-            address: form.instituteAddress,
-            contact_person: form.principalName,
-            contact_designation: 'Principal',
-            accreditation: form.affiliationDetails,
-            courses_offered: Array.isArray(form.coursesOffered) 
-              ? form.coursesOffered.join(', ') 
-              : form.coursesOffered
-          };
-
-          console.log('📤 Institute Profile Payload:', profilePayload);
-
-          if (form.instituteLogo) {
-            const formData = new FormData();
-            Object.entries(profilePayload).forEach(([key, val]) => {
-              if (val !== null && val !== undefined && val !== '') {
-                formData.append(key, val);
-              }
-            });
-            formData.append('institute_logo', form.instituteLogo);
-            
-            console.log('📤 Calling PUT multipart API with user_id:', userId, 'and token');
-            // PUT method with token - user_id के साथ
-            profileResponse = await putMultipart({ 
-              apiUrl: apiService.updateInstituteProfile, 
-              data: formData 
-            });
-          } else {
-            console.log('📤 Calling PUT method API with user_id:', userId, 'and token');
-            // PUT method with token - user_id के साथ
-            profileResponse = await putMethod({ 
-              apiUrl: apiService.updateInstituteProfile, 
-              payload: profilePayload 
-            });
-          }
-
-        } else if (role === 'Student') {
-          const profilePayload = {
-            user_id: userId,
-            bio: form.studentFullName || 'Student Profile',
-            dob: form.dateOfBirth,
-            gender: form.gender?.toLowerCase() || null,
-            location: form.preferredJobLocation || `${form.city}, ${form.state}`,
-            skills: Array.isArray(form.skills) ? form.skills.join(', ') : form.skills || null,
-            education: `${form.highestQualification} from ${form.collegeName}, Year: ${form.passingYear}, CGPA: ${form.marksCgpa}`,
-            graduation_year: form.passingYear ? parseInt(form.passingYear) : null,
-            cgpa: form.marksCgpa ? parseFloat(form.marksCgpa) : null,
-            linkedin_url: form.linkedinPortfolioLink || null,
-            portfolio_link: form.linkedinPortfolioLink || null,
-            trade: form.highestQualification || null
-          };
-
-          console.log('📤 Student Profile Payload:', profilePayload);
-
-          if (form.resumeCv || form.studentProfilePhoto) {
-            const formData = new FormData();
-            Object.entries(profilePayload).forEach(([key, val]) => {
-              if (val !== null && val !== undefined && val !== '') {
-                formData.append(key, val);
-              }
-            });
-            if (form.resumeCv) {
-              formData.append('resume', form.resumeCv);
-            }
-            if (form.studentProfilePhoto) {
-              formData.append('profile_photo', form.studentProfilePhoto);
-            }
-            
-            console.log('📤 Calling PUT multipart API with user_id:', userId, 'and token');
-            // PUT method with token - user_id के साथ
-            profileResponse = await putMultipart({ 
-              apiUrl: apiService.updateStudentProfile, 
-              data: formData 
-            });
-          } else {
-            console.log('📤 Calling PUT method API with user_id:', userId, 'and token');
-            // PUT method with token - user_id के साथ
-            profileResponse = await putMethod({ 
-              apiUrl: apiService.updateStudentProfile, 
-              payload: profilePayload 
-            });
-          }
-
-        } else if (role === 'Admin') {
-          // Admin doesn't have separate profile table
-          profileResponse = { success: true, message: 'Admin account created successfully' };
-        }
-
-        console.log('✅ Profile Create/Update Response:', profileResponse);
-        console.log('✅ Profile Response Success:', profileResponse?.success);
-        console.log('✅ Profile Response Status:', profileResponse?.status);
-        console.log('✅ Profile Response Message:', profileResponse?.message);
-
-      } catch (profileError) {
-        console.error('❌ Profile create/update error:', profileError);
-        console.error('❌ Error details:', {
-          message: profileError?.message,
-          response: profileError?.response?.data,
-          status: profileError?.response?.status
-        });
-        profileResponse = {
-          success: false,
-          status: false,
-          message: profileError?.response?.data?.message || profileError?.message || 'Profile update failed'
-        };
-      } finally {
-        // Restore previous token after profile operation (user will login separately)
-        if (previousToken) {
-          localStorage.setItem('authToken', previousToken);
-        } else {
-          localStorage.removeItem('authToken');
-        }
-      }
-
-      // Check if profile update was successful
-      const isProfileSuccess = profileResponse && (
-        profileResponse.success === true || 
-        profileResponse.status === 'success' ||
-        profileResponse.status === true ||
-        (profileResponse.data && profileResponse.data.success === true) ||
-        (profileResponse.message && profileResponse.message.includes('successfully')) ||
-        profileResponse.httpStatus === 200
-      );
-
-      console.log('✅ Profile Success Check:', isProfileSuccess);
-      console.log('✅ Profile Response Object:', JSON.stringify(profileResponse, null, 2));
-
       // Hide loading
       setIsLoading(false);
 
-      if (isProfileSuccess || role === 'Admin') {
+      if (isSuccess) {
+        // Get email for redirect
+        const userEmail = role === 'Admin' ? form.officialEmail :
+                         role === 'Recruiter' ? form.companyEmail :
+                         role === 'Institute' ? form.instituteEmail :
+                         form.studentEmail;
+        
         Swal.fire({
           title: "Success",
-          text: profileResponse?.message || userResponse.message || "Account and profile created successfully! You can now login.",
+          text: userResponse.message || "Account and profile created successfully! You can now login.",
           confirmButtonText: "Ok",
           icon: "success"
         }).then((result) => {
           if (result.isConfirmed) {
-            const userEmail = userPayload.email;
             if (userEmail) {
               localStorage.setItem('pendingVerificationEmail', userEmail);
             }
@@ -469,29 +291,10 @@ export default function CreateAccount() {
           }
         });
       } else {
-        // Show error with details
-        const errorMessage = profileResponse?.message || 
-                           "Profile update failed. Please update your profile after login.";
-        
-        console.error('❌ Profile operation failed:', {
-          profileResponse,
-          authToken: authToken ? 'Yes' : 'No',
-          role
-        });
-
         Swal.fire({
-          title: "Account Created",
-          text: `User account created successfully! However, ${errorMessage}`,
-          confirmButtonText: "Ok",
-          icon: "warning"
-        }).then((result) => {
-          if (result.isConfirmed) {
-            const userEmail = userPayload.email;
-            if (userEmail) {
-              localStorage.setItem('pendingVerificationEmail', userEmail);
-            }
-            navigate("/login")
-          }
+          title: "Failed",
+          text: userResponse.message || "Registration failed. Please try again.",
+          icon: "error"
         });
       }
     } catch (error) {
@@ -570,13 +373,16 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Profile Photo (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Profile Photo <span className="text-gray-500 font-normal">(Optional)</span>
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => setForm((f) => ({ ...f, profilePhoto: e.target.files[0] }))}
                     className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                   />
+                  <p className="text-xs text-gray-500 mt-1">You can add this later from your profile settings</p>
                 </div>
                 </div>
               </>
@@ -661,13 +467,16 @@ export default function CreateAccount() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Logo (Optional)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Company Logo <span className="text-gray-500 font-normal">(Optional)</span>
+                    </label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => setForm((f) => ({ ...f, companyLogo: e.target.files[0] }))}
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     />
+                    <p className="text-xs text-gray-500 mt-1">You can add this later from your profile settings</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">GST / PAN (If Required)</label>
@@ -733,12 +542,9 @@ export default function CreateAccount() {
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     >
                       <option value="">Select Institute Type</option>
-                      <option value="School">School</option>
-                      <option value="College">College</option>
-                      <option value="Coaching">Coaching</option>
-                      <option value="Training Center">Training Center</option>
-                      <option value="ITI">ITI</option>
-                      <option value="Other">Other</option>
+                      <option value="Private">Private</option>
+                      <option value="Public">Public</option>
+                      <option value="Government">Government</option>
                     </select>
                   </div>
                 </div>
@@ -786,16 +592,18 @@ export default function CreateAccount() {
                   />
                 </div>
 
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Logo (Optional)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Institute Logo <span className="text-gray-500 font-normal">(Optional)</span>
+                    </label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => setForm((f) => ({ ...f, instituteLogo: e.target.files[0] }))}
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     />
+                    <p className="text-xs text-gray-500 mt-1">You can add this later from your profile settings</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Institute Website (If Available)</label>
@@ -809,27 +617,29 @@ export default function CreateAccount() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Courses / Programs Offered*</label>
-                  <select
-                    multiple
-                    value={form.coursesOffered}
-                    onChange={(e) => {
-                      const selected = Array.from(e.target.selectedOptions, option => option.value);
-                      setForm((f) => ({ ...f, coursesOffered: selected }));
-                    }}
-                    required
-                    className="w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 py-2 bg-white"
-                  >
-                    <option value="Engineering">Engineering</option>
-                    <option value="ITI">ITI</option>
-                    <option value="Polytechnic">Polytechnic</option>
-                    <option value="Diploma">Diploma</option>
-                    <option value="Certificate">Certificate</option>
-                    <option value="Vocational">Vocational</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple options</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                    <input
+                      type="text"
+                      value={form.postalCode}
+                      onChange={(e) => setForm((f) => ({ ...f, postalCode: e.target.value.replace(/\D/g, '').slice(0, 20) }))}
+                      placeholder="Enter postal code"
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Established Year</label>
+                    <input
+                      type="number"
+                      value={form.establishedYear}
+                      onChange={update('establishedYear')}
+                      placeholder="Enter established year"
+                      min="1800"
+                      max={new Date().getFullYear()}
+                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -840,6 +650,17 @@ export default function CreateAccount() {
                     required
                     placeholder="Enter institute address"
                     rows={3}
+                    className="w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 py-2 bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Institute Description</label>
+                  <textarea
+                    value={form.instituteDescription}
+                    onChange={update('instituteDescription')}
+                    placeholder="Enter institute description"
+                    rows={4}
                     className="w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 py-2 bg-white"
                   />
                 </div>
@@ -916,81 +737,75 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Profile Photo (Optional)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Profile Photo <span className="text-gray-500 font-normal">(Optional)</span>
+                    </label>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => setForm((f) => ({ ...f, studentProfilePhoto: e.target.files[0] }))}
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     />
+                    <p className="text-xs text-gray-500 mt-1">You can add this later from your profile settings</p>
                   </div>
                 </div>
 
-                {/* Address Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">City*</label>
-                    <input
-                      type="text"
-                      value={form.city}
-                      onChange={update('city')}
-                      required
-                      placeholder="Enter your city"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">State*</label>
-                    <input
-                      type="text"
-                      value={form.state}
-                      onChange={update('state')}
-                      required
-                      placeholder="Enter your state"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    />
-                  </div>
+                {/* Bio and Location */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Bio (Optional)</label>
+                  <textarea
+                    value={form.bio}
+                    onChange={update('bio')}
+                    placeholder="Tell us about yourself"
+                    rows={3}
+                    className="w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 py-2 bg-white"
+                  />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Country*</label>
-                    <input
-                      type="text"
-                      value={form.country}
-                      onChange={update('country')}
-                      required
-                      placeholder="Enter your country"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Pin Code*</label>
-                    <input
-                      type="text"
-                      value={form.pinCode}
-                      onChange={(e) => setForm((f) => ({ ...f, pinCode: e.target.value.replace(/\D/g, '').slice(0, 6) }))}
-                      required
-                      placeholder="Enter your pin code"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location / Address*</label>
+                  <textarea
+                    value={form.location}
+                    onChange={update('location')}
+                    required
+                    placeholder="Enter your complete address"
+                    rows={2}
+                    className="w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 py-2 bg-white"
+                  />
                 </div>
 
-                {/* Educational Details */}
+                {/* Educational Details - Dynamic */}
                 <div className="border-t pt-4 mt-6">
-                  <h3 className="text-lg font-medium text-gray-800 mb-4">Educational Details</h3>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-800">Educational Details</h3>
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({
+                        ...f,
+                        education: [...f.education, { qualification: '', institute: '', start_year: '', end_year: '', is_pursuing: false, pursuing_year: null, cgpa: null }]
+                      }))}
+                      className="text-sm text-[#5B9821] hover:underline"
+                    >
+                      + Add More
+                    </button>
+                  </div>
                   
+                  {form.education && form.education.length > 0 && form.education.map((edu, index) => (
+                    <div key={index} className="mb-4 p-4 border border-gray-200 rounded-lg">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Highest Qualification*</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Qualification*</label>
                       <select
-                        value={form.highestQualification}
-                        onChange={update('highestQualification')}
+                            value={edu.qualification}
+                            onChange={(e) => {
+                              const newEducation = [...form.education];
+                              newEducation[index].qualification = e.target.value;
+                              setForm((f) => ({ ...f, education: newEducation }));
+                            }}
                         required
                         className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                       >
-                        <option value="">Select Highest Qualification</option>
+                            <option value="">Select Qualification</option>
                         <option value="10th">10th</option>
                         <option value="12th">12th</option>
                         <option value="Graduation">Graduation</option>
@@ -998,44 +813,103 @@ export default function CreateAccount() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">College / Institute Name*</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Institute Name*</label>
                       <input
                         type="text"
-                        value={form.collegeName}
-                        onChange={update('collegeName')}
+                            value={edu.institute}
+                            onChange={(e) => {
+                              const newEducation = [...form.education];
+                              newEducation[index].institute = e.target.value;
+                              setForm((f) => ({ ...f, education: newEducation }));
+                            }}
                         required
-                        placeholder="Enter college/institute name"
+                            placeholder="Enter institute name"
                         className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                       />
                     </div>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Passing Year*</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Start Year</label>
                       <input
                         type="number"
-                        value={form.passingYear}
-                        onChange={update('passingYear')}
-                        required
-                        placeholder="Enter passing year"
+                            value={edu.start_year}
+                            onChange={(e) => {
+                              const newEducation = [...form.education];
+                              newEducation[index].start_year = e.target.value;
+                              setForm((f) => ({ ...f, education: newEducation }));
+                            }}
+                            placeholder="Start year"
                         min="1990"
                         max="2030"
                         className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Marks / CGPA*</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">End Year</label>
                       <input
-                        type="text"
-                        value={form.marksCgpa}
-                        onChange={update('marksCgpa')}
-                        required
-                        placeholder="Enter marks or CGPA (e.g., 85% or 8.5)"
+                            type="number"
+                            value={edu.end_year}
+                            onChange={(e) => {
+                              const newEducation = [...form.education];
+                              newEducation[index].end_year = e.target.value;
+                              setForm((f) => ({ ...f, education: newEducation }));
+                            }}
+                            placeholder="End year"
+                            min="1990"
+                            max="2030"
+                            disabled={edu.is_pursuing}
+                            className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white disabled:bg-gray-100"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">CGPA</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={edu.cgpa || ''}
+                            onChange={(e) => {
+                              const newEducation = [...form.education];
+                              newEducation[index].cgpa = e.target.value ? parseFloat(e.target.value) : null;
+                              setForm((f) => ({ ...f, education: newEducation }));
+                            }}
+                            placeholder="CGPA (e.g., 8.5)"
                         className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                       />
                     </div>
                   </div>
+                      <div className="mt-4 flex items-center gap-4">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={edu.is_pursuing}
+                            onChange={(e) => {
+                              const newEducation = [...form.education];
+                              newEducation[index].is_pursuing = e.target.checked;
+                              if (e.target.checked) {
+                                newEducation[index].pursuing_year = new Date().getFullYear();
+                              }
+                              setForm((f) => ({ ...f, education: newEducation }));
+                            }}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-sm text-gray-700">Currently Pursuing</span>
+                        </label>
+                        {form.education.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newEducation = form.education.filter((_, i) => i !== index);
+                              setForm((f) => ({ ...f, education: newEducation }));
+                            }}
+                            className="text-sm text-red-600 hover:underline"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Skills and Additional Information */}
@@ -1046,20 +920,16 @@ export default function CreateAccount() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Skills*</label>
                     <input
                       type="text"
-                      value={form.skills.join(', ')}
-                      onChange={(e) => {
-                        const skillsArray = e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill);
-                        setForm((f) => ({ ...f, skills: skillsArray }));
-                      }}
+                      value={form.skills}
+                      onChange={update('skills')}
                       required
-                      placeholder="Enter your skills separated by commas (e.g., JavaScript, React, Python)"
+                      placeholder="Enter skills separated by commas (e.g., JavaScript, React, Python)"
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     />
                     <p className="text-xs text-gray-500 mt-1">Separate multiple skills with commas</p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
+                  <div className="mt-4">
                       <label className="block text-sm font-medium text-gray-700 mb-1">Resume / CV Upload*</label>
                       <input
                         type="file"
@@ -1070,29 +940,284 @@ export default function CreateAccount() {
                       />
                       <p className="text-xs text-gray-500 mt-1">Accepted formats: PDF, DOC, DOCX</p>
                     </div>
+                </div>
+
+                {/* Social Links - Dynamic */}
+                <div className="border-t pt-4 mt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-800">Social Links (Optional)</h3>
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({
+                        ...f,
+                        socialLinks: [...f.socialLinks, { title: '', profile_url: '' }]
+                      }))}
+                      className="text-sm text-[#5B9821] hover:underline"
+                    >
+                      + Add More
+                    </button>
+                  </div>
+                  
+                  {form.socialLinks && form.socialLinks.length > 0 && form.socialLinks.map((link, index) => (
+                    <div key={index} className="mb-4 p-4 border border-gray-200 rounded-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Job Location*</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Title (e.g., LinkedIn, Portfolio)</label>
                       <input
                         type="text"
-                        value={form.preferredJobLocation}
-                        onChange={update('preferredJobLocation')}
-                        required
-                        placeholder="Enter preferred job location"
+                            value={link.title}
+                            onChange={(e) => {
+                              const newLinks = [...form.socialLinks];
+                              newLinks[index].title = e.target.value;
+                              setForm((f) => ({ ...f, socialLinks: newLinks }));
+                            }}
+                            placeholder="Enter title"
                         className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                       />
                     </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Profile URL</label>
+                          <input
+                            type="url"
+                            value={link.profile_url}
+                            onChange={(e) => {
+                              const newLinks = [...form.socialLinks];
+                              newLinks[index].profile_url = e.target.value;
+                              setForm((f) => ({ ...f, socialLinks: newLinks }));
+                            }}
+                            placeholder="Enter profile URL"
+                            className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                          />
+                        </div>
+                      </div>
+                      {form.socialLinks.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newLinks = form.socialLinks.filter((_, i) => i !== index);
+                            setForm((f) => ({ ...f, socialLinks: newLinks }));
+                          }}
+                          className="mt-2 text-sm text-red-600 hover:underline"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  ))}
                   </div>
 
+                {/* Experience - Dynamic */}
+                <div className="border-t pt-4 mt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-800">Work Experience (Optional)</h3>
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({
+                        ...f,
+                        experience: [...f.experience, { company: '', position: '', start_date: '', end_date: '', is_current: false, description: '' }]
+                      }))}
+                      className="text-sm text-[#5B9821] hover:underline"
+                    >
+                      + Add More
+                    </button>
+                  </div>
+                  
+                  {form.experience && form.experience.length > 0 && form.experience.map((exp, index) => (
+                    <div key={index} className="mb-4 p-4 border border-gray-200 rounded-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                          <input
+                            type="text"
+                            value={exp.company}
+                            onChange={(e) => {
+                              const newExp = [...form.experience];
+                              newExp[index].company = e.target.value;
+                              setForm((f) => ({ ...f, experience: newExp }));
+                            }}
+                            placeholder="Enter company name"
+                            className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                          <input
+                            type="text"
+                            value={exp.position}
+                            onChange={(e) => {
+                              const newExp = [...form.experience];
+                              newExp[index].position = e.target.value;
+                              setForm((f) => ({ ...f, experience: newExp }));
+                            }}
+                            placeholder="Enter position"
+                            className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                          />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                          <input
+                            type="date"
+                            value={exp.start_date}
+                            onChange={(e) => {
+                              const newExp = [...form.experience];
+                              newExp[index].start_date = e.target.value;
+                              setForm((f) => ({ ...f, experience: newExp }));
+                            }}
+                            className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                          <input
+                            type="date"
+                            value={exp.end_date}
+                            onChange={(e) => {
+                              const newExp = [...form.experience];
+                              newExp[index].end_date = e.target.value;
+                              setForm((f) => ({ ...f, experience: newExp }));
+                            }}
+                            disabled={exp.is_current}
+                            className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white disabled:bg-gray-100"
+                          />
+                        </div>
+                      </div>
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn / Portfolio Link (Optional)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea
+                          value={exp.description}
+                          onChange={(e) => {
+                            const newExp = [...form.experience];
+                            newExp[index].description = e.target.value;
+                            setForm((f) => ({ ...f, experience: newExp }));
+                          }}
+                          placeholder="Enter job description"
+                          rows={2}
+                          className="w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 py-2 bg-white"
+                        />
+                      </div>
+                      <div className="mt-4 flex items-center gap-4">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={exp.is_current}
+                            onChange={(e) => {
+                              const newExp = [...form.experience];
+                              newExp[index].is_current = e.target.checked;
+                              setForm((f) => ({ ...f, experience: newExp }));
+                            }}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-sm text-gray-700">Currently Working</span>
+                        </label>
+                        {form.experience.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newExp = form.experience.filter((_, i) => i !== index);
+                              setForm((f) => ({ ...f, experience: newExp }));
+                            }}
+                            className="text-sm text-red-600 hover:underline"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Projects - Dynamic */}
+                <div className="border-t pt-4 mt-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-800">Projects (Optional)</h3>
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({
+                        ...f,
+                        projects: [...f.projects, { name: '', description: '', technologies: '', link: '' }]
+                      }))}
+                      className="text-sm text-[#5B9821] hover:underline"
+                    >
+                      + Add More
+                    </button>
+                  </div>
+                  
+                  {form.projects && form.projects.length > 0 && form.projects.map((proj, index) => (
+                    <div key={index} className="mb-4 p-4 border border-gray-200 rounded-lg">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                          <input
+                            type="text"
+                            value={proj.name}
+                            onChange={(e) => {
+                              const newProjects = [...form.projects];
+                              newProjects[index].name = e.target.value;
+                              setForm((f) => ({ ...f, projects: newProjects }));
+                            }}
+                            placeholder="Enter project name"
+                            className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Technologies</label>
+                          <input
+                            type="text"
+                            value={proj.technologies}
+                            onChange={(e) => {
+                              const newProjects = [...form.projects];
+                              newProjects[index].technologies = e.target.value;
+                              setForm((f) => ({ ...f, projects: newProjects }));
+                            }}
+                            placeholder="Enter technologies used"
+                            className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea
+                          value={proj.description}
+                          onChange={(e) => {
+                            const newProjects = [...form.projects];
+                            newProjects[index].description = e.target.value;
+                            setForm((f) => ({ ...f, projects: newProjects }));
+                          }}
+                          placeholder="Enter project description"
+                          rows={2}
+                          className="w-full rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 py-2 bg-white"
+                        />
+                      </div>
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Project Link (Optional)</label>
                     <input
                       type="url"
-                      value={form.linkedinPortfolioLink}
-                      onChange={update('linkedinPortfolioLink')}
-                      placeholder="Enter your LinkedIn or portfolio URL"
+                          value={proj.link}
+                          onChange={(e) => {
+                            const newProjects = [...form.projects];
+                            newProjects[index].link = e.target.value;
+                            setForm((f) => ({ ...f, projects: newProjects }));
+                          }}
+                          placeholder="Enter project URL"
                       className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
                     />
                   </div>
+                      {form.projects.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newProjects = form.projects.filter((_, i) => i !== index);
+                            setForm((f) => ({ ...f, projects: newProjects }));
+                          }}
+                          className="mt-2 text-sm text-red-600 hover:underline"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </>
             )}

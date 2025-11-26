@@ -39,11 +39,9 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         if (res?.status && Array.isArray(res.categories)) {
           setCategories(res.categories)
         } else {
-          console.warn('⚠️ No categories found or invalid response:', res)
           setCategories([])
         }
       } catch (err) {
-        console.error('❌ Error fetching categories:', err)
         setCategories([])
       }
     }
@@ -70,18 +68,36 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
     }
   }, [location])
 
+  // ✅ Update course categories when categories are loaded
+  useEffect(() => {
+    if (categories.length > 0 && coursesData.length > 0) {
+      // Update courses with category names only if category is missing or different
+      setCoursesData(prevCourses => 
+        prevCourses.map(course => {
+          const newCategoryName = getCategoryName(course.categoryId)
+          // Only update if category name is different or was empty
+          if (course.category !== newCategoryName) {
+            return {
+              ...course,
+              category: newCategoryName
+            }
+          }
+          return course
+        })
+      )
+    }
+  }, [categories, coursesData.length])
+
   // ✅ Fetch courses from backend - UPDATED to match backend response
   const fetchCourses = async () => {
     try {
       setLoading(true)
-      console.log('📡 Fetching courses...')
       
       // Build query params if needed
       const queryParams = searchTerm ? `?q=${encodeURIComponent(searchTerm)}` : ''
       const apiUrl = `${apiService.getCourses}${queryParams}`
       
       const res = await getMethod({ apiUrl })
-      console.log('📥fetch data API Response:', res)
 
       if (res?.status && Array.isArray(res.courses)) {
         // Transform backend data to frontend format
@@ -93,7 +109,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
           duration: parseInt(course.duration) || 0,
           categoryId: course.category_id,
           category: getCategoryName(course.category_id),
-          fee: parseFloat(course.fee) || 0,
+          fee: course.fee ? (typeof course.fee === 'string' ? parseFloat(course.fee.replace(/[^\d.]/g, '')) : parseFloat(course.fee)) : 0,
           status: course.status || '',
           instructorName: course.instructor_name || '',
           mode: course.mode || '',
@@ -111,13 +127,10 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         }))
         
         setCoursesData(transformedCourses)
-        console.log('✅ Courses loaded:', transformedCourses.length)
       } else {
-        console.warn('⚠️ No courses found or invalid response:', res)
         setCoursesData([])
       }
     } catch (err) {
-      console.error('❌ Error fetching courses:', err)
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -146,11 +159,34 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = !filters.status || course.status.toLowerCase() === filters.status.toLowerCase()
     
-    // Match fields by category name (from API categories)
+    // Match fields by category name or category ID (from API categories)
     const matchesFields = !filters.fields || (() => {
-      const courseCategoryName = course.category.toLowerCase()
-      const filterValue = filters.fields.toLowerCase()
-      return courseCategoryName === filterValue || courseCategoryName.includes(filterValue)
+      if (!filters.fields) return true
+      
+      const filterValue = filters.fields.toLowerCase().trim()
+      
+      // Check by category name
+      const courseCategoryName = (course.category || '').toLowerCase().trim()
+      if (courseCategoryName === filterValue || courseCategoryName.includes(filterValue)) {
+        return true
+      }
+      
+      // Also check by category ID - find the selected category and match by ID
+      const selectedCategory = categories.find(cat => {
+        const catName = (cat.category_name || cat.name || '').toLowerCase().trim()
+        return catName === filterValue || catName.includes(filterValue)
+      })
+      
+      if (selectedCategory) {
+        const selectedCategoryId = selectedCategory.id || selectedCategory.category_id
+        const courseCategoryId = course.categoryId
+        return selectedCategoryId && courseCategoryId && (
+          selectedCategoryId === courseCategoryId || 
+          String(selectedCategoryId) === String(courseCategoryId)
+        )
+      }
+      
+      return false
     })()
     
     // Match courses by course title (from API courses)
@@ -197,7 +233,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
   }
 
   const handleBuyNow = (courseId) => {
-    console.log('Buy now clicked for course:', courseId)
     // Implement buy now logic
   }
 
@@ -244,7 +279,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         module_description: updatedCourse.moduleDescription,
         media: updatedCourse.media
       }
-      console.log(updatedCourse.fee );
 
       // Update in backend - uncomment when update API is ready
       // const res = await putMethod({ 
@@ -273,7 +307,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
       // Refresh from backend
       fetchCourses()
     } catch (err) {
-      console.error('❌ Error updating course:', err)
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -524,7 +557,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
                 {/* fee and Actions */}
                 <div className="flex items-center justify-between">
                   <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                    ₹{course.fee?.toLocaleString('en-IN') || '0'}
+                    ₹{course.fee && course.fee > 0 ? course.fee.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '0'}
                   </div>
                   <div className="flex items-center gap-2">
                     <button

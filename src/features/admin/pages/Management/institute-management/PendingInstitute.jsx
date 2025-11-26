@@ -36,82 +36,82 @@ function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject }
     const style = statusStyles[normalizedStatus] || statusStyles['PENDING REVIEW'];
 
     return (
-      <span className={`px-3 py-1 text-xs font-medium rounded-full ${style}`}>
+      <span className={`px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-medium rounded-full ${style}`}>
         {displayStatus}
       </span>
     )
   }
   return (
-    <div className="bg-white rounded-lg border border-blue-200 p-6 shadow-sm">
+    <div className="bg-white rounded-lg border border-blue-200 p-3 sm:p-4 md:p-6 shadow-sm h-full flex flex-col">
       {/* Institute Header */}
-      <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-lg">{institute.initials}</span>
+      <div className="flex items-start gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4">
+        <div className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+          <span className="text-white font-bold text-xs sm:text-sm md:text-lg">{institute.initials}</span>
         </div>
-        <div className="flex-1">
-          <h3 className={`font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} text-lg`}>{institute.institute_name || 'N/A'}</h3>
-          <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-sm font-medium`}>
+        <div className="flex-1 min-w-0">
+          <h3 className={`font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm sm:text-base md:text-lg truncate`}>{institute.institute_name || 'N/A'}</h3>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs sm:text-sm font-medium truncate`}>
             {institute.name || institute.user_name || 'N/A'}
           </p>
-          <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs mt-1`}>{institute.email || 'N/A'}</p>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs mt-0.5 sm:mt-1 truncate`}>{institute.email || 'N/A'}</p>
         </div>
       </div>
 
       {/* Institute Details - Important Info Only */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        <div>
-          <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Location:</span>
-          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>
-            {institute.city && institute.state ? `${institute.city}, ${institute.state}` : institute.location || 'N/A'}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 flex-1">
+        <div className="min-w-0">
+          <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} block mb-0.5`}>Location:</span>
+          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-xs sm:text-sm break-words`}>
+            {institute.address ? `${institute.address}${institute.postal_code ? `, ${institute.postal_code}` : ''}` : 'N/A'}
           </p>
         </div>
-        <div>
-          <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Type:</span>
-          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>
+        <div className="min-w-0">
+          <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} block mb-0.5`}>Type:</span>
+          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-xs sm:text-sm truncate`}>
             {institute.institute_type || 'N/A'}
           </p>
         </div>
-        <div>
-          <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Phone:</span>
-          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>
+        <div className="min-w-0">
+          <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} block mb-0.5`}>Phone:</span>
+          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-xs sm:text-sm truncate`}>
             {institute.phone || 'N/A'}
           </p>
         </div>
-        <div>
-          <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Established:</span>
-          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm`}>
+        <div className="min-w-0">
+          <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} block mb-0.5`}>Established:</span>
+          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-xs sm:text-sm`}>
             {institute.established_year || 'N/A'}
           </p>
         </div>
       </div>
 
       {/* Status and Actions */}
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3 mt-auto">
         <div className="flex items-center gap-2">
           {getStatusBadge(institute.status)}
         </div>
 
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex flex-col xs:flex-row gap-2 sm:gap-2">
           <button
             onClick={() => onViewDetails(institute)}
-            className="text-sm px-3 py-2 border-2 border-blue-600 text-blue-600 hover:text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
+            className="text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 sm:py-2 border-2 border-blue-600 text-blue-600 hover:text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-1.5 sm:gap-2 w-full xs:w-auto flex-1 xs:flex-none"
           >
-            <LuEye size={16} />
-            View Details
+            <LuEye size={14} className="flex-shrink-0" />
+            <span className="whitespace-nowrap">View Details</span>
           </button>
           <button
             onClick={() => onApprove(institute.institute_id)}
-            className="text-sm px-3 py-2 border-2 border-green-600 text-green-600 hover:text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
+            className="text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 sm:py-2 border-2 border-green-600 text-green-600 hover:text-white font-semibold rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center gap-1.5 sm:gap-2 w-full xs:w-auto flex-1 xs:flex-none"
           >
-            <LuCheck size={16} />
-            Approve
+            <LuCheck size={14} className="flex-shrink-0" />
+            <span className="whitespace-nowrap">Approve</span>
           </button>
           <button
             onClick={() => onReject(institute.institute_id)}
-            className="text-sm px-3 py-2 border-2 border-red-600 text-red-600 hover:text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center gap-2"
+            className="text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 sm:py-2 border-2 border-red-600 text-red-600 hover:text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center justify-center gap-1.5 sm:gap-2 w-full xs:w-auto flex-1 xs:flex-none"
           >
-            <LuX size={16} />
-            Reject
+            <LuX size={14} className="flex-shrink-0" />
+            <span className="whitespace-nowrap">Reject</span>
           </button>
         </div>
       </div>
@@ -124,58 +124,59 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
   if (!isOpen || !institute) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Institute Details</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-4xl w-full max-h-[98vh] sm:max-h-[95vh] md:max-h-[90vh] overflow-y-auto my-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 flex items-center justify-between z-10 shadow-sm">
+          <h2 className={`text-base sm:text-lg md:text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} truncate pr-2`}>Institute Details</h2>
           <button
             onClick={onClose}
-            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-gray-600 transition-colors duration-200`}
+            className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-gray-600 transition-colors duration-200 p-1 flex-shrink-0`}
+            aria-label="Close"
           >
-            <span className="text-2xl">&times;</span>
+            <span className="text-xl sm:text-2xl md:text-3xl">&times;</span>
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4 md:space-y-6">
           {/* Institute Information */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
-              <LuBuilding className="text-blue-600" size={20} />
-              Institute Information
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <h3 className={`text-sm sm:text-base md:text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2 sm:mb-3 md:mb-4 flex items-center gap-2`}>
+              <LuBuilding className="text-blue-600 flex-shrink-0" size={16} />
+              <span>Institute Information</span>
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Institute Name</label>
-                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}>{institute.institute_name || 'N/A'}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+              <div className="min-w-0">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Institute Name</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium text-sm sm:text-base break-words`}>{institute.institute_name || 'N/A'}</p>
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Email Address</label>
-                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
-                  <LuMail size={16} className="text-gray-400" />
-                  <a href={`mailto:${institute.email}`} className="text-blue-600 hover:underline">
+              <div className="min-w-0">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Email Address</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2 text-sm sm:text-base`}>
+                  <LuMail size={14} className="text-gray-400 flex-shrink-0" />
+                  <a href={`mailto:${institute.email}`} className="text-blue-600 hover:underline break-all">
                     {institute.email || 'N/A'}
                   </a>
                 </p>
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Institute Type</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.institute_type || 'N/A'}</p>
+              <div className="min-w-0">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Institute Type</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm sm:text-base`}>{institute.institute_type || 'N/A'}</p>
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Established Year</label>
-                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
-                  <LuCalendar size={16} className="text-gray-400" />
+              <div className="min-w-0">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Established Year</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2 text-sm sm:text-base`}>
+                  <LuCalendar size={14} className="text-gray-400 flex-shrink-0" />
                   {institute.established_year || 'N/A'}
                 </p>
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Courses Offered</label>
-                <div className="flex flex-wrap gap-2 mt-1">
+              <div className="min-w-0 sm:col-span-2">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Courses Offered</label>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-1">
                   {Array.isArray(institute.courses) && institute.courses.length > 0 ? (
                     institute.courses.map((course, idx) => (
                       <span
                         key={idx}
-                        className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
+                        className="px-2 py-0.5 sm:py-1 text-xs rounded-full bg-blue-100 text-blue-800"
                       >
                         {course.title || course.course_name || course.name || 'Course'}
                       </span>
@@ -184,19 +185,19 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
                     institute.courses_offered.map((course, idx) => (
                       <span
                         key={idx}
-                        className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
+                        className="px-2 py-0.5 sm:py-1 text-xs rounded-full bg-blue-100 text-blue-800"
                       >
                         {course}
                       </span>
                     ))
                   ) : (
-                    <span className={TAILWIND_COLORS.TEXT_MUTED}>N/A</span>
+                    <span className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs sm:text-sm`}>N/A</span>
                   )}
                 </div>
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Accreditation</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
+              <div className="min-w-0 sm:col-span-2">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Accreditation</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm sm:text-base break-words`}>
                   {Array.isArray(institute.accreditation) && institute.accreditation.length > 0
                     ? institute.accreditation.join(', ')
                     : institute.accreditation || 'N/A'}
@@ -206,30 +207,30 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
           </div>
 
           {/* Additional Information */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
-              <LuFileText className="text-green-600" size={20} />
-              Additional Information
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <h3 className={`text-sm sm:text-base md:text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2 sm:mb-3 md:mb-4 flex items-center gap-2`}>
+              <LuFileText className="text-green-600 flex-shrink-0" size={16} />
+              <span>Additional Information</span>
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Phone Number</label>
-                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
-                  <LuPhone size={16} className="text-gray-400" />
-                  <a href={`tel:${institute.phone}`} className="text-blue-600 hover:underline">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+              <div className="min-w-0">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Phone Number</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2 text-sm sm:text-base`}>
+                  <LuPhone size={14} className="text-gray-400 flex-shrink-0" />
+                  <a href={`tel:${institute.phone}`} className="text-blue-600 hover:underline break-all">
                     {institute.phone || 'N/A'}
                   </a>
                 </p>
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Website</label>
-                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2`}>
-                  <LuGlobe size={16} className="text-gray-400" />
+              <div className="min-w-0">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Website</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} flex items-center gap-2 text-sm sm:text-base`}>
+                  <LuGlobe size={14} className="text-gray-400 flex-shrink-0" />
                   {institute.website ? (
                     <a href={institute.website.startsWith('http') ? institute.website : `https://${institute.website}`} 
                        target="_blank" 
                        rel="noopener noreferrer" 
-                       className="text-blue-600 hover:underline">
+                       className="text-blue-600 hover:underline break-all">
                       {institute.website}
                     </a>
                   ) : (
@@ -237,52 +238,40 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
                   )}
                 </p>
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Contact Person</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.contact_person || 'N/A'}</p>
+              <div className="min-w-0">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Contact Person</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm sm:text-base break-words`}>{institute.contact_person || 'N/A'}</p>
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Contact Designation</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.contact_designation || 'N/A'}</p>
+              <div className="min-w-0">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Contact Designation</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm sm:text-base break-words`}>{institute.contact_designation || 'N/A'}</p>
               </div>
             </div>
           </div>
 
           {/* Address Information */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
-              <LuMapPin className="text-blue-600" size={20} />
-              Address Information
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <h3 className={`text-sm sm:text-base md:text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2 sm:mb-3 md:mb-4 flex items-center gap-2`}>
+              <LuMapPin className="text-blue-600 flex-shrink-0" size={16} />
+              <span>Address Information</span>
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Address</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.address || 'N/A'}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+              <div className="min-w-0">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Address</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm sm:text-base break-words`}>{institute.address || 'N/A'}</p>
               </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>City</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.city || 'N/A'}</p>
-              </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>State</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.state || 'N/A'}</p>
-              </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Country</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.country || 'N/A'}</p>
-              </div>
-              <div>
-                <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Postal Code</label>
-                <p className={TAILWIND_COLORS.TEXT_PRIMARY}>{institute.postal_code || 'N/A'}</p>
+              <div className="min-w-0">
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Postal Code</label>
+                <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm sm:text-base`}>{institute.postal_code || 'N/A'}</p>
               </div>
             </div>
           </div>
 
           {/* Institute Description */}
           {institute.description && (
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className={`text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>Institute Description</h3>
-              <p className={`${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+              <h3 className={`text-sm sm:text-base md:text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2 sm:mb-3 md:mb-4`}>Institute Description</h3>
+              <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs sm:text-sm md:text-base leading-relaxed break-words`}>
                 {institute.description}
               </p>
             </div>
@@ -290,12 +279,12 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
 
         </div>
 
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 flex justify-end shadow-sm">
           <Button
             onClick={onClose}
             variant="neutral"
             size="md"
-            className="px-6 py-2"
+            className="px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 text-xs sm:text-sm md:text-base w-full sm:w-auto"
           >
             Close
           </Button>
@@ -531,21 +520,21 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
   return (
     <div className="space-y-6">
       {/* Header with Filter Tabs */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-bold">✓</span>
+      <div className="space-y-3 sm:space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-xs sm:text-sm font-bold">✓</span>
             </div>
-            <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Institute Approvals</h2>
+            <h2 className={`text-lg sm:text-xl md:text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Institute Approvals</h2>
           </div>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-2 md:gap-3">
           <button
             onClick={() => setFilterStatus('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+            className={`px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
               filterStatus === 'all'
                 ? 'bg-green-600 text-white shadow-md'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -555,7 +544,7 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
           </button>
           <button
             onClick={() => setFilterStatus('pending')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+            className={`px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
               filterStatus === 'pending'
                 ? 'bg-orange-600 text-white shadow-md'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -565,7 +554,7 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
           </button>
           <button
             onClick={() => setFilterStatus('approved')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+            className={`px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
               filterStatus === 'approved'
                 ? 'bg-green-600 text-white shadow-md'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -575,7 +564,7 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
           </button>
           <button
             onClick={() => setFilterStatus('rejected')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+            className={`px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
               filterStatus === 'rejected'
                 ? 'bg-red-600 text-white shadow-md'
                 : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
@@ -588,7 +577,7 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
 
       {/* Institute Cards */}
       {filteredInstitutes.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {filteredInstitutes.map((institute) => (
             <InstituteApprovalCard
               key={institute.id}
@@ -600,8 +589,8 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-          <p className={`text-lg ${TAILWIND_COLORS.TEXT_MUTED}`}>
+        <div className="text-center py-8 sm:py-12 bg-white rounded-lg border border-gray-200 px-4">
+          <p className={`text-sm sm:text-base md:text-lg ${TAILWIND_COLORS.TEXT_MUTED}`}>
             No institutes found with status: <span className="font-semibold">{filterStatus}</span>
           </p>
         </div>

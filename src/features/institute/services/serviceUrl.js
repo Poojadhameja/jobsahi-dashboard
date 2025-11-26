@@ -35,12 +35,18 @@ const apiService = {
 
   // Certificates
   CourseBatchStudents: "/courses/course_batch_students.php",
-  generateCertificate: "/certificates/certificates.php",
-  getCertificateById: "/certificates/get_certificate.php",
+  generateCertificate: "/certificates/certificates.php", // For generating certificates (POST)
+  certificatesIssuance: "/certificates/certificates_issuance.php", // For getting all issuance logs (no id) and single certificate (with ?id=xxx) - used in IssuanceLogs.jsx
+  getCertificates: "/certificates/certificates.php", // Keep for backward compatibility
+  getCertificate: "/certificates/get-certificate.php", // For preview single certificate (GET with ?id=xxx)
+  getCertificateById: "/certificates/get_certificate.php", // For viewing single certificate (GET with ?id=xxx) - used in IssuanceLogs.jsx
 
   // Certificate Templates
   createCertificateTemplate: "/certificate_templates/create_certificate_template.php",
-  certificateTemplatesList: "/certificate_templates/get_certificate_templates.php",
+  certificateTemplates: "/certificate_templates/get_certificate_templates.php", // Used in CertificateGeneration.jsx - get all templates
+  getCertificateTemplate: "/certificate_templates/get_certificate_templates.php", // For Manage Template - get single template by ID (use ?id=5)
+  certificateTemplatesList: "/certificate_templates/get_certificate_templates.php", // Used in ManageTemplate.jsx and CertificateGeneration.jsx - get all templates
+  updateCertificateTemplate: "/certificate_templates/update_certificate_template.php", // For updating templates
 
   // ✅ FIXED ENDPOINT — now works correctly
   institute_view_students: `/institute/get_institute_students.php`,

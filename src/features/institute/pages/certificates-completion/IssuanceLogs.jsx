@@ -8,37 +8,255 @@ import {
 } from 'react-icons/lu'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import CertificateDetailsModal from './CertificateDetailsModal'
-import { getMethod } from "../../../../service/api";
+import { getMethod, postMultipart } from "../../../../service/api";
 import apiService from "../../services/serviceUrl";
 
 
 function IssuanceLogs() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [selectedCertificate, setSelectedCertificate] = useState(null)
+  const [selectedCertificateId, setSelectedCertificate] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const [logs, setLogs] = useState([]);
 const [loading, setLoading] = useState(false);
 
-// ✅ Fetch all issuance logs from API
-// ✅ Fetch all issuance logs from API
+// ✅ Fetch all issuance logs from certificates_issuance.php API (without id parameter)
+// API Response Format (List Mode - no id):
+// {
+//   "status": true,
+//   "message": "Certificate issuance list fetched",
+//   "count": 1,
+//   "data": [
+//     {
+//       "certificate_id": "CERT-2025-001",
+//       "student_name": "Aarti Nathani",
+//       "institute_name": "Brightorial Institute",
+//       "course_title": "Assistant Electrician",
+//       "batch_name": "Assistant Electrician - March 2025 (Morning Batch)",
+//       "issue_date": "2025-11-22",
+//       "status": "Approved"
+//     }
+//   ]
+// }
+// Note: List mode does NOT include file_url, student_email, or phone_number (only in single certificate view with ?id=xxx)
 useEffect(() => {
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const response = await getMethod({
-        apiUrl: `${apiService.getCertificateById}?id=all`, // ✅ get all logs via same API
+      
+      // Use postMultipart for consistency (send empty FormData for list view)
+      const formData = new FormData();
+      // No id parameter means list mode
+      
+      const response = await postMultipart({
+        apiUrl: apiService.certificatesIssuance, // certificates_issuance.php (without id) - returns list of certificates
+        data: formData, // Empty FormData for list view
       });
 
-      if (response?.status && Array.isArray(response.data)) {
-        setLogs(response.data);
-      } else {
-        console.warn("No certificate logs found:", response?.message);
+        status: response?.status,
+        message: response?.message,
+        count: response?.count,
+        dataType: typeof response?.data,
+        isArray: Array.isArray(response?.data),
+        dataLength: response?.data?.length,
+      });
+
+      // Check if response is successful
+      const isSuccess = response?.status === true || 
+                       response?.status === 1 || 
+                       response?.status === "true" ||
+                       (response?.data && Array.isArray(response.data) && response.data.length > 0);
+
+      if (!isSuccess) {
+          status: response?.status,
+          message: response?.message,
+          data: response?.data,
+        });
         setLogs([]);
+        return;
       }
+
+      // Extract data array from response
+      // Expected: response.data is an array of certificate objects
+      let dataArray = [];
+      if (Array.isArray(response?.data)) {
+        dataArray = response.data;
+      } else if (response?.data && typeof response.data === 'object' && !Array.isArray(response.data)) {
+        // If data is a single object (shouldn't happen in list mode, but handle gracefully)
+        dataArray = [response.data];
+      } else {
+        setLogs([]);
+        return;
+      }
+
+
+      if (dataArray.length === 0) {
+        setLogs([]);
+        return;
+      }
+
+      // Step 2: Fetch template data for each certificate using getCertificate and getCertificateTemplate APIs
+      // First, get template_id from getCertificate API for each certificate
+      
+      const enrichedLogs = await Promise.all(
+        dataArray.map(async (log) => {
+          const certificateId = log.certificate_id || log.id || '';
+          let templateId = null;
+          let templateData = null;
+          
+          // Step 2a: Get template_id from getCertificate API
+          try {
+            const certificateResponse = await getMethod({
+              apiUrl: `${apiService.getCertificate}?id=${certificateId}`, // Use get-certificate.php to get template_id
+            });
+            
+            if (certificateResponse?.status && certificateResponse?.data) {
+              const certData = Array.isArray(certificateResponse.data) ? certificateResponse.data[0] : certificateResponse.data;
+              templateId = certData.template_id || certData.templateId || certData.template?.id || certData.template?.template_id;
+            }
+          } catch (certError) {
+          }
+          
+          // Step 2b: Get template details from getCertificateTemplate API
+          if (templateId) {
+            try {
+              const templateResponse = await getMethod({
+                apiUrl: `${apiService.getCertificateTemplate}?id=${templateId}`, // Call certificate_templates.php?id={template_id} to get template_name and template_description
+              });
+              
+              if (templateResponse?.status && templateResponse?.data) {
+                // Extract template data from response
+                if (Array.isArray(templateResponse.data)) {
+                  templateData = templateResponse.data.find(t => 
+                    String(t.id || t.template_id) === String(templateId)
+                  ) || templateResponse.data[0];
+                } else {
+                  templateData = templateResponse.data;
+                }
+                  template_name: templateData?.template_name || templateData?.name,
+                  template_description: templateData?.description || templateData?.footer_text
+                });
+              }
+            } catch (templateError) {
+            }
+          }
+          
+          // Merge template data with certificate log
+          return {
+            ...log,
+            template_name: templateData?.template_name || templateData?.name || log.template_name || '',
+            template_description: templateData?.description || templateData?.footer_text || log.template_description || log.description || '',
+          };
+        })
+      );
+      
+
+      // Transform API response to component expected fields
+      // Map snake_case API fields to camelCase component fields
+      const transformedLogs = enrichedLogs
+        .filter((log) => log != null && typeof log === 'object') // Remove null/undefined/invalid items
+        .map((log) => {
+          // Extract certificate_id (can be string like "CERT-2025-001" or number)
+          const certificateId = log.certificate_id || log.id || '';
+          
+          // Extract batch with multiple fallbacks (handle nested structures)
+          const batchName = log.batch_name || 
+                           log.batch || 
+                           log.batchName || 
+                           log.batch?.name ||
+                           '';
+          
+          // Extract phone with multiple fallbacks (handle nested structures and different field names)
+          const phoneNumber = log.phone_number || 
+                             log.phone || 
+                             log.phoneNumber ||
+                             log.student?.phone ||
+                             log.student?.phone_number ||
+                             '';
+          
+          // Extract email with multiple fallbacks
+          const email = log.student_email || 
+                       log.email || 
+                       log.studentEmail ||
+                       log.student?.email ||
+                       '';
+          
+          // Extract template_name from enriched data (from getCertificateTemplate API)
+          const templateName = log.template_name || 
+                              log.templateName || 
+                              log.template?.name ||
+                              log.name ||
+                              '';
+          
+          // Extract template_description from enriched data (from getCertificateTemplate API)
+          const templateDescription = log.template_description || 
+                                     log.templateDescription || 
+                                     log.description ||
+                                     log.template?.description ||
+                                     log.footer_text ||
+                                     log.template?.footer_text ||
+                                     '';
+          
+            batch_name: log.batch_name,
+            batch: log.batch,
+            phone_number: log.phone_number,
+            phone: log.phone,
+            template_name: log.template_name,
+            template_description: log.template_description,
+            extractedBatch: batchName,
+            extractedPhone: phoneNumber,
+            extractedTemplateName: templateName,
+            extractedTemplateDescription: templateDescription
+          });
+          
+          return {
+            // Component fields (camelCase)
+            id: certificateId,
+            certificateId: certificateId,
+            studentName: log.student_name || 
+                        log.studentName || 
+                        log.student?.name ||
+                        '',
+            course: log.course_title || 
+                   log.course || 
+                   log.courseTitle ||
+                   log.course?.title ||
+                   '',
+            batch: batchName, // ✅ Extract batch with fallbacks
+            instituteName: log.institute_name || 
+                          log.instituteName ||
+                          '',
+            issuedDate: log.issue_date || 
+                       log.issueDate ||
+                       log.issued_date ||
+                       '',
+            status: (() => {
+              const apiStatus = (log.status || 'approved').toLowerCase();
+              // Map API status "Approved" to component status "issued"
+              if (apiStatus === 'approved') return 'issued';
+              if (apiStatus === 'pending') return 'pending';
+              if (apiStatus === 'issued') return 'issued';
+              return 'issued'; // Default fallback
+            })(),
+            // Extract email and phone if available in list mode
+            email: email,
+            phone: phoneNumber, // ✅ Extract phone with fallbacks
+            fileUrl: log.file_url || 
+                    log.fileUrl || 
+                    '', // May not be available in list mode
+            // ✅ Extract template_name and template_description from getCertificateTemplate API (via getCertificate)
+            templateName: templateName, // From getCertificateTemplate API
+            templateDescription: templateDescription, // From getCertificateTemplate API
+            // Keep original data for API calls (for modal view)
+            certificate_id: certificateId,
+          };
+        })
+        .filter((log) => log.certificateId); // Remove entries without certificate_id
+
+      
+      setLogs(transformedLogs);
     } catch (error) {
-      console.error("Error fetching issuance logs:", error);
       setLogs([]);
     } finally {
       setLoading(false);
@@ -52,38 +270,38 @@ useEffect(() => {
 
 
 
-  const filteredLogs = logs.filter(log => {
-    const matchesSearch = log.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         log.certificateId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         log.course.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || log.status === statusFilter
-    
-    return matchesSearch && matchesStatus
-  })
+  const filteredLogs = (logs || [])
+    .filter((log) => log != null && typeof log === 'object') // Ensure log is a valid object
+    .filter((log) => {
+      // Add null/undefined checks to prevent errors
+      const studentName = String(log.studentName || '').toLowerCase();
+      const certificateId = String(log.certificateId || '').toLowerCase();
+      const course = String(log.course || '').toLowerCase();
+      const searchTermLower = String(searchTerm || '').toLowerCase();
+      
+      const matchesSearch = studentName.includes(searchTermLower) ||
+                           certificateId.includes(searchTermLower) ||
+                           course.includes(searchTermLower);
+      const matchesStatus = statusFilter === 'all' || (log.status || 'issued') === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
 
-  const handleViewCertificate = async (certificate) => {
-    try {
-      const response = await getMethod({
-        apiUrl: `${apiService.getCertificateById}?id=${certificate.certificate_id || certificate.id}`,
-      });
-  
-      if (response?.status && response.data) {
-        setSelectedCertificate(response.data);
-        setIsModalOpen(true);
-      } else {
-        alert(response?.message || "Failed to fetch certificate details.");
-      }
-    } catch (error) {
-      console.error("Error fetching certificate:", error);
-      alert("Something went wrong while fetching certificate details.");
-    }
+  // View Certificate - Opens modal which calls APIs in sequence:
+  // 1. certificates_issuance.php?id={certificateId} (Step 1) - for certificate details with email/phone
+  // 2. get-certificate.php?id={certificateId} (Step 2a) - to get template_id and file_url
+  // 3. certificate_templates.php?id={templateId} (Step 2b) - for template assets (logo, seal, signature)
+  const handleViewCertificate = (certificate) => {
+    const certificateId = certificate.certificate_id || certificate.id;
+    setSelectedCertificate(certificateId); // Store certificateId - modal will fetch APIs in sequence
+    setIsModalOpen(true);
   };
   
   
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
-    setSelectedCertificate(null)
+    setSelectedCertificate(null) // Clear certificateId when closing
   }
 
   return (
@@ -158,17 +376,40 @@ useEffect(() => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50">
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-8 text-center">
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                      <span className={`ml-3 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Loading logs...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredLogs.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-8 text-center">
+                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No certificate logs found.</span>
+                  </td>
+                </tr>
+              ) : (
+                filteredLogs.map((log, index) => {
+                  // Create a unique key combining certificateId, studentName, and index to ensure uniqueness
+                  const uniqueKey = `${log.certificateId || log.id || 'cert'}-${log.studentName || 'student'}-${log.issuedDate || 'date'}-${index}`;
+                  return (
+                <tr key={uniqueKey} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center mr-3">
                         <LuUser className={`h-5 w-5 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                       </div>
                       <div>
-                        <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{log.studentName}</div>
-                        <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{log.email}</div>
-                        <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{log.phone}</div>
+                        <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{log.studentName || '-'}</div>
+                        {log.email && (
+                          <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{log.email}</div>
+                        )}
+                        {log.phone && (
+                          <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{log.phone}</div>
+                        )}
                       </div>
                     </div>
                   </td>
@@ -194,7 +435,7 @@ useEffect(() => {
                         log.status === 'issued' ? 'text-green-600' : 
                         log.status === 'pending' ? 'text-blue-600' : TAILWIND_COLORS.TEXT_MUTED
                       }`}>
-                        {log.status.charAt(0).toUpperCase() + log.status.slice(1)}
+                        {(log.status || 'issued').charAt(0).toUpperCase() + (log.status || 'issued').slice(1)}
                       </span>
                     </div>
                   </td>
@@ -211,7 +452,8 @@ useEffect(() => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                  );
+                }))}
             </tbody>
           </table>
         </div>
@@ -254,7 +496,7 @@ useEffect(() => {
       <CertificateDetailsModal 
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        certificate={selectedCertificate}
+        certificateId={selectedCertificateId}
       />
 
     </div>

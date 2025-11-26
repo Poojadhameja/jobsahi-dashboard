@@ -19,7 +19,6 @@ export default function StudentCompletion() {
   })
 
   const handleExport = () => {
-    console.log('Exporting student completion data...')
   }
 
   useEffect(() => {
@@ -51,10 +50,8 @@ export default function StudentCompletion() {
             ],
           })
         } else {
-          console.error('⚠️ No student_completion_chart data found in API response')
         }
       } catch (error) {
-        console.error('❌ Error fetching student completion chart:', error)
       }
     }
   

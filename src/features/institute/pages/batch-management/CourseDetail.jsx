@@ -78,7 +78,6 @@ export default function CourseDetail({ courseData, onBack }) {
         setError(response?.message || 'Course not found')
       }
     } catch (err) {
-      console.error('Error fetching course details:', err)
       setError('Failed to load course details')
     } finally {
       setLoading(false)
@@ -93,7 +92,6 @@ export default function CourseDetail({ courseData, onBack }) {
         setAvailableCourses(res.courses)
       }
     } catch (err) {
-      console.error('Error fetching available courses:', err)
     }
   }
 
@@ -150,7 +148,6 @@ export default function CourseDetail({ courseData, onBack }) {
   }
 
   const handleUpdateBatch = (updatedData) => {
-    console.log('Updated batch data:', updatedData)
     // Optionally refetch here
   }
 

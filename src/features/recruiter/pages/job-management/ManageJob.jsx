@@ -9,6 +9,7 @@ import {
   LuUsers,
   LuMapPin,
   LuPencil,
+  LuBriefcase,
 } from "react-icons/lu";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import EditCard from "./EditCard";
@@ -65,7 +66,7 @@ function CompanyLogo({ logo, companyName }) {
 /* ============================
    MAIN COMPONENT
 ============================ */
-const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
+const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob, onNavigateToPostJob }) => {
   const [jobs, setJobs] = useState(initialJobs);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -98,42 +99,33 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
         ? res.jobs
         : [];
 
-      // Fallback dummy data if no API result
-      const dataToUse =
-        rows.length > 0
-          ? rows
-          : [
-              {
-                id: 1,
-                title: "Assistant Technician",
-                company_name: "Maximoz Pvt Ltd",
-                salary_min: 14000,
-                salary_max: 25000,
-                description:
-                  "Work on electrical and mechanical systems, ensuring maintenance and support.",
-                location: "Indore, Madhya Pradesh",
-                status: "Open",
-                no_of_vacancies: 5,
-                views: 120,
-                admin_status: "approved",
-              },
-              {
-                id: 2,
-                title: "Software Developer",
-                company_name: "Tech Solutions",
-                salary_min: 30000,
-                salary_max: 45000,
-                description:
-                  "Responsible for developing web applications using React and Node.js.",
-                location: "Bangalore, Karnataka",
-                status: "Open",
-                no_of_vacancies: 3,
-                views: 95,
-                admin_status: "pending",
-              },
-            ];
+      // Use API data (no fallback dummy data)
+      const dataToUse = rows;
 
-      setJobs(dataToUse);
+      // ✅ Get drafts from localStorage and merge with API jobs
+      const drafts = JSON.parse(localStorage.getItem('job_drafts') || '[]');
+      
+      const draftJobs = drafts.map(draft => ({
+        ...draft,
+        id: draft.draftId || draft.id,
+        title: draft.jobTitle || draft.title || 'Untitled Job',
+        status: 'Draft',
+        isDraft: true,
+        savedAt: draft.savedAt,
+        company_name: 'Draft',
+        salary_min: draft.minSalary || draft.salary_min || 0,
+        salary_max: draft.maxSalary || draft.salary_max || 0,
+        location: draft.location || '—',
+        no_of_vacancies: draft.no_of_vacancies || 0,
+        views: 0,
+        admin_status: 'draft',
+        description: draft.jobDescription || draft.description || '',
+      }));
+
+      // Combine API jobs and drafts (drafts first so they appear at top)
+      const allJobs = [...draftJobs, ...dataToUse];
+
+      setJobs(allJobs);
     } catch (err) {
       console.error("❌ Jobs load error:", err);
       setError("Failed to load jobs");
@@ -144,6 +136,26 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
 
   useEffect(() => {
     fetchJobs();
+  }, []);
+
+  // ✅ Listen for storage changes to refresh drafts
+  useEffect(() => {
+    const handleDraftChange = () => {
+      fetchJobs(); // Refresh when drafts change
+    };
+
+    // Listen to custom event for same-tab updates
+    window.addEventListener('draftSaved', handleDraftChange);
+    // Also listen to storage event for cross-tab updates
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'job_drafts') {
+        fetchJobs();
+      }
+    });
+
+    return () => {
+      window.removeEventListener('draftSaved', handleDraftChange);
+    };
   }, []);
 
   /* ============================
@@ -157,14 +169,25 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
   const handleDeleteConfirm = async () => {
     try {
       if (jobToDelete?.id) {
-        if (onDeleteJob) {
-          onDeleteJob(jobToDelete.id);
+        // ✅ If it's a draft, remove from localStorage
+        if (jobToDelete.isDraft || jobToDelete.draftId) {
+          const drafts = JSON.parse(localStorage.getItem('job_drafts') || '[]');
+          const updatedDrafts = drafts.filter(draft => draft.draftId !== jobToDelete.draftId && draft.draftId !== jobToDelete.id);
+          localStorage.setItem('job_drafts', JSON.stringify(updatedDrafts));
+          // Trigger refresh event
+          window.dispatchEvent(new Event('draftSaved'));
+          await fetchJobs();
         } else {
-          await deleteMethod({
-            apiUrl: `${service.deleteJob}?job_id=${jobToDelete.id}`,
-          });
+          // Regular job deletion via API
+          if (onDeleteJob) {
+            onDeleteJob(jobToDelete.id);
+          } else {
+            await deleteMethod({
+              apiUrl: `${service.deleteJob}?job_id=${jobToDelete.id}`,
+            });
+          }
+          await fetchJobs();
         }
-        await fetchJobs();
       }
     } catch (err) {
       console.error("Delete error:", err);
@@ -223,9 +246,13 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
 
     // Status filter
     if (statusFilter) {
-      filtered = filtered.filter(
-        (job) => job.status && job.status.toLowerCase() === statusFilter.toLowerCase()
-      );
+      filtered = filtered.filter((job) => {
+        // Check both status field and isDraft flag for Draft status
+        if (statusFilter.toLowerCase() === 'draft') {
+          return job.isDraft === true || (job.status && job.status.toLowerCase() === 'draft');
+        }
+        return job.status && job.status.toLowerCase() === statusFilter.toLowerCase();
+      });
     }
 
     // Location filter - check if location contains the filter value
@@ -420,9 +447,52 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
       </div>
 
       {/* Job Cards */}
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-  {Array.isArray(currentJobs) && currentJobs.length > 0 ? (
-    currentJobs.map((job) => {
+      {jobs.length === 0 ? (
+        /* Empty State - No Jobs */
+        <div className={`bg-white rounded-lg border border-gray-200 p-12 text-center`}>
+          <div className="max-w-md mx-auto">
+            <LuBriefcase className={`w-16 h-16 ${TAILWIND_COLORS.TEXT_MUTED} mx-auto mb-4`} />
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+              No Jobs Yet
+            </h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
+              Start by posting your first job to get started.
+            </p>
+            {onNavigateToPostJob && (
+              <button
+                onClick={onNavigateToPostJob}
+                className={`${TAILWIND_COLORS.BTN_PRIMARY} px-6 py-2 rounded-lg text-sm font-medium`}
+              >
+                Post Job
+              </button>
+            )}
+          </div>
+        </div>
+      ) : filteredJobs.length === 0 ? (
+        /* Empty State - No Results After Filtering */
+        <div className={`bg-white rounded-lg border border-gray-200 p-12 text-center`}>
+          <div className="max-w-md mx-auto">
+            <LuSearch className={`w-12 h-12 ${TAILWIND_COLORS.TEXT_MUTED} mx-auto mb-4`} />
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
+              No Results Found
+            </h3>
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>
+              Try adjusting your search or filters
+            </p>
+            {(searchTerm || statusFilter || locationFilter || dateFilter) && (
+              <Button
+                onClick={handleClearFilters}
+                variant="unstyled"
+                className={`px-4 py-2 text-sm border border-gray-300 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} hover:bg-gray-100 transition-colors`}
+              >
+                Clear Filters
+              </Button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {currentJobs.map((job) => {
       const salaryDisplay =
         job.salary_min && job.salary_max
           ? `${money(job.salary_min)} – ${money(job.salary_max)}`
@@ -439,8 +509,18 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
         >
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--color-secondary)] text-white">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                {/* Draft Badge */}
+                {job.isDraft && (
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700 border border-orange-300">
+                    📝 Draft
+                  </span>
+                )}
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  job.isDraft 
+                    ? 'bg-gray-200 text-gray-700' 
+                    : 'bg-[var(--color-secondary)] text-white'
+                }`}>
                   {job.status || "Open"}
                 </span>
                 <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
@@ -448,6 +528,14 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
                 </span>
 
                 {(() => {
+                  // ✅ If it's a draft, don't show admin status
+                  if (job.isDraft) {
+                    return (
+                      <span className="inline-block mt-1 px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                        💾 Saved Locally
+                      </span>
+                    );
+                  }
                   // ✅ If admin_status is null/undefined, treat as approved
                   const status = job.admin_status || "approved";
                   return (
@@ -522,13 +610,9 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob }) => {
           </div>
         </div>
       );
-    })
-  ) : (
-    <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-center col-span-2`}>
-      No jobs found.
-    </p>
-  )}
-</div>
+    })}
+        </div>
+      )}
 
 
       {/* Pagination */}

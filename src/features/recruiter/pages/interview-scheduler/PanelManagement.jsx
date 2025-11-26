@@ -16,6 +16,7 @@ const PanelManagement = () => {
 
   const [feedbackList, setFeedbackList] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingStudents, setLoadingStudents] = useState(true)
   const [studentsList, setStudentsList] = useState([])
 
   // ✅ Update modal states
@@ -26,25 +27,41 @@ const PanelManagement = () => {
   // Fetch scheduled interviews to get student list - THIS IS CALLED FIRST
   const fetchScheduledInterviews = useCallback(async () => {
     try {
+      setLoadingStudents(true)
       console.log('🔄 Step 1: Fetching scheduled interviews...')
+      console.log('📤 API URL:', apiService.getScheduledInterviews)
+      
       const response = await getMethod({
         apiUrl: apiService.getScheduledInterviews
       })
 
       console.log('📅 Scheduled Interviews Response:', response)
+      console.log('📅 Response Type:', typeof response)
+      console.log('📅 Response Keys:', Object.keys(response || {}))
 
       const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
 
       if (isSuccess) {
         let interviews = []
         
+        // Try multiple possible response structures
         if (Array.isArray(response.data)) {
           interviews = response.data
+          console.log('✅ Found interviews in response.data (array)')
         } else if (response.data && Array.isArray(response.data.data)) {
           interviews = response.data.data
+          console.log('✅ Found interviews in response.data.data')
         } else if (response.interviews && Array.isArray(response.interviews)) {
           interviews = response.interviews
+          console.log('✅ Found interviews in response.interviews')
+        } else if (Array.isArray(response)) {
+          interviews = response
+          console.log('✅ Response itself is an array')
+        } else {
+          console.warn('⚠️ No interviews array found. Response structure:', response)
         }
+        
+        console.log('📊 Total interviews found:', interviews.length)
 
         // Map to get student list - only essential fields needed
         // Log first item to see available fields
@@ -103,16 +120,28 @@ const PanelManagement = () => {
         console.log('✅ Step 1 Complete: Mapped Students List with interview_id and candidate_name:', students)
         console.log('📋 Total students found:', students.length)
         setStudentsList(students)
+        
+        if (students.length === 0) {
+          console.warn('⚠️ No valid students found after mapping')
+        }
+        
         return true // Return success
       } else {
-        console.warn('⚠️ No scheduled interviews found')
+        console.warn('⚠️ API returned unsuccessful status. Response:', response)
         setStudentsList([])
         return false
       }
     } catch (error) {
       console.error('❌ Error fetching scheduled interviews:', error)
+      console.error('❌ Error details:', {
+        message: error?.message,
+        response: error?.response,
+        responseData: error?.response?.data
+      })
       setStudentsList([])
       return false
+    } finally {
+      setLoadingStudents(false)
     }
   }, [])
 
@@ -169,8 +198,12 @@ const PanelManagement = () => {
           // Convert string numbers to integers if needed
           const rating = typeof item.rating === 'string' ? parseInt(item.rating) : (item.rating || 0)
           
+          // Get panel_id from multiple possible field names
+          const panelId = item.panel_id || item.id || item.interview_panel_id || item.panelId
+          
           return {
-            id: item.id || item.panel_id || item.interview_panel_id,
+            id: panelId, // Use panel_id as primary ID
+            panel_id: panelId, // Also store as panel_id for easy access
             interview_id: item.interview_id,
             candidate: item.panelist_name || item.candidate_name || item.candidate || item.student_name || `Interview #${item.interview_id}`,
             interviewDetails: item.created_at 
@@ -366,8 +399,30 @@ const PanelManagement = () => {
   }
 
   const handleUpdateFeedback = (id) => {
-    const feedback = feedbackList.find(f => f.id === id)
-    setSelectedFeedback({ ...feedback })
+    // Find feedback by id or panel_id
+    const feedback = feedbackList.find(f => 
+      f.id === id || f.panel_id === id || String(f.id) === String(id) || String(f.panel_id) === String(id)
+    )
+    
+    if (!feedback) {
+      console.error('❌ Feedback not found for ID:', id)
+      Swal.fire({
+        title: "Error",
+        text: "Feedback not found. Please refresh and try again.",
+        icon: "error",
+        confirmButtonColor: '#d33'
+      })
+      return
+    }
+    
+    // Ensure panel_id is set in selectedFeedback
+    const feedbackWithPanelId = {
+      ...feedback,
+      panel_id: feedback.panel_id || feedback.id || feedback.originalData?.panel_id || feedback.originalData?.id
+    }
+    
+    console.log('📋 Selected feedback for update:', feedbackWithPanelId)
+    setSelectedFeedback(feedbackWithPanelId)
     setShowUpdateModal(true)
   }
 
@@ -381,16 +436,65 @@ const PanelManagement = () => {
     try {
       setIsSubmitting(true)
 
+      // Get the correct ID field - try multiple possible field names
+      const feedbackId = selectedFeedback.panel_id || 
+                        selectedFeedback.id || 
+                        selectedFeedback.originalData?.panel_id || 
+                        selectedFeedback.originalData?.id || 
+                        selectedFeedback.originalData?.interview_panel_id
+
+      // Get interview_id from original data
+      const interviewId = selectedFeedback.interview_id || 
+                         selectedFeedback.originalData?.interview_id
+
+      // Validate required fields
+      if (!feedbackId) {
+        console.error('❌ Panel ID not found:', {
+          selectedFeedback,
+          id: selectedFeedback.id,
+          panel_id: selectedFeedback.panel_id,
+          originalData: selectedFeedback.originalData
+        })
+        Swal.fire({
+          title: "Error",
+          text: "Panel ID is required. Please refresh and try again.",
+          icon: "error",
+          confirmButtonColor: '#d33'
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      if (!interviewId) {
+        Swal.fire({
+          title: "Error",
+          text: "Interview ID is missing. Please refresh and try again.",
+          icon: "error",
+          confirmButtonColor: '#d33'
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      // Build payload with correct field names
+      // Backend expects panel_id as the primary identifier
       const payload = {
-        id: selectedFeedback.id || selectedFeedback.originalData?.id,
-        interview_id: selectedFeedback.interview_id || selectedFeedback.originalData?.interview_id,
-        panelist_name: selectedFeedback.panelist || selectedFeedback.originalData?.panelist_name,
-        feedback: selectedFeedback.remarks || selectedFeedback.originalData?.feedback,
-        rating: selectedFeedback.rating || selectedFeedback.originalData?.rating,
+        panel_id: feedbackId, // Primary field name for update - REQUIRED
+        interview_id: interviewId,
+        panelist_name: selectedFeedback.panelist || selectedFeedback.originalData?.panelist_name || selectedFeedback.candidate || '',
+        feedback: selectedFeedback.remarks || selectedFeedback.originalData?.feedback || '',
+        rating: parseInt(selectedFeedback.rating || selectedFeedback.originalData?.rating || 0),
         notes: selectedFeedback.decision || selectedFeedback.originalData?.notes || ''
+      }
+      
+      // Ensure panel_id is a number if backend expects it
+      if (typeof payload.panel_id === 'string') {
+        payload.panel_id = parseInt(payload.panel_id) || payload.panel_id
       }
 
       console.log('📤 Update Panel Feedback Payload:', payload)
+      console.log('📤 Selected Feedback:', selectedFeedback)
+      console.log('📤 Original Data:', selectedFeedback.originalData)
 
       const response = await putMethod({
         apiUrl: apiService.updateInterviewPanel,
@@ -406,16 +510,24 @@ const PanelManagement = () => {
           title: "Success!",
           text: "Feedback updated successfully",
           icon: "success",
+          confirmButtonColor: '#5C9A24'
         }).then(() => {
           setShowUpdateModal(false)
           setSelectedFeedback(null)
           fetchPanelFeedbacks() // Refresh list
         })
       } else {
+        const errorMessage = response?.message || response?.error || "Failed to update feedback. Please try again."
+        console.error('❌ Update failed:', {
+          response,
+          payload,
+          selectedFeedback
+        })
         Swal.fire({
           title: "Error",
-          text: response?.message || "Failed to update feedback. Please try again.",
+          text: errorMessage,
           icon: "error",
+          confirmButtonColor: '#d33'
         })
       }
     } catch (error) {
@@ -424,6 +536,7 @@ const PanelManagement = () => {
         title: "Error",
         text: error?.message || "Something went wrong. Please try again.",
         icon: "error",
+        confirmButtonColor: '#d33'
       })
     } finally {
       setIsSubmitting(false)
@@ -472,49 +585,95 @@ const PanelManagement = () => {
               <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
                 Select Candidate
               </label>
-              <select
-                value={formData.interview_id || ''}
-                onChange={(e) => {
-                  const selectedInterviewId = e.target.value
-                  console.log('🔍 Selected interview_id from dropdown:', selectedInterviewId)
-                  console.log('🔍 Available students:', studentsList)
-                  
-                  // Find student by interview_id
-                  const selectedStudent = studentsList.find(s => 
-                    String(s.interview_id) === String(selectedInterviewId)
-                  )
-                  
-                  if (selectedStudent) {
-                    console.log('✅ Selected student found:', selectedStudent)
-                    setFormData({
-                      ...formData,
-                      interview_id: selectedStudent.interview_id,
-                      candidate_name: selectedStudent.candidate_name
-                    })
-                    console.log('✅ Updated formData:', {
-                      interview_id: selectedStudent.interview_id,
-                      candidate_name: selectedStudent.candidate_name
-                    })
-                  } else {
-                    console.warn('⚠️ No student found for interview_id:', selectedInterviewId)
-                    setFormData({
-                      ...formData,
-                      interview_id: '',
-                      candidate_name: ''
-                    })
-                  }
-                }}
-                className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-              >
-                <option value="">Choose Candidate</option>
-                {studentsList
-                  .filter(student => student.interview_id && student.candidate_name) // Filter out invalid entries
-                  .map((student) => (
-                    <option key={student.interview_id} value={String(student.interview_id)}>
-                      {student.candidate_name}{student.job_title ? ` (${student.job_title})` : ''}
-                    </option>
-                  ))}
-              </select>
+              {loadingStudents ? (
+                <div className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-lg bg-gray-50 flex items-center gap-2`}>
+                  <LuRefreshCw className="w-4 h-4 animate-spin text-gray-400" />
+                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Loading candidates...</span>
+                </div>
+              ) : (
+                <>
+                  <select
+                    value={formData.interview_id ? String(formData.interview_id) : ''}
+                    onChange={(e) => {
+                      const selectedInterviewId = e.target.value
+                      
+                      // If user selects "Choose Candidate" (empty value), reset form
+                      if (!selectedInterviewId || selectedInterviewId === '') {
+                        setFormData(prev => ({
+                          ...prev,
+                          interview_id: '',
+                          candidate_name: '',
+                          rating: 0,
+                          feedback: ''
+                        }))
+                        return
+                      }
+                      
+                      console.log('🔍 Selected interview_id from dropdown:', selectedInterviewId)
+                      console.log('🔍 Available students:', studentsList)
+                      
+                      // Find student by interview_id - handle both string and number comparison
+                      const selectedStudent = studentsList.find(s => {
+                        const studentId = String(s.interview_id || '')
+                        const selectedId = String(selectedInterviewId || '')
+                        return studentId === selectedId && studentId !== ''
+                      })
+                      
+                      if (selectedStudent && selectedStudent.interview_id && selectedStudent.candidate_name) {
+                        console.log('✅ Selected student found:', selectedStudent)
+                        
+                        // Use functional update to avoid stale state conflicts
+                        setFormData(prev => {
+                          // Only update if the selection actually changed
+                          if (String(prev.interview_id) !== String(selectedStudent.interview_id)) {
+                            return {
+                              ...prev,
+                              interview_id: selectedStudent.interview_id,
+                              candidate_name: selectedStudent.candidate_name,
+                              // Reset rating and feedback when changing candidate
+                              rating: 0,
+                              feedback: ''
+                            }
+                          }
+                          return prev
+                        })
+                        
+                        console.log('✅ Updated formData with candidate:', {
+                          interview_id: selectedStudent.interview_id,
+                          candidate_name: selectedStudent.candidate_name
+                        })
+                      } else {
+                        console.warn('⚠️ No valid student found for interview_id:', selectedInterviewId)
+                        // Reset to empty if invalid selection
+                        setFormData(prev => ({
+                          ...prev,
+                          interview_id: '',
+                          candidate_name: ''
+                        }))
+                      }
+                    }}
+                    className={`w-full px-3 py-2 border ${TAILWIND_COLORS.BORDER} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                  >
+                    <option value="">Choose Candidate</option>
+                    {studentsList.length > 0 ? (
+                      studentsList
+                        .filter(student => student.interview_id && student.candidate_name) // Filter out invalid entries
+                        .map((student) => (
+                          <option key={student.interview_id} value={String(student.interview_id)}>
+                            {student.candidate_name}{student.job_title ? ` (${student.job_title})` : ''}
+                          </option>
+                        ))
+                    ) : (
+                      <option value="" disabled>No candidates available</option>
+                    )}
+                  </select>
+                  {studentsList.length === 0 && !loadingStudents && (
+                    <p className={`text-xs mt-1 ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      No scheduled interviews found. Please schedule interviews first.
+                    </p>
+                  )}
+                </>
+              )}
             </div>
 
             {/* Rating */}
@@ -651,18 +810,17 @@ const PanelManagement = () => {
 
             {/* Body */}
             <div className="space-y-4">
-              {/* Candidate */}
+              {/* Candidate - Read Only */}
               <div>
                 <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-1`}>
                   Candidate
                 </label>
                 <input
                   type="text"
-                  value={selectedFeedback.candidate}
-                  onChange={(e) =>
-                    setSelectedFeedback({ ...selectedFeedback, candidate: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  value={selectedFeedback.candidate || selectedFeedback.panelist || ''}
+                  readOnly
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
                 />
               </div>
 

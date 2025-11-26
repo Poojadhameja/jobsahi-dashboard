@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { MatrixCard, Horizontal4Cards } from '../../../../shared/components/metricCard.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import ConversionReports from './ConversionReports.jsx'
@@ -6,6 +6,8 @@ import HiringFunnel from './HiringFunnel.jsx'
 import CompletionRates from './CompletionRates.jsx'
 import CoursePerformance from './CoursePerformance.jsx'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
 import { 
   LuEye,
   LuFileText,
@@ -19,30 +21,84 @@ import {
 
 export default function ReportAnalytics() {
   const [activeTab, setActiveTab] = useState(0)
-
-  // Metrics data for the 4 horizontal cards (with icons)
-  const metricsData = [
+  const [metricsData, setMetricsData] = useState([
     {
       title: 'Total Visits',
-      value: '15,000',
+      value: '0',
       icon: <LuEye size={20} />
     },
     {
       title: 'Applications',
-      value: '3,250',
+      value: '0',
       icon: <LuFileText size={20} />
     },
     {
       title: 'Active Employers',
-      value: '245',
+      value: '0',
       icon: <LuUsers size={20} />
     },
     {
       title: 'Successful Hires',
-      value: '55',
+      value: '0',
       icon: <LuCheck size={20} />
     }
-  ]
+  ])
+  const [loading, setLoading] = useState(true)
+
+  // Format number with commas
+  const formatNumber = (num) => {
+    if (!num) return '0'
+    return Number(num).toLocaleString('en-IN')
+  }
+
+  // Fetch dashboard data
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await getMethod({
+        apiUrl: apiService.adminDashboard
+      })
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+
+      if (isSuccess && response?.data) {
+        const cards = response.data.cards || {}
+        const placementFunnel = response.data.placement_funnel || {}
+
+        // Update metrics
+        setMetricsData([
+          {
+            title: 'Total Visits',
+            value: formatNumber(cards.total_visits || cards.total_students || '0'),
+            icon: <LuEye size={20} />
+          },
+          {
+            title: 'Applications',
+            value: formatNumber(cards.applied_jobs || placementFunnel.applications || '0'),
+            icon: <LuFileText size={20} />
+          },
+          {
+            title: 'Active Employers',
+            value: formatNumber(cards.active_employers || cards.total_employers || '0'),
+            icon: <LuUsers size={20} />
+          },
+          {
+            title: 'Successful Hires',
+            value: formatNumber(placementFunnel.hired || cards.hired || '0'),
+            icon: <LuCheck size={20} />
+          }
+        ])
+      }
+    } catch (error) {
+      // Error handling
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [fetchDashboardData])
 
   // Navigation tabs for different report types (with icons)
   const navigationTabs = [

@@ -45,6 +45,7 @@ const Dashboard = () => {
   const [applicantCards, setApplicantCards] = useState([]);
   const [weekRange, setWeekRange] = useState("");
   const [selectedDate, setSelectedDate] = useState(10);
+  const [recruiterName, setRecruiterName] = useState("");
 
 
 const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -62,12 +63,32 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   // ---------- FETCH ALL DATA ----------
   useEffect(() => {
     (async () => {
+      await fetchRecruiterProfile(); // Default API call
       await fetchDashboardData();
       await fetchInterviewDetails();
       await fetchWeeklyApplicants();
       await fetchRecentApplicants();
     })();
   }, []);
+
+  // ---------- FETCH RECRUITER PROFILE (Default API) ----------
+  const fetchRecruiterProfile = async () => {
+    try {
+      const res = await getMethod({ apiUrl: service.getRecruiterProfile });
+      if (res?.success || res?.status) {
+        // Extract user_name from response structure: data.profiles[0].personal_info.user_name
+        const username = res.data?.profiles?.[0]?.personal_info?.user_name || 
+                         res.data?.user_name ||
+                         res.user_name ||
+                         "";
+        if (username) {
+          setRecruiterName(username);
+        }
+      }
+    } catch (error) {
+      // Error fetching recruiter profile
+    }
+  };
 
   // ---------- API CALLS ----------
   // ----------- CACHE DURATION (optional, 30 mins) ------------
@@ -97,10 +118,9 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
         setDashboardStats(dataToSave);
         // localStorage.setItem("dashboard_stats", JSON.stringify(dataToSave));
         // localStorage.setItem("dashboard_stats_time", Date.now());
-        console.log("📡 Fetched dashboard data from API");
       }
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      // Error fetching dashboard data
     }
   };
 
@@ -144,10 +164,9 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
         //   JSON.stringify({ details: dataArr, dates })
         // );
         // localStorage.setItem("interview_details_time", Date.now());
-        console.log("📡 Fetched interview details from API");
       }
     } catch (error) {
-      console.error("Error fetching interview details:", error);
+      // Error fetching interview details
     }
   };
 
@@ -216,10 +235,9 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
         //   JSON.stringify({ tradesData, applicantCards: cards, weekRange })
         // );
         // localStorage.setItem("weekly_applicants_time", Date.now());
-        console.log("📡 Fetched weekly applicants from API");
       }
     } catch (error) {
-      console.error("Error fetching weekly applicants:", error);
+      // Error fetching weekly applicants
     }
   };
 
@@ -297,6 +315,10 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
         return [];
       }
     })(),
+    // Add job_id and student_id for schedule interview
+    job_id: a.job_id || a.jobId || a.applied_job_id || a.job?.job_id || a.job?.id || null,
+    student_id: a.student_id || a.studentId || a.user_id || a.id || a.application_id || null,
+    application_id: a.application_id || null,
   }));
 
 
@@ -308,13 +330,11 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
         // localStorage.setItem("recent_applicants", JSON.stringify(formatted));
         // localStorage.setItem("recent_applicants_full", JSON.stringify(detailed));
         // localStorage.setItem("recent_applicants_time", Date.now());
-        console.log("📡 Fetched recent applicants from API");
       } else {
         setRecentApplicants([]);
         setRecentApplicantsDetailed([]);
       }
     } catch (error) {
-      console.error("Error fetching recent applicants:", error);
       setRecentApplicants([]);
       setRecentApplicantsDetailed([]);
     }
@@ -364,7 +384,6 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
         if (match) {
           handleViewDetails(match); // ✅ same popup call
         } else {
-          console.error("❌ No match found for:", { row, detailed: recentApplicantsDetailed });
           alert("Detailed data not found for this applicant!");
         }
       },
@@ -410,7 +429,7 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
       {/* Header */}
       <div className="mb-5 flex items-center justify-between">
         <h1 className="text-3xl font-semibold text-[var(--color-primary)]">
-          Hi! Brightorial
+          {recruiterName ? `Hi! ${recruiterName}` : "Hi! Brightorial"}
         </h1>
       </div>
 

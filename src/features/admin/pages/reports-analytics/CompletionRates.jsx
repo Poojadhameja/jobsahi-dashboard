@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   LuDownload,
   LuMail,
@@ -6,36 +6,135 @@ import {
   LuFileSpreadsheet
 } from 'react-icons/lu'
 import Swal from 'sweetalert2'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
 
 export default function CompletionRates() {
-  // Institute completion rate data
-  const instituteData = [
-    {
-      name: 'Tech University',
-      students: '234 students',
-      completionRate: '100%'
-    },
-    {
-      name: 'Business College',
-      students: '234 students',
-      completionRate: '70%'
-    },
-    {
-      name: 'Design Academy',
-      students: '234 students',
-      completionRate: '50%'
-    },
-    {
-      name: 'Engineering Institute',
-      students: '234 students',
-      completionRate: '70%'
-    },
-    {
-      name: 'Medical School',
-      students: '234 students',
-      completionRate: '50%'
+  const [instituteData, setInstituteData] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch completion rates data
+  const fetchCompletionRates = useCallback(async () => {
+    try {
+      setLoading(true)
+      
+      // Fetch certificates (completed students)
+      const certificatesResponse = await getMethod({
+        apiUrl: apiService.getCertificateIssuance
+      })
+      
+      // Fetch institutes list
+      const institutesResponse = await getMethod({
+        apiUrl: apiService.institutesList
+      })
+
+      // Process certificates to get institute-wise completed count
+      const completedByInstitute = {}
+      
+      if (certificatesResponse?.status === true || certificatesResponse?.status === 'success' || certificatesResponse?.success === true) {
+        const certificates = Array.isArray(certificatesResponse?.data) ? certificatesResponse.data : []
+        
+        certificates.forEach(cert => {
+          const instituteName = cert.institute_name || cert.institute || 'Unknown'
+          
+          if (!completedByInstitute[instituteName]) {
+            completedByInstitute[instituteName] = {
+              name: instituteName,
+              completedStudents: new Set(),
+              totalCertificates: 0
+            }
+          }
+          
+          // Count unique students (by student_id or student_name)
+          const studentId = cert.student_id || cert.student_name || `${cert.student_name}_${cert.course_title}`
+          completedByInstitute[instituteName].completedStudents.add(studentId)
+          completedByInstitute[instituteName].totalCertificates++
+        })
+      }
+
+      // Process institutes to get total enrolled students
+      const institutesMap = {}
+      
+      if (institutesResponse?.status === true || institutesResponse?.status === 'success' || institutesResponse?.success === true) {
+        const institutes = Array.isArray(institutesResponse?.data) ? institutesResponse.data : []
+        
+        institutes.forEach(inst => {
+          const instituteName = inst.profile_info?.institute_name || 
+                               inst.institute_info?.institute_name || 
+                               inst.institute_name || 
+                               inst.user_info?.user_name || 
+                               'Unknown'
+          
+          // Calculate total students from courses
+          let totalStudents = 0
+          if (inst.courses && Array.isArray(inst.courses)) {
+            inst.courses.forEach(course => {
+              if (course.enrollments && Array.isArray(course.enrollments)) {
+                totalStudents += course.enrollments.length
+              } else if (course.total_enrollments) {
+                totalStudents += Number(course.total_enrollments) || 0
+              } else if (course.students && Array.isArray(course.students)) {
+                totalStudents += course.students.length
+              }
+            })
+          }
+          
+          institutesMap[instituteName] = {
+            name: instituteName,
+            totalStudents: totalStudents
+          }
+        })
+      }
+
+      // Combine data and calculate completion rates
+      const completionData = []
+      
+      // Get all unique institute names
+      const allInstitutes = new Set([
+        ...Object.keys(completedByInstitute),
+        ...Object.keys(institutesMap)
+      ])
+      
+      allInstitutes.forEach(instituteName => {
+        const completed = completedByInstitute[instituteName]
+        const institute = institutesMap[instituteName]
+        
+        const completedCount = completed ? completed.completedStudents.size : 0
+        const totalCount = institute?.totalStudents || completedCount || 0
+        
+        // If total is 0 but we have completed, estimate total as completed * 1.5 (rough estimate)
+        const estimatedTotal = totalCount > 0 ? totalCount : (completedCount > 0 ? Math.round(completedCount * 1.5) : 0)
+        
+        const completionRate = estimatedTotal > 0 
+          ? Math.round((completedCount / estimatedTotal) * 100) 
+          : 0
+        
+        completionData.push({
+          name: instituteName,
+          students: `${completedCount} / ${estimatedTotal > 0 ? estimatedTotal : 'N/A'}`,
+          completedCount: completedCount,
+          totalCount: estimatedTotal,
+          completionRate: `${completionRate}%`,
+          completionRateNum: completionRate
+        })
+      })
+      
+      // Sort by completion rate (descending)
+      completionData.sort((a, b) => b.completionRateNum - a.completionRateNum)
+      
+      setInstituteData(completionData)
+    } catch (error) {
+      // Error handling
+      setInstituteData([])
+    } finally {
+      setLoading(false)
     }
-  ]
+  }, [])
+
+  useEffect(() => {
+    fetchCompletionRates()
+  }, [fetchCompletionRates])
 
   // Export functions
   const handleExportPDF = () => {
@@ -44,22 +143,20 @@ export default function CompletionRates() {
       Generated on: ${new Date().toLocaleDateString()}
       
       INSTITUTE COMPLETION RATE REPORT:
-      - Tech University: 234 students (100% completion)
-      - Business College: 234 students (70% completion)
-      - Design Academy: 234 students (50% completion)
-      - Engineering Institute: 234 students (70% completion)
-      - Medical School: 234 students (50% completion)
+      ${instituteData.map(inst => `- ${inst.name}: ${inst.students} students (${inst.completionRate} completion)`).join('\n      ')}
       
       SUMMARY STATISTICS:
-      - Total Students: 1,170
-      - Average Completion Rate: 68%
-      - Highest Performing Institute: Tech University (100%)
-      - Lowest Performing Institute: Design Academy & Medical School (50%)
+      - Total Institutes: ${instituteData.length}
+      - Total Completed Students: ${instituteData.reduce((sum, inst) => sum + inst.completedCount, 0)}
+      - Total Enrolled Students: ${instituteData.reduce((sum, inst) => sum + (inst.totalCount || 0), 0)}
+      - Average Completion Rate: ${instituteData.length > 0 ? Math.round(instituteData.reduce((sum, inst) => sum + inst.completionRateNum, 0) / instituteData.length) : 0}%
+      - Highest Performing Institute: ${instituteData.length > 0 ? instituteData[0].name : 'N/A'} (${instituteData.length > 0 ? instituteData[0].completionRate : '0%'})
+      - Lowest Performing Institute: ${instituteData.length > 0 ? instituteData[instituteData.length - 1].name : 'N/A'} (${instituteData.length > 0 ? instituteData[instituteData.length - 1].completionRate : '0%'})
       
       PERFORMANCE INSIGHTS:
-      - 2 institutes achieved 70%+ completion rate
-      - 1 institute achieved 100% completion rate
-      - 2 institutes need improvement (50% completion rate)
+      - ${instituteData.filter(inst => inst.completionRateNum >= 70).length} institutes achieved 70%+ completion rate
+      - ${instituteData.filter(inst => inst.completionRateNum === 100).length} institutes achieved 100% completion rate
+      - ${instituteData.filter(inst => inst.completionRateNum < 50).length} institutes need improvement (<50% completion rate)
     `
     
     const blob = new Blob([pdfContent], { type: 'text/plain' })
@@ -82,12 +179,8 @@ export default function CompletionRates() {
   }
 
   const handleExportExcel = () => {
-    const csvContent = `Institute,Students,Completion Rate
-Tech University,234,100%
-Business College,234,70%
-Design Academy,234,50%
-Engineering Institute,234,70%
-Medical School,234,50%`
+    const csvContent = `Institute,Completed Students,Total Students,Completion Rate
+${instituteData.map(inst => `${inst.name},${inst.completedCount},${inst.totalCount || 'N/A'},${inst.completionRate}`).join('\n')}`
     
     const blob = new Blob([csvContent], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
@@ -250,8 +343,17 @@ Medical School,234,50%`
           Performance metrics by educational institution
         </p>
         
-        <div className="space-y-4">
-          {instituteData.map((institute, index) => (
+        {loading ? (
+          <div className="text-center py-12">
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Loading completion rates...</p>
+          </div>
+        ) : instituteData.length === 0 ? (
+          <div className="text-center py-12">
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No completion data available</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {instituteData.map((institute, index) => (
             <div key={index} className="flex items-center justify-between">
               <div className="flex-1">
                 <h4 className="font-medium text-gray-900 mb-1">{institute.name}</h4>
@@ -270,8 +372,9 @@ Medical School,234,50%`
                 <p className="font-semibold text-gray-900">{institute.completionRate}</p>
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Export Options */}

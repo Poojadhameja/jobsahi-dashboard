@@ -19,10 +19,8 @@ export default function CreateCourse() {
         if (res?.status && Array.isArray(res.categories)) {
           setCategories(res.categories)
         } else {
-          console.warn('⚠️ No categories found or invalid response:', res)
         }
       } catch (error) {
-        console.error('❌ Error fetching categories:', error)
       }
     }
     fetchCategories()
@@ -37,11 +35,9 @@ export default function CreateCourse() {
         if (res?.status && Array.isArray(res.data)) {
           setInstructors(res.data)
         } else {
-          console.warn('⚠️ No instructors found or invalid response:', res)
           setInstructors([])
         }
       } catch (error) {
-        console.error('❌ Error fetching instructors:', error)
         setInstructors([])
       } finally {
         setLoadingInstructors(false)
@@ -108,8 +104,6 @@ export default function CreateCourse() {
 
     try {
       // Call API to create category
-      console.log('Creating category with payload:', { category_name: categoryName })
-      console.log('API URL:', apiService.createCourseCategory)
       
       const res = await postMethod({
         apiUrl: apiService.createCourseCategory,
@@ -118,7 +112,6 @@ export default function CreateCourse() {
         }
       })
 
-      console.log('Category API Response:', res)
 
       // Check for success - API returns { success: true, message: "...", data: {...} }
       // After respChanges, it should have status: 'success' and success: true
@@ -134,11 +127,9 @@ export default function CreateCourse() {
         // Show the actual error message from API
         // postMethod returns { status: false, message: '...', data: [] } on error
         const errorMessage = res?.message || res?.error?.message || 'Failed to create category. Please try again.'
-        console.error('Category creation failed - Full response:', res)
         alert(`❌ ${errorMessage}`)
       }
     } catch (err) {
-      console.error('Exception in handleAddCategory:', err)
       // This catch block should rarely execute since postMethod catches errors
       // But if it does, show the error
       const errorMessage = err?.response?.data?.message || err?.message || 'Something went wrong while creating the category.'
@@ -257,7 +248,6 @@ export default function CreateCourse() {
         alert(`❌ ${res?.message || 'Failed to create course'}`)
       }
     } catch (err) {
-      console.error('Create Course Error:', err)
       alert('Something went wrong while creating the course.')
     }
   }

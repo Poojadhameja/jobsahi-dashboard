@@ -272,19 +272,21 @@ const TrustedByStartups = ({
       <>
         <button
           aria-label="Previous testimonial"
-          className="w-12 h-12 border-2 border-white rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#00395B] transition-all duration-300"
+          className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-white rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#00395B] transition-all duration-300 shadow-lg hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handlePrev}
           type="button"
+          disabled={!isLoopingEnabled}
         >
-          <FaChevronLeft className="text-lg" />
+          <FaChevronLeft className="text-base sm:text-lg" />
         </button>
         <button
           aria-label="Next testimonial"
-          className="w-12 h-12 border-2 border-white rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#00395B] transition-all duration-300"
+          className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-white rounded-full flex items-center justify-center text-white hover:bg-white hover:text-[#00395B] transition-all duration-300 shadow-lg hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleNext}
           type="button"
+          disabled={!isLoopingEnabled}
         >
-          <FaChevronRight className="text-lg" />
+          <FaChevronRight className="text-base sm:text-lg" />
         </button>
       </>
     );
@@ -296,9 +298,10 @@ const TrustedByStartups = ({
   const trackTransformIndex = trackSlides.length ? (isLoopingEnabled ? currentIndex : activeSlideIndex) : 0;
 
   return (
-    <section className="bg-white md:pb-10">
-      <div className="max-w-[95%] mx-auto px-6 md:px-10 py-16 bg-[#00395B] rounded-3xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <section className="bg-white py-8 sm:py-10 md:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+        <div className="bg-[#00395B] rounded-2xl sm:rounded-3xl px-4 sm:px-6 md:px-8 lg:px-10 py-8 sm:py-10 md:py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 items-start">
           {/* Left Section - Text Content */}
           <div className="space-y-8">
             {/* Main Heading */}
@@ -322,51 +325,59 @@ const TrustedByStartups = ({
 
             {/* Navigation Arrows */}
             {shouldShowNavigation && (
-              <div className="flex space-x-4">
+              <div className="flex space-x-3 sm:space-x-4">
                 {navigationContent}
               </div>
             )}
           </div>
 
           {/* Right Section - Testimonial Cards */}
-          <div className="overflow-hidden">
+          <div className="overflow-hidden w-full">
             <div
               className="flex"
               onTransitionEnd={handleTransitionEnd}
               style={{
                 transform: `translateX(-${trackTransformIndex * 100}%)`,
-                transition: isTransitionEnabled ? 'transform 500ms ease-out' : 'none',
+                transition: isTransitionEnabled ? 'transform 500ms ease-in-out' : 'none',
+                willChange: 'transform',
               }}
             >
               {trackSlides.map((slide, slideIndex) => (
-                <div key={slideIndex} className="w-full flex-shrink-0 px-1">
-                  <div className={`grid gap-6 items-stretch ${itemsPerSlide > 1 ? 'md:grid-cols-2' : 'grid-cols-1'}`}>
+                <div key={slideIndex} className="w-full flex-shrink-0 px-2">
+                  <div className={`grid gap-4 items-stretch ${itemsPerSlide > 1 ? 'lg:grid-cols-2' : 'grid-cols-1'}`}>
                     {slide.map((testimonial, index) => (
-                      <div key={index} className="bg-white rounded-2xl p-6 shadow-lg h-full flex flex-col">
+                      <div 
+                        key={index} 
+                        className="bg-white rounded-xl p-4 sm:p-5 shadow-lg h-full flex flex-col min-h-[240px] sm:min-h-[260px]"
+                      >
                         {/* Quote Icon */}
-                        <div className="mb-4">
-                          <FaQuoteLeft className="text-[#5C9A24] text-4xl" />
+                        <div className="mb-3">
+                          <FaQuoteLeft className="text-[#5C9A24] text-2xl sm:text-3xl" />
                         </div>
 
                         {/* Testimonial Text */}
-                        <p className="text-gray-600 text-sm leading-relaxed mb-4 flex-grow">
+                        <p className="text-gray-600 text-xs sm:text-sm leading-relaxed mb-3 flex-grow">
                           {testimonial.text}
                         </p>
 
                         {/* Divider Line */}
-                        <div className="border-t border-gray-200 mb-4" />
+                        <div className="border-t border-gray-200 mb-3" />
 
                         {/* Author Details */}
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-2 sm:space-x-3">
                           {/* Avatar Placeholder */}
-                          <div className="w-10 h-10 bg-gray-300 rounded-full flex-shrink-0" />
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#5C9A24] to-[#2E7D32] rounded-full flex-shrink-0 flex items-center justify-center">
+                            <span className="text-white font-semibold text-xs sm:text-sm">
+                              {testimonial.author.charAt(0)}
+                            </span>
+                          </div>
 
                           {/* Author Info */}
-                          <div>
-                            <h4 className="text-[#5C9A24] font-semibold text-sm">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-[#5C9A24] font-semibold text-xs sm:text-sm truncate">
                               {testimonial.author}
                             </h4>
-                            <p className="text-gray-500 text-xs">
+                            <p className="text-gray-500 text-[10px] sm:text-xs line-clamp-2">
                               {testimonial.position}
                             </p>
                           </div>
@@ -380,18 +391,23 @@ const TrustedByStartups = ({
           </div>
 
           {shouldShowNavigation && (
-            <div className="lg:col-span-2 flex justify-center mt-8 space-x-2">
+            <div className="lg:col-span-2 flex justify-center mt-6 sm:mt-8 space-x-2">
               {Array.from({ length: logicalSlideCount }).map((_, index) => (
                 <button
                   key={`testimonial-dot-${index}`}
                   aria-label={`Go to testimonial slide ${index + 1}`}
-                  className={`w-2 h-2 rounded-full transition-colors duration-300 ${index === activeSlideIndex ? 'bg-white' : 'bg-white/40'}`}
+                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
+                    index === activeSlideIndex
+                      ? 'bg-white scale-125'
+                      : 'bg-white/40 hover:bg-white/60'
+                  }`}
                   onClick={() => goToSlide(index)}
                   type="button"
                 />
               ))}
             </div>
           )}
+          </div>
         </div>
       </div>
     </section>

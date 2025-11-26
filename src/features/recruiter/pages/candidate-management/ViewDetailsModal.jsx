@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LuX,
   LuMail,
@@ -12,11 +12,12 @@ import {
   LuVideo,
   LuBuilding,
   LuLink,
+  LuCheck,
 } from "react-icons/lu";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { Button, IconButton } from "../../../../shared/components/Button";
 import Swal from "sweetalert2";
-import { postMethod } from "../../../../service/api";
+import { postMethod, getMethod } from "../../../../service/api";
 import apiService from "../../services/serviceUrl";
 
 const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
@@ -27,6 +28,138 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
   const [interviewLocation, setInterviewLocation] = useState("");
   const [interviewFeedback, setInterviewFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [existingInterview, setExistingInterview] = useState(null);
+  const [loadingInterview, setLoadingInterview] = useState(false);
+
+  // Fetch existing interview when modal opens
+  useEffect(() => {
+    if (isOpen && candidate) {
+      fetchExistingInterview();
+    } else {
+      setExistingInterview(null);
+    }
+  }, [isOpen, candidate]);
+
+  // Fetch existing scheduled interview for this candidate
+  const fetchExistingInterview = async () => {
+    if (!candidate) return;
+
+    setLoadingInterview(true);
+    try {
+      const applicationId = candidate.application_id || candidate.applicationId || candidate.id || null;
+      const jobId = candidate.job_id || candidate.jobId || candidate.applied_job_id || null;
+      const studentId = candidate.student_id || candidate.studentId || candidate.user_id || null;
+      const candidateName = candidate.name || candidate.candidate_name || '';
+
+      // Call GET API to fetch scheduled interviews
+      const response = await getMethod({
+        apiUrl: apiService.getScheduledInterviews
+      });
+
+      // Debug: Log response to check structure
+      if (response) {
+        // Temporary debug - remove after testing
+      }
+
+      if (response?.status === true || response?.status === 'success' || response?.success === true || response?.data) {
+        let interviews = [];
+        
+        // Handle different response structures
+        if (Array.isArray(response.data)) {
+          interviews = response.data;
+        } else if (response.data && Array.isArray(response.data.data)) {
+          interviews = response.data.data;
+        } else if (response.interviews && Array.isArray(response.interviews)) {
+          interviews = response.interviews;
+        } else if (Array.isArray(response)) {
+          interviews = response;
+        }
+
+        // Find interview for this candidate - try multiple matching strategies
+        const foundInterview = interviews.find((interview) => {
+          // Strategy 1: Match by application_id (preferred)
+          if (applicationId) {
+            const interviewAppId = interview.application_id || interview.applicationId || interview.application_id;
+            if (interviewAppId && (interviewAppId == applicationId || String(interviewAppId) === String(applicationId))) {
+              return true;
+            }
+          }
+          
+          // Strategy 2: Match by job_id and student_id
+          if (jobId && studentId) {
+            const interviewJobId = interview.job_id || interview.jobId || interview.job_id;
+            const interviewStudentId = interview.student_id || interview.studentId || interview.user_id || interview.candidate_id;
+            if (interviewJobId && interviewStudentId && 
+                (interviewJobId == jobId || String(interviewJobId) === String(jobId)) &&
+                (interviewStudentId == studentId || String(interviewStudentId) === String(studentId))) {
+              return true;
+            }
+          }
+          
+          // Strategy 3: Match by candidate name (fallback)
+          if (candidateName) {
+            const interviewCandidateName = interview.candidate_name || interview.candidateName || interview.name || '';
+            if (interviewCandidateName && interviewCandidateName.toLowerCase().trim() === candidateName.toLowerCase().trim()) {
+              return true;
+            }
+          }
+          
+          return false;
+        });
+
+        if (foundInterview) {
+          // Normalize interview data - handle different field names from API
+          const normalizedInterview = {
+            ...foundInterview,
+            scheduled_at: foundInterview.scheduled_at || foundInterview.scheduledAt || foundInterview.scheduled_date || foundInterview.date,
+            mode: foundInterview.mode || foundInterview.interviewMode || foundInterview.interview_mode,
+            interview_link: foundInterview.interview_link || foundInterview.interviewLink || foundInterview.meeting_link || foundInterview.meetingLink || foundInterview.link,
+            location: foundInterview.location || foundInterview.interview_location || foundInterview.address,
+            platform_name: foundInterview.platform_name || foundInterview.platformName || foundInterview.platform,
+            status: foundInterview.status || foundInterview.interview_status,
+            interview_info: foundInterview.interview_info || foundInterview.interviewInfo || foundInterview.feedback || foundInterview.notes || foundInterview.description
+          };
+          
+          setExistingInterview(normalizedInterview);
+          
+          // Pre-fill form with existing interview data
+          if (normalizedInterview.scheduled_at) {
+            try {
+              const scheduledDate = new Date(normalizedInterview.scheduled_at);
+              if (!isNaN(scheduledDate.getTime())) {
+                setInterviewDate(scheduledDate.toISOString().split('T')[0]);
+                const hours = String(scheduledDate.getHours()).padStart(2, '0');
+                const minutes = String(scheduledDate.getMinutes()).padStart(2, '0');
+                setInterviewTime(`${hours}:${minutes}`);
+              }
+            } catch (e) {
+              // Date parsing error
+            }
+          }
+          if (normalizedInterview.mode) {
+            setInterviewMode(normalizedInterview.mode.toLowerCase());
+          }
+          if (normalizedInterview.interview_link) {
+            setInterviewLocation(normalizedInterview.interview_link);
+          } else if (normalizedInterview.location) {
+            setInterviewLocation(normalizedInterview.location);
+          }
+          if (normalizedInterview.interview_info) {
+            setInterviewFeedback(normalizedInterview.interview_info || '');
+          }
+        } else {
+          setExistingInterview(null);
+        }
+      } else {
+        setExistingInterview(null);
+      }
+    } catch (error) {
+      // Error fetching interview - continue without showing existing interview
+      setExistingInterview(null);
+    } finally {
+      setLoadingInterview(false);
+    }
+  };
 
   if (!isOpen || !candidate) return null;
 
@@ -90,56 +223,82 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
       // Combine date and time into scheduled_at format (YYYY-MM-DD HH:MM:SS)
       const scheduledAt = `${interviewDate} ${interviewTime}:00`;
 
-      // Get job_id and student_id from candidate
-      // Try multiple possible field names
-      const jobId = candidate.job_id || candidate.jobId || candidate.applied_job_id;
-      const studentId = candidate.student_id || candidate.studentId || candidate.user_id || candidate.id;
+      // Get application_id from candidate (required field in interviews table)
+      // Also get job_id and student_id as fallback if API needs them
+      const applicationId = candidate.application_id || 
+                           candidate.applicationId || 
+                           null;
+      
+      const jobId = candidate.job_id || 
+                   candidate.jobId || 
+                   candidate.applied_job_id ||
+                   candidate.job?.job_id ||
+                   candidate.job?.id ||
+                   null;
+      
+      const studentId = candidate.student_id || 
+                       candidate.studentId || 
+                       candidate.user_id || 
+                       candidate.id ||
+                       null;
 
-      // console.log("🔍 Candidate object:", candidate);
-      // console.log("🔍 Extracted job_id:", jobId);
-      // console.log("🔍 Extracted student_id:", studentId);
-
-      if (!jobId || !studentId) {
-        console.error("❌ Missing IDs - Full candidate object:", candidate);
+      // Check if we have required IDs
+      if (!applicationId && (!jobId || !studentId)) {
         Swal.fire({
           title: "Error",
-          text: `Job ID or Student ID is missing. Job ID: ${jobId || 'N/A'}, Student ID: ${studentId || 'N/A'}. Please check the candidate data.`,
+          text: `Application ID or (Job ID and Student ID) is missing. Please check the candidate data.`,
           icon: "error",
         });
         setIsSubmitting(false);
         return;
       }
 
-      // Prepare payload according to API
+      // Prepare payload according to database structure
+      // Database fields: application_id, scheduled_at, mode, interview_link, location, status, interview_info, platform_name
       const payload = {
-        job_id: jobId,
-        student_id: studentId,
+        // Primary: application_id (foreign key to applications table)
+        ...(applicationId && { application_id: applicationId }),
+        // Fallback: if application_id not available, send job_id and student_id
+        ...(!applicationId && jobId && { job_id: jobId }),
+        ...(!applicationId && studentId && { student_id: studentId }),
+        // Required fields
         scheduled_at: scheduledAt,
-        mode: interviewMode === "online" ? "Online" : "Offline",
-        location: interviewLocation,
-        status: "scheduled",
-        feedback: interviewFeedback || "Initial screening interview."
+        mode: interviewMode === "online" ? "online" : "offline", // lowercase as per DB enum
+        status: "scheduled", // as per DB enum
+        // Conditional fields based on mode
+        ...(interviewMode === "online" ? {
+          interview_link: interviewLocation, // For online interviews
+          platform_name: interviewLocation.includes('zoom') ? 'Zoom' : 
+                        interviewLocation.includes('meet') ? 'Google Meet' : 
+                        interviewLocation.includes('teams') ? 'Microsoft Teams' : 
+                        'Other'
+        } : {
+          location: interviewLocation // For offline interviews
+        }),
+        // Additional info/notes
+        interview_info: interviewFeedback || "Initial screening interview." // DB field name is interview_info, not feedback
       };
 
-      console.log("📅 Schedule Interview Payload:", payload);
-
-      // Call API
+      // 📅 API Call: POST /applications/schedule_interview.php
+      // This API schedules an interview for a candidate
       const response = await postMethod({
-        apiUrl: apiService.scheduleInterview,
+        apiUrl: apiService.scheduleInterview, // "/applications/schedule_interview.php"
         payload: payload
       });
-
-      console.log("📅 Schedule Interview Response:", response);
 
       const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true;
 
       if (isSuccess) {
         Swal.fire({
           title: "Success!",
-          text: `Interview scheduled for ${interviewDate} at ${interviewTime} (${interviewMode})`,
+          text: existingInterview 
+            ? `Interview updated successfully for ${interviewDate} at ${interviewTime} (${interviewMode})`
+            : `Interview scheduled for ${interviewDate} at ${interviewTime} (${interviewMode})`,
           icon: "success",
           confirmButtonText: "OK",
         }).then(() => {
+          // Refresh existing interview data
+          fetchExistingInterview();
           // Reset form
           setScheduleInterview(false);
           setInterviewDate("");
@@ -147,8 +306,6 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
           setInterviewMode("online");
           setInterviewLocation("");
           setInterviewFeedback("");
-          // Optionally close modal or refresh data
-          if (onClose) onClose();
         });
       } else {
         Swal.fire({
@@ -158,7 +315,6 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
         });
       }
     } catch (error) {
-      console.error("❌ Schedule Interview Error:", error);
       Swal.fire({
         title: "Error",
         text: error?.message || "Something went wrong. Please try again.",
@@ -195,7 +351,6 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
     }
     if (!Array.isArray(educationList)) educationList = [];
   } catch (error) {
-    console.warn('Error parsing education:', error);
     educationList = [];
   }
 
@@ -208,21 +363,35 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
       const parsed = JSON.parse(candidate.social_links);
       socialLinks = Array.isArray(parsed) ? parsed : (parsed ? [parsed] : []);
     }
-    console.log('🔗 Social Links:', socialLinks);
   } catch (error) {
-    console.warn('Error parsing social_links:', error);
     socialLinks = [];
   }
 
+  const handleViewResume = (e) => {
+    e.preventDefault();
+    if (candidate.resume_url) {
+      // Trigger download instead of opening in new tab
+      const link = document.createElement('a');
+      link.href = candidate.resume_url;
+      link.download = `${candidate.name?.replace(/\s+/g, "_") || "resume"}_CV.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      // Fallback to download CV function
+      handleDownloadCV();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl max-w-4xl w-full max-h-[95vh] my-4 overflow-y-auto">
         {/* Header */}
-        <div className="flex justify-between items-start p-6 border-b border-gray-200">
-          <div className="flex items-start space-x-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 p-4 sm:p-6 border-b border-gray-200">
+          <div className="flex items-start space-x-3 sm:space-x-4 w-full sm:w-auto">
             {/* Avatar */}
-            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-              <span className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className={`text-lg sm:text-xl font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
                 {candidate.name
                   ? candidate.name
                       .split(" ")
@@ -233,17 +402,17 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
             </div>
 
             {/* Name and Applied For */}
-            <div>
+            <div className="flex-1 min-w-0">
               <h2
-                className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
+                className={`text-xl sm:text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2 truncate`}
               >
                 {candidate.name}
               </h2>
-              <div className="flex items-center space-x-2">
-                <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   Applied for
                 </span>
-                <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                <span className="bg-green-500 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                   {candidate.applied_for}
                 </span>
               </div>
@@ -251,34 +420,27 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
           </div>
 
           {/* Right side actions */}
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={handleDownloadCV}
-              className="flex items-center space-x-2 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
-            >
-              <LuDownload className="w-4 h-4" />
-              <span>Download CV</span>
-            </button>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto justify-end">
             {candidate.resume_url && (
-              <a
-                href={candidate.resume_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-sm text-blue-600 hover:underline"
+              <button
+                onClick={handleViewResume}
+                className="flex items-center space-x-2 px-3 py-1.5 text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
               >
                 <LuFileText className="w-4 h-4" />
                 <span>View Resume</span>
-              </a>
+              </button>
             )}
-            <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-              STATUS
+            <div className="flex items-center gap-2">
+              <span className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_MUTED} hidden sm:inline`}>
+                STATUS
+              </span>
+              <Button variant="primary" size="sm" className="text-xs sm:text-sm font-medium">
+                {candidate.status || "Applied"}
+              </Button>
             </div>
-            <Button variant="primary" size="sm" className="text-sm font-medium">
-              {candidate.status || "Applied"}
-            </Button>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
             >
               <LuX size={20} className="text-gray-500" />
             </button>
@@ -286,7 +448,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Bio / Description */}
           <div className="mb-6">
             <h3
@@ -318,7 +480,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
           )}
 
           {/* Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-6">
             {/* Personal Details */}
             <div>
               <h3
@@ -327,77 +489,93 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
                 Personal Details
               </h3>
               <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 py-2 border-b border-gray-200">
                   <span
-                    className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    className={`text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
                   >
                     FULL NAME
                   </span>
-                  <span className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                  <span className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} break-words`}>
                     {candidate.name}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 py-2 border-b border-gray-200">
                   <span
-                    className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    className={`text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
                   >
                     EMAIL
                   </span>
                   <div className="flex items-center space-x-2">
-                    <LuMail className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
+                    <LuMail className={`w-3 h-3 sm:w-4 sm:h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                     <span
-                      className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                      className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} break-all`}
                     >
                       {candidate.email}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 py-2 border-b border-gray-200">
                   <span
-                    className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    className={`text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
                   >
                     PHONE
                   </span>
                   <div className="flex items-center space-x-2">
-                    <LuPhone className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
+                    <LuPhone className={`w-3 h-3 sm:w-4 sm:h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                     <span
-                      className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                      className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                     >
                       {candidate.phone_number || "—"}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 py-2 border-b border-gray-200">
                   <span
-                    className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    className={`text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
                   >
                     LOCATION
                   </span>
                   <div className="flex items-center space-x-2">
-                    <LuMapPin className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
+                    <LuMapPin className={`w-3 h-3 sm:w-4 sm:h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                     <span
-                      className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                      className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} break-words`}
                     >
                       {candidate.location || "—"}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center py-2">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 py-2 border-b border-gray-200">
                   <span
-                    className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                    className={`text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
                   >
                     APPLIED DATE
                   </span>
                   <div className="flex items-center space-x-2">
-                    <LuCalendar className={`w-4 h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
+                    <LuCalendar className={`w-3 h-3 sm:w-4 sm:h-4 ${TAILWIND_COLORS.TEXT_MUTED}`} />
                     <span
-                      className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                      className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                     >
                       {candidate.applied_date || "—"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Applied For / Job Title */}
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 py-2">
+                  <span
+                    className={`text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}
+                  >
+                    APPLIED FOR
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}
+                    >
+                      {candidate.applied_for || candidate.job_title || "—"}
                     </span>
                   </div>
                 </div>
@@ -594,6 +772,149 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
 
           {/* Schedule Interview Section */}
           <div className="border-t border-gray-200 pt-6">
+            {/* Show Existing Interview if Available */}
+            {loadingInterview ? (
+              <div className="mb-4 text-center text-sm text-gray-500">
+                Checking for existing interview...
+              </div>
+            ) : existingInterview ? (
+              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <LuCheck className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h4 className="text-sm font-semibold text-green-800 mb-2">
+                      Interview Already Scheduled
+                    </h4>
+                    <div className="space-y-3 text-sm">
+                      {/* Date & Time - Always Show */}
+                      {(existingInterview.scheduled_at || existingInterview.scheduledAt || existingInterview.scheduled_date) && (
+                        <div className="flex items-start gap-2">
+                          <LuCalendar className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
+                          <div className="flex-1">
+                            <strong className="text-green-800 block mb-1">Scheduled Date & Time:</strong>
+                            <span className="text-green-700 font-medium">
+                              {(() => {
+                                const dateStr = existingInterview.scheduled_at || existingInterview.scheduledAt || existingInterview.scheduled_date;
+                                try {
+                                  const date = new Date(dateStr);
+                                  if (!isNaN(date.getTime())) {
+                                    const formattedDate = date.toLocaleDateString('en-IN', {
+                                      day: 'numeric',
+                                      month: 'long',
+                                      year: 'numeric'
+                                    });
+                                    const formattedTime = date.toLocaleTimeString('en-IN', {
+                                      hour: '2-digit',
+                                      minute: '2-digit',
+                                      hour12: true
+                                    });
+                                    return `${formattedDate} at ${formattedTime}`;
+                                  }
+                                  return dateStr;
+                                } catch {
+                                  return dateStr;
+                                }
+                              })()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Mode - Always Show */}
+                      {(existingInterview.mode || existingInterview.interviewMode || existingInterview.interview_mode) && (
+                        <div className="flex items-start gap-2">
+                          {(existingInterview.mode || existingInterview.interviewMode || existingInterview.interview_mode)?.toLowerCase() === 'online' ? (
+                            <LuVideo className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
+                          ) : (
+                            <LuBuilding className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
+                          )}
+                          <div className="flex-1">
+                            <strong className="text-green-800 block mb-1">Interview Mode:</strong>
+                            <span className="text-green-700 capitalize font-medium">
+                              {(() => {
+                                const mode = existingInterview.mode || existingInterview.interviewMode || existingInterview.interview_mode || '';
+                                return mode.charAt(0).toUpperCase() + mode.slice(1);
+                              })()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* For Online Interviews - Show Meeting Link and Platform */}
+                      {(existingInterview.mode || existingInterview.interviewMode || existingInterview.interview_mode)?.toLowerCase() === 'online' && (
+                        <>
+                          {(existingInterview.interview_link || existingInterview.interviewLink || existingInterview.meeting_link || existingInterview.meetingLink || existingInterview.link) && (
+                            <div className="flex items-start gap-2">
+                              <LuLink className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
+                              <div className="flex-1">
+                                <strong className="text-green-800 block mb-1">Meeting Link:</strong>
+                                <a 
+                                  href={existingInterview.interview_link || existingInterview.interviewLink || existingInterview.meeting_link || existingInterview.meetingLink || existingInterview.link} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="text-blue-600 hover:underline break-all font-medium"
+                                >
+                                  {existingInterview.interview_link || existingInterview.interviewLink || existingInterview.meeting_link || existingInterview.meetingLink || existingInterview.link}
+                                </a>
+                              </div>
+                            </div>
+                          )}
+                          {(existingInterview.platform_name || existingInterview.platformName || existingInterview.platform) && (
+                            <div className="flex items-start gap-2">
+                              <LuVideo className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
+                              <div className="flex-1">
+                                <strong className="text-green-800 block mb-1">Platform:</strong>
+                                <span className="text-green-700 font-medium">
+                                  {existingInterview.platform_name || existingInterview.platformName || existingInterview.platform}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      {/* For Offline Interviews - Show Location */}
+                      {(existingInterview.mode || existingInterview.interviewMode || existingInterview.interview_mode)?.toLowerCase() === 'offline' && (existingInterview.location || existingInterview.interview_location || existingInterview.address) && (
+                        <div className="flex items-start gap-2">
+                          <LuMapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
+                          <div className="flex-1">
+                            <strong className="text-green-800 block mb-1">Interview Location:</strong>
+                            <span className="text-green-700 font-medium">
+                              {existingInterview.location || existingInterview.interview_location || existingInterview.address}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Status - Always Show */}
+                      {existingInterview.status && (
+                        <div className="flex items-start gap-2">
+                          <div className="flex-1">
+                            <strong className="text-green-800 block mb-1">Status:</strong>
+                            <span className="capitalize font-medium text-green-700 px-2 py-1 bg-green-100 rounded inline-block">
+                              {existingInterview.status}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Notes/Feedback - Always Show if Available */}
+                      {(existingInterview.interview_info || existingInterview.interviewInfo || existingInterview.feedback || existingInterview.notes) && (
+                        <div className="mt-3 pt-3 border-t border-green-200">
+                          <div>
+                            <strong className="text-green-800 block mb-1">Additional Notes:</strong>
+                            <p className="text-green-700 whitespace-pre-wrap">
+                              {existingInterview.interview_info || existingInterview.interviewInfo || existingInterview.feedback || existingInterview.notes || ''}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             <div className="flex items-center gap-3 mb-4">
               <input
                 type="radio"
@@ -601,12 +922,13 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
                 checked={scheduleInterview}
                 onChange={(e) => setScheduleInterview(e.target.checked)}
                 className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                disabled={!!existingInterview}
               />
               <label
                 htmlFor="scheduleInterview"
-                className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer`}
+                className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer ${existingInterview ? 'opacity-50' : ''}`}
               >
-                Schedule Interview
+                {existingInterview ? 'Update Interview' : 'Schedule Interview'}
               </label>
             </div>
 

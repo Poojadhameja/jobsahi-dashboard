@@ -37,10 +37,8 @@ const AssignCourse = () => {
           }))
           setStudents(formatted)
         } else {
-          console.error('Failed to load students:', resp)
         }
       } catch (err) {
-        console.error('Error fetching students:', err)
       }
       setLoading(false)
     }
@@ -63,10 +61,8 @@ const AssignCourse = () => {
         setCourseOptions(mappedCourses)
       } else {
         setCourseOptions([])
-        console.warn('No courses found for assignment dropdown', resp)
       }
     } catch (err) {
-      console.error('Error fetching courses for assignment:', err)
       setCourseOptions([])
     } finally {
       setLoadingCourses(false)
@@ -127,7 +123,6 @@ const AssignCourse = () => {
 
       setBatchOptions(mappedBatches)
     } catch (err) {
-      console.error('Error fetching batches for assignment:', err)
       setBatchOptions([])
     } finally {
       setLoadingBatches(false)
@@ -220,7 +215,6 @@ const AssignCourse = () => {
       setAssignmentData({ newCourse: '', newBatch: '', reason: '' })
       return true
     } catch (err) {
-      console.error('Error assigning:', err)
       alert('Error assigning students. Check console for details.')
       return false
     }

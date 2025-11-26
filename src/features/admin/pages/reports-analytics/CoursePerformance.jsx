@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Bar, Doughnut } from 'react-chartjs-2'
 import {
   Chart as ChartJS,
@@ -17,6 +17,9 @@ import {
   LuFileSpreadsheet
 } from 'react-icons/lu'
 import Swal from 'sweetalert2'
+import { getMethod } from '../../../../service/api'
+import apiService from '../../services/serviceUrl'
+import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
 
 // Register Chart.js components
 ChartJS.register(
@@ -31,19 +34,172 @@ ChartJS.register(
 
 
 export default function CoursePerformance() {
-  // Bar chart data for Visits → Resume → Application Flow
-  const barChartData = {
-    labels: ['course1', 'course2', 'course3', 'course4', 'course5'],
-    datasets: [
-      {
-        label: 'Completion Rate',
-        data: [85, 65, 50, 70, 80],
-        backgroundColor: '#A8D18D', // Light Green matching the pie chart
-        borderColor: '#8BC34A',
-        borderWidth: 1,
+  const [barChartData, setBarChartData] = useState({
+    labels: [],
+    datasets: []
+  })
+  const [pieChartData, setPieChartData] = useState({
+    labels: [],
+    datasets: []
+  })
+  const [courseStats, setCourseStats] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch course performance data
+  const fetchCoursePerformance = useCallback(async () => {
+    try {
+      setLoading(true)
+      
+      // Fetch certificates (completed courses)
+      const certificatesResponse = await getMethod({
+        apiUrl: apiService.getCertificateIssuance
+      })
+      
+      // Fetch course data
+      const coursesResponse = await getMethod({
+        apiUrl: apiService.adminInstituteManagement
+      })
+
+      // Process certificates to get course-wise completions
+      const completedByCourse = {}
+      const completedByCategory = {}
+      
+      if (certificatesResponse?.status === true || certificatesResponse?.status === 'success' || certificatesResponse?.success === true) {
+        const certificates = Array.isArray(certificatesResponse?.data) ? certificatesResponse.data : []
+        
+        certificates.forEach(cert => {
+          const courseName = cert.course_title || cert.course_name || cert.course || 'Unknown'
+          const category = cert.course_category || cert.category || 'Other'
+          
+          // Count by course
+          if (!completedByCourse[courseName]) {
+            completedByCourse[courseName] = {
+              name: courseName,
+              completed: new Set(),
+              count: 0
+            }
+          }
+          const studentId = cert.student_id || cert.student_name || `${cert.student_name}_${courseName}`
+          completedByCourse[courseName].completed.add(studentId)
+          completedByCourse[courseName].count++
+          
+          // Count by category
+          if (!completedByCategory[category]) {
+            completedByCategory[category] = 0
+          }
+          completedByCategory[category]++
+        })
       }
-    ]
-  }
+
+      // Process courses to get enrollments
+      const coursesMap = {}
+      let courseList = []
+      
+      if (coursesResponse?.status === true || coursesResponse?.status === 'success' || coursesResponse?.success === true) {
+        courseList = coursesResponse.data?.course_enrollment?.course_list || 
+                    coursesResponse.course_enrollment?.course_list || 
+                    coursesResponse.data?.course_list ||
+                    []
+        
+        courseList.forEach(course => {
+          const courseName = course.title || course.course_name || course.name || 'Unknown'
+          const enrollments = course.enrollments || course.total_enrollments || course.students?.length || 0
+          
+          coursesMap[courseName] = {
+            name: courseName,
+            enrollments: Number(enrollments) || 0,
+            category: course.category || course.course_category || 'Other'
+          }
+        })
+      }
+
+      // Calculate completion rates per course
+      const coursePerformanceData = []
+      const allCourseNames = new Set([
+        ...Object.keys(completedByCourse),
+        ...Object.keys(coursesMap)
+      ])
+      
+      allCourseNames.forEach(courseName => {
+        const completed = completedByCourse[courseName]
+        const course = coursesMap[courseName]
+        
+        const completedCount = completed ? completed.completed.size : 0
+        const totalEnrollments = course?.enrollments || completedCount || 0
+        
+        // Estimate total if not available
+        const estimatedTotal = totalEnrollments > 0 ? totalEnrollments : (completedCount > 0 ? Math.round(completedCount * 1.5) : 0)
+        
+        const completionRate = estimatedTotal > 0 
+          ? Math.round((completedCount / estimatedTotal) * 100) 
+          : 0
+        
+        coursePerformanceData.push({
+          name: courseName,
+          completed: completedCount,
+          total: estimatedTotal,
+          rate: completionRate
+        })
+      })
+      
+      // Sort by completion rate (descending) and limit to top 10 for bar chart
+      coursePerformanceData.sort((a, b) => b.rate - a.rate)
+      const topCourses = coursePerformanceData.slice(0, 10)
+      
+      // Prepare bar chart data
+      setBarChartData({
+        labels: topCourses.map(c => c.name.length > 15 ? c.name.substring(0, 15) + '...' : c.name),
+        datasets: [
+          {
+            label: 'Completion Rate (%)',
+            data: topCourses.map(c => c.rate),
+            backgroundColor: '#A8D18D',
+            borderColor: '#8BC34A',
+            borderWidth: 1,
+          }
+        ]
+      })
+      
+      // Prepare pie chart data (by category)
+      const categoryLabels = Object.keys(completedByCategory)
+      const categoryValues = Object.values(completedByCategory)
+      
+      // Color palette for categories
+      const colors = [
+        '#A8D18D', // Light Green
+        '#FFB3BA', // Light Red/Pink
+        '#FFDFBA', // Light Yellow/Gold
+        '#FFD1A3', // Light Orange
+        '#B8B8B8', // Muted Blue-Grey
+        '#BAE1FF', // Light Blue
+        '#FFFFBA', // Light Yellow
+        '#FFCCCB', // Light Coral
+      ]
+      
+      setPieChartData({
+        labels: categoryLabels.length > 0 ? categoryLabels : ['Other'],
+        datasets: [
+          {
+            data: categoryValues.length > 0 ? categoryValues : [0],
+            backgroundColor: colors.slice(0, categoryLabels.length || 1),
+            borderWidth: 0,
+          }
+        ]
+      })
+      
+      setCourseStats(coursePerformanceData)
+    } catch (error) {
+      // Error handling
+      setBarChartData({ labels: [], datasets: [] })
+      setPieChartData({ labels: [], datasets: [] })
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchCoursePerformance()
+  }, [fetchCoursePerformance])
 
   const barChartOptions = {
     responsive: true,
@@ -52,6 +208,17 @@ export default function CoursePerformance() {
       legend: {
         display: false,
       },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const course = courseStats[context.dataIndex]
+            if (course) {
+              return `${course.name}: ${context.parsed.y}% (${course.completed}/${course.total} completed)`
+            }
+            return `${context.parsed.y}%`
+          }
+        }
+      }
     },
     scales: {
       y: {
@@ -60,7 +227,7 @@ export default function CoursePerformance() {
         ticks: {
           stepSize: 25,
           callback: function(value) {
-            return value
+            return value + '%'
           }
         },
         grid: {
@@ -75,23 +242,6 @@ export default function CoursePerformance() {
     }
   }
 
-  // Pie chart data for Course Completion Distribution
-  const pieChartData = {
-    labels: ['Electrician', 'COPA', 'Electrician', 'Fitter', 'Other'],
-    datasets: [
-      {
-        data: [100, 100, 100, 100, 100],
-        backgroundColor: [
-          '#A8D18D', // Light Green (COPA)
-          '#FFB3BA', // Light Red/Pink (Electrician)
-          '#FFDFBA', // Light Yellow/Gold (Electrician)
-          '#FFD1A3', // Light Orange (Fitter)
-          '#B8B8B8', // Muted Blue-Grey (Other)
-        ],
-        borderWidth: 0,
-      }
-    ]
-  }
 
   const pieChartOptions = {
     responsive: true,
@@ -129,30 +279,23 @@ export default function CoursePerformance() {
       COURSE PERFORMANCE REPORTS
       Generated on: ${new Date().toLocaleDateString()}
       
-      VISITS → RESUME → APPLICATION FLOW:
-      - Course 1: 85% completion rate
-      - Course 2: 65% completion rate
-      - Course 3: 50% completion rate
-      - Course 4: 70% completion rate
-      - Course 5: 80% completion rate
+      COURSE PERFORMANCE REPORT:
+      ${courseStats.slice(0, 10).map(c => `- ${c.name}: ${c.rate}% completion rate (${c.completed}/${c.total} students)`).join('\n      ')}
       
-      COURSE COMPLETION DISTRIBUTION:
-      - Electrician: 100 completions
-      - COPA: 100 completions
-      - Electrician: 100 completions
-      - Fitter: 100 completions
-      - Other: 100 completions
+      COURSE COMPLETION DISTRIBUTION BY CATEGORY:
+      ${pieChartData.labels.map((label, idx) => `- ${label}: ${pieChartData.datasets[0]?.data[idx] || 0} completions`).join('\n      ')}
       
       PERFORMANCE SUMMARY:
-      - Average Completion Rate: 70%
-      - Highest Performing Course: Course 1 (85%)
-      - Lowest Performing Course: Course 3 (50%)
-      - Total Course Completions: 500
+      - Total Courses: ${courseStats.length}
+      - Average Completion Rate: ${courseStats.length > 0 ? Math.round(courseStats.reduce((sum, c) => sum + c.rate, 0) / courseStats.length) : 0}%
+      - Highest Performing Course: ${courseStats.length > 0 ? courseStats[0].name : 'N/A'} (${courseStats.length > 0 ? courseStats[0].rate : 0}%)
+      - Lowest Performing Course: ${courseStats.length > 0 ? courseStats[courseStats.length - 1].name : 'N/A'} (${courseStats.length > 0 ? courseStats[courseStats.length - 1].rate : 0}%)
+      - Total Course Completions: ${courseStats.reduce((sum, c) => sum + c.completed, 0)}
       
       INSIGHTS:
-      - 2 courses achieved 80%+ completion rate
-      - 1 course needs immediate attention (50% completion)
-      - Overall platform performance is above average
+      - ${courseStats.filter(c => c.rate >= 80).length} courses achieved 80%+ completion rate
+      - ${courseStats.filter(c => c.rate < 50).length} courses need immediate attention (<50% completion)
+      - Overall platform performance: ${courseStats.length > 0 ? (courseStats.reduce((sum, c) => sum + c.rate, 0) / courseStats.length >= 70 ? 'Above Average' : 'Needs Improvement') : 'N/A'}
     `
     
     const blob = new Blob([pdfContent], { type: 'text/plain' })
@@ -175,16 +318,11 @@ export default function CoursePerformance() {
   }
 
   const handleExportExcel = () => {
-    const csvContent = `Course,Completion Rate,Completions
-Course 1,85%,85
-Course 2,65%,65
-Course 3,50%,50
-Course 4,70%,70
-Course 5,80%,80
-Electrician,100%,100
-COPA,100%,100
-Fitter,100%,100
-Other,100%,100`
+    const csvContent = `Course,Completion Rate,Completed,Total Enrollments
+${courseStats.map(c => `${c.name},${c.rate}%,${c.completed},${c.total}`).join('\n')}
+      
+Category,Completions
+${pieChartData.labels.map((label, idx) => `${label},${pieChartData.datasets[0]?.data[idx] || 0}`).join('\n')}`
     
     const blob = new Blob([csvContent], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
@@ -349,9 +487,19 @@ Other,100%,100`
             Track user journey from initial visit to job application
           </p>
           
-          <div className="h-80">
-            <Bar data={barChartData} options={barChartOptions} />
-          </div>
+          {loading ? (
+            <div className="h-80 flex items-center justify-center">
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Loading course performance data...</p>
+            </div>
+          ) : barChartData.labels.length === 0 ? (
+            <div className="h-80 flex items-center justify-center">
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No course data available</p>
+            </div>
+          ) : (
+            <div className="h-80">
+              <Bar data={barChartData} options={barChartOptions} />
+            </div>
+          )}
         </div>
 
         {/* Course Completion Distribution Pie Chart */}
@@ -363,9 +511,19 @@ Other,100%,100`
             Total completion by course type
           </p>
           
-          <div className="h-80">
-            <Doughnut data={pieChartData} options={pieChartOptions} />
-          </div>
+          {loading ? (
+            <div className="h-80 flex items-center justify-center">
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Loading completion distribution...</p>
+            </div>
+          ) : pieChartData.labels.length === 0 ? (
+            <div className="h-80 flex items-center justify-center">
+              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No completion data available</p>
+            </div>
+          ) : (
+            <div className="h-80">
+              <Doughnut data={pieChartData} options={pieChartOptions} />
+            </div>
+          )}
         </div>
       </div>
 

@@ -135,7 +135,6 @@ export default function BatchDetail({ batchData, onBack }) {
           setError('Batch details not found')
         }
       } catch (err) {
-        console.error('Error loading batch detail:', err)
         setError('Failed to load batch details')
       } finally {
         setLoading(false)
@@ -157,7 +156,6 @@ export default function BatchDetail({ batchData, onBack }) {
   }
 
   const handleExportReport = () => {
-    console.log('Export Report clicked')
   }
 
   const handleEditBatch = () => {
@@ -166,7 +164,6 @@ export default function BatchDetail({ batchData, onBack }) {
   }
 
   const handleUpdateBatch = (updatedData) => {
-    console.log('Batch updated:', updatedData)
     setBatchInfo((prev) => {
       if (!prev) return prev
 
@@ -198,12 +195,10 @@ export default function BatchDetail({ batchData, onBack }) {
   }
 
   const handleDeleteStudent = (studentId) => {
-    console.log('Delete student:', studentId)
     setOpenDropdown(null)
   }
 
   const handleSendMessageToAll = () => {
-    console.log('Send message to all students in batch:', batchInfo?.name)
     navigate('/institute/messaging-alerts', {
       state: {
         initialTabId: 'send-notice',

@@ -68,7 +68,7 @@ const JobManagement = () => {
   const addJob = (newJob) => {
     const jobWithId = {
       ...newJob,
-      id: Math.max(...jobs.map(job => job.id)) + 1,
+      id: jobs.length > 0 ? Math.max(...jobs.map(job => job.id)) + 1 : 1,
       views: 0,
       instaMatch: 0,
       applicants: 0
@@ -103,6 +103,13 @@ const JobManagement = () => {
 
   const handleTabChange = (tabIndex) => {
     setActiveTab(tabIndex)
+    // ✅ If switching to Manage Job tab, trigger refresh to show latest drafts
+    if (tabIndex === 0) {
+      // Small delay to ensure ManageJob component is mounted
+      setTimeout(() => {
+        window.dispatchEvent(new Event('draftSaved'));
+      }, 100);
+    }
   }
 
   return (
@@ -123,7 +130,8 @@ const JobManagement = () => {
         <ManageJob 
           jobs={jobs} 
           onEditJob={editJob} 
-          onDeleteJob={deleteJob} 
+          onDeleteJob={deleteJob}
+          onNavigateToPostJob={() => setActiveTab(1)}
         />
       )}
       {activeTab === 1 && (

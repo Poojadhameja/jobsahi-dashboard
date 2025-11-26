@@ -132,12 +132,12 @@ export default function InstituteManagement() {
   ]
 
   return (
-    <div className={`space-y-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+    <div className={`space-y-4 sm:space-y-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Title Section with MatrixCard */}
       <MatrixCard 
         title="Institute Management"
         subtitle="Manage institute onboarding, course monitoring, payments, and communications."
-        className="mb-6"  
+        className="mb-4 sm:mb-6"  
       />
 
       {/* Navigation Tabs */}
