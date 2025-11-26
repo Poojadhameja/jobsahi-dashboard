@@ -180,7 +180,7 @@ const [tempEnd, setTempEnd] = useState("");
       course: courseId ? String(courseId) : "",
       startDate: "",
       endDate: "",
-      timeSlot: "10:00 AM - 12:00 PM",
+      timeSlot: "",
       instructor: "",
       students: [],
     });
@@ -223,9 +223,11 @@ const [tempEnd, setTempEnd] = useState("");
       if (response.status) {
         // Refresh instructors list from database
         await fetchInstructors();
-        // Set instructor name from response or newly created instructor
-        const newInstructorName = response.data?.name || newInstructorData.name.trim();
-        setFormData((prev) => ({ ...prev, instructor: newInstructorName }));
+        // ✅ Set instructor ID from response (same as EditBatchModal)
+        const newInstructorId = response.data?.id || response.data?.faculty_id || null;
+        if (newInstructorId) {
+          setFormData((prev) => ({ ...prev, instructor: String(newInstructorId) }));
+        }
         setShowCreateInstructorModal(false);
         setNewInstructorData({ name: "", email: "", phone: "" });
         setSuccessMsg("Instructor created successfully");
@@ -281,11 +283,8 @@ const [tempEnd, setTempEnd] = useState("");
     setSuccessMsg("");
 
     try {
-      // ✅ Find instructor ID from database data
-      const selectedInstructor = instructors.find(
-        (inst) => inst.name === formData.instructor
-      );
-      const instructor_id = selectedInstructor ? selectedInstructor.id : 0;
+      // ✅ Use instructor ID directly from formData (same as EditBatchModal)
+      const instructor_id = formData.instructor ? Number(formData.instructor) : 0;
 
       // ✅ Construct payload as expected by backend
       const payload = {
@@ -603,12 +602,12 @@ const [tempEnd, setTempEnd] = useState("");
                       <option value="">
                         {loadingInstructors
                           ? "Loading instructors..."
-                          : "Select instructor name"}
+                          : "Select Instructor"}
                       </option>
                       {instructors.map((instructor, index) => (
                         <option
                           key={instructor.id || index}
-                          value={instructor.name}
+                          value={instructor.id}
                         >
                           {instructor.name}
                         </option>
@@ -629,10 +628,6 @@ const [tempEnd, setTempEnd] = useState("");
                     Create Instructor
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  (Note: backend expects <code>instructor_id</code>; we're
-                  sending NULL for now.)
-                </p>
               </div>
             </div>
           </div>

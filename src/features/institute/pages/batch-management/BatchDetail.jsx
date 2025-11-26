@@ -7,7 +7,7 @@ import EditBatchModal from './EditBatchModal'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl.js'
 
-export default function BatchDetail({ batchData, onBack }) {
+export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
   const navigate = useNavigate()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState(null)
@@ -22,6 +22,54 @@ export default function BatchDetail({ batchData, onBack }) {
   useEffect(() => {
     setSelectedBatchForEdit(batchData?.batch ?? null)
   }, [batchData])
+
+  // ✅ Update local state when batchData prop changes (for real-time updates)
+  // This ensures prop updates are reflected immediately, even if fetchBatchDetail runs
+  useEffect(() => {
+    if (batchData?.batch) {
+      const batch = batchData.batch
+      
+      // Update batchInfo immediately when prop changes
+      setBatchInfo((prev) => {
+        const newName = batch.batch_name
+        const newTimeSlot = batch.batch_time_slot
+        const newStartDate = batch.start_date
+        const newEndDate = batch.end_date
+        const newDuration = newStartDate && newEndDate 
+          ? `${newStartDate} - ${newEndDate}`
+          : prev?.duration
+        
+        // Update if we have new data in the prop
+        if (newName || newTimeSlot !== undefined || newStartDate || newEndDate) {
+          return {
+            ...prev,
+            name: newName || prev?.name,
+            timeSlot: newTimeSlot !== undefined ? newTimeSlot : prev?.timeSlot,
+            duration: newDuration || prev?.duration,
+          }
+        }
+        return prev
+      })
+      
+      // Update instructor immediately when prop changes
+      if (batch.assigned_instructor) {
+        const instructorData = {
+          id: batch.assigned_instructor.faculty_id || batch.assigned_instructor.id,
+          name: batch.assigned_instructor.name || '',
+          email: batch.assigned_instructor.email || '',
+          phone: batch.assigned_instructor.phone || '',
+        }
+        
+        // Only update if we have valid instructor data
+        if (instructorData.id && instructorData.name) {
+          setInstructors([instructorData])
+        }
+      } else if (batch.instructor_id === null || batch.instructor_id === 0 || batch.instructor_id === undefined) {
+        // Clear instructor if explicitly removed
+        setInstructors([])
+      }
+    }
+  }, [batchData?.batch?.batch_id, batchData?.batch?.batch_name, batchData?.batch?.batch_time_slot, batchData?.batch?.start_date, batchData?.batch?.end_date, batchData?.batch?.assigned_instructor, batchData?.batch?.instructor_id])
 
 
   // ✅ Fetch Batch Details using course_id
@@ -48,11 +96,18 @@ export default function BatchDetail({ batchData, onBack }) {
           )
         
           if (currentBatch) {
+            // ✅ Merge API data with prop data, giving priority to prop data for updated fields
+            const propBatch = batchData.batch
             setBatchInfo({
-              name: currentBatch.batch_name,
+              // Use prop data if available (from real-time updates), otherwise use API data
+              name: propBatch.batch_name || currentBatch.batch_name,
               status: currentBatch.status || 'Active',
-              duration: `${currentBatch.start_date || 'N/A'} - ${currentBatch.end_date || 'N/A'}`,
-              timeSlot: currentBatch.batch_time_slot || 'N/A',
+              duration: propBatch.start_date && propBatch.end_date
+                ? `${propBatch.start_date} - ${propBatch.end_date}`
+                : `${currentBatch.start_date || 'N/A'} - ${currentBatch.end_date || 'N/A'}`,
+              timeSlot: propBatch.batch_time_slot !== undefined 
+                ? propBatch.batch_time_slot 
+                : (currentBatch.batch_time_slot || 'N/A'),
               description: `${batchData.courseTitle} - Practical oriented training batch`,
               totalStudents: currentBatch.enrolled_students || 0,
               maxStudents: 30,
@@ -69,17 +124,50 @@ export default function BatchDetail({ batchData, onBack }) {
                 status: s.status,
               }))
             )
-        
-            // ✅ Get instructor from course data (getCourseById API)
-            if (courseResponse?.status && courseResponse?.course) {
-              const instructorName = courseResponse.course.instructor_name || courseResponse.course.instructor
+            
+            // ✅ Get instructor - prioritize prop data (from real-time updates), then API data
+            if (propBatch.assigned_instructor) {
+              // Use instructor from prop (real-time update)
+              setInstructors([{
+                id: propBatch.assigned_instructor.faculty_id || propBatch.assigned_instructor.id,
+                name: propBatch.assigned_instructor.name || '',
+                email: propBatch.assigned_instructor.email || '',
+                phone: propBatch.assigned_instructor.phone || '',
+              }])
+            } else if (propBatch.instructor_id === null || propBatch.instructor_id === 0) {
+              // Instructor was removed in prop
+              setInstructors([])
+            } else if (courseResponse?.status && courseResponse?.course) {
+              // Fallback to course API data
+              const course = courseResponse.course
+              
+              // ✅ Handle both nested instructor object and flat instructor fields
+              let instructorName = null
+              let instructorId = null
+              let instructorEmail = ''
+              let instructorPhone = ''
+              
+              // Check if instructor is nested object
+              if (course.instructor && typeof course.instructor === 'object') {
+                instructorName = course.instructor.instructor_name || course.instructor.name
+                instructorId = course.instructor.instructor_id || course.instructor.id
+                instructorEmail = course.instructor.instructor_email || course.instructor.email || ''
+                instructorPhone = course.instructor.instructor_phone || course.instructor.phone || ''
+              } else {
+                // Check flat structure
+                instructorName = course.instructor_name || course.instructor
+                instructorId = course.instructor_id || null
+                instructorEmail = course.instructor_email || ''
+                instructorPhone = course.instructor_phone || ''
+              }
+              
               if (instructorName) {
                 setInstructors([
                   {
-                    id: courseResponse.course.instructor_id || null,
+                    id: instructorId,
                     name: instructorName,
-                    email: courseResponse.course.instructor_email || '',
-                    phone: courseResponse.course.instructor_phone || '',
+                    email: instructorEmail,
+                    phone: instructorPhone,
                   }
                 ])
               } else {
@@ -172,10 +260,15 @@ export default function BatchDetail({ batchData, onBack }) {
           ? `${updatedData.start_date} - ${updatedData.end_date}`
           : prev.duration
 
+      // ✅ Explicitly update timeSlot if batch_time_slot is provided in updatedData
+      const updatedTimeSlot = updatedData?.batch_time_slot !== undefined 
+        ? updatedData.batch_time_slot 
+        : prev.timeSlot
+
       return {
         ...prev,
         name: updatedData?.batch_name || updatedData?.name || prev.name,
-        timeSlot: updatedData?.batch_time_slot || prev.timeSlot,
+        timeSlot: updatedTimeSlot,
         duration: updatedDuration,
       }
     })
@@ -186,10 +279,25 @@ export default function BatchDetail({ batchData, onBack }) {
             ...prev,
             ...updatedData,
             batch_name: updatedData?.batch_name || updatedData?.name || prev.batch_name,
-            batch_time_slot: updatedData?.batch_time_slot || prev.batch_time_slot,
+            batch_time_slot: updatedData?.batch_time_slot !== undefined 
+              ? updatedData.batch_time_slot 
+              : prev.batch_time_slot,
           }
         : prev
     )
+
+    // ✅ Update instructor state in real-time if instructor was updated
+    if (updatedData?.instructor) {
+      setInstructors([updatedData.instructor])
+    } else if (updatedData?.instructor_id === null || updatedData?.instructor_id === 0) {
+      // If instructor was removed (set to null or 0), clear the instructors list
+      setInstructors([])
+    }
+
+    // ✅ Notify parent component (CourseDetail) about the batch update for real-time list update
+    if (onBatchUpdate) {
+      onBatchUpdate(updatedData)
+    }
 
     setIsEditModalOpen(false)
   }
@@ -421,14 +529,14 @@ export default function BatchDetail({ batchData, onBack }) {
           </h2>
           <div className="space-y-4">
             {instructors.length > 0 ? (
-              instructors.map((instructor) => (
+              instructors.map((instructor, index) => (
                 <div
-                  key={instructor.id || instructor.name}
+                  key={instructor.id || (instructor.name && typeof instructor.name === 'string' ? instructor.name : `instructor-${index}`)}
                   className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                 >
                   <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                     <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                      {instructor.name
+                      {instructor.name && typeof instructor.name === 'string'
                         ? instructor.name
                             .split(' ')
                             .map((n) => n[0])
@@ -438,7 +546,7 @@ export default function BatchDetail({ batchData, onBack }) {
                   </div>
                   <div className="flex-1">
                     <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                      {instructor.name || 'No instructor assigned'}
+                      {instructor.name && typeof instructor.name === 'string' ? instructor.name : 'No instructor assigned'}
                     </h3>
                     {instructor.email && (
                       <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{instructor.email}</p>
