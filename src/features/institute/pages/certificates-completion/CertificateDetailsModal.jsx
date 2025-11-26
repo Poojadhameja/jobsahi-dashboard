@@ -72,24 +72,6 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
           // Extract certificate data - handle both object and array formats
           const certificateData = Array.isArray(response.data) ? response.data[0] : response.data
           
-            certificate_id: certificateData?.certificate_id,
-            file_url: certificateData?.file_url,
-            student_name: certificateData?.student_name,
-            student_email: certificateData?.student_email,
-            phone_number: certificateData?.phone_number,
-            phone: certificateData?.phone,
-            course_title: certificateData?.course_title,
-            course: certificateData?.course,
-            batch_name: certificateData?.batch_name,
-            batch: certificateData?.batch,
-            issue_date: certificateData?.issue_date,
-            template_description: certificateData?.template_description, // ✅ From certificates_issuance.php (database)
-            template_logo: certificateData?.template_logo, // ✅ NEW: Full URL from certificates_issuance.php (institute_certificate_templates folder)
-            template_seal: certificateData?.template_seal, // ✅ NEW: Full URL from certificates_issuance.php (institute_certificate_templates folder)
-            template_signature: certificateData?.template_signature, // ✅ NEW: Full URL from certificates_issuance.php (institute_certificate_templates folder)
-            status: certificateData?.status
-          });
-          
           // Validate that we have the required certificate data
           if (!certificateData || typeof certificateData !== 'object') {
             setError("Invalid certificate data received from server.");
@@ -113,14 +95,6 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
                            certificateData.batchName ||
                            certificateData.batch?.name ||
                            '';
-          
-            phone_number: certificateData?.phone_number,
-            phone: certificateData?.phone,
-            batch_name: certificateData?.batch_name,
-            batch: certificateData?.batch,
-            extractedPhone: phoneNumber,
-            extractedBatch: batchName
-          });
           
           // Step 2: Extract template data directly from certificates_issuance.php response (no additional API calls needed)
           // The API now returns template_logo, template_seal, template_signature, template_description directly
@@ -160,18 +134,6 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
                         certificateData.course || 
                         certificateData.template_name || 
                         '';
-          
-            template_logo: certificateData?.template_logo,
-            template_seal: certificateData?.template_seal,
-            template_signature: certificateData?.template_signature,
-            template_description: certificateData?.template_description,
-            course_title: certificateData?.course_title,
-            extractedLogo: logoUrl,
-            extractedSeal: sealUrl,
-            extractedSignature: signatureUrl,
-            extractedDescription: description,
-            extractedTemplateName: templateName
-          });
           
           // ✅ FALLBACK: If template media URLs are not in certificates_issuance.php response, fetch from certificate_templates.php
           // This is a fallback for backward compatibility (if API doesn't return media URLs)
@@ -225,27 +187,11 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
                   // Keep course_title as templateName (don't override with template API)
                   templateName = templateName || templateData?.template_name || templateData?.name || '';
                   description = description || templateData?.description || templateData?.footer_text || '';
-                  
-                    template_id: templateId,
-                    logo_url: logoUrl,
-                    seal_url: sealUrl,
-                    signature_url: signatureUrl,
-                    template_name: templateName,
-                    description: description
-                  });
                 }
               } catch (templateError) {
               }
             }
-          } else {
           }
-          
-            logoUrl: logoUrl,
-            sealUrl: sealUrl,
-            signatureUrl: signatureUrl,
-            templateName: templateName,
-            description: description
-          });
           
           const transformedData = {
             studentName: certificateData.student_name || 

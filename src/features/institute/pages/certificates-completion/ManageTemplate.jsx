@@ -127,6 +127,7 @@ function ManageTemplate() {
           }
 
           if (templateData) {
+            console.log('Template data fetched', {
               logo: templateData?.logo,
               seal: templateData?.seal,
               signature: templateData?.signature,

@@ -397,6 +397,7 @@ const fetchStudentDetails = async (studentId) => {
         })
       }
     } catch (err) {
+      console.error('Student update failed', {
         message: err.message,
         response: err.response?.data,
         status: err.response?.status
@@ -665,7 +666,8 @@ const fetchStudentDetails = async (studentId) => {
             })
             return;
           }
-
+          
+          console.log('Updating student status', {
             batch: batchValue,
             status: normalizedStatus,
             originalStatus: statusValue

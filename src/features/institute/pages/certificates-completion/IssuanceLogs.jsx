@@ -54,6 +54,7 @@ useEffect(() => {
         data: formData, // Empty FormData for list view
       });
 
+      console.log('Issuance logs response', {
         status: response?.status,
         message: response?.message,
         count: response?.count,
@@ -69,6 +70,7 @@ useEffect(() => {
                        (response?.data && Array.isArray(response.data) && response.data.length > 0);
 
       if (!isSuccess) {
+        console.error('Issuance logs request failed', {
           status: response?.status,
           message: response?.message,
           data: response?.data,
@@ -134,6 +136,7 @@ useEffect(() => {
                 } else {
                   templateData = templateResponse.data;
                 }
+                console.log('Template details fetched', {
                   template_name: templateData?.template_name || templateData?.name,
                   template_description: templateData?.description || templateData?.footer_text
                 });
@@ -198,6 +201,7 @@ useEffect(() => {
                                      log.template?.footer_text ||
                                      '';
           
+          console.log('Issuance log entry (normalized fields)', {
             batch_name: log.batch_name,
             batch: log.batch,
             phone_number: log.phone_number,
