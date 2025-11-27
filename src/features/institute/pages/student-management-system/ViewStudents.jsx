@@ -397,8 +397,7 @@ const fetchStudentDetails = async (studentId) => {
         })
       }
     } catch (err) {
-      console.error("Update error:", err);
-      console.error("Error details:", {
+      console.log({
         message: err.message,
         response: err.response?.data,
         status: err.response?.status
@@ -683,8 +682,7 @@ const fetchStudentDetails = async (studentId) => {
             return;
           }
 
-          console.log("📝 Form Submission:", {
-            course: courseValue,
+          console.log({
             batch: batchValue,
             status: normalizedStatus,
             originalStatus: statusValue

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LuArrowLeft, LuPlus, LuUpload, LuX } from 'react-icons/lu'
+import Swal from 'sweetalert2'
 import Button, { OutlineButton, IconButton, AddCategoryButton } from '../../../../shared/components/Button.jsx'
 import DynamicButton from '../../../../shared/components/DynamicButton.jsx'
 import RichTextEditor from '../../../../shared/components/RichTextEditor.jsx'
@@ -86,7 +87,12 @@ export default function CreateCourse() {
 
   const handleAddCategory = async () => {
     if (!newCategory.trim()) {
-      alert('Please enter a category name.')
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Please enter a category name.',
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      })
       return
     }
 
@@ -98,7 +104,12 @@ export default function CreateCourse() {
     )
     
     if (categoryExists) {
-      alert('This category already exists!')
+      Swal.fire({
+        title: 'Category Exists',
+        text: 'This category already exists!',
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      })
       return
     }
 
@@ -122,18 +133,36 @@ export default function CreateCourse() {
         handleInputChange('category', categoryName)
         setShowAddCategoryModal(false)
         setNewCategory('')
-        alert(`✅ Category "${categoryName}" added successfully!`)
+        Swal.fire({
+          title: 'Success!',
+          text: `Category "${categoryName}" added successfully!`,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          timer: 2000,
+          showConfirmButton: true
+        })
       } else {
         // Show the actual error message from API
         // postMethod returns { status: false, message: '...', data: [] } on error
         const errorMessage = res?.message || res?.error?.message || 'Failed to create category. Please try again.'
-        alert(`❌ ${errorMessage}`)
+        console.error('Category creation failed - Full response:', res)
+        Swal.fire({
+          title: 'Error!',
+          text: errorMessage,
+          icon: 'error',
+          confirmButtonText: 'OK'
+        })
       }
     } catch (err) {
       // This catch block should rarely execute since postMethod catches errors
       // But if it does, show the error
       const errorMessage = err?.response?.data?.message || err?.message || 'Something went wrong while creating the category.'
-      alert(`❌ ${errorMessage}`)
+      Swal.fire({
+        title: 'Error!',
+        text: errorMessage,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      })
     }
   }
 
@@ -161,7 +190,12 @@ export default function CreateCourse() {
       const errors = {}
       missingFields.forEach(field => { errors[field.field] = `${field.label} is required` })
       setValidationErrors(errors)
-      alert(`Please fill in all required fields`)
+      Swal.fire({
+        title: 'Validation Error',
+        text: 'Please fill in all required fields',
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      })
       return
     }
 
@@ -226,8 +260,16 @@ export default function CreateCourse() {
       }
 
       if (res?.status || res?.success) {
-        alert('✅ Course created successfully!')
-        navigate('/institute/course-management')
+        Swal.fire({
+          title: 'Success!',
+          text: 'Course created successfully!',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          timer: 2000,
+          showConfirmButton: true
+        }).then(() => {
+          navigate('/institute/course-management')
+        })
         setFormData({
           courseTitle: '',
           duration: '',
@@ -245,10 +287,21 @@ export default function CreateCourse() {
         setNewModule({ title: '', description: '' })
         setSelectedMedia([])
       } else {
-        alert(`❌ ${res?.message || 'Failed to create course'}`)
+        Swal.fire({
+          title: 'Error!',
+          text: res?.message || 'Failed to create course',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        })
       }
     } catch (err) {
-      alert('Something went wrong while creating the course.')
+      console.error('Create Course Error:', err)
+      Swal.fire({
+        title: 'Error!',
+        text: 'Something went wrong while creating the course.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      })
     }
   }
 

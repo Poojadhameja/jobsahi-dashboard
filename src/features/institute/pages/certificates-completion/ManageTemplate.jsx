@@ -127,6 +127,7 @@ function ManageTemplate() {
           }
 
           if (templateData) {
+            setFormData({
               logo: templateData?.logo,
               seal: templateData?.seal,
               signature: templateData?.signature,

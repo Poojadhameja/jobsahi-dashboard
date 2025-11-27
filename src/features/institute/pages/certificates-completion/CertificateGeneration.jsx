@@ -229,6 +229,7 @@ function CertificateGeneration() {
 
   // ✅ Generate certificates
   const handleGenerateCertificate = async () => {
+    console.log({
       selectedCourse,
       selectedBatch,
       completionDate,
@@ -377,6 +378,7 @@ function CertificateGeneration() {
         }
       }
 
+      console.log({
         resultsCount: results.length,
         results: results
       });
@@ -395,6 +397,7 @@ function CertificateGeneration() {
             // API returns certificate_id as "CERT-2025-001" format
             const certificateId = result?.certificate_id;
             
+            console.log({
               certificateId, 
               resultKeys: Object.keys(result),
               result
@@ -1162,6 +1165,7 @@ function CertificateGeneration() {
                                   certInfo?.description_used || 
                                   description;
             
+            console.log({
               certificateId,
               displayStudentName,
               displayCourseTitle,

@@ -729,11 +729,11 @@ const PostJob = ({ onJobSubmit }) => {
                 </div>
               </div>
 
-              {/* ADDITIONAL CONTACT */}
+              {/* Email*/}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div>
                   <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                    ADDITIONAL CONTACT
+                    Email
                   </label>
                 </div>
                 <div className="lg:col-span-2">
@@ -743,7 +743,7 @@ const PostJob = ({ onJobSubmit }) => {
                     value={formData.additionalContact}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] outline-none"
-                    placeholder="Alternate email or contact"
+                    placeholder="Alternate email"
                   />
                 </div>
               </div>
