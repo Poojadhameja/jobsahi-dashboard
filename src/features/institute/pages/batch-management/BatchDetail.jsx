@@ -7,7 +7,7 @@ import EditBatchModal from './EditBatchModal'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl.js'
 
-export default function BatchDetail({ batchData, onBack }) {
+export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
   const navigate = useNavigate()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState(null)
@@ -376,10 +376,15 @@ export default function BatchDetail({ batchData, onBack }) {
           ? `${updatedData.start_date} - ${updatedData.end_date}`
           : prev.duration
 
+      // ✅ Explicitly update timeSlot if batch_time_slot is provided in updatedData
+      const updatedTimeSlot = updatedData?.batch_time_slot !== undefined 
+        ? updatedData.batch_time_slot 
+        : prev.timeSlot
+
       return {
         ...prev,
         name: updatedData?.batch_name || updatedData?.name || prev.name,
-        timeSlot: updatedData?.batch_time_slot || prev.timeSlot,
+        timeSlot: updatedTimeSlot,
         duration: updatedDuration,
       }
     })
@@ -390,10 +395,25 @@ export default function BatchDetail({ batchData, onBack }) {
             ...prev,
             ...updatedData,
             batch_name: updatedData?.batch_name || updatedData?.name || prev.batch_name,
-            batch_time_slot: updatedData?.batch_time_slot || prev.batch_time_slot,
+            batch_time_slot: updatedData?.batch_time_slot !== undefined 
+              ? updatedData.batch_time_slot 
+              : prev.batch_time_slot,
           }
         : prev
     )
+
+    // ✅ Update instructor state in real-time if instructor was updated
+    if (updatedData?.instructor) {
+      setInstructors([updatedData.instructor])
+    } else if (updatedData?.instructor_id === null || updatedData?.instructor_id === 0) {
+      // If instructor was removed (set to null or 0), clear the instructors list
+      setInstructors([])
+    }
+
+    // ✅ Notify parent component (CourseDetail) about the batch update for real-time list update
+    if (onBatchUpdate) {
+      onBatchUpdate(updatedData)
+    }
 
     setIsEditModalOpen(false)
   }
@@ -615,14 +635,14 @@ export default function BatchDetail({ batchData, onBack }) {
           </h2>
           <div className="space-y-4">
             {instructors.length > 0 ? (
-              instructors.map((instructor) => (
+              instructors.map((instructor, index) => (
                 <div
-                  key={instructor.id || instructor.name}
+                  key={instructor.id || (instructor.name && typeof instructor.name === 'string' ? instructor.name : `instructor-${index}`)}
                   className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                 >
                   <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                     <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                      {instructor.name
+                      {instructor.name && typeof instructor.name === 'string'
                         ? instructor.name
                             .split(' ')
                             .map((n) => n[0])
@@ -632,7 +652,7 @@ export default function BatchDetail({ batchData, onBack }) {
                   </div>
                   <div className="flex-1">
                     <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                      {instructor.name || 'No instructor assigned'}
+                      {instructor.name && typeof instructor.name === 'string' ? instructor.name : 'No instructor assigned'}
                     </h3>
                     {instructor.email && (
                       <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{instructor.email}</p>

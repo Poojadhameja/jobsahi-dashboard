@@ -12,7 +12,7 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
     course: '',
     startDate: '',
     endDate: '',
-    timeSlot: '10:00 AM - 12:00 PM',
+    timeSlot: '',
     instructor: '',
   })
 
@@ -64,7 +64,10 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
   const fetchBatchDetail = async () => {
     try {
       const id = batchData?.id || batchData?.batch_id
-      if (!id) return
+      if (!id) {
+        console.warn('No batch ID found in batchData:', batchData)
+        return
+      }
 
       const res = await getMethod({
         apiUrl: `${apiService.getBatches}?batch_id=${id}`
@@ -72,16 +75,24 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
 
       if (res?.status && res?.batch) {
         const b = res.batch
+        // ✅ Keep original time slot format (just trim, don't normalize spacing to match API format)
+        const timeSlot = b.batch_time_slot 
+          ? b.batch_time_slot.trim()
+          : ''
+        
         setFormData({
           batchName: b.batch_name || '',
-          course: b.course_id || '',
+          course: b.course_id || b.course?.id || '',
           startDate: b.start_date || '',
           endDate: b.end_date || '',
-          timeSlot: b.batch_time_slot || '10:00 AM - 12:00 PM',
-          instructor: b.instructor_id || '',
+          timeSlot: timeSlot,
+          instructor: b.instructor_id || b.instructor?.id || '',
         })
+      } else {
+        console.warn('Batch not found or invalid response:', res)
       }
     } catch (err) {
+      console.error('Error fetching batch detail:', err)
     }
   }
 
@@ -94,12 +105,17 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
 
   const formatTimeTo12Hour = (time) => {
     if (!time) return ''
-    let [hours, minutes] = time.split(':').map(Number)
+    // Handle both "HH:MM" and "HH:MM:SS" formats
+    const timeParts = time.split(':')
+    let hours = parseInt(timeParts[0], 10)
+    const minutes = parseInt(timeParts[1] || 0, 10)
+    
+    if (isNaN(hours) || isNaN(minutes)) return ''
+    
     const period = hours >= 12 ? 'PM' : 'AM'
     hours = hours % 12 || 12
-    return `${hours.toString().padStart(2, '0')}:${minutes
-      .toString()
-      .padStart(2, '0')} ${period}`
+    
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${period}`
   }
 
   const formatTimeTo24Hour = (time) => {
@@ -132,7 +148,7 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
   const handleConfirmTimeSlot = () => {
     if (tempStart && tempEnd) {
       const formatted = `${formatTimeTo12Hour(tempStart)} - ${formatTimeTo12Hour(tempEnd)}`
-      setFormData((prev) => ({ ...prev, timeSlot: formatted }))
+      setFormData((prev) => ({ ...prev, timeSlot: formatted.trim() }))
       setTempStart('')
       setTempEnd('')
       setShowTimePicker(false)
@@ -141,7 +157,7 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
         icon: 'warning',
         title: 'Time Selection Required',
         text: 'Please select both start and end time',
-        confirmButtonColor: '#5C9A24'
+        confirmButtonColor: '#3085d6'
       })
     }
   }
@@ -151,11 +167,68 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
   // =========================================================
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!batchData?.id && !batchData?.batch_id) {
+    
+    // ✅ Get batch ID from multiple possible fields
+    const batchId = batchData?.id || 
+                   batchData?.batch_id || 
+                   batchData?.batch?.batch_id ||
+                   batchData?.batch?.id
+    
+    console.log('Batch ID lookup:', {
+      batchData,
+      id: batchData?.id,
+      batch_id: batchData?.batch_id,
+      batch_batch_id: batchData?.batch?.batch_id,
+      batch_id_final: batchId
+    })
+    
+    if (!batchId) {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Batch ID missing.',
+        text: 'Batch ID missing. Cannot update batch.',
+        confirmButtonColor: '#d33'
+      })
+      console.error('Batch ID not found in batchData:', batchData)
+      return
+    }
+
+    // ✅ Validate required fields
+    if (!formData.batchName.trim()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Please enter a batch name.',
+        confirmButtonColor: '#d33'
+      })
+      return
+    }
+
+    if (!formData.course) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Please select a course.',
+        confirmButtonColor: '#d33'
+      })
+      return
+    }
+
+    if (!formData.startDate || !formData.endDate) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Please select both start and end dates.',
+        confirmButtonColor: '#d33'
+      })
+      return
+    }
+
+    if (!formData.timeSlot) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Please select a time slot.',
         confirmButtonColor: '#d33'
       })
       return
@@ -164,51 +237,104 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
     setLoading(true)
 
     try {
+      // ✅ Use time slot exactly as formatted (trimmed but keep original format)
+      const timeSlotToSend = formData.timeSlot.trim()
+      
+      // ✅ Get original time slot for comparison
+      const originalTimeSlot = batchData?.batch_time_slot || batchData?.batch?.batch_time_slot || ''
+      
       const payload = {
+        batch_id: Number(batchId), // ✅ Include batch_id in payload as some APIs require it
         course_id: Number(formData.course),
         name: formData.batchName.trim(),
-        batch_time_slot: formData.timeSlot,
+        batch_time_slot: timeSlotToSend,
         start_date: formData.startDate,
         end_date: formData.endDate,
         instructor_id: formData.instructor ? Number(formData.instructor) : 0
       }
 
+      // ✅ Log payload for debugging
+      console.log('Updating batch with payload:', payload)
+      console.log('Original batch data:', batchData)
+      console.log('Time slot comparison:', {
+        original: originalTimeSlot,
+        new: timeSlotToSend,
+        changed: timeSlotToSend !== originalTimeSlot
+      })
+
       const res = await putMethod({
-        apiUrl: `${apiService.updateBatch}?batch_id=${batchData.id || batchData.batch_id}`,
+        apiUrl: `${apiService.updateBatch}?batch_id=${batchId}`,
         payload
       })
 
-      if (res?.status) {
+      console.log('API Response:', res)
+
+      // ✅ Check multiple possible success indicators
+      const isSuccess = res?.status === true || 
+                       res?.status === 'success' || 
+                       res?.success === true ||
+                       res?.success === 'success' ||
+                       (res?.data && res?.message && !res?.error)
+
+      if (isSuccess) {
+        // Find the selected instructor details from the instructors list
+        const selectedInstructor = formData.instructor 
+          ? instructors.find(inst => String(inst.id) === String(formData.instructor))
+          : null
+
         Swal.fire({
           icon: 'success',
           title: 'Success!',
-          text: 'Batch updated successfully!',
-          confirmButtonColor: '#5C9A24',
-          timer: 2000,
+          text: res?.message || 'Batch updated successfully!',
+          confirmButtonColor: '#3085d6',
+          timer: 3000,
           timerProgressBar: true
-        })
-        onUpdate?.({
-          ...batchData,
-          ...payload,
-          batch_name: payload.name,
-          batch_time_slot: payload.batch_time_slot
-        })
-        setTimeout(() => {
+        }).then(() => {
+          onUpdate?.({
+            ...batchData,
+            ...payload,
+            id: batchId,
+            batch_id: batchId,
+            batch_name: payload.name,
+            batch_time_slot: payload.batch_time_slot,
+            instructor_id: formData.instructor ? Number(formData.instructor) : null,
+            instructor: selectedInstructor ? {
+              id: selectedInstructor.id,
+              name: selectedInstructor.name,
+              email: selectedInstructor.email || '',
+              phone: selectedInstructor.phone || ''
+            } : null
+          })
           onClose()
-        }, 500)
+        })
       } else {
+        // ✅ Show the actual API error message
+        const errorMessage = res?.message || 
+                            res?.error || 
+                            res?.error?.message ||
+                            'Failed to update batch. Please check the console for details.'
         Swal.fire({
           icon: 'error',
           title: 'Update Failed',
-          text: res?.message || 'Failed to update batch.',
+          text: errorMessage,
           confirmButtonColor: '#d33'
         })
+        console.error('Update failed:', res)
+        console.error('Full response:', JSON.stringify(res, null, 2))
+        
+        // ✅ If error is about no changes, provide helpful message
+        if (errorMessage.toLowerCase().includes('no changes') || errorMessage.toLowerCase().includes('invalid data')) {
+          console.warn('Possible causes: Time slot format mismatch or no actual changes detected')
+          console.warn('Current time slot:', formData.timeSlot)
+          console.warn('Original batch time slot:', batchData?.batch_time_slot || batchData?.batch?.batch_time_slot)
+        }
       }
     } catch (err) {
+      console.error('Error updating batch:', err)
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'Something went wrong while updating the batch.',
+        text: 'Something went wrong. Please try again.',
         confirmButtonColor: '#d33'
       })
     } finally {
@@ -402,9 +528,17 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
             >
               Cancel
             </Button>
-            <Button type="submit" variant="secondary" size="md" disabled={loading}>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`px-6 py-2 rounded-md font-medium transition-colors duration-200 ${
+                loading
+                  ? 'bg-gray-400 cursor-not-allowed text-white'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}
+            >
               {loading ? 'Updating...' : 'Update'}
-            </Button>
+            </button>
           </div>
         </form>
       </div>
