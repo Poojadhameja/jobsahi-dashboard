@@ -373,14 +373,6 @@ export default function CourseDetail({ courseData, onBack }) {
           </div>
           <div>
             <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
-              Instructor
-            </h4>
-            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
-              {liveCourse.instructor || ''} {/* 'Rajeev Kumar' // static instructor commented */}
-            </p>
-          </div>
-          <div>
-            <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
               Total Batches
             </h4>
             <p className={TAILWIND_COLORS.TEXT_PRIMARY}>

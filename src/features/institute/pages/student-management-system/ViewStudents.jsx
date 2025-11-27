@@ -11,6 +11,7 @@ const ViewStudents = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [courseFilter, setCourseFilter] = useState('all')
+  const [batchFilter, setBatchFilter] = useState('all')
   const [showViewPopup, setShowViewPopup] = useState(false)
   const [showEditPopup, setShowEditPopup] = useState(false)
   const [selectedStudent, setSelectedStudent] = useState(null)
@@ -70,6 +71,7 @@ const ViewStudents = () => {
 
   const [batchOptions, setBatchOptions] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [allBatches, setAllBatches] = useState([]); // For batch filter dropdown
   
   const fetchStudents = async () => {
     try {
@@ -168,9 +170,43 @@ const fetchStudentDetails = async (studentId) => {
     }
   }
 
+  // ✅ Fetch all batches for batch filter dropdown
+  const fetchAllBatches = async () => {
+    try {
+      const resp = await getMethod({ apiUrl: apiService.getBatches })
+      if (resp?.status) {
+        let batches = []
+        
+        // Handle different response structures
+        if (Array.isArray(resp.batches)) {
+          batches = resp.batches
+        } else if (Array.isArray(resp.data)) {
+          batches = resp.data
+        } else if (resp.data && Array.isArray(resp.data.batches)) {
+          batches = resp.data.batches
+        }
+        
+        // Map batches to consistent format
+        const mappedBatches = batches.map((batch) => ({
+          id: batch.batch_id || batch.id,
+          name: batch.batch_name || batch.name || 'Untitled Batch',
+          course_id: batch.course_id || batch.courseId || batch.course?.course_id || batch.course?.id,
+          time_slot: batch.batch_time_slot || batch.time_slot || ''
+        })).filter((batch) => batch.id)
+        
+        setAllBatches(mappedBatches)
+      } else {
+        setAllBatches([])
+      }
+    } catch (err) {
+      setAllBatches([])
+    }
+  }
+
   useEffect(() => {
     fetchStudents()
     fetchCourses()
+    fetchAllBatches() // Fetch batches for filter
   }, [])
   
 
@@ -247,7 +283,13 @@ const fetchStudentDetails = async (studentId) => {
       courseFilter === 'all' ||
       (student.course || '').toLowerCase().includes(courseFilter.toLowerCase())
   
-    return matchesSearch && matchesStatus && matchesCourse
+    // ✅ Batch filter - match by batch_id
+    const matchesBatch =
+      batchFilter === 'all' ||
+      (student.batch_id && String(student.batch_id) === String(batchFilter)) ||
+      (student.batch && String(student.batch) === String(batchFilter))
+  
+    return matchesSearch && matchesStatus && matchesCourse && matchesBatch
   })
   
 
@@ -417,24 +459,24 @@ const fetchStudentDetails = async (studentId) => {
       />
 
       {/* Filters and Export */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="flex flex-col md:flex-row gap-4 flex-1">
-            <div className="relative flex-1 max-w-md">
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6 border border-gray-200">
+        <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 items-stretch lg:items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-1 w-full">
+            <div className="relative flex-1 min-w-0">
               <LuSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} w-4 h-4`} />
               <input
                 type="text"
                 placeholder="Search by name, email, or phone..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[120px] sm:min-w-[140px]"
             >
               <option value="all">All Status</option>
               <option value="enrolled">Enrolled</option>
@@ -444,8 +486,11 @@ const fetchStudentDetails = async (studentId) => {
 
             <select
               value={courseFilter}
-              onChange={(e) => setCourseFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              onChange={(e) => {
+                setCourseFilter(e.target.value)
+                setBatchFilter('all') // Reset batch filter when course changes
+              }}
+              className="px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[140px] sm:min-w-[160px]"
             >
               <option value="all">All Courses</option>
               {courses.map((course) => (
@@ -454,13 +499,28 @@ const fetchStudentDetails = async (studentId) => {
                 </option>
               ))}
             </select>
+
+            <select
+              value={batchFilter}
+              onChange={(e) => setBatchFilter(e.target.value)}
+              className="px-2 sm:px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent min-w-[100px] sm:min-w-[120px] max-w-[150px] sm:max-w-[180px]"
+            >
+              <option value="all">All Batches</option>
+              {allBatches.map((batch) => (
+                <option key={batch.id} value={batch.id}>
+                  {batch.name}{batch.time_slot ? ` - ${batch.time_slot}` : ''}
+                </option>
+              ))}
+            </select>
           </div>
 
           <Button 
             variant="primary" 
             icon={<LuDownload className="w-4 h-4" />}
+            className="w-full sm:w-auto mt-3 lg:mt-0"
           >
-            Export Data
+            <span className="hidden sm:inline">Export Data</span>
+            <span className="sm:hidden">Export</span>
           </Button>
         </div>
       </div>
@@ -468,48 +528,49 @@ const fetchStudentDetails = async (studentId) => {
       {/* Students Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[640px]">
             <thead className="bg-white border-b border-gray-200">
               <tr>
-                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student</th>
-                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course & Batch</th>
-                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
-                <th className={`px-6 py-4 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Actions</th>
+                <th className={`px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Student</th>
+                <th className={`px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course & Batch</th>
+                <th className={`px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
+                <th className={`px-3 sm:px-4 md:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredStudents.map((student) => (
-                <tr key={student.id} className="hover:bg-white">
-                  <td className="px-6 py-4">
+                <tr key={student.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
                     <div className="flex items-center">
-                      <div className="w-6 h-6 bg-gray-300 rounded-full mr-3 flex-shrink-0"></div>
-                      <div>
-                        <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.name}</div>
-                        <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.email}</div>
-                        <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.phone}</div>
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gray-300 rounded-full mr-2 sm:mr-3 flex-shrink-0"></div>
+                      <div className="min-w-0 flex-1">
+                        <div className={`text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{student.name}</div>
+                        <div className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_MUTED} truncate`}>{student.email}</div>
+                        <div className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.phone}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <div>
-                      <div className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{student.course}</div>
-                      <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{student.batch}</div>
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
+                    <div className="min-w-0">
+                      <div className={`text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} truncate`}>{student.course}</div>
+                      <div className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_MUTED} truncate`}>{student.batch}</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
                     <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(student.status)}`}>
-                      <div className={`w-2 h-2 rounded-full mr-2 ${getStatusDotColor(student.status)}`}></div>
-                      {student.status}
+                      <div className={`w-2 h-2 rounded-full mr-1.5 sm:mr-2 ${getStatusDotColor(student.status)}`}></div>
+                      <span className="hidden sm:inline">{student.status}</span>
+                      <span className="sm:hidden">{student.status?.substring(0, 3)}</span>
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-3 sm:px-4 md:px-6 py-3 sm:py-4">
                     <div className="flex items-center space-x-2">
                       <button 
                         onClick={() => handleEditStudent(student)}
-                        variant="light"
-                        className={`${TAILWIND_COLORS.TEXT_MUTED} hover:text-green-600 border border-gray-300 rounded-md transition-colors`}
+                        className={`p-1.5 sm:p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-green-600 border border-gray-300 rounded-md transition-colors`}
+                        title="Edit student"
                       >
-                        <LuPencil className="w-4 h-4" />
+                        <LuPencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </button>
                     </div>
                   </td>
