@@ -58,6 +58,7 @@ export default function BusinessRevenue() {
                     tabs={navigationTabs}
                     activeTab={activeTab}
                     onTabChange={setActiveTab}
+                    storageKey="admin_business_revenue_tab"
                     className="justify-center"
                 />
             </div>

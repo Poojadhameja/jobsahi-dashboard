@@ -40,6 +40,7 @@ const CandidateManagement = () => {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={handleTabChange}
+          storageKey="recruiter_candidate_management_tab"
           className="justify-start"
         />
       </div>

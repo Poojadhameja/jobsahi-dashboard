@@ -48,6 +48,7 @@ export default function CertificatesCompletion() {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          storageKey="institute_certificates_tab"
           className=""
         />
       </div>

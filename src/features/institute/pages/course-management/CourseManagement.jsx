@@ -52,6 +52,7 @@ export default function CourseManagement() {
             tabs={navigationTabs}
             activeTab={activeTabIndex}
             onTabChange={setActiveTabIndex}
+            storageKey="institute_course_management_tab"
           />
         </div>
 

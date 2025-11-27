@@ -189,7 +189,8 @@ const AlertsAutomation = () => {
       <PillNavigation 
         tabs={navigationTabs} 
         activeTab={activeTab} 
-        onTabChange={setActiveTab} 
+        onTabChange={setActiveTab}
+        storageKey="admin_alerts_automation_tab"
       />
 
       {renderActiveTab()}

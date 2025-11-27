@@ -47,7 +47,8 @@ const InterviewScheduler = () => {
         <PillNavigation
           tabs={tabs}
           activeTab={activeTab}
-          onTabChange={handleTabChange}
+        onTabChange={handleTabChange}
+        storageKey="recruiter_interview_scheduler_tab"
         />
       </div>
 

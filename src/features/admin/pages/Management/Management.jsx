@@ -46,6 +46,7 @@ export default function Management() {
         tabs={MANAGEMENT_TABS}
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        storageKey="admin_management_tab"
       />
 
       {/* Active Component */}

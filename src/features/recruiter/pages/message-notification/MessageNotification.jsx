@@ -49,6 +49,7 @@ const MessageNotification = () => {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          storageKey="recruiter_message_notification_tab"
         />
       </div>
 

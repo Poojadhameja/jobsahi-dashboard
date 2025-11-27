@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
+import ComingSoonPopup from '../../../../../shared/components/ComingSoon.jsx'
 
 // Resume Access Usage Tracker Component
-function ResumeUsageTracker() {
+function ResumeUsageTracker({ onComingSoonClose }) {
   const [timeFilter, setTimeFilter] = useState('All Time')
 
   const timeFilterOptions = [
@@ -255,6 +256,9 @@ function ResumeUsageTracker() {
           </div>
         </div>
       </div>
+
+      {/* Coming Soon Popup */}
+      <ComingSoonPopup onClose={onComingSoonClose} />
     </div>
   )
 }

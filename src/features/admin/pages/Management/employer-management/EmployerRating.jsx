@@ -94,6 +94,60 @@ function EmployerRatings() {
     fetchRatings()
   }, [fetchRatings])
 
+  // Filter ratings based on time filter
+  const filterRatingsByTime = (ratings) => {
+    if (timeFilter === 'All Time') {
+      return ratings
+    }
+
+    const now = new Date()
+    let filterDate = new Date()
+
+    switch (timeFilter) {
+      case 'Last 7 Days':
+        filterDate.setDate(now.getDate() - 7)
+        break
+      case 'Last 30 Days':
+        filterDate.setDate(now.getDate() - 30)
+        break
+      case 'Last 3 Months':
+        filterDate.setMonth(now.getMonth() - 3)
+        break
+      case 'Last 6 Months':
+        filterDate.setMonth(now.getMonth() - 6)
+        break
+      case 'Last Year':
+        filterDate.setFullYear(now.getFullYear() - 1)
+        break
+      default:
+        return ratings
+    }
+
+    // Filter ratings based on created_at date
+    return ratings.map(company => {
+      const filteredRatings = company.allRatings.filter(rating => {
+        if (!rating.created_at) return false
+        const ratingDate = new Date(rating.created_at)
+        return ratingDate >= filterDate
+      })
+
+      if (filteredRatings.length === 0) return null
+
+      // Recalculate average rating and total reviews for filtered data
+      const totalRating = filteredRatings.reduce((sum, r) => sum + (parseFloat(r.rating) || 0), 0)
+      const avgRating = filteredRatings.length > 0 ? totalRating / filteredRatings.length : 0
+
+      return {
+        ...company,
+        rating: parseFloat(avgRating.toFixed(1)),
+        totalReviews: filteredRatings.length,
+        allRatings: filteredRatings
+      }
+    }).filter(company => company !== null)
+  }
+
+  const filteredRatingsData = filterRatingsByTime(ratingsData)
+
   const renderStars = (rating) => {
     const stars = []
     const fullStars = Math.floor(rating)
@@ -175,13 +229,13 @@ function EmployerRatings() {
           <div className="flex items-center justify-center py-8">
             <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>Loading ratings...</p>
           </div>
-        ) : ratingsData.length === 0 ? (
+        ) : filteredRatingsData.length === 0 ? (
           <div className="flex items-center justify-center py-8">
-            <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>No ratings available</p>
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>No ratings available for the selected time period</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {ratingsData.map((company) => (
+            {filteredRatingsData.map((company) => (
               <div key={company.id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors duration-200">
                 <div className="flex items-center justify-between">
                   {/* Left Side - Company Info */}
@@ -237,21 +291,21 @@ function EmployerRatings() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                {ratingsData.length > 0 
-                  ? (ratingsData.reduce((sum, company) => sum + company.rating, 0) / ratingsData.length).toFixed(1)
+                {filteredRatingsData.length > 0 
+                  ? (filteredRatingsData.reduce((sum, company) => sum + company.rating, 0) / filteredRatingsData.length).toFixed(1)
                   : '0.0'}
               </div>
               <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Average Rating</div>
             </div>
             <div className="text-center">
               <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                {ratingsData.reduce((sum, company) => sum + company.totalReviews, 0)}
+                {filteredRatingsData.reduce((sum, company) => sum + company.totalReviews, 0)}
               </div>
               <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Total Reviews</div>
             </div>
             <div className="text-center">
               <div className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                {ratingsData.length}
+                {filteredRatingsData.length}
               </div>
               <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Companies</div>
             </div>

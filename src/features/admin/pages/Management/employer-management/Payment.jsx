@@ -17,11 +17,20 @@ import {
 import { HiDotsVertical } from 'react-icons/hi'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant.js'
 import { Button } from '../../../../../shared/components/Button.jsx'
+import ComingSoonPopup from '../../../../../shared/components/ComingSoon.jsx'
 
 // Payment History & Subscription Status Component
-function PaymentHistory() {
+function PaymentHistory({ onComingSoonClose }) {
   const [timeFilter, setTimeFilter] = useState('All Time')
   const [paymentDetailsModal, setPaymentDetailsModal] = useState({ isOpen: false, payment: null })
+  const [showComingSoon, setShowComingSoon] = useState(true)
+
+  const handleComingSoonClose = () => {
+    setShowComingSoon(false)
+    if (typeof onComingSoonClose === 'function') {
+      onComingSoonClose()
+    }
+  }
 
   // Handle View Details
   const handleViewDetails = (payment) => {
@@ -416,6 +425,9 @@ function PaymentHistory() {
 
   return (
     <div className="space-y-6">
+      {showComingSoon && (
+        <ComingSoonPopup onClose={handleComingSoonClose} />
+      )}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

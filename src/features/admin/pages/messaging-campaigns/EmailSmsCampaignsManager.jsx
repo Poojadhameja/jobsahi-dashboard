@@ -184,6 +184,7 @@ ${form.content}
         tabs={navigationTabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        storageKey="admin_email_sms_manager_tab"
       />
     </div>
   );

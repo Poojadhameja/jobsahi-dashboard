@@ -58,6 +58,7 @@ export default function AdminTools() {
           tabs={adminToolsTabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          storageKey="admin_tools_logs_tab"
           className=""
         />
       {/* </div> */}

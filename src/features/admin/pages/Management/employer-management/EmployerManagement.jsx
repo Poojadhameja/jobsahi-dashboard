@@ -109,7 +109,14 @@ export default function EmployerManagement() {
   const [employers, setEmployers] = useState([])
   const [pendingApprovalEmployers, setPendingApprovalEmployers] = useState([])
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [activeView, setActiveView] = useState('approve-reject') // 'overview', 'approve-reject', etc.
+  const [activeView, setActiveView] = useState(() => {
+    if (typeof window === 'undefined') return 'approve-reject'
+    return window.localStorage.getItem('admin_employer_management_view') || 'approve-reject'
+  }) // 'overview', 'approve-reject', etc.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem('admin_employer_management_view', activeView)
+  }, [activeView])
   const dropdownRef = useRef(null)
   const [totalEmployerCount, setTotalEmployerCount] = useState('0')
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState('0')
@@ -360,7 +367,7 @@ else {
       )}
 
       {activeView === 'payments' && (
-        <PaymentHistory />
+        <PaymentHistory onComingSoonClose={() => setActiveView('approve-reject')} />
       )}
 
       {activeView === 'ratings' && (
@@ -368,7 +375,7 @@ else {
       )}
 
       {activeView === 'resume-usage' && (
-        <ResumeUsageTracker />
+        <ResumeUsageTracker onComingSoonClose={() => setActiveView('approve-reject')} />
       )}
 
       {activeView === 'fraud-control' && (

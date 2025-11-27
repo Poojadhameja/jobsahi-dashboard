@@ -180,7 +180,46 @@ const JobPosting = () => {
   const filteredJobs = jobPostings.filter(job => {
     const q = searchTerm.toLowerCase();
     const matchesSearch = job.title.toLowerCase().includes(q) || job.company.toLowerCase().includes(q);
-    const matchesStatus = statusFilter === 'All Status' || job.status === statusFilter;
+    
+    // If "All Status" is selected, show all jobs
+    if (statusFilter === 'All Status') {
+      return matchesSearch;
+    }
+    
+    // Get job ID for flag status lookup
+    const jobId = job.id || job.job_id;
+    const flagInfo = jobFlagsStatus[jobId];
+    const jobAdminAction = (job.admin_action || '').toLowerCase();
+    
+    // Determine actual status based on flag info and job data
+    let actualStatus = 'Pending'; // Default to Pending
+    
+    // Check flag status first (highest priority)
+    if (flagInfo) {
+      const flagAdminAction = flagInfo.admin_action;
+      if (flagAdminAction === 'approved') {
+        actualStatus = 'Approved';
+      } else if (flagAdminAction === 'pending' || flagAdminAction === 'flagged' || flagAdminAction === '') {
+        actualStatus = 'Flagged';
+      } else {
+        // Flag exists but action is not approved/pending/flagged → Pending
+        actualStatus = 'Pending';
+      }
+    } else {
+      // No flag info - check job's own admin_action
+      if (jobAdminAction === 'approved') {
+        actualStatus = 'Approved';
+      } else if (jobAdminAction === 'pending' || jobAdminAction === 'flagged') {
+        actualStatus = 'Flagged';
+      } else if (job.is_featured === 1) {
+        actualStatus = 'Promoted';
+      } else {
+        // No flag, no admin_action, not featured → Pending
+        actualStatus = 'Pending';
+      }
+    }
+    
+    const matchesStatus = actualStatus === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -672,38 +711,68 @@ const JobPosting = () => {
                       </td>
                       <td className="w-1/5 px-2 py-3 text-center">
                         <div className="flex flex-col gap-1 items-center">
-                          <button 
-                            onClick={() => handleApproveJob(job.id)} 
-                            className={`w-20 px-2 py-1 text-xs font-medium rounded transition-colors duration-150 whitespace-nowrap ${
-                              job.admin_action === 'approved' || job.status === 'Approved'
-                                ? 'bg-green-600 text-white hover:bg-green-700 shadow-md'
-                                : 'bg-green-100 text-green-700 hover:bg-green-200'
-                            }`}
-                          >
-                            Approved
-                          </button>
-                          <button 
-                            onClick={() => handlePromoteJob(job.id)} 
-                            className="w-20 px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors duration-150 whitespace-nowrap"
-                          >
-                            Promote
-                          </button>
-                          <button 
-                            onClick={() => handleFlaggedJob(job.id)} 
-                            className={`w-20 px-2 py-1 text-xs font-medium rounded transition-colors duration-150 whitespace-nowrap ${
-                              job.status === 'Flagged' || job.admin_action === 'flagged'
-                                ? 'bg-red-100 text-red-700 hover:bg-red-200 opacity-60'
-                                : 'bg-red-100 text-red-700 hover:bg-red-200'
-                            }`}
-                          >
-                            Flagged
-                          </button>
-                          <button 
-                            onClick={() => handleViewJob(job)} 
-                            className="w-20 px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors duration-150 whitespace-nowrap"
-                          >
-                            View
-                          </button>
+                          {(() => {
+                            const jobId = job.id || job.job_id;
+                            const flagInfo = jobFlagsStatus[jobId];
+                            const jobAdminAction = (job.admin_action || '').toLowerCase();
+                            
+                            // Check if job is approved
+                            const isApproved = flagInfo?.admin_action === 'approved' || jobAdminAction === 'approved';
+                            
+                            // Check if job is flagged
+                            const isFlagged = flagInfo?.admin_action === 'pending' || 
+                                            flagInfo?.admin_action === 'flagged' || 
+                                            jobAdminAction === 'pending' || 
+                                            jobAdminAction === 'flagged' ||
+                                            flaggedJobIds.includes(jobId);
+                            
+                            // Check if job is promoted
+                            const isPromoted = job.is_featured === 1;
+                            
+                            return (
+                              <>
+                                <button 
+                                  onClick={() => handleApproveJob(job.id)} 
+                                  className={`w-20 px-2 py-1 text-xs font-medium rounded transition-all duration-150 whitespace-nowrap ${
+                                    isApproved
+                                      ? '!bg-green-600 text-white opacity-50 cursor-not-allowed'
+                                      : '!bg-green-500 text-white hover:!bg-green-600'
+                                  }`}
+                                  disabled={isApproved}
+                                >
+                                  Approved
+                                </button>
+                                <button 
+                                  onClick={() => handlePromoteJob(job.id)} 
+                                  className={`w-20 px-2 py-1 text-xs font-medium rounded transition-all duration-150 whitespace-nowrap ${
+                                    isPromoted
+                                      ? '!bg-blue-600 text-white opacity-50 cursor-not-allowed'
+                                      : '!bg-blue-500 text-white hover:!bg-blue-600'
+                                  }`}
+                                  disabled={isPromoted}
+                                >
+                                  Promote
+                                </button>
+                                <button 
+                                  onClick={() => handleFlaggedJob(job.id)} 
+                                  className={`w-20 px-2 py-1 text-xs font-medium rounded transition-all duration-150 whitespace-nowrap ${
+                                    isFlagged
+                                      ? '!bg-red-600 text-white opacity-50 cursor-not-allowed'
+                                      : '!bg-red-500 text-white hover:!bg-red-600'
+                                  }`}
+                                  disabled={isFlagged}
+                                >
+                                  Flagged
+                                </button>
+                                <button 
+                                  onClick={() => handleViewJob(job)} 
+                                  className="w-20 px-2 py-1 text-xs font-medium rounded bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors duration-150 whitespace-nowrap"
+                                >
+                                  View
+                                </button>
+                              </>
+                            );
+                          })()}
                         </div>
                       </td>
                     </tr>
