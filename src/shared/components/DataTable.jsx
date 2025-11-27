@@ -1,58 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { FaEllipsisV, FaEye, FaDownload } from 'react-icons/fa'
-
-// Dropdown Menu Component
-const DropdownMenu = ({ isOpen, onClose, onViewDetails, onDownloadCV, row }) => {
-  const dropdownRef = useRef(null)
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        onClose()
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen, onClose])
-
-  if (!isOpen) return null
-
-  return (
-    <div
-      ref={dropdownRef}
-      className="absolute right-12 -top-10 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-50"
-    >
-      <div className="">
-        <button
-          onClick={() => {
-            onViewDetails(row)
-            onClose()
-          }}
-          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-        >
-          <FaEye className="w-4 h-4 mr-3 text-gray-500" />
-          View Details
-        </button>
-        <button
-          onClick={() => {
-            onDownloadCV(row)
-            onClose()
-          }}
-          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-        >
-          <FaDownload className="w-4 h-4 mr-3 text-gray-500" />
-          Download CV
-        </button>
-      </div>
-    </div>
-  )
-}
+import React from 'react'
+import { FaDownload } from 'react-icons/fa'
 
 const DataTable = ({
   title = "Recent Applicants",
@@ -65,7 +12,6 @@ const DataTable = ({
   onViewDetails = () => {},
   onDownloadCV = () => {}
 }) => {
-  const [openDropdown, setOpenDropdown] = useState(null)
   return (
     <div className={`bg-white rounded-lg border border-primary-30 ${className}`}>
       {showHeader && (
@@ -133,21 +79,13 @@ const DataTable = ({
                           {action.label}
                         </button>
                       ))}
-                       <div className="relative">
-                         <button 
-                           onClick={() => setOpenDropdown(openDropdown === rowIndex ? null : rowIndex)}
-                           className="p-1 text-gray-400 hover:text-gray-600"
-                         >
-                           <FaEllipsisV className="w-4 h-4" />
-                         </button>
-                         <DropdownMenu
-                           isOpen={openDropdown === rowIndex}
-                           onClose={() => setOpenDropdown(null)}
-                           onViewDetails={onViewDetails}
-                           onDownloadCV={onDownloadCV}
-                           row={row}
-                         />
-                       </div>
+                      <button
+                        onClick={() => onDownloadCV(row)}
+                        className="px-3 md:px-4 py-1 md:py-2 rounded-full text-xs font-medium transition-colors duration-200 bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center gap-1"
+                      >
+                        <FaDownload className="w-3 h-3" />
+                        Download CV
+                      </button>
                     </div>
                   </td>
                 )}

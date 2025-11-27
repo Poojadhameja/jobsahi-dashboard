@@ -180,7 +180,6 @@ export default function CreateCourse() {
       { field: 'category', label: 'Category' },
       { field: 'description', label: 'Course Description' },
       { field: 'batchLimits', label: 'Batch Limits' },
-      { field: 'instructorName', label: 'Instructor Name' },
       { field: 'mode', label: 'Mode' },
       { field: 'fee', label: 'fee' }
     ]
@@ -226,7 +225,7 @@ export default function CreateCourse() {
         formDataToSend.append('tagged_skills', formData.taggedSkills.trim())
         formDataToSend.append('batch_limit', parseInt(formData.batchLimits))
         formDataToSend.append('status', formData.courseStatus)
-        formDataToSend.append('instructor_name', formData.instructorName.trim())
+        // Instructor not required at course level - will be assigned at batch level
         formDataToSend.append('mode', formData.mode)
         formDataToSend.append('certification_allowed', formData.certificationAllowed ? 1 : 0)
         formDataToSend.append('module_title', module_title)
@@ -250,7 +249,7 @@ export default function CreateCourse() {
           tagged_skills: formData.taggedSkills.trim(),
           batch_limit: parseInt(formData.batchLimits),
           status: formData.courseStatus,
-          instructor_name: formData.instructorName.trim(),
+          // instructor_name: removed - instructor assigned at batch level, not course level
           mode: formData.mode,
           certification_allowed: formData.certificationAllowed,
           module_title,
@@ -553,36 +552,7 @@ export default function CreateCourse() {
           <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-6`}>Additional Settings</h2>
           
           <div className="space-y-6">
-            {/* Instructor Name */}
-            <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">
-              <div className="w-full lg:w-1/3 lg:min-w-[200px]">
-                <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  INSTRUCTOR NAME <span className="text-red-500">*</span>
-                </label>
-                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Select the instructor for this course.</p>
-              </div>
-              <div className="flex-1">
-                <select 
-                  value={formData.instructorName}
-                  onChange={(e) => handleInputChange('instructorName', e.target.value)}
-                  className={getInputClassName('instructorName')}
-                  disabled={loadingInstructors}
-                >
-                  <option value="">{loadingInstructors ? 'Loading instructors...' : 'Select instructor'}</option>
-                  {instructors.map((instructor, index) => (
-                    <option key={instructor.id || index} value={instructor.name}>
-                      {instructor.name}
-                    </option>
-                  ))}
-                </select>
-                {validationErrors.instructorName && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.instructorName}</p>
-                )}
-                {!loadingInstructors && instructors.length === 0 && (
-                  <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>No instructors available. Please add instructors first.</p>
-                )}
-              </div>
-            </div>
+            {/* Instructor Name - REMOVED: Instructor should be assigned at batch level, not course level */}
 
             {/* Mode */}
             <div className="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-6">

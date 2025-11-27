@@ -58,16 +58,39 @@ export default function CourseDetail({ courseData, onBack }) {
             ? parseFloat(apiCourse.fee)
             : undefined
 
+        // ✅ Get instructor from batch data (not from course)
+        // Priority: first active batch's instructor > first batch's instructor > empty
+        let batchInstructor = ''
+        if (batches.length > 0) {
+          // Try to find instructor from active batches first
+          const activeBatch = batches.find(b => 
+            (b.status || b.admin_action || '').toLowerCase() === 'active' || 
+            (b.status || b.admin_action || '').toLowerCase() === 'approved'
+          ) || batches[0]
+          
+          // Extract instructor from batch
+          if (activeBatch.assigned_instructor) {
+            batchInstructor = activeBatch.assigned_instructor.name || activeBatch.assigned_instructor.instructor_name || ''
+          } else if (Array.isArray(activeBatch.faculty) && activeBatch.faculty.length > 0) {
+            batchInstructor = activeBatch.faculty[0].name || activeBatch.faculty[0].instructor_name || ''
+          } else if (activeBatch.instructor_name) {
+            batchInstructor = activeBatch.instructor_name
+          } else if (activeBatch.instructor) {
+            batchInstructor = activeBatch.instructor
+          }
+        }
+
         const updatedCourse = {
           ...courseData,
           id: apiCourse.course_id || courseId,
           title: apiCourse.course_title || courseData?.title || '',
           description: apiCourse.description || courseData?.description || '',
           duration: apiCourse.duration || courseData?.duration || '',
-          instructor: apiCourse.instructor_name || courseData?.instructor || '',
+          instructor: batchInstructor || '', // ✅ Use batch instructor, not course instructor
           fee: feeFromApi ?? courseData?.fee ?? 0,
           // admin_action is enforced in SQL (approved), so default if not present
           admin_action: apiCourse.admin_action || courseData?.admin_action || 'approved',
+          certification_allowed: apiCourse.certification_allowed || courseData?.certification_allowed || 'no',
           batches,
           totalBatches: batches.length,
           activeBatches,
@@ -316,7 +339,7 @@ export default function CourseDetail({ courseData, onBack }) {
         </div>
 
         {/* Course Duration + Other Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-5">
           <div>
             <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
               Course Duration
@@ -325,20 +348,14 @@ export default function CourseDetail({ courseData, onBack }) {
           </div>
           <div>
             <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
-              Certification
+              Certification Allowed
             </h4>
             <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
-              {/* Industry recognized certificate // static certification text commented */}
-              {liveCourse.certification || ''}
-            </p>
-          </div>
-          <div>
-            <h4 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_MUTED}`}>
-              Language
-            </h4>
-            <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
-              {/* English // static language commented */}
-              {liveCourse.language || ''}
+              {liveCourse.certification_allowed === 'yes' || liveCourse.certification_allowed === 'Yes' 
+                ? 'Yes' 
+                : liveCourse.certification_allowed === 'no' || liveCourse.certification_allowed === 'No'
+                ? 'No'
+                : liveCourse.certification_allowed || 'No'}
             </p>
           </div>
         </div>

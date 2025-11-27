@@ -14,7 +14,6 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
     taggedSkills: '',
     batchLimit: '',
     courseStatus: 'Active',
-    instructorName: '',
     mode: '',
     fee: '',
     certificationAllowed: true,
@@ -25,8 +24,6 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
   const [categories, setCategories] = useState([]) // ✅ backend categories
   const [selectedMedia, setSelectedMedia] = useState([])
   const [validationErrors, setValidationErrors] = useState({})
-  const [instructors, setInstructors] = useState([])
-  const [loadingInstructors, setLoadingInstructors] = useState(false)
 
   // ✅ Step 1: Fetch categories from backend
   useEffect(() => {
@@ -49,25 +46,6 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
     fetchCategories()
   }, [])
 
-  // ✅ Fetch instructors/faculty list
-  useEffect(() => {
-    const fetchInstructors = async () => {
-      try {
-        setLoadingInstructors(true)
-        const res = await getMethod({ apiUrl: apiService.getFaculty })
-        if (res?.status && Array.isArray(res.data)) {
-          setInstructors(res.data)
-        } else {
-          setInstructors([])
-        }
-      } catch (error) {
-        setInstructors([])
-      } finally {
-        setLoadingInstructors(false)
-      }
-    }
-    fetchInstructors()
-  }, [])
 
   // ✅ Step 2: Pre-fill form from course prop
   useEffect(() => {
@@ -119,8 +97,6 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
         : course.tagged_skills || '',
       batchLimit: course.batch_limit || course.batchLimit || '',
       courseStatus: course.status || 'Active',
-      instructorName:
-        course.instructor_name || course.instructorName || '',
       mode: course.mode || '',
       fee: course.fee || '',
       certificationAllowed:
@@ -188,7 +164,6 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
       'category',
       'description',
       'batchLimit',
-      'instructorName',
       'mode',
       'fee'
     ]
@@ -214,7 +189,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
       tagged_skills: formData.taggedSkills,
       batch_limit: parseInt(formData.batchLimit),
       status: formData.courseStatus,
-      instructor_name: formData.instructorName,
+      // instructor_name: removed - instructor assigned at batch level, not course level
       mode: formData.mode,
       certification_allowed: formData.certificationAllowed ? 1 : 0,
       module_title: formData.moduleTitle || '',
@@ -411,33 +386,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
               />
             </div>
 
-            {/* Instructor */}
-            <div className="mb-5">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                INSTRUCTOR NAME <span className="text-red-500">*</span>
-              </label>
-              <select
-                value={formData.instructorName}
-                onChange={e =>
-                  handleInputChange(
-                    'instructorName',
-                    e.target.value
-                  )
-                }
-                className={getInputClass('instructorName')}
-                disabled={loadingInstructors}
-              >
-                <option value="">{loadingInstructors ? 'Loading instructors...' : 'Select instructor'}</option>
-                {instructors.map((instructor, index) => (
-                  <option key={instructor.id || index} value={instructor.name}>
-                    {instructor.name}
-                  </option>
-                ))}
-              </select>
-              {!loadingInstructors && instructors.length === 0 && (
-                <p className="text-xs text-gray-500 mt-1">No instructors available. Please add instructors first.</p>
-              )}
-            </div>
+            {/* Instructor - REMOVED: Instructor should be assigned at batch level, not course level */}
 
             {/* Mode */}
             <div className="mb-5">

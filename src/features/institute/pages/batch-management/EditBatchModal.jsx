@@ -4,6 +4,7 @@ import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import { putMethod, getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl.js'
+import Swal from 'sweetalert2'
 
 const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
   const [formData, setFormData] = useState({
@@ -136,7 +137,12 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
       setTempEnd('')
       setShowTimePicker(false)
     } else {
-      alert('Please select both start and end time')
+      Swal.fire({
+        icon: 'warning',
+        title: 'Time Selection Required',
+        text: 'Please select both start and end time',
+        confirmButtonColor: '#5C9A24'
+      })
     }
   }
 
@@ -146,7 +152,12 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!batchData?.id && !batchData?.batch_id) {
-      alert('Batch ID missing.')
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Batch ID missing.',
+        confirmButtonColor: '#d33'
+      })
       return
     }
 
@@ -168,19 +179,38 @@ const EditBatchModal = ({ isOpen, onClose, batchData, onUpdate }) => {
       })
 
       if (res?.status) {
-        alert('✅ Batch updated successfully!')
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: 'Batch updated successfully!',
+          confirmButtonColor: '#5C9A24',
+          timer: 2000,
+          timerProgressBar: true
+        })
         onUpdate?.({
           ...batchData,
           ...payload,
           batch_name: payload.name,
           batch_time_slot: payload.batch_time_slot
         })
-        onClose()
+        setTimeout(() => {
+          onClose()
+        }, 500)
       } else {
-        alert(`❌ ${res?.message || 'Failed to update batch.'}`)
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: res?.message || 'Failed to update batch.',
+          confirmButtonColor: '#d33'
+        })
       }
     } catch (err) {
-      alert('⚠️ Something went wrong while updating the batch.')
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong while updating the batch.',
+        confirmButtonColor: '#d33'
+      })
     } finally {
       setLoading(false)
     }

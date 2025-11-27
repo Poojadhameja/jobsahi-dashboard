@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
-import { getMethod } from '../../../../service/api'
+import { getMethod, putMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
+import Swal from 'sweetalert2'
 
 // Toggle Switch Component
 const Toggle = ({ checked, onChange, label }) => (
@@ -26,7 +27,7 @@ const Toggle = ({ checked, onChange, label }) => (
 )
 
 // Plan Expiry Settings Card
-const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) => {
+const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings, savingSettings }) => {
   const reminderDaysOptions = [
     { value: '1', label: '1 day' },
     { value: '3', label: '3 days' },
@@ -109,8 +110,9 @@ const PlanExpirySettings = ({ settings, onSettingsChange, onUpdateSettings }) =>
             fullWidth={true}
             size="lg"
             className="h-12"
+            disabled={savingSettings}
           >
-            Save Settings
+            {savingSettings ? 'Updating...' : 'Save Settings'}
           </PrimaryButton>
         </div>
       </div>
@@ -188,6 +190,7 @@ const AutoFlagging = () => {
   // Expiry alerts from API
   const [alerts, setAlerts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [savingSettings, setSavingSettings] = useState(false)
 
   // Calculate days remaining
   const getDaysRemaining = (expiryDate) => {
@@ -277,14 +280,95 @@ const AutoFlagging = () => {
     fetchExpiringPlans()
   }, [fetchExpiringPlans])
 
+  // Fetch expiry reminder settings
+  const fetchExpirySettings = useCallback(async () => {
+    try {
+      const response = await getMethod({
+        apiUrl: apiService.getAlertSettings,
+        params: { type: 'expiry' }
+      })
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+
+      if (isSuccess) {
+        // API returns: { status: true, type: 'expiry', settings: { ... } }
+        let settingsData = response?.settings || response?.data?.settings || response?.data
+
+        if (settingsData) {
+          // Map API fields to component state
+          // API default fields: days_before_expiry, email_alert, sms_alert, whatsapp_alert, inapp_alert, repeat_alert, auto_disable_course
+          setSettings({
+            reminderDays: settingsData.days_before_expiry?.toString() || settingsData.reminderDays?.toString() || '',
+            emailTemplate: settingsData.emailTemplate || settingsData.email_template || 'Your plan expires in X days. Renew now to continue...',
+            enableReminders: settingsData.email_alert !== false && settingsData.enableReminders !== false
+          })
+        }
+      }
+    } catch (error) {
+      // If no settings found, use defaults (already set in useState)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchExpiringPlans()
+    fetchExpirySettings()
+  }, [fetchExpiringPlans, fetchExpirySettings])
+
   const handleSettingsChange = (newSettings) => {
     setSettings(newSettings)
   }
 
-  const handleUpdateSettings = (updatedSettings) => {
-    // In a real app, this would call an API
-    console.log('Updated settings:', updatedSettings)
-    alert('Settings updated successfully!')
+  const handleUpdateSettings = async (updatedSettings) => {
+    try {
+      setSavingSettings(true)
+
+      // API expects settings as OBJECT (not string)
+      // API will convert to JSON string internally
+      const settingsObject = {
+        days_before_expiry: parseInt(updatedSettings.reminderDays) || 7,
+        email_alert: updatedSettings.enableReminders === true,
+        sms_alert: false,
+        whatsapp_alert: true,
+        inapp_alert: true,
+        repeat_alert: false,
+        auto_disable_course: false,
+        // Also include custom fields if needed
+        emailTemplate: updatedSettings.emailTemplate || 'Your plan expires in X days. Renew now to continue...',
+        reminderDays: parseInt(updatedSettings.reminderDays) || 7,
+        enableReminders: updatedSettings.enableReminders === true
+      }
+
+      const response = await putMethod({
+        apiUrl: apiService.updateAlertSettings,
+        payload: {
+          type: 'expiry',
+          settings: settingsObject  // Send as OBJECT, not string
+        }
+      })
+
+      const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
+
+      if (isSuccess) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: response?.message || 'Expiry reminder settings updated successfully',
+          timer: 2000,
+          showConfirmButton: false
+        })
+      } else {
+        throw new Error(response?.message || 'Failed to update settings')
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: error.message || 'Failed to update expiry reminder settings. Please try again.',
+        confirmButtonText: 'OK'
+      })
+    } finally {
+      setSavingSettings(false)
+    }
   }
 
   const handleReviewAlert = (alertIndex) => {
@@ -308,6 +392,7 @@ const AutoFlagging = () => {
             settings={settings} 
             onSettingsChange={handleSettingsChange}
             onUpdateSettings={handleUpdateSettings}
+            savingSettings={savingSettings}
           />
         </div>
 

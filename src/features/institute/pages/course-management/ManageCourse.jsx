@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { LuSearch, LuChevronDown, LuCalendar, LuEye, LuPencil, LuBuilding, LuRefreshCw } from 'react-icons/lu'
+import { LuSearch, LuChevronDown, LuCalendar, LuPencil, LuBuilding, LuRefreshCw } from 'react-icons/lu'
 import { useCourseContext } from '../../context/CourseContext'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
-import ViewCoursePopup from './ViewCoursePopup'
 import EditCoursePopup from './EditCoursePopup'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl'
@@ -24,7 +23,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
     Courses: ''
   })
   const [selectedCourse, setSelectedCourse] = useState(null)
-  const [showViewPopup, setShowViewPopup] = useState(false)
   const [showEditPopup, setShowEditPopup] = useState(false)
   const [categories, setCategories] = useState([])
 
@@ -239,18 +237,10 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
   const handleAction = (action, courseId) => {
     const course = coursesData.find(c => c.id === courseId)
     
-    if (action === 'view') {
-      setSelectedCourse(course)
-      setShowViewPopup(true)
-    } else if (action === 'edit') {
+    if (action === 'edit') {
       setSelectedCourse(course)
       setShowEditPopup(true)
     }
-  }
-
-  const handleViewClose = () => {
-    setShowViewPopup(false)
-    setSelectedCourse(null)
   }
 
   const handleEditClose = () => {
@@ -566,22 +556,13 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
                     >
                       Buy Now
                     </button>
-                    <div className="flex gap-1">
-                      <button
-                        onClick={() => handleAction('view', course.id)}
-                        className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-[#5C9A24] transition-colors`}
-                        title="View"
-                      >
-                        <LuEye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleAction('edit', course.id)}
-                        className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-[#5C9A24] transition-colors`}
-                        title="Edit"
-                      >
-                        <LuPencil className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleAction('edit', course.id)}
+                      className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-[#5C9A24] transition-colors`}
+                      title="Edit"
+                    >
+                      <LuPencil className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -623,14 +604,6 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
             </div>
           )}
         </>
-      )}
-
-      {/* View Course Popup */}
-      {showViewPopup && selectedCourse && (
-        <ViewCoursePopup
-          course={selectedCourse}
-          onClose={handleViewClose}
-        />
       )}
 
       {/* Edit Course Popup */}

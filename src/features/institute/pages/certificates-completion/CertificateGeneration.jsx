@@ -229,7 +229,6 @@ function CertificateGeneration() {
 
   // ✅ Generate certificates
   const handleGenerateCertificate = async () => {
-
     if (!selectedCourse || !selectedBatch || !completionDate) {
       Swal.fire({
         icon: 'warning',
@@ -370,11 +369,6 @@ function CertificateGeneration() {
         }
       }
 
-      console.log('Certificate generation results', {
-        resultsCount: results.length,
-        results: results
-      });
-
       if (results.length > 0) {
         setGeneratedCertificates(results);
         
@@ -388,12 +382,6 @@ function CertificateGeneration() {
             // Extract certificate ID from the response
             // API returns certificate_id as "CERT-2025-001" format
             const certificateId = result?.certificate_id;
-            
-            console.log('Preview fetch params', {
-              certificateId, 
-              resultKeys: Object.keys(result),
-              result
-            });
             
             if (certificateId) {
               try {
