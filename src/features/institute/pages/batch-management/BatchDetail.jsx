@@ -24,22 +24,178 @@ export default function BatchDetail({ batchData, onBack }) {
   }, [batchData])
 
 
-  // ✅ Fetch Batch Details using course_id
+  // ✅ Fetch Batch Details - Try batch_id first, fallback to course_id
   useEffect(() => {
     const fetchBatchDetail = async () => {
       try {
         setLoading(true)
         setError(null)
         
-        // Fetch batch details
-        const response = await getMethod({
+        // First try to fetch specific batch by batch_id (more direct)
+        let response = null
+        const batchId = batchData?.batch?.batch_id
+        
+        if (batchId) {
+          try {
+            response = await getMethod({
+              apiUrl: `${apiService.getBatches}?batch_id=${batchId}`,
+            })
+            
+            // Handle multiple possible response structures
+            let studentsData = []
+            let batchInfoData = {}
+            
+            // Case 1: response.students (direct array at root) - This is the actual API response structure
+            if (Array.isArray(response?.students)) {
+              studentsData = response.students
+              batchInfoData = {
+                name: response.batch_name || response.name || batchData?.batch?.batch_name || '',
+                status: typeof response.status === 'string' ? response.status : (response.admin_action || 'Active'),
+                duration: `${response.start_date || response.startDate || 'N/A'} - ${response.end_date || response.endDate || 'N/A'}`,
+                timeSlot: response.batch_time_slot || response.time_slot || response.batchTimeSlot || 'N/A',
+                totalStudents: response.enrolled_students || response.total_students || response.enrolledStudents || studentsData.length,
+                maxStudents: response.max_students || response.maxStudents || response.batch_limit || 30,
+                activeStudents: studentsData.filter((s) => {
+                  const status = s.enrollment_status || s.status || ''
+                  const statusStr = typeof status === 'string' ? status : String(status)
+                  return statusStr.toLowerCase() === 'active' || statusStr.toLowerCase() === 'enrolled'
+                }).length,
+                completionPercentage: response.completion_percent || response.completionPercentage || response.completion_rate || 0,
+              }
+            }
+            // Case 2: response.batch (nested object)
+            else if (response?.status && response?.batch) {
+              const currentBatch = response.batch
+              studentsData = currentBatch.students || []
+              batchInfoData = {
+                name: currentBatch.batch_name || currentBatch.name || '',
+                status: typeof currentBatch.status === 'string' ? currentBatch.status : (currentBatch.admin_action || 'Active'),
+                duration: `${currentBatch.start_date || currentBatch.startDate || 'N/A'} - ${currentBatch.end_date || currentBatch.endDate || 'N/A'}`,
+                timeSlot: currentBatch.batch_time_slot || currentBatch.time_slot || currentBatch.batchTimeSlot || 'N/A',
+                totalStudents: currentBatch.enrolled_students || currentBatch.total_students || currentBatch.enrolledStudents || studentsData.length,
+                maxStudents: currentBatch.max_students || currentBatch.maxStudents || currentBatch.batch_limit || 30,
+                activeStudents: studentsData.filter((s) => {
+                  const status = s.enrollment_status || s.status || ''
+                  const statusStr = typeof status === 'string' ? status : String(status)
+                  return statusStr.toLowerCase() === 'active' || statusStr.toLowerCase() === 'enrolled'
+                }).length,
+                completionPercentage: currentBatch.completion_percent || currentBatch.completionPercentage || currentBatch.completion_rate || 0,
+              }
+            }
+            // Case 3: response.data.students or response.data.batch
+            else if (response?.data) {
+              if (Array.isArray(response.data.students)) {
+                studentsData = response.data.students
+              } else if (response.data.batch?.students) {
+                studentsData = response.data.batch.students
+                batchInfoData = {
+                  ...batchInfoData,
+                  ...response.data.batch,
+                }
+              }
+              batchInfoData = {
+                name: response.data.batch_name || response.data.name || batchData?.batch?.batch_name || '',
+                status: typeof response.data.status === 'string' ? response.data.status : (response.data.admin_action || 'Active'),
+                duration: `${response.data.start_date || response.data.startDate || 'N/A'} - ${response.data.end_date || response.data.endDate || 'N/A'}`,
+                timeSlot: response.data.batch_time_slot || response.data.time_slot || response.data.batchTimeSlot || 'N/A',
+                totalStudents: response.data.enrolled_students || response.data.total_students || response.data.enrolledStudents || studentsData.length,
+                maxStudents: response.data.max_students || response.data.maxStudents || response.data.batch_limit || 30,
+                activeStudents: studentsData.filter((s) => {
+                  const status = s.enrollment_status || s.status || ''
+                  const statusStr = typeof status === 'string' ? status : String(status)
+                  return statusStr.toLowerCase() === 'active' || statusStr.toLowerCase() === 'enrolled'
+                }).length,
+                completionPercentage: response.data.completion_percent || response.data.completionPercentage || response.data.completion_rate || 0,
+              }
+            }
+            
+            // If we found students data, process it
+            if (studentsData.length > 0 || Object.keys(batchInfoData).length > 0) {
+              setBatchInfo(batchInfoData)
+              
+              setStudents(
+                studentsData.map((s) => ({
+                  id: s.student_id || s.id || s.studentId,
+                  name: s.student_name || s.name || s.user_name || '',
+                  email: s.email || s.student_email || '',
+                  phone: s.phone || s.phone_number || '',
+                  joinDate: s.enrollment_date || s.join_date || s.joinDate || '',
+                  status: s.enrollment_status || s.status || '',
+                }))
+              )
+              
+              // Get instructor data from response
+              let instructorData = null
+              const currentBatch = response?.batch || response?.data || response
+              
+              // Priority 1: Check for faculty array
+              if (Array.isArray(currentBatch?.faculty) && currentBatch.faculty.length > 0) {
+                instructorData = currentBatch.faculty.map((f) => ({
+                  id: f.faculty_id || f.id || f.faculty_user_id,
+                  name: f.name || f.instructor_name || f.user_name || '',
+                  email: f.email || f.instructor_email || '',
+                  phone: f.phone || f.instructor_phone || f.phone_number || '',
+                }))
+              }
+              // Priority 2: Check for assigned_instructor object
+              else if (currentBatch?.assigned_instructor) {
+                instructorData = [{
+                  id: currentBatch.assigned_instructor.faculty_id || currentBatch.assigned_instructor.id || currentBatch.assigned_instructor.faculty_user_id,
+                  name: currentBatch.assigned_instructor.name || currentBatch.assigned_instructor.instructor_name || currentBatch.assigned_instructor.user_name || '',
+                  email: currentBatch.assigned_instructor.email || currentBatch.assigned_instructor.instructor_email || '',
+                  phone: currentBatch.assigned_instructor.phone || currentBatch.assigned_instructor.instructor_phone || currentBatch.assigned_instructor.phone_number || '',
+                }]
+              }
+              // Priority 3: Check for instructor_id, instructor_name, instructor_email, instructor_phone (direct fields)
+              else if (currentBatch?.instructor_id || currentBatch?.instructor_name) {
+                instructorData = [{
+                  id: currentBatch.instructor_id || null,
+                  name: currentBatch.instructor_name || 'N/A',
+                  email: currentBatch.instructor_email || '',
+                  phone: currentBatch.instructor_phone || '',
+                }]
+                
+                // If only instructor_id is available, fetch full details
+                if (instructorData[0].id && !instructorData[0].name) {
+                  try {
+                    const facultyRes = await getMethod({ apiUrl: apiService.getFaculty })
+                    if (facultyRes?.status && Array.isArray(facultyRes.data)) {
+                      const instructor = facultyRes.data.find(f => 
+                        (f.id || f.faculty_id || f.faculty_user_id) === currentBatch.instructor_id
+                      )
+                      if (instructor) {
+                        instructorData = [{
+                          id: instructor.id || instructor.faculty_id || instructor.faculty_user_id,
+                          name: instructor.name || instructor.user_name || '',
+                          email: instructor.email || '',
+                          phone: instructor.phone || instructor.phone_number || '',
+                        }]
+                      }
+                    }
+                  } catch (err) {
+                    // Fallback to basic info if fetching full details fails
+                  }
+                }
+              }
+              
+              if (instructorData) {
+                setInstructors(Array.isArray(instructorData) ? instructorData : [instructorData])
+              } else {
+                setInstructors([])
+              }
+              
+              setLoading(false)
+              return // Successfully processed, exit early
+            }
+          } catch (err) {
+            // Fallback to courseByBatch if getBatches fails
+          }
+        }
+        
+        // Fallback: Fetch batch details using course_id
+        response = await getMethod({
           apiUrl: apiService.courseByBatch,
           params: { course_id: batchData.courseId },
-        })
-
-        // Fetch course details to get instructor
-        const courseResponse = await getMethod({
-          apiUrl: `${apiService.getSingleCourse}?id=${batchData.courseId}`,
         })
 
         if (response.status && response.batches?.length > 0) {
@@ -48,88 +204,93 @@ export default function BatchDetail({ batchData, onBack }) {
           )
         
           if (currentBatch) {
+            // Extract all batch fields properly from API response
             setBatchInfo({
-              name: currentBatch.batch_name,
-              status: currentBatch.status || 'Active',
-              duration: `${currentBatch.start_date || 'N/A'} - ${currentBatch.end_date || 'N/A'}`,
-              timeSlot: currentBatch.batch_time_slot || 'N/A',
-              description: `${batchData.courseTitle} - Practical oriented training batch`,
-              totalStudents: currentBatch.enrolled_students || 0,
-              maxStudents: 30,
-              activeStudents: currentBatch.students?.filter((s) => s.status === 'Active').length || 0,
-              completionPercentage: currentBatch.completion_percent || 0,
+              name: currentBatch.batch_name || currentBatch.name || '',
+              status: typeof currentBatch.status === 'string' ? currentBatch.status : (currentBatch.admin_action || 'Active'),
+              duration: `${currentBatch.start_date || currentBatch.startDate || 'N/A'} - ${currentBatch.end_date || currentBatch.endDate || 'N/A'}`,
+              timeSlot: currentBatch.batch_time_slot || currentBatch.time_slot || currentBatch.batchTimeSlot || 'N/A',              totalStudents: currentBatch.enrolled_students || currentBatch.total_students || currentBatch.enrolledStudents || (currentBatch.students?.length || 0),
+              maxStudents: currentBatch.max_students || currentBatch.maxStudents || currentBatch.batch_limit || 30,
+              activeStudents: currentBatch.students?.filter((s) => 
+                (s.status || '').toLowerCase() === 'active' || 
+                (s.status || '').toLowerCase() === 'enrolled'
+              ).length || 0,
+              completionPercentage: currentBatch.completion_percent || currentBatch.completionPercentage || currentBatch.completion_rate || 0,
             })
         
             setStudents(
               (currentBatch.students || []).map((s) => ({
-                id: s.student_id,
-                name: s.name,
-                email: s.email,
-                joinDate: s.join_date,
-                status: s.status,
+                id: s.student_id || s.id || s.studentId,
+                name: s.student_name || s.name || s.user_name || '',
+                email: s.email || s.student_email || '',
+                phone: s.phone || s.phone_number || '',
+                joinDate: s.enrollment_date || s.join_date || s.joinDate || '',
+                status: s.enrollment_status || s.status || '',
               }))
             )
         
-            // ✅ Get instructor from course data (getCourseById API)
-            if (courseResponse?.status && courseResponse?.course) {
-              const instructorName = courseResponse.course.instructor_name || courseResponse.course.instructor
-              if (instructorName) {
-                setInstructors([
-                  {
-                    id: courseResponse.course.instructor_id || null,
-                    name: instructorName,
-                    email: courseResponse.course.instructor_email || '',
-                    phone: courseResponse.course.instructor_phone || '',
-                  }
-                ])
-              } else {
-                // Fallback to batch faculty if course instructor not available
+            // ✅ Get instructor ONLY from batch data (not from course)
+            // Batch instructor can be different from course instructor
+            let instructorData = null
+            
+            // Priority 1: Check for faculty array
                 if (Array.isArray(currentBatch.faculty) && currentBatch.faculty.length > 0) {
-                  setInstructors(
-                    currentBatch.faculty.map((f) => ({
-                      id: f.faculty_id,
-                      name: f.name,
-                      email: f.email,
-                      phone: f.phone,
-                    }))
+              instructorData = currentBatch.faculty.map((f) => ({
+                id: f.faculty_id || f.id || f.faculty_user_id,
+                name: f.name || f.instructor_name || f.user_name || '',
+                email: f.email || f.instructor_email || '',
+                phone: f.phone || f.instructor_phone || f.phone_number || '',
+              }))
+            }
+            // Priority 2: Check for assigned_instructor object
+            else if (currentBatch.assigned_instructor) {
+              instructorData = [{
+                id: currentBatch.assigned_instructor.faculty_id || currentBatch.assigned_instructor.id || currentBatch.assigned_instructor.faculty_user_id,
+                name: currentBatch.assigned_instructor.name || currentBatch.assigned_instructor.instructor_name || currentBatch.assigned_instructor.user_name || '',
+                email: currentBatch.assigned_instructor.email || currentBatch.assigned_instructor.instructor_email || '',
+                phone: currentBatch.assigned_instructor.phone || currentBatch.assigned_instructor.instructor_phone || currentBatch.assigned_instructor.phone_number || '',
+              }]
+            }
+            // Priority 3: Check for instructor_id - fetch details from faculty API
+            else if (currentBatch.instructor_id) {
+              try {
+                const facultyRes = await getMethod({ apiUrl: apiService.getFaculty })
+                if (facultyRes?.status && Array.isArray(facultyRes.data)) {
+                  const instructor = facultyRes.data.find(f => 
+                    Number(f.id || f.faculty_id || f.faculty_user_id) === Number(currentBatch.instructor_id)
                   )
-                } else if (currentBatch.assigned_instructor) {
-                  setInstructors([
-                    {
-                      id: currentBatch.assigned_instructor.faculty_id,
-                      name: currentBatch.assigned_instructor.name,
-                      email: currentBatch.assigned_instructor.email,
-                      phone: currentBatch.assigned_instructor.phone,
-                    }
-                  ])
-                } else {
-                  setInstructors([])
+                  if (instructor) {
+                    instructorData = [{
+                      id: instructor.id || instructor.faculty_id || instructor.faculty_user_id,
+                      name: instructor.name || instructor.user_name || '',
+                      email: instructor.email || '',
+                      phone: instructor.phone || instructor.phone_number || '',
+                    }]
+                  }
+                }
+              } catch (err) {
+                // If fetch fails, use instructor_name if available
+                if (currentBatch.instructor_name) {
+                  instructorData = [{
+                    id: currentBatch.instructor_id,
+                    name: currentBatch.instructor_name,
+                    email: currentBatch.instructor_email || '',
+                    phone: currentBatch.instructor_phone || '',
+                  }]
                 }
               }
-            } else {
-              // Fallback to batch faculty if course API fails
-              if (Array.isArray(currentBatch.faculty) && currentBatch.faculty.length > 0) {
-                setInstructors(
-                  currentBatch.faculty.map((f) => ({
-                    id: f.faculty_id,
-                    name: f.name,
-                    email: f.email,
-                    phone: f.phone,
-                  }))
-                )
-              } else if (currentBatch.assigned_instructor) {
-                setInstructors([
-                  {
-                    id: currentBatch.assigned_instructor.faculty_id,
-                    name: currentBatch.assigned_instructor.name,
-                    email: currentBatch.assigned_instructor.email,
-                    phone: currentBatch.assigned_instructor.phone,
-                  }
-                ])
-              } else {
-                setInstructors([])
-              }
             }
+            // Priority 4: Check for instructor_name directly
+            else if (currentBatch.instructor_name) {
+              instructorData = [{
+                id: currentBatch.instructor_id || null,
+                name: currentBatch.instructor_name,
+                email: currentBatch.instructor_email || '',
+                phone: currentBatch.instructor_phone || '',
+              }]
+            }
+            
+            setInstructors(instructorData || [])
           }
         } else {
           setError('Batch details not found')
@@ -144,14 +305,57 @@ export default function BatchDetail({ batchData, onBack }) {
     fetchBatchDetail()
   }, [batchData?.batch?.batch_id, batchData?.courseId])
 
+  // Format date from API (YYYY-MM-DD HH:mm:ss or YYYY-MM-DD)
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A'
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return dateString
+      return date.toLocaleDateString('en-IN', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      })
+    } catch {
+      return dateString
+    }
+  }
+
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'Active':
+    // Ensure status is a string before calling toLowerCase
+    const statusStr = typeof status === 'string' ? status : (status ? String(status) : '')
+    const statusLower = statusStr.toLowerCase()
+    switch (statusLower) {
+      case 'active':
+      case 'enrolled':
         return `${TAILWIND_COLORS.BADGE_SUCCESS}`
-      case 'Inactive':
+      case 'completed':
+        return 'bg-blue-100 text-blue-800'
+      case 'inactive':
+      case 'dropped':
         return `${TAILWIND_COLORS.BADGE_ERROR}`
       default:
         return `${TAILWIND_COLORS.BADGE_WARN}`
+    }
+  }
+
+  const formatStatus = (status) => {
+    // Ensure status is a string before calling toLowerCase
+    const statusStr = typeof status === 'string' ? status : (status ? String(status) : '')
+    const statusLower = statusStr.toLowerCase()
+    switch (statusLower) {
+      case 'enrolled':
+        return 'Enrolled'
+      case 'completed':
+        return 'Completed'
+      case 'active':
+        return 'Active'
+      case 'inactive':
+        return 'Inactive'
+      case 'dropped':
+        return 'Dropped'
+      default:
+        return statusStr || 'N/A'
     }
   }
 
@@ -401,16 +605,6 @@ export default function BatchDetail({ batchData, onBack }) {
                 <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{batchInfo.timeSlot}</p>
               </div>
             </div>
-            <div>
-              <p
-                className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-              >
-                Description
-              </p>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
-                {batchInfo.description}
-              </p>
-            </div>
           </div>
         </div>
 
@@ -506,24 +700,30 @@ export default function BatchDetail({ batchData, onBack }) {
             <tbody
               className={`${TAILWIND_COLORS.BG_PRIMARY} divide-y ${TAILWIND_COLORS.BORDER}`}
             >
-              {students.map((student) => (
-                <tr key={student.id} className="hover:bg-gray-50">
+              {students.length > 0 ? (
+                students.map((student, index) => (
+                  <tr key={`${student.id}-${student.joinDate}-${index}`} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div
                         className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                       >
-                        {student.name}
+                          {student.name || 'N/A'}
                       </div>
                       <div className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                        {student.email}
-                      </div>
+                          {student.email || 'No email'}
+                        </div>
+                        {student.phone && (
+                          <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
+                            {student.phone}
+                          </div>
+                        )}
                     </div>
                   </td>
                   <td
                     className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}
                   >
-                    {student.joinDate}
+                      {formatDate(student.joinDate)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -531,7 +731,7 @@ export default function BatchDetail({ batchData, onBack }) {
                         student.status
                       )}`}
                     >
-                      {student.status}
+                        {formatStatus(student.status)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -544,7 +744,16 @@ export default function BatchDetail({ batchData, onBack }) {
                     </button>
                   </td>
                 </tr>
-              ))}
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="px-6 py-8 text-center">
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                      No students enrolled in this batch yet
+                    </p>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

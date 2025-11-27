@@ -66,16 +66,40 @@ const ScheduleInterviews = () => {
   });
 
   // =========================================================
-  // 1) FETCH CANDIDATES FROM API
+  // 1) FETCH CANDIDATES FROM API - Only show applications with scheduled interviews
   // =========================================================
   useEffect(() => {
     const fetchCandidates = async () => {
       setLoadingCandidates(true);
       try {
+        // First, fetch scheduled interviews to know which applications have interviews
+        const interviewsRes = await getMethod({ 
+          apiUrl: apiService.getScheduledInterviews 
+        });
+        
+        // Extract application_ids from scheduled interviews
+        const scheduledApplicationIds = new Set();
+        if (interviewsRes?.status && Array.isArray(interviewsRes?.data)) {
+          interviewsRes.data.forEach((interview) => {
+            const appId = interview.application_id || interview.applicationId;
+            if (appId) {
+              scheduledApplicationIds.add(String(appId));
+            }
+          });
+        }
+        
+        // Now fetch all applicants
         const res = await getMethod({ apiUrl: apiService.getRecentApplicants });
         if (res?.status && Array.isArray(res?.all_applicants?.data)) {
           const grouped = {};
           res.all_applicants.data.forEach((item) => {
+            const appId = String(item.application_id || item.applicationId || '');
+            
+            // Only include applications that have scheduled interviews
+            if (!scheduledApplicationIds.has(appId)) {
+              return; // Skip applications without scheduled interviews
+            }
+            
             const name = item.name;
             if (!grouped[name]) {
               grouped[name] = {
@@ -379,7 +403,17 @@ const handleScheduleInterview = async () => {
         (res?.status === "success" || res?.status === true) &&
         Array.isArray(res?.data)
       ) {
-        const mapped = res.data.map((item, index) => {
+        // Filter to only show interviews that are actually scheduled (have scheduled_at date)
+        const scheduledOnly = res.data.filter((item) => {
+          const hasScheduledDate = item.scheduled_at || item.scheduled_date || item.date;
+          const hasStatus = item.status && 
+            (item.status.toLowerCase() === 'scheduled' || 
+             item.status.toLowerCase() === 'pending' ||
+             item.status.toLowerCase() === 'upcoming');
+          return hasScheduledDate && (hasStatus || true); // Include if has scheduled date
+        });
+        
+        const mapped = scheduledOnly.map((item, index) => {
           // ✅ Extract original date for highlighting (YYYY-MM-DD format)
           let originalDate = null;
           let formattedDate = "—";

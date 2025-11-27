@@ -127,14 +127,6 @@ function ManageTemplate() {
           }
 
           if (templateData) {
-            setFormData({
-              logo: templateData?.logo,
-              seal: templateData?.seal,
-              signature: templateData?.signature,
-              template_name: templateData?.template_name,
-              description: templateData?.description
-            });
-            
             // Extract media URLs from database API response (logo, seal, signature fields)
             // These are full URLs pointing to institute_certificate_templates folder
             const logoUrl = templateData.logo || templateData.logo_url || null;

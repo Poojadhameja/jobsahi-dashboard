@@ -106,23 +106,39 @@ const SpamDetectionRules = ({ rules, onRulesChange, onUpdateRules }) => {
 }
 
 // Flagged Items Review Card
-const FlaggedItemsReview = ({ flaggedItems, onReviewItem }) => {
+const FlaggedItemsReview = ({ flaggedItems, onReviewItem, onRefresh, loading }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-1">
-        <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-100">
-          <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-100">
+            <svg className="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Flagged Items</h2>
         </div>
-        <h2 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Flagged Items</h2>
+        <button
+          onClick={onRefresh}
+          disabled={loading}
+          className="p-1.5 rounded hover:bg-gray-100 transition-colors"
+          title="Refresh"
+        >
+          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+        </button>
       </div>
       <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-6`}>Review automatically flagged content</p>
 
       {/* Flagged Items List */}
       <div className="space-y-3 flex-1">
-        {flaggedItems.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-8">
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Loading flagged items...</p>
+          </div>
+        ) : flaggedItems.length === 0 ? (
           <div className="text-center py-8">
             <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No flagged items found</p>
           </div>
@@ -200,6 +216,7 @@ const ExpiryReminder = () => {
       if (isSuccess) {
         let flagsArray = []
         
+        // Check multiple possible response structures
         if (response?.data?.flags && Array.isArray(response.data.flags)) {
           flagsArray = response.data.flags
         } else if (Array.isArray(response?.data)) {
@@ -208,43 +225,62 @@ const ExpiryReminder = () => {
           flagsArray = response.flags
         }
 
-        // Filter pending flags and map to display format
-        const pendingFlags = flagsArray
-          .filter(flag => {
+        if (flagsArray && flagsArray.length > 0) {
+          // Map all flags to display format
+          const mappedFlags = flagsArray.map(flag => {
             const adminAction = (flag.admin_action || '').toLowerCase()
-            const reviewed = flag.reviewed === 1 || flag.reviewed === true
-            return adminAction !== 'approved' && !reviewed
-          })
-          .map(flag => ({
-            id: flag.flag_id || flag.id,
-            jobId: flag.job_id,
-            title: flag.job_title || flag.title || `Job ID: ${flag.job_id}`,
-            reason: flag.reason || flag.flag_reason || 'Job flagged for review',
-            status: 'Pending',
-            flagDate: flag.created_at || flag.flag_date
-          }))
+            const reviewed = flag.reviewed === 1 || flag.reviewed === true || flag.reviewed === '1'
+            
+            // Determine status
+            let status = 'Pending'
+            if (reviewed || adminAction === 'approved') {
+              status = 'Reviewed'
+            } else if (adminAction === 'pending' || adminAction === 'flagged') {
+              status = 'Pending'
+            }
 
-        // Also add reviewed flags
-        const reviewedFlags = flagsArray
-          .filter(flag => {
-            const reviewed = flag.reviewed === 1 || flag.reviewed === true
-            return reviewed
-          })
-          .slice(0, 3) // Show only 3 reviewed items
-          .map(flag => ({
-            id: flag.flag_id || flag.id,
-            jobId: flag.job_id,
-            title: flag.job_title || flag.title || `Job ID: ${flag.job_id}`,
-            reason: flag.reason || flag.flag_reason || 'Job reviewed',
-            status: 'Reviewed',
-            flagDate: flag.created_at || flag.flag_date
-          }))
+            // Get job title from various possible fields
+            const jobTitle = flag.job_title || 
+                           flag.title || 
+                           flag.job?.title || 
+                           flag.job?.job_title ||
+                           `Job ID: ${flag.job_id || flag.id || 'N/A'}`
 
-        // Combine and limit to 10 items
-        setFlaggedItems([...pendingFlags, ...reviewedFlags].slice(0, 10))
+            // Get reason from various possible fields
+            const reason = flag.reason || 
+                          flag.flag_reason || 
+                          flag.description ||
+                          (adminAction === 'pending' ? 'Job flagged for review' : 'Job reviewed')
+
+            return {
+              id: flag.flag_id || flag.id,
+              jobId: flag.job_id || flag.id,
+              title: jobTitle,
+              reason: reason,
+              status: status,
+              flagDate: flag.created_at || flag.flag_date || flag.created_date,
+              adminAction: adminAction,
+              reviewed: reviewed
+            }
+          })
+
+          // Sort: Pending first, then Reviewed
+          mappedFlags.sort((a, b) => {
+            if (a.status === 'Pending' && b.status === 'Reviewed') return -1
+            if (a.status === 'Reviewed' && b.status === 'Pending') return 1
+            return 0
+          })
+
+          // Limit to 10 items
+          setFlaggedItems(mappedFlags.slice(0, 10))
+        } else {
+          setFlaggedItems([])
+        }
+      } else {
+        setFlaggedItems([])
       }
     } catch (error) {
-      // Error handling
+      setFlaggedItems([])
     } finally {
       setLoading(false)
     }
@@ -293,6 +329,8 @@ const ExpiryReminder = () => {
           <FlaggedItemsReview 
             flaggedItems={flaggedItems}
             onReviewItem={handleReviewItem}
+            onRefresh={fetchFlaggedJobs}
+            loading={loading}
           />
         </div>
       </div>

@@ -94,7 +94,7 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
                            certificateData.batch || 
                            certificateData.batchName ||
                            certificateData.batch?.name ||
-                           '';
+                            '';
           
           // Step 2: Extract template data directly from certificates_issuance.php response (no additional API calls needed)
           // The API now returns template_logo, template_seal, template_signature, template_description directly
@@ -133,7 +133,7 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
           templateName = certificateData.course_title || 
                         certificateData.course || 
                         certificateData.template_name || 
-                        '';
+                              '';
           
           // ✅ FALLBACK: If template media URLs are not in certificates_issuance.php response, fetch from certificate_templates.php
           // This is a fallback for backward compatibility (if API doesn't return media URLs)
@@ -187,10 +187,12 @@ function CertificateDetailsModal({ isOpen, onClose, certificateId }) {
                   // Keep course_title as templateName (don't override with template API)
                   templateName = templateName || templateData?.template_name || templateData?.name || '';
                   description = description || templateData?.description || templateData?.footer_text || '';
+                  
                 }
               } catch (templateError) {
               }
             }
+          } else {
           }
           
           const transformedData = {

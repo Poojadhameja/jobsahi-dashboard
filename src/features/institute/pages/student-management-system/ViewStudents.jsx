@@ -397,11 +397,6 @@ const fetchStudentDetails = async (studentId) => {
         })
       }
     } catch (err) {
-      console.log({
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status
-      });
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -681,12 +676,6 @@ const fetchStudentDetails = async (studentId) => {
             })
             return;
           }
-
-          console.log({
-            batch: batchValue,
-            status: normalizedStatus,
-            originalStatus: statusValue
-          });
 
           const updatedStudent = {
             ...selectedStudent,
