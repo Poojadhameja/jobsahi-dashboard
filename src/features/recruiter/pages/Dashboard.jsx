@@ -542,8 +542,11 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
                 }
 
                 return filteredInterviews.length > 0 ? (
-                  <div className="grid gap-3 sm:gap-4 md:gap-5 grid-cols-1 lg:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2 overflow-y-auto max-h-[300px] sm:max-h-[400px] md:max-h-[500px] lg:max-h-[600px] xl:max-h-[450px] 2xl:max-h-[500px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 px-1">
+                  <div className="overflow-y-auto max-h-[300px] sm:max-h-[400px] md:max-h-[500px] lg:max-h-[600px] xl:max-h-[450px] 2xl:max-h-[500px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 px-1">
                     {filteredInterviews.map((item, i) => {
+                      // Extract candidate name
+                      const candidateName = item.name || item.candidate_name || item.student_name || "—"
+                      
                       // Extract job title from various possible fields
                       const jobTitle = item.job_title || item.jobTitle || item.job_name || item.title || "—"
                       
@@ -551,82 +554,67 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
                       const mode = item.mode || item.interview_mode || item.platform_name || "—"
                       
                       // Extract location from various possible fields
-                      const location = item.location || item.interview_location || item.address || "—"
+                      const location = item.location || item.interview_location || item.address || ""
+                      
+                      // Format mode with location if offline
+                      const modeDisplay = mode.toLowerCase() === 'offline' && location 
+                        ? `${mode} (${location})` 
+                        : mode
                       
                       // Extract time from various possible fields
                       const time = formatTime(item.time || item.scheduled_time || item.interview_time || item.scheduled_at)
                       
-                      // Extract date from various possible fields
-                      const date = formatDate(item.scheduled_at || item.scheduled_date || item.date || item.interview_date)
+                      // Format time to 12-hour format with am/pm
+                      const formatTime12Hour = (timeStr) => {
+                        if (!timeStr || timeStr === "—") return "—"
+                        try {
+                          // If already in 12-hour format, return as is
+                          if (timeStr.toLowerCase().includes('am') || timeStr.toLowerCase().includes('pm')) {
+                            return timeStr
+                          }
+                          // If in 24-hour format (HH:MM), convert to 12-hour
+                          if (timeStr.includes(':') && timeStr.length <= 5) {
+                            const [hours, minutes] = timeStr.split(':')
+                            const hour = parseInt(hours)
+                            const ampm = hour >= 12 ? 'PM' : 'AM'
+                            const hour12 = hour % 12 || 12
+                            return `${hour12}:${minutes} ${ampm.toLowerCase()}`
+                          }
+                          return timeStr
+                        } catch {
+                          return timeStr
+                        }
+                      }
+                      const formattedTime = formatTime12Hour(time)
 
                       return (
                         <div
                           key={i}
-                          className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-200 p-4 sm:p-5 md:p-6 h-full flex flex-col"
+                          className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-5 mb-3"
                         >
-                          {/* Date Header */}
-                          <div className="flex items-center justify-between mb-3 sm:mb-4 pb-2 sm:pb-3 border-b border-gray-200">
-                            <div className="flex items-center gap-2">
-                              <FaCalendarAlt className="text-blue-600 text-xs sm:text-sm flex-shrink-0" />
-                              <h5 className="font-semibold text-gray-800 text-xs sm:text-sm md:text-base truncate">
-                                Interview Details
-                              </h5>
+                          <h5 className="text-base font-semibold text-gray-900 mb-4">
+                            Candidate Interview Details
+                          </h5>
+                          
+                          <div className="space-y-3">
+                            <div>
+                              <span className="text-sm font-medium text-gray-700">Name:</span>
+                              <span className="text-sm text-gray-900 ml-2">{candidateName}</span>
                             </div>
-                            <p className="text-xs sm:text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded whitespace-nowrap flex-shrink-0 ml-2">
-                              {date}
-                            </p>
-                          </div>
-
-                          {/* Candidate Name (if available) */}
-                          {(item.name || item.candidate_name || item.student_name) && (
-                            <div className="mb-3 sm:mb-4 pb-2 sm:pb-3 border-b border-gray-100">
-                              <span className="text-xs text-gray-500 block mb-1">Candidate</span>
-                              <span className="text-xs sm:text-sm font-semibold text-gray-800 block truncate">
-                                {item.name || item.candidate_name || item.student_name}
-                              </span>
+                            
+                            <div>
+                              <span className="text-sm font-medium text-gray-700">Job Title:</span>
+                              <span className="text-sm text-gray-900 ml-2">{jobTitle}</span>
                             </div>
-                          )}
-
-                          {/* Details Grid */}
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 flex-1">
-                            <div className="space-y-1">
-                              <span className="text-xs text-gray-500 block flex items-center gap-1">
-                                <FaBriefcase className="text-gray-400 text-xs flex-shrink-0" />
-                                <span className="truncate">Job Title</span>
-                              </span>
-                              <span className="text-xs sm:text-sm font-medium text-gray-800 block min-h-[20px] break-words">
-                                {jobTitle !== "—" ? jobTitle : <span className="text-gray-400 italic">Not specified</span>}
-                              </span>
+                            
+                            <div>
+                              <span className="text-sm font-medium text-gray-700">Mode of Interview:</span>
+                              <span className="text-sm text-gray-900 ml-2">{modeDisplay}</span>
                             </div>
-
-                            <div className="space-y-1">
-                              <span className="text-xs text-gray-500 block flex items-center gap-1">
-                                <FaPhone className="text-gray-400 text-xs flex-shrink-0" />
-                                <span className="truncate">Mode</span>
-                              </span>
-                              <span className="text-xs sm:text-sm font-medium text-gray-800 block capitalize break-words">
-                                {mode !== "—" ? mode : <span className="text-gray-400 italic">Not specified</span>}
-                              </span>
-                            </div>
-
-                            <div className="space-y-1">
-                              <span className="text-xs text-gray-500 block flex items-center gap-1">
-                                <FaMapMarkerAlt className="text-gray-400 text-xs flex-shrink-0" />
-                                <span className="truncate">Location</span>
-                              </span>
-                              <span className="text-xs sm:text-sm font-medium text-gray-800 block break-words">
-                                {location !== "—" ? location : <span className="text-gray-400 italic">Not specified</span>}
-                              </span>
-                            </div>
-
-                            <div className="space-y-1">
-                              <span className="text-xs text-gray-500 block flex items-center gap-1">
-                                <FaCalendarAlt className="text-gray-400 text-xs flex-shrink-0" />
-                                <span className="truncate">Time</span>
-                              </span>
-                              <span className="text-xs sm:text-sm font-medium text-gray-800 block break-words">
-                                {time !== "—" ? time : <span className="text-gray-400 italic">Not specified</span>}
-                              </span>
+                            
+                            <div>
+                              <span className="text-sm font-medium text-gray-700">Time:</span>
+                              <span className="text-sm text-gray-900 ml-2">{formattedTime}</span>
                             </div>
                           </div>
                         </div>
