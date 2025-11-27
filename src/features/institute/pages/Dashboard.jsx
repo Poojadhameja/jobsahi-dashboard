@@ -139,37 +139,8 @@ export default function Dashboard() {
     }
   ])
 
-  // 🔹 Staff Members State (initial dummy as fallback)
-  const [staffMembers, setStaffMembers] = useState([
-    {
-      id: 1,
-      name: 'Amit Verma',
-      designation: 'Head Instructor',
-      department: 'Welding',
-      lastActive: '10 min ago'
-    },
-    {
-      id: 2,
-      name: 'Riya Singh',
-      designation: 'Placement Officer',
-      department: 'Career Services',
-      lastActive: '25 min ago'
-    },
-    {
-      id: 3,
-      name: 'Manish Kumar',
-      designation: 'Course Coordinator',
-      department: 'Automobile',
-      lastActive: 'Today, 9:15 AM'
-    },
-    {
-      id: 4,
-      name: 'Neha Patel',
-      designation: 'Student Counselor',
-      department: 'Student Support',
-      lastActive: '5 min ago'
-    }
-  ])
+  // 🔹 Staff Members State (initial empty as fallback)
+  const [staffMembers, setStaffMembers] = useState([])
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)

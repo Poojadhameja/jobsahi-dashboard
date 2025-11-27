@@ -421,7 +421,7 @@ export default function InstituteProfile() {
                 {formData.logo || logoPreview ? (
                   // Logo display with close button
                   <div 
-                    className="mx-auto w-48 h-48 bg-black rounded-xl flex items-center justify-center mb-4 relative overflow-hidden group"
+                    className="mx-auto w-48 h-48 bg-transparent rounded-xl flex items-center justify-center mb-4 relative overflow-hidden group"
                     style={{ 
                       border: '3px solid #FF8C00',
                       boxShadow: '0 0 0 2px rgba(255, 140, 0, 0.2)',
