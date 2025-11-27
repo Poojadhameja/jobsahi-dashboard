@@ -673,10 +673,19 @@ const handleUpdateInterview = async () => {
   selectedDate={selectedDate}
   highlightedDates={highlightedDates}  // 🔥 yeh new line add
   onDateSelect={(d) => {
-    setSelectedDate(d);
+    // ✅ Ensure d is a Date object
+    const dateObj = d instanceof Date ? d : new Date(d);
+    
+    // ✅ Validate date before using
+    if (isNaN(dateObj.getTime())) {
+      console.error("Invalid date received:", d);
+      return;
+    }
+    
+    setSelectedDate(dateObj);
     setFormData((p) => ({
       ...p,
-      date: d.toISOString().split("T")[0],
+      date: dateObj.toISOString().split("T")[0],
     }));
   }}
 />

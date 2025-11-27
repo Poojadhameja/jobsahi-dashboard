@@ -268,22 +268,53 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob, onNavigateT
     if (dateFilter) {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      today.setHours(0, 0, 0, 0);
       
       filtered = filtered.filter((job) => {
-        if (!job.created_at && !job.posted_date && !job.date) return false;
+        // Check multiple possible date fields
+        const dateString = job.created_at || job.posted_date || job.date || job.created_date || job.posted_at;
+        if (!dateString) {
+          // For drafts, check savedAt
+          if (job.isDraft && job.savedAt) {
+            const draftDate = new Date(job.savedAt);
+            draftDate.setHours(0, 0, 0, 0);
+            
+            switch (dateFilter) {
+              case "today":
+                return draftDate.getTime() === today.getTime();
+              case "week":
+                const weekAgo = new Date(today);
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return draftDate >= weekAgo;
+              case "month":
+                const monthAgo = new Date(today);
+                monthAgo.setMonth(monthAgo.getMonth() - 1);
+                return draftDate >= monthAgo;
+              default:
+                return true;
+            }
+          }
+          return false;
+        }
         
-        const jobDate = new Date(job.created_at || job.posted_date || job.date);
+        const jobDate = new Date(dateString);
+        if (isNaN(jobDate.getTime())) return false;
+        
+        // Reset time to start of day for accurate comparison
+        jobDate.setHours(0, 0, 0, 0);
         
         switch (dateFilter) {
           case "today":
-            return jobDate >= today;
+            return jobDate.getTime() === today.getTime();
           case "week":
             const weekAgo = new Date(today);
             weekAgo.setDate(weekAgo.getDate() - 7);
+            weekAgo.setHours(0, 0, 0, 0);
             return jobDate >= weekAgo;
           case "month":
             const monthAgo = new Date(today);
             monthAgo.setMonth(monthAgo.getMonth() - 1);
+            monthAgo.setHours(0, 0, 0, 0);
             return jobDate >= monthAgo;
           default:
             return true;
