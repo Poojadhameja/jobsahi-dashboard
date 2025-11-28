@@ -533,6 +533,26 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob, onNavigateT
 
       const desc = stripHtml(job.description || "").slice(0, 150);
 
+      // Format posted date
+      const formatPostedDate = (job) => {
+        const dateString = job.created_at || job.posted_date || job.date || job.created_date || job.posted_at || job.createdAt || job.postedAt || job.savedAt;
+        if (!dateString) return "—";
+        
+        try {
+          const date = new Date(dateString);
+          if (isNaN(date.getTime())) return "—";
+          return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          });
+        } catch {
+          return "—";
+        }
+      };
+
+      const postedDate = formatPostedDate(job);
+
       return (
         <div
           key={job.id}
@@ -615,6 +635,11 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob, onNavigateT
           <div className={`flex items-center gap-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-4`}>
             <LuMapPin size={16} className="text-error" />
             <span>{job.location || "—"}</span>
+          </div>
+
+          <div className={`flex items-center gap-2 text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-4`}>
+            <LuCalendar size={16} className="text-blue-600" />
+            <span>Posted: {postedDate}</span>
           </div>
 
           <div className="flex justify-between items-center">
