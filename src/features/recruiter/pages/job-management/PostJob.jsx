@@ -199,6 +199,92 @@ const PostJob = ({ onJobSubmit }) => {
       return;
     }
 
+    // ✅ Check for duplicate job name on same date
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayStr = today.toISOString().split('T')[0];
+      
+      // Fetch existing jobs to check for duplicates
+      const existingJobsRes = await getMethod({ apiUrl: service.getJobs });
+      const existingJobs = Array.isArray(existingJobsRes?.data)
+        ? existingJobsRes.data
+        : Array.isArray(existingJobsRes?.rows)
+        ? existingJobsRes.rows
+        : Array.isArray(existingJobsRes?.jobs)
+        ? existingJobsRes.jobs
+        : [];
+
+      // Check if job with same title exists on today's date (from API)
+      const duplicateJob = existingJobs.find((job) => {
+        const jobTitle = (job.title || '').trim().toLowerCase();
+        const newJobTitle = (formData.jobTitle || '').trim().toLowerCase();
+        
+        if (jobTitle !== newJobTitle) return false;
+        
+        // Check job creation date
+        const jobDateStr = job.created_at || job.posted_date || job.date || job.created_date || job.posted_at || job.createdAt || job.postedAt;
+        if (!jobDateStr) return false;
+        
+        try {
+          const jobDate = new Date(jobDateStr);
+          jobDate.setHours(0, 0, 0, 0);
+          const jobDateStrFormatted = jobDate.toISOString().split('T')[0];
+          return jobDateStrFormatted === todayStr;
+        } catch {
+          return false;
+        }
+      });
+
+      // Also check drafts in localStorage
+      if (!duplicateJob) {
+        const drafts = JSON.parse(localStorage.getItem('job_drafts') || '[]');
+        const duplicateDraft = drafts.find((draft) => {
+          const draftTitle = (draft.jobTitle || '').trim().toLowerCase();
+          const newJobTitle = (formData.jobTitle || '').trim().toLowerCase();
+          
+          if (draftTitle !== newJobTitle) return false;
+          
+          // Check draft saved date
+          if (!draft.savedAt) return false;
+          
+          try {
+            const draftDate = new Date(draft.savedAt);
+            draftDate.setHours(0, 0, 0, 0);
+            const draftDateStrFormatted = draftDate.toISOString().split('T')[0];
+            return draftDateStrFormatted === todayStr;
+          } catch {
+            return false;
+          }
+        });
+
+        if (duplicateDraft) {
+          Swal.fire({
+            title: "Duplicate Job!",
+            text: `A job with the name "${formData.jobTitle}" already exists today (as draft). Please create it on a different date or use a different job title.`,
+            icon: "warning",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#3085d6",
+          });
+          return;
+        }
+      }
+
+      if (duplicateJob) {
+        Swal.fire({
+          title: "Duplicate Job!",
+          text: `A job with the name "${formData.jobTitle}" already exists today. Please create it on a different date or use a different job title.`,
+          icon: "warning",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#3085d6",
+        });
+        return;
+      }
+    } catch (err) {
+      console.error("❌ Error checking for duplicate jobs:", err);
+      // Continue with submission if check fails (don't block user)
+    }
+
     // ✅ Get category_id from selected category
     const selectedCategory = jobCategories.find(
       (cat) => cat.category_name === formData.jobSector
