@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { LuArrowLeft, LuEye, LuPencil, LuChevronLeft, LuChevronRight } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { MatrixCard } from '../../../../shared/components/metricCard'
@@ -10,7 +11,10 @@ import ViewCoursePopup from '../course-management/ViewCoursePopup'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl.js'
 
+const STORAGE_KEY = 'institute_course_detail_id'
+
 export default function CourseDetail({ courseData, onBack }) {
+  const navigate = useNavigate()
   const [currentView, setCurrentView] = useState('course')
   const [selectedBatch, setSelectedBatch] = useState(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -24,13 +28,35 @@ export default function CourseDetail({ courseData, onBack }) {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 3
 
+  // ✅ Get course ID from props, localStorage, or URL
+  const getCourseId = () => {
+    // Priority 1: From props
+    if (courseData?.id || courseData?.course_id) {
+      return courseData.id || courseData.course_id
+    }
+    // Priority 2: From localStorage (for refresh persistence)
+    const storedId = localStorage.getItem(STORAGE_KEY)
+    if (storedId) {
+      return storedId
+    }
+    return null
+  }
+
+  // ✅ Store course ID in localStorage when courseData is available
+  useEffect(() => {
+    const courseId = courseData?.id || courseData?.course_id
+    if (courseId) {
+      localStorage.setItem(STORAGE_KEY, String(courseId))
+    }
+  }, [courseData?.id, courseData?.course_id])
+
   // ✅ Fetch course details from /institute/course_by_batch.php?id={courseId}
   const fetchCourseDetail = async () => {
     try {
       setLoading(true)
       setError(null)
 
-      const courseId = courseData?.id || courseData?.course_id
+      const courseId = getCourseId()
       if (!courseId) {
         setError('Invalid course')
         setLoading(false)
@@ -119,10 +145,24 @@ export default function CourseDetail({ courseData, onBack }) {
   }
 
   useEffect(() => {
-    fetchCourseDetail()
-    fetchAvailableCourses()
+    // If courseData is missing but we have stored ID, fetch it
+    if (!courseData && getCourseId()) {
+      fetchCourseDetail()
+      fetchAvailableCourses()
+    } else if (courseData) {
+      fetchCourseDetail()
+      fetchAvailableCourses()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseData?.id, courseData?.course_id])
+
+  // Cleanup localStorage on unmount if navigating away
+  useEffect(() => {
+    return () => {
+      // Only clear if we're actually leaving (not just re-rendering)
+      // This will be handled by the parent component or navigation
+    }
+  }, [])
 
   // Reset to page 1 when available courses change
   useEffect(() => {
@@ -328,7 +368,15 @@ export default function CourseDetail({ courseData, onBack }) {
       <div className="mb-6">
         <div className="flex items-center gap-4 mb-4">
           <Button
-            onClick={onBack}
+            onClick={() => {
+              // Clear localStorage when going back
+              localStorage.removeItem(STORAGE_KEY)
+              if (onBack) {
+                onBack()
+              } else {
+                navigate('/institute/batch-management')
+              }
+            }}
             variant="outline"
             size="sm"
             icon={<LuArrowLeft className="w-4 h-4" />}

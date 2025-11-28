@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { COLORS, TAILWIND_COLORS } from '../../../../shared/WebConstant.js';
 import Button from '../../../../shared/components/Button.jsx';
 import CentralizedDataTable from '../../../../shared/components/CentralizedDataTable.jsx';
-import { getMethod, postMethod, deleteMethod } from '../../../../service/api';
+import { getMethod, postMethod, putMethod, deleteMethod } from '../../../../service/api';
 import apiService from '../../services/serviceUrl';
 import Swal from 'sweetalert2';
 
@@ -35,7 +35,18 @@ const CourseOversight = () => {
   
   // Course action handlers
   const updateCourseStatus = (ids, nextStatus) => setCourses(prev => prev.map(c => (ids.includes(c.id) ? { ...c, status: nextStatus } : c)));
-  const handleApproveCourse = (courseId) => updateCourseStatus([courseId], 'Approved');
+   
+  // Promote course (placeholder - API integration will be done later)
+  const handlePromoteCourse = async (courseId) => {
+    // API call removed - will be integrated later
+    Swal.fire({
+      icon: 'info',
+      title: 'Coming Soon',
+      text: 'Promote functionality will be available soon.',
+      confirmButtonColor: '#5C9A24'
+    });
+  };
+
   const handleViewCourse = (course) => {
     setSelectedCourse(course);
     setShowCourseModal(true);
@@ -44,7 +55,18 @@ const CourseOversight = () => {
     setShowCourseModal(false);
     setSelectedCourse(null);
   };
-  const handleBulkCourseApprove = () => selectedCourses.length && updateCourseStatus(selectedCourses, 'Approved');
+  
+  const handleBulkCoursePromote = async () => {
+    if (selectedCourses.length === 0) return;
+    
+    // API call removed - will be integrated later
+    Swal.fire({
+      icon: 'info',
+      title: 'Coming Soon',
+      text: 'Bulk promote functionality will be available soon.',
+      confirmButtonColor: '#5C9A24'
+    });
+  };
 
   // ====== API CALLS ======
   const fetchCourses = useCallback(async () => {
@@ -76,7 +98,7 @@ const CourseOversight = () => {
               instructor: course.instructor_name || course.instructor || course.faculty_name || 'N/A',
               institute: instituteName,
               institute_id: instituteId,
-              rating: parseFloat(course.rating || course.avg_rating || 0) || 0,
+              rating: parseFloat(course.average_rating || course.rating || course.avg_rating || 0) || 0,
               status: course.admin_action === 'approved' ? 'Approved' :
                      course.is_featured === 1 ? 'Featured' :
                      course.admin_action === 'pending' ? 'Pending' :
@@ -385,9 +407,10 @@ const CourseOversight = () => {
             ]}
             actions={[
               {
-                label: 'Approve',
+                label: 'Promote',
                 variant: 'primary',
-                onClick: (course) => handleApproveCourse(course.id)
+                onClick: (course) => handlePromoteCourse(course.id),
+                disabled: (course) => course.status === 'Featured' || course.is_featured === 1
               },
               {
                 label: 'View',
@@ -401,9 +424,9 @@ const CourseOversight = () => {
             searchPlaceholder="Search courses, categories, or instructors"
             emptyStateMessage="No courses found"
             onBulkAction={(action, selectedIds) => {
-              if (action === 'approve') {
+              if (action === 'promote') {
                 setSelectedCourses(selectedIds);
-                handleBulkCourseApprove();
+                handleBulkCoursePromote();
               }
             }}
           />

@@ -48,8 +48,11 @@ const Dashboard = () => {
   const [recruiterName, setRecruiterName] = useState("");
 
 
-const [selectedCandidate, setSelectedCandidate] = useState(null);
-const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  
   const handleViewDetails = (candidate) => {
     setSelectedCandidate(candidate);
     setIsViewModalOpen(true);
@@ -63,11 +66,18 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   // ---------- FETCH ALL DATA ----------
   useEffect(() => {
     (async () => {
-      await fetchRecruiterProfile(); // Default API call
-      await fetchDashboardData();
-      await fetchInterviewDetails();
-      await fetchWeeklyApplicants();
-      await fetchRecentApplicants();
+      setIsLoading(true);
+      setDataLoaded(false);
+      try {
+        await fetchRecruiterProfile(); // Default API call
+        await fetchDashboardData();
+        await fetchInterviewDetails();
+        await fetchWeeklyApplicants();
+        await fetchRecentApplicants();
+      } finally {
+        setIsLoading(false);
+        setDataLoaded(true);
+      }
     })();
   }, []);
 
@@ -448,6 +458,29 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
       {/* Metric Cards */}
       <Horizontal4Cards data={metricCardsData} className="mb-5" />
+      
+      {/* Empty State for Dashboard Stats */}
+      {dataLoaded && 
+       dashboardStats.jobs_posted === 0 && 
+       dashboardStats.applied_job === 0 && 
+       dashboardStats.interview_job === 0 && 
+       dashboardStats.interview_completed === 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-5">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <FaBriefcase className="h-6 w-6 text-blue-400" />
+            </div>
+            <div className="ml-3 flex-1">
+              <h3 className="text-sm font-medium text-blue-800 mb-1">
+                Welcome to Your Dashboard!
+              </h3>
+              <p className="text-sm text-blue-700">
+                This recruiter account doesn't have any activity yet. Start by posting job openings to see metrics, applications, and interviews appear here.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Calendar + Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
@@ -627,13 +660,20 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
                     <p className="text-xs sm:text-sm">No interviews found for selected date</p>
                     <p className="text-xs mt-1">Try selecting a different date from the calendar</p>
                   </div>
-                ) : (
-                  <div className="text-center py-6 sm:py-8 md:py-12 text-gray-400 text-xs sm:text-sm flex flex-col items-center justify-center">
-                    <FaCalendarAlt className="text-xl sm:text-2xl md:text-3xl mb-2" />
-                    <p className="text-xs sm:text-sm">No interviews scheduled</p>
-                    <p className="text-xs mt-1">Schedule interviews to see them here</p>
-                  </div>
-                )
+              ) : (
+                <div className="text-center py-6 sm:py-8 md:py-12 text-gray-500 flex flex-col items-center justify-center">
+                  <FaCalendarAlt className="text-3xl sm:text-4xl md:text-5xl mb-3 text-gray-300" />
+                  <p className="text-sm sm:text-base font-medium text-gray-700 mb-1">
+                    No Interviews Scheduled Yet
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500 max-w-xs">
+                    {dataLoaded 
+                      ? "This recruiter doesn't have any scheduled interviews yet. Start scheduling interviews to see them here."
+                      : "Loading interview data..."
+                    }
+                  </p>
+                </div>
+              )
               })()}
             </div>
 
@@ -677,9 +717,17 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
                   }}
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
-                  <FaUsers className="text-4xl mb-2" />
-                  No applicant data available
+                <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                  <FaUsers className="text-5xl mb-3 text-gray-300" />
+                  <p className="text-sm font-medium text-gray-700 mb-1">
+                    No Applicant Data Available
+                  </p>
+                  <p className="text-xs text-gray-500 max-w-xs text-center">
+                    {dataLoaded 
+                      ? "This recruiter hasn't received any applications yet. Applications will appear here once candidates start applying to your job postings."
+                      : "Loading applicant data..."
+                    }
+                  </p>
                 </div>
               )}
             </div>
@@ -724,8 +772,17 @@ const [isViewModalOpen, setIsViewModalOpen] = useState(false);
                   </div>
                 ))
               ) : (
-                <div className="text-center text-gray-400 text-sm w-full py-8">
-                  No applicant data available
+                <div className="text-center text-gray-500 w-full py-12 flex flex-col items-center justify-center">
+                  <FaBriefcase className="text-4xl mb-3 text-gray-300" />
+                  <p className="text-sm font-medium text-gray-700 mb-1">
+                    No Applicants Yet
+                  </p>
+                  <p className="text-xs text-gray-500 max-w-md">
+                    {dataLoaded 
+                      ? "This recruiter doesn't have any applicant data yet. Applicant cards will appear here once candidates apply to your job postings."
+                      : "Loading applicant cards..."
+                    }
+                  </p>
                 </div>
               )}
             </div>

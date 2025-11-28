@@ -73,6 +73,16 @@ export default function BatchManagement() {
     }
   }, [])
 
+  // ✅ Check localStorage on mount for refresh persistence
+  useEffect(() => {
+    const storedCourseId = localStorage.getItem('institute_course_detail_id')
+    if (storedCourseId && !selectedCourse && !loading) {
+      // Fetch course data if we have stored ID but no selected course
+      handleViewCourse(Number(storedCourseId))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading])
+
   // Handle batch creation refresh
   const handleBatchCreated = () => {
     fetchData()
@@ -142,10 +152,17 @@ export default function BatchManagement() {
 
   // ✅ Course Detail View
   if (selectedCourse) {
+    // Store course ID in localStorage for refresh persistence
+    if (selectedCourse.id) {
+      localStorage.setItem('institute_course_detail_id', String(selectedCourse.id))
+    }
     return (
       <CourseDetail
         courseData={selectedCourse}
-        onBack={handleBackToCourses}
+        onBack={() => {
+          localStorage.removeItem('institute_course_detail_id')
+          handleBackToCourses()
+        }}
         onViewBatch={(batch) => handleViewBatch(selectedCourse.id, batch)}
       />
     )

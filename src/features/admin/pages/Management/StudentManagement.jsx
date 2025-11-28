@@ -1480,7 +1480,6 @@ export default function StudentManagement() {
             bio: item.profile_info.bio,
             experience: item.profile_info.experience,
             graduation_year: item.profile_info.graduation_year,
-            cgpa: item.profile_info.cgpa,
             applied_jobs: Array.isArray(item.applied_jobs)
               ? item.applied_jobs
               : item.applied_jobs
