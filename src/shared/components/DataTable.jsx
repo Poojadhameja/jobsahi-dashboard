@@ -80,13 +80,7 @@ const DataTable = ({
                             {action.label}
                           </button>
                         ))}
-                        <button
-                          onClick={() => onDownloadCV(row)}
-                          className="px-3 md:px-4 py-1 md:py-2 rounded-full text-xs font-medium transition-colors duration-200 bg-gray-100 text-gray-800 hover:bg-gray-200 flex items-center gap-1"
-                        >
-                          <FaDownload className="w-3 h-3" />
-                          Download CV
-                        </button>
+                     
                       </div>
                     </td>
                   )}

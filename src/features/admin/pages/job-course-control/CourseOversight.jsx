@@ -95,7 +95,7 @@ const CourseOversight = () => {
               id: course.id || course.course_id,
               title: course.title || course.course_name || course.name || 'N/A',
               category: course.category_name || course.category || 'N/A',
-              instructor: course.instructor_name || course.instructor || course.faculty_name || 'N/A',
+              // instructor: course.instructor_name || course.instructor || course.faculty_name || 'N/A',
               institute: instituteName,
               institute_id: instituteId,
               rating: parseFloat(course.average_rating || course.rating || course.avg_rating || 0) || 0,
@@ -381,7 +381,7 @@ const CourseOversight = () => {
               { key: 'title', header: 'Title' },
               { key: 'institute', header: 'Institute' },
               { key: 'category', header: 'Category' },
-              { key: 'instructor', header: 'Instructor' },
+              // { key: 'instructor', header: 'Instructor' },
               { 
                 key: 'rating', 
                 header: 'Rating',
@@ -520,10 +520,10 @@ const CourseOversight = () => {
                     <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Category</label>
                     <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedCourse.category || 'N/A'}</p>
                   </div>
-                  <div>
+                  {/* <div>
                     <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Instructor</label>
                     <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedCourse.instructor || 'N/A'}</p>
-                  </div>
+                  </div> */}
                   <div>
                     <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Duration</label>
                     <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedCourse.duration || 'N/A'}</p>

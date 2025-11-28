@@ -39,105 +39,106 @@ const ViewApplicants = () => {
     return () => (document.body.style.overflow = "auto");
   }, [isViewModalOpen]);
 
-  // ✅ Fetch applicants from API
-  useEffect(() => {
-    const fetchApplicants = async () => {
-      setLoading(true);
-      try {
-        const res = await getMethod({ apiUrl: apiService.getRecentApplicants });
+  // ✅ Fetch applicants from API - Extracted as function to be called from outside
+  const fetchApplicants = async () => {
+    setLoading(true);
+    try {
+      const res = await getMethod({ apiUrl: apiService.getRecentApplicants });
 
-        console.log("📊 API Response for Applicants:", res);
+      console.log("📊 API Response for Applicants:", res);
 
-        if (res?.status && Array.isArray(res?.all_applicants?.data)) {
-          const formatted = res.all_applicants.data.map((item, i) => {
-            // Log first item to see structure
-            if (i === 0) {
-              console.log("📋 First applicant item structure:", item);
-              console.log("📋 Available fields:", Object.keys(item));
-            }
+      if (res?.status && Array.isArray(res?.all_applicants?.data)) {
+        const formatted = res.all_applicants.data.map((item, i) => {
+          // Log first item to see structure
+          if (i === 0) {
+            console.log("📋 First applicant item structure:", item);
+            console.log("📋 Available fields:", Object.keys(item));
+          }
 
-            // Extract job_id with multiple fallbacks
-            const jobId = item.job_id || 
-                         item.jobId || 
-                         item.applied_job_id ||
-                         (item.job && (item.job.job_id || item.job.id));
+          // Extract job_id with multiple fallbacks
+          const jobId = item.job_id || 
+                       item.jobId || 
+                       item.applied_job_id ||
+                       (item.job && (item.job.job_id || item.job.id));
 
-            // Extract student_id with multiple fallbacks
-            const studentId = item.student_id || 
-                             item.studentId || 
-                             item.user_id || 
-                             item.id ||
-                             item.application_id;
+          // Extract student_id with multiple fallbacks
+          const studentId = item.student_id || 
+                           item.studentId || 
+                           item.user_id || 
+                           item.id ||
+                           item.application_id;
 
-            // Log if job_id is missing
-            if (!jobId && i === 0) {
-              console.warn("⚠️ job_id not found in item:", item);
-            }
+          // Log if job_id is missing
+          if (!jobId && i === 0) {
+            console.warn("⚠️ job_id not found in item:", item);
+          }
 
-            return {
-              id: item.application_id || i + 1,
-              name: item.name || "N/A",
-              email: item.email || "N/A",
-              phone_number: item.phone_number || "—",
-              qualification: item.education || "—",
-              education: item.education || "—",
-              skills: Array.isArray(item.skills)
-                ? item.skills.join(", ")
-                : typeof item.skills === "string"
-                ? item.skills
-                : "",
-              bio: item.bio || "—",
-              appliedFor: item.applied_for || "—",
-              applied_date: item.applied_date || "—",
-              status: item.status || "Pending",
-              verified: item.verified ? "Yes" : "No",
-              location: item.location || "—",
-              experience: item.experience || "—",
-              jobType: item.job_type || "Full-time",
-              resume_url: item.resume_url || null,
-              portfolio_link: item.portfolio_link || null,
-              cover_letter: item.cover_letter || "—",
-              social_links: (() => {
-                try {
-                  if (Array.isArray(item.social_links)) {
-                    return item.social_links;
-                  } else if (typeof item.social_links === 'string' && item.social_links.trim() !== '') {
-                    const parsed = JSON.parse(item.social_links);
-                    return Array.isArray(parsed) ? parsed : (parsed ? [parsed] : []);
-                  }
-                  return [];
-                } catch {
-                  return [];
+          return {
+            id: item.application_id || i + 1,
+            name: item.name || "N/A",
+            email: item.email || "N/A",
+            phone_number: item.phone_number || "—",
+            qualification: item.education || "—",
+            education: item.education || "—",
+            skills: Array.isArray(item.skills)
+              ? item.skills.join(", ")
+              : typeof item.skills === "string"
+              ? item.skills
+              : "",
+            bio: item.bio || "—",
+            appliedFor: item.applied_for || "—",
+            applied_date: item.applied_date || "—",
+            status: item.status || "Pending",
+            verified: item.verified ? "Yes" : "No",
+            location: item.location || "—",
+            experience: item.experience || "—",
+            jobType: item.job_type || "Full-time",
+            resume_url: item.resume_url || null,
+            portfolio_link: item.portfolio_link || null,
+            cover_letter: item.cover_letter || "—",
+            social_links: (() => {
+              try {
+                if (Array.isArray(item.social_links)) {
+                  return item.social_links;
+                } else if (typeof item.social_links === 'string' && item.social_links.trim() !== '') {
+                  const parsed = JSON.parse(item.social_links);
+                  return Array.isArray(parsed) ? parsed : (parsed ? [parsed] : []);
                 }
-              })(),
-              // Add job_id and student_id for schedule interview
-              job_id: jobId,
-              student_id: studentId,
-              application_id: item.application_id,
-              actions: {
-                view: true,
-                downloadCV: true,
-                delete: true,
-                reject: true,
-              },
-            };
-          });
+                return [];
+              } catch {
+                return [];
+              }
+            })(),
+            // Add job_id and student_id for schedule interview
+            job_id: jobId,
+            student_id: studentId,
+            application_id: item.application_id,
+            actions: {
+              view: true,
+              downloadCV: true,
+              delete: true,
+              reject: true,
+            },
+          };
+        });
 
-          setApplicants(formatted);
-          setFilteredApplicants(formatted);
-        } else {
-          setApplicants([]);
-          setFilteredApplicants([]);
-        }
-      } catch (err) {
-        console.error("❌ Error fetching applicants:", err);
+        setApplicants(formatted);
+        setFilteredApplicants(formatted);
+      } else {
         setApplicants([]);
         setFilteredApplicants([]);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (err) {
+      console.error("❌ Error fetching applicants:", err);
+      setApplicants([]);
+      setFilteredApplicants([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // ✅ Fetch applicants on component mount
+  useEffect(() => {
     fetchApplicants();
   }, []);
 
@@ -362,6 +363,7 @@ const ViewApplicants = () => {
         onClose={handleCloseModal}
         candidate={selectedCandidate}
         onDownloadCV={handleDownloadCV}
+        onInterviewScheduled={fetchApplicants}
       />
     </div>
   );

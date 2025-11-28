@@ -195,24 +195,11 @@ export default function BatchManagement() {
             key={course.id}
             className={`${TAILWIND_COLORS.CARD} p-5 hover:shadow-md transition-shadow`}
           >
-            <div className="flex items-start justify-between mb-3">
+            <div className="mb-3">
               <h3 className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} leading-tight`}>
                 {course.title}
               </h3>
-              <span
-                className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-                  course.admin_action === 'approved'
-                    ? TAILWIND_COLORS.BADGE_SUCCESS
-                    : TAILWIND_COLORS.BADGE_WARN
-                }`}
-              >
-                {course.admin_action === 'approved' ? 'Approved' : 'Pending'}
-              </span>
             </div>
-
-            <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm mb-4`}>
-              <span className="font-semibold">Instructor:</span> {course.instructor || 'N/A'}
-            </p>
 
             <div className="flex gap-3 mb-4">
               <div className={`${TAILWIND_COLORS.BADGE_INFO} px-3 py-2 rounded-md flex-1`}>
