@@ -12,6 +12,7 @@ import Button, {
   PrimaryButton,
 } from "../../../../shared/components/Button";
 import DynamicButton from "../../../../shared/components/DynamicButton";
+import CentralizedDataTable from "../../../../shared/components/CentralizedDataTable";
 import {
   LuUsers,
   LuSearch,
@@ -118,10 +119,13 @@ function AdvancedFilters({
             }
           >
             <option value="all">All Status</option>
-            <option value="placed">Placed</option>
-            <option value="placement-ready">Placement Ready</option>
-            <option value="in-progress">In Progress</option>
-            <option value="not-ready">Not Ready</option>
+            <option value="Selected">Selected</option>
+            <option value="Shortlisted">Shortlisted</option>
+            <option value="Applied">Applied</option>
+            <option value="Not Applied">Not Applied</option>
+            <option value="Placed">Placed</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Pending">Pending</option>
           </select>
         </div>
 
@@ -149,13 +153,7 @@ function AdvancedFilters({
         <Button onClick={onClearAll} variant="light" size="md">
           Clear All
         </Button>
-        <DynamicButton
-          onClick={onApplyFilter}
-          backgroundColor="var(--color-secondary)"
-          textColor="white"
-        >
-          Apply Filter
-        </DynamicButton>
+       
       </div>
     </div>
   );
@@ -1217,127 +1215,132 @@ function StudentTable({
         </div> */}
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-        <div className="flex items-center gap-2">
-          <LuUsers className={TAILWIND_COLORS.TEXT_MUTED} size={20} />
-          <h3 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-            All Student Profiles
-          </h3>
-        </div>
-        <div className="relative w-full sm:w-auto">
-          <LuSearch
-            className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`}
-            size={16}
-          />
-          <input
-            type="text"
-            placeholder="Search by name, email, or student ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-80"
-          />
-        </div>
-      </div>
-
-      <div className="student-table-container overflow-x-auto max-h-96 overflow-y-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className={`text-left ${TAILWIND_COLORS.TEXT_MUTED} border-b`}>
-              <th className="py-3 px-4">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  onChange={onSelectAll}
-                  className="rounded border-gray-300"
-                />
-              </th>
-              <th className="py-3 px-4 font-medium">Name</th>
-              <th className="py-3 px-4 font-medium">Course</th>
-              <th className="py-3 px-4 font-medium">CGPA</th>
-              <th className="py-3 px-4 font-medium">Region</th>
-              <th className="py-3 px-4 font-medium">Skills</th>
-              <th className="py-3 px-4 font-medium">Trade</th>
-              <th className="py-3 px-4 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((student) => (
-              <tr key={student.id} className="border-b hover:bg-gray-50">
-                <td className="py-4 px-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedStudents.includes(student.id)}
-                    onChange={() => onSelectStudent(student.id)}
-                    className="rounded border-gray-300"
-                  />
-                </td>
-                <td className="py-4 px-4">
-                  <div>
-                    <div
-                      className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-                    >
-                      {student.name}
-                    </div>
-                    <div className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs`}>
-                      {student.email}
-                    </div>
-                  </div>
-                </td>
-                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                  {student.course ? student.course : "No Course"}
-                </td>
-
-                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                  {student.cgpa ? student.cgpa : "No CGPA"}
-                </td>
-
-                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                  {student.region ? student.region : "No Region"}
-                </td>
-
-                <td className="py-4 px-4">
-                  {student.skills && student.skills.length > 0 ? (
-                    <SkillsTags skills={student.skills} />
-                  ) : (
-                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                      No Skills
-                    </span>
-                  )}
-                </td>
-
-                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                  {student.applied_jobs && student.applied_jobs.length > 0 ? (
-                    <span className="text-sm">
-                      {student.applied_jobs
-                        .map((job) => {
-                          // Extract job_title from API response
-                          if (typeof job === 'object' && job !== null) {
-                            return job.job_title || job.title || job.jobTitle || 'N/A';
-                          }
-                          return job;
-                        })
-                        .filter(title => title && title !== 'N/A')
-                        .join(", ")}
-                    </span>
-                  ) : (
-                    <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                      No Applications
-                    </span>
-                  )}
-                </td>
-
-                <td className="py-4 px-4">
-                  <ActionDropdown
-                    student={student}
-                    onViewCV={onViewCV}
-                    onDelete={onDelete}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* ✅ Use CentralizedDataTable for stable UI during search */}
+      <CentralizedDataTable
+        title="All Student Profiles"
+        subtitle="Manage and view student profiles"
+        data={students}
+        columns={[
+          {
+            key: 'name',
+            header: 'Name',
+            render: (value, row) => (
+              <div>
+                <div className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                  {row.name}
+                </div>
+                <div className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs`}>
+                  {row.email}
+                </div>
+              </div>
+            )
+          },
+          {
+            key: 'placement_status',
+            header: 'Placement',
+            render: (value, row) => {
+              const placementStatus = row.placement_status || "Not Applied";
+              const statusMap = {
+                "Not Applied": "Not Applied",
+                "not_applied": "Not Applied",
+                "not applied": "Not Applied",
+                "Applied": "Applied",
+                "applied": "Applied",
+                "Shortlisted": "Shortlisted",
+                "shortlisted": "Shortlisted",
+                "Selected": "Selected",
+                "selected": "Selected",
+                "job_selected": "Selected",
+                "Placed": "Placed",
+                "placed": "Placed",
+                "Pending": "Pending",
+                "pending": "Pending",
+                "Rejected": "Rejected",
+                "rejected": "Rejected"
+              };
+              const displayStatus = statusMap[placementStatus] || placementStatus;
+              return (
+                <span className={`text-sm font-medium ${
+                  displayStatus === "Placed" || displayStatus === "placed" 
+                    ? "text-green-600" 
+                    : displayStatus === "Selected" || displayStatus === "selected"
+                    ? "text-purple-600"
+                    : displayStatus === "Shortlisted" || displayStatus === "shortlisted"
+                    ? "text-indigo-600"
+                    : displayStatus === "Applied" || displayStatus === "applied"
+                    ? "text-blue-600"
+                    : displayStatus === "Pending" || displayStatus === "pending"
+                    ? "text-orange-600"
+                    : displayStatus === "Rejected" || displayStatus === "rejected"
+                    ? "text-red-600"
+                    : "text-gray-600"
+                }`}>
+                  {displayStatus}
+                </span>
+              );
+            }
+          },
+          {
+            key: 'cgpa',
+            header: 'CGPA',
+            render: (value) => value || "No CGPA"
+          },
+          {
+            key: 'region',
+            header: 'Region',
+            render: (value) => value || "No Region"
+          },
+          {
+            key: 'skills',
+            header: 'Skills',
+            render: (value, row) => (
+              row.skills && row.skills.length > 0 ? (
+                <SkillsTags skills={row.skills} />
+              ) : (
+                <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                  No Skills
+                </span>
+              )
+            )
+          },
+          {
+            key: 'applied_jobs',
+            header: 'Trade',
+            render: (value, row) => (
+              row.applied_jobs && row.applied_jobs.length > 0 ? (
+                <span className="text-sm">
+                  {row.applied_jobs
+                    .map((job) => {
+                      if (typeof job === 'object' && job !== null) {
+                        return job.job_title || job.title || job.jobTitle || 'N/A';
+                      }
+                      return job;
+                    })
+                    .filter(title => title && title !== 'N/A')
+                    .join(", ")}
+                </span>
+              ) : (
+                <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                  No Applications
+                </span>
+              )
+            )
+          }
+        ]}
+        actions={[
+          {
+            label: 'View CV',
+            variant: 'primary',
+            onClick: (row) => onViewCV(row)
+          }
+        ]}
+        searchable={true}
+        selectable={true}
+        showAutoScrollToggle={false}
+        searchPlaceholder="Search by name, email, or student ID..."
+        emptyStateMessage="No students found"
+        onRowSelect={(selectedIds) => setSelectedStudents(selectedIds)}
+      />
     </div>
   );
 }
@@ -1445,9 +1448,38 @@ export default function StudentManagement() {
             email: item.user_info.email,
             phone: item.user_info.phone_number,
             profile_id: item.profile_info.profile_id,
-            skills: item.profile_info.skills
-              ? item.profile_info.skills.split(",").map((s) => s.trim())
-              : [],
+            // ✅ Properly parse skills - handle JSON string, array, or comma-separated string
+            skills: (() => {
+              const skillsData = item.profile_info.skills;
+              if (!skillsData) return [];
+              
+              // If it's already an array, return it
+              if (Array.isArray(skillsData)) {
+                return skillsData.filter(s => s && s.trim() !== '').map(s => s.trim());
+              }
+              
+              // If it's a string, try to parse as JSON first
+              if (typeof skillsData === 'string') {
+                const trimmed = skillsData.trim();
+                
+                // Check if it's a JSON array string
+                if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+                  try {
+                    const parsed = JSON.parse(trimmed);
+                    if (Array.isArray(parsed)) {
+                      return parsed.filter(s => s && s.trim() !== '').map(s => String(s).trim());
+                    }
+                  } catch (e) {
+                    // If JSON parse fails, treat as comma-separated
+                  }
+                }
+                
+                // Treat as comma-separated string
+                return trimmed.split(',').map(s => s.trim()).filter(s => s !== '' && s !== '[]' && !s.startsWith('[') && !s.endsWith(']'));
+              }
+              
+              return [];
+            })(),
             education: item.profile_info.education,
             resume: item.profile_info.resume,
             certificates: item.profile_info.certificates,
@@ -1475,7 +1507,11 @@ export default function StudentManagement() {
             trade: item.profile_info.trade || "",
             region: item.profile_info.location || "No Region",
             cgpa: item.profile_info.cgpa || "No CGPA",
-            placement_status: item.profile_info.placement_status || item.profile_info.admin_action || "pending",
+            // ✅ Extract placement_status from multiple possible locations in API response
+            placement_status: item.placement_status || 
+                             item.profile_info?.placement_status || 
+                             item.profile_info?.admin_action || 
+                             "Not Applied",
             admin_action: item.profile_info.admin_action,
             bio: item.profile_info.bio,
             experience: item.profile_info.experience,
@@ -1537,14 +1573,32 @@ export default function StudentManagement() {
     students.forEach((student) => {
       if (Array.isArray(student.skills)) {
         student.skills.forEach((skill) => {
-          if (skill && skill.trim() !== '') {
-            skills.add(skill.trim());
+          const trimmed = String(skill).trim();
+          // ✅ Filter out malformed entries like "[]", "[", "]", "[React", "Node.js]" etc.
+          if (trimmed && 
+              trimmed !== '' && 
+              trimmed !== '[]' && 
+              trimmed !== '[' && 
+              trimmed !== ']' &&
+              !trimmed.startsWith('[') && 
+              !trimmed.endsWith(']') &&
+              trimmed.length > 0) {
+            skills.add(trimmed);
           }
         });
       } else if (typeof student.skills === 'string' && student.skills.trim() !== '') {
         student.skills.split(',').forEach((skill) => {
-          if (skill.trim() !== '') {
-            skills.add(skill.trim());
+          const trimmed = skill.trim();
+          // ✅ Filter out malformed entries
+          if (trimmed && 
+              trimmed !== '' && 
+              trimmed !== '[]' && 
+              trimmed !== '[' && 
+              trimmed !== ']' &&
+              !trimmed.startsWith('[') && 
+              !trimmed.endsWith(']') &&
+              trimmed.length > 0) {
+            skills.add(trimmed);
           }
         });
       }
@@ -1552,15 +1606,9 @@ export default function StudentManagement() {
     return Array.from(skills).sort();
   }, [students]);
 
+  // ✅ Filter students by advanced filters only (search is handled by CentralizedDataTable)
   const filteredStudents = useMemo(() => {
     return students.filter((student) => {
-      // Search filter
-      const matchesSearch =
-        !searchTerm ||
-        student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.id?.toString().includes(searchTerm);
-
       // Trade filter (applied jobs - job titles)
       const matchesTrade =
         !filters.trade ||
@@ -1582,14 +1630,23 @@ export default function StudentManagement() {
         studentCourse.includes(filters.course.toLowerCase().trim());
 
       // Placement Status filter
-      const studentPlacementStatus = (student.placement_status || student.admin_action || 'pending').toLowerCase();
+      // ✅ Normalize placement status for comparison (case-insensitive)
+      const studentPlacementStatus = (student.placement_status || student.admin_action || 'Not Applied').toString().trim();
+      const filterPlacementStatus = (filters.placementStatus || '').toString().trim();
+      
       const matchesPlacementStatus =
         !filters.placementStatus ||
         filters.placementStatus === "all" ||
-        (filters.placementStatus === "placed" && studentPlacementStatus === "placed") ||
-        (filters.placementStatus === "placement-ready" && (studentPlacementStatus === "placement-ready" || studentPlacementStatus === "approved")) ||
-        (filters.placementStatus === "in-progress" && studentPlacementStatus === "in-progress") ||
-        (filters.placementStatus === "not-ready" && (studentPlacementStatus === "not-ready" || studentPlacementStatus === "pending"));
+        // Case-insensitive comparison
+        studentPlacementStatus.toLowerCase() === filterPlacementStatus.toLowerCase() ||
+        // Handle variations
+        (filterPlacementStatus === "Selected" && (studentPlacementStatus.toLowerCase() === "selected" || studentPlacementStatus.toLowerCase() === "job_selected")) ||
+        (filterPlacementStatus === "Shortlisted" && studentPlacementStatus.toLowerCase() === "shortlisted") ||
+        (filterPlacementStatus === "Applied" && studentPlacementStatus.toLowerCase() === "applied") ||
+        (filterPlacementStatus === "Not Applied" && (studentPlacementStatus.toLowerCase() === "not applied" || studentPlacementStatus.toLowerCase() === "not_applied" || studentPlacementStatus.toLowerCase() === "pending")) ||
+        (filterPlacementStatus === "Placed" && studentPlacementStatus.toLowerCase() === "placed") ||
+        (filterPlacementStatus === "Rejected" && studentPlacementStatus.toLowerCase() === "rejected") ||
+        (filterPlacementStatus === "Pending" && studentPlacementStatus.toLowerCase() === "pending");
 
       // Skills filter
       const studentSkills = Array.isArray(student.skills) 
@@ -1602,9 +1659,9 @@ export default function StudentManagement() {
         filters.skills === "all" ||
         studentSkills.some((skill) => skill === filters.skills.toLowerCase().trim() || skill.includes(filters.skills.toLowerCase().trim()));
 
-      return matchesSearch && matchesTrade && matchesCourse && matchesPlacementStatus && matchesSkills;
+      return matchesTrade && matchesCourse && matchesPlacementStatus && matchesSkills;
     });
-  }, [students, filters, searchTerm]);
+  }, [students, filters]);
 
   const handleSelectAll = () => {
     if (selectedStudents.length === filteredStudents.length) {

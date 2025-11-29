@@ -318,6 +318,7 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
   }
 
   const handleApprove = async (instituteId) => {
+    console.log('🚀 handleApprove called with instituteId:', instituteId);
     Swal.fire({
       title: 'Approve Institute',
       text: 'Are you sure you want to approve this institute?',
@@ -328,11 +329,44 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
       confirmButtonText: 'Yes, Approve!',
       cancelButtonText: 'Cancel'
     }).then(async (result) => {
+      console.log('✅ SweetAlert result:', result.isConfirmed);
       if (result.isConfirmed) {
         try {
-          // Find the institute to get user_id
-          const institute = institutes.find(inst => inst.institute_id === instituteId);
+          console.log('🔍 Searching for institute to approve:', {
+            instituteId,
+            instituteId_type: typeof instituteId,
+            institutes_count: institutes.length,
+            first_institute_sample: institutes[0] ? {
+              has_institute_id: 'institute_id' in institutes[0],
+              institute_id_value: institutes[0].institute_id,
+              has_profile_info: 'profile_info' in institutes[0],
+              profile_info_institute_id: institutes[0].profile_info?.institute_id,
+              all_keys: Object.keys(institutes[0])
+            } : 'no institutes'
+          });
+
+          // ✅ Find the institute - handle both raw API data structure and formatted structure
+          // Also handle type coercion (number vs string)
+          const institute = institutes.find(inst => {
+            // Check formatted structure first (with type coercion)
+            if (String(inst.institute_id) === String(instituteId) || inst.institute_id === instituteId) return true;
+            // Check raw API data structure (with type coercion)
+            const profileInstId = inst.profile_info?.institute_id;
+            if (profileInstId && (String(profileInstId) === String(instituteId) || profileInstId === instituteId)) return true;
+            return false;
+          });
+          
           if (!institute) {
+            console.error('❌ Institute not found for approval:', {
+              instituteId,
+              instituteId_type: typeof instituteId,
+              institutes_count: institutes.length,
+              all_institute_ids: institutes.map(inst => ({
+                formatted_id: inst.institute_id,
+                raw_id: inst.profile_info?.institute_id,
+                user_id: inst.id || inst.user_info?.user_id
+              }))
+            });
             Swal.fire({
               title: "Error",
               text: "Institute not found",
@@ -341,26 +375,76 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
             return;
           }
 
+          // ✅ Extract user_id from both structures
+          const userId = institute.id || 
+                        institute.user_info?.user_id || 
+                        institute.user_id;
+          
+          if (!userId) {
+            console.error('❌ User ID not found:', institute);
+            Swal.fire({
+              title: "Error",
+              text: "User ID not found for this institute",
+              icon: "error"
+            });
+            return;
+          }
+
+          console.log('✅ Approving institute:', {
+            instituteId,
+            userId,
+            institute_name: institute.institute_name || institute.profile_info?.institute_name
+          });
+
           // Call verifyUser API with is_verified: 1 for approve
           var data = {
             apiUrl: service.verifyUser,
             payload: {
-              uid: institute.id, // user_id
+              uid: userId, // user_id
               is_verified: 1  // 1 for approve, 0 for reject
             },
           };
 
+          console.log('📡 Making API call to verifyUser:', {
+            apiUrl: service.verifyUser,
+            fullUrl: service.verifyUser,
+            payload: data.payload,
+            data_object: data
+          });
+
           var response = await postMethod(data);
-          console.log('Approve API Response:', response)
+          console.log('📥 Approve API Response:', response)
           
           if (response.status === true || response.success === true) {
-            // Update state immediately without page reload
+            // ✅ Update state - handle both raw and formatted structures
             setInstitutes(prevInstitutes => 
-              prevInstitutes.map(inst => 
-                inst.institute_id === instituteId 
-                  ? { ...inst, status: 'approved', admin_action: 'approved' }
-                  : inst
-              )
+              prevInstitutes.map(inst => {
+                const instId = inst.institute_id || inst.profile_info?.institute_id;
+                if (instId === instituteId) {
+                  // Update raw API structure
+                  if (inst.user_info) {
+                    return {
+                      ...inst,
+                      user_info: {
+                        ...inst.user_info,
+                        is_verified: 1
+                      },
+                      profile_info: {
+                        ...inst.profile_info,
+                        admin_action: 'approved'
+                      }
+                    };
+                  }
+                  // Update formatted structure
+                  return {
+                    ...inst,
+                    status: 'approved',
+                    admin_action: 'approved',
+                    is_verified: 1
+                  };
+                }
+                return inst;
+              })
             );
             
             Swal.fire({
@@ -402,9 +486,34 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // Find the institute to get user_id
-          const institute = institutes.find(inst => inst.institute_id === instituteId);
+          console.log('🔍 Searching for institute to reject:', {
+            instituteId,
+            instituteId_type: typeof instituteId,
+            institutes_count: institutes.length
+          });
+
+          // ✅ Find the institute - handle both raw API data structure and formatted structure
+          // Also handle type coercion (number vs string)
+          const institute = institutes.find(inst => {
+            // Check formatted structure first (with type coercion)
+            if (String(inst.institute_id) === String(instituteId) || inst.institute_id === instituteId) return true;
+            // Check raw API data structure (with type coercion)
+            const profileInstId = inst.profile_info?.institute_id;
+            if (profileInstId && (String(profileInstId) === String(instituteId) || profileInstId === instituteId)) return true;
+            return false;
+          });
+          
           if (!institute) {
+            console.error('❌ Institute not found for rejection:', {
+              instituteId,
+              instituteId_type: typeof instituteId,
+              institutes_count: institutes.length,
+              all_institute_ids: institutes.map(inst => ({
+                formatted_id: inst.institute_id,
+                raw_id: inst.profile_info?.institute_id,
+                user_id: inst.id || inst.user_info?.user_id
+              }))
+            });
             Swal.fire({
               title: "Error",
               text: "Institute not found",
@@ -413,26 +522,76 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
             return;
           }
 
+          // ✅ Extract user_id from both structures
+          const userId = institute.id || 
+                        institute.user_info?.user_id || 
+                        institute.user_id;
+          
+          if (!userId) {
+            console.error('❌ User ID not found:', institute);
+            Swal.fire({
+              title: "Error",
+              text: "User ID not found for this institute",
+              icon: "error"
+            });
+            return;
+          }
+
+          console.log('✅ Rejecting institute:', {
+            instituteId,
+            userId,
+            institute_name: institute.institute_name || institute.profile_info?.institute_name
+          });
+
           // Call verifyUser API with is_verified: 0 for reject
           var data = {
             apiUrl: service.verifyUser,
             payload: {
-              uid: institute.id, // user_id
+              uid: userId, // user_id
               is_verified: 0  // 1 for approve, 0 for reject
             },
           };
 
+          console.log('📡 Making API call to verifyUser (Reject):', {
+            apiUrl: service.verifyUser,
+            fullUrl: service.verifyUser,
+            payload: data.payload,
+            data_object: data
+          });
+
           var response = await postMethod(data);
-          console.log('Reject API Response:', response)
+          console.log('📥 Reject API Response:', response)
           
           if (response.status === true || response.success === true) {
-            // Update state immediately without page reload
+            // ✅ Update state - handle both raw and formatted structures
             setInstitutes(prevInstitutes => 
-              prevInstitutes.map(inst => 
-                inst.institute_id === instituteId 
-                  ? { ...inst, status: 'rejected', admin_action: 'rejected' }
-                  : inst
-              )
+              prevInstitutes.map(inst => {
+                const instId = inst.institute_id || inst.profile_info?.institute_id;
+                if (instId === instituteId) {
+                  // Update raw API structure
+                  if (inst.user_info) {
+                    return {
+                      ...inst,
+                      user_info: {
+                        ...inst.user_info,
+                        is_verified: 0
+                      },
+                      profile_info: {
+                        ...inst.profile_info,
+                        admin_action: 'rejected'
+                      }
+                    };
+                  }
+                  // Update formatted structure
+                  return {
+                    ...inst,
+                    status: 'rejected',
+                    admin_action: 'rejected',
+                    is_verified: 0
+                  };
+                }
+                return inst;
+              })
             );
             
             Swal.fire({

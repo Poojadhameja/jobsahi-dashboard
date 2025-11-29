@@ -702,11 +702,20 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
   // ✅ Approve/Reject logic
   const updateStatus = async (uid, is_verified, label) => {
     try {
+      console.log(`📡 Making API call to verifyUser for ${label}:`, {
+        uid,
+        is_verified,
+        apiUrl: service.verifyUser
+      });
+
       const data = {
         apiUrl: service.verifyUser,
         payload: { uid, is_verified },
       };
+      
+      console.log('📤 API Request Data:', data);
       const res = await postMethod(data);
+      console.log('📥 API Response:', res);
 
       if (res?.success || res?.status) {
         setItems((prev) =>
@@ -740,8 +749,14 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
     }
   };
 
-  const handleApprove = (id) => updateStatus(id, 1, "Approved");
-  const handleReject = (id) => updateStatus(id, 0, "Rejected");
+  const handleApprove = (id) => {
+    console.log('🚀 handleApprove called for recruiter with id:', id);
+    updateStatus(id, 1, "Approved");
+  };
+  const handleReject = (id) => {
+    console.log('🚀 handleReject called for recruiter with id:', id);
+    updateStatus(id, 0, "Rejected");
+  };
 
   const counts = {
     approved: items.filter((i) => i.status === "approved").length,

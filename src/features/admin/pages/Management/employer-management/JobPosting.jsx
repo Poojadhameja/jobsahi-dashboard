@@ -45,37 +45,66 @@ function JobPostingAnalytics() {
   const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true)
+      console.log('📡 Fetching job posting analytics from:', apiService.adminJobPostingAnalytics)
+      
       const response = await getMethod({
         apiUrl: apiService.adminJobPostingAnalytics
       })
 
+      console.log('📥 Job Posting Analytics API Response:', response)
+
       const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
 
-      if (isSuccess && Array.isArray(response?.data)) {
-        const mapped = response.data.map((item, index) => {
-          const jobsPosted = Number(item.jobs_posted || 0)
-          const totalApplicants = Number(item.total_applicants || 0)
+      // ✅ Handle different response structures
+      let dataArray = null;
+      
+      if (Array.isArray(response?.data)) {
+        dataArray = response.data;
+      } else if (Array.isArray(response)) {
+        // If response itself is an array
+        dataArray = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        dataArray = response.data;
+      } else if (response?.analytics && Array.isArray(response.analytics)) {
+        dataArray = response.analytics;
+      } else if (response?.result && Array.isArray(response.result)) {
+        dataArray = response.result;
+      }
+
+      console.log('📊 Extracted data array:', dataArray)
+
+      if (isSuccess && dataArray && dataArray.length > 0) {
+        const mapped = dataArray.map((item, index) => {
+          const jobsPosted = Number(item.jobs_posted || item.jobsPosted || 0)
+          const totalApplicants = Number(item.total_applicants || item.totalApplicants || 0)
           const shortlisted = Number(item.shortlisted || 0)
 
           return {
-            id: item.id || index + 1,
-            company: item.company_name || 'N/A',
-            contactPerson: item.recruiter_name || 'N/A',
+            id: item.id || item.recruiter_id || item.company_id || index + 1,
+            company: item.company_name || item.companyName || item.company || 'N/A',
+            contactPerson: item.recruiter_name || item.recruiterName || item.contact_person || item.contactPerson || 'N/A',
             status: item.status || 'Active',
             jobsPosted,
             totalApplicants,
             shortlisted,
-            lastActivity: item.last_activity || 'N/A',
+            lastActivity: item.last_activity || item.lastActivity || 'N/A',
             industry: item.industry || '—'
           }
         })
+        console.log('✅ Mapped analytics data:', mapped)
         setAnalyticsData(mapped)
       } else {
-        console.warn('No analytics data found', response?.message)
+        console.warn('⚠️ No analytics data found', {
+          isSuccess,
+          hasData: !!dataArray,
+          dataLength: dataArray?.length,
+          message: response?.message,
+          responseKeys: Object.keys(response || {})
+        })
         setAnalyticsData([])
       }
     } catch (error) {
-      console.error('Error fetching job posting analytics:', error)
+      console.error('❌ Error fetching job posting analytics:', error)
       setAnalyticsData([])
     } finally {
       setLoading(false)
