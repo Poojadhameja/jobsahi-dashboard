@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { LuPlus, LuSearch, LuFilter, LuPencil, LuUserPlus } from 'react-icons/lu'
+import { LuPlus, LuSearch, LuPencil, LuUserPlus } from 'react-icons/lu'
 import Button from '../../../../shared/components/Button'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import Swal from 'sweetalert2'
@@ -250,7 +250,7 @@ export default function StaffManagement() {
         </div>
       </div>
 
-      {/* Search and Filter Section */}
+      {/* Search Section */}
       <div className={`${TAILWIND_COLORS.HEADER_BG} border-b ${TAILWIND_COLORS.BORDER} px-6 py-4`}>
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
@@ -264,13 +264,6 @@ export default function StaffManagement() {
                 className={`w-full pl-10 pr-4 py-2 border ${TAILWIND_COLORS.BORDER} rounded-md focus:outline-none focus:ring-2 focus:ring-secondary focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               />
             </div>
-            <Button
-              variant="light"
-              size="md"
-              icon={<LuFilter className="w-4 h-4" />}
-            >
-              Filter
-            </Button>
           </div>
         </div>
       </div>

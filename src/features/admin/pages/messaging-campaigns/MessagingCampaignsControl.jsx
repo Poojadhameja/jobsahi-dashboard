@@ -368,6 +368,7 @@ const MessagingCampaignsView = () => {
         tabs={navigationTabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        storageKey="admin_messaging_campaigns_tab"
       />
 
       {/* Filter and New Campaign Buttons */}

@@ -59,6 +59,7 @@ const ProfileSetting = () => {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={handleTabChange}
+          storageKey="institute_profile_setting_tab"
           className={TAILWIND_COLORS.TEXT_PRIMARY}
         />
       </div>

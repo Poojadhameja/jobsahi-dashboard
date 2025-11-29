@@ -16,7 +16,7 @@ import {
 } from "react-icons/lu";
 import { TAILWIND_COLORS } from "../../../../../shared/WebConstant.js";
 import { Button } from "../../../../../shared/components/Button";
-import { postMethod } from "../../../../../service/api";
+import { postMethod, getMethod } from "../../../../../service/api";
 import service from "../../../../../service/serviceUrl.js";
 
 /* ---------------------------------------------
@@ -33,6 +33,7 @@ const statusFromVerified = (v) => {
 // ✅ Normalize employer object properly
 function normalizeEmployer(raw) {
   const profile = raw.profile || {};
+  const userInfo = raw.user_info || {};
 
   // ✅ correct key usage
   const uid = Number(raw.user_id ?? raw.uid ?? raw.id ?? 0);
@@ -46,17 +47,34 @@ function normalizeEmployer(raw) {
   const applied_date = profile.applied_date ?? raw.created_at ?? null;
   const last_modified = profile.last_modified ?? raw.modified_at ?? null;
 
-  const is_verified = Number(raw.is_verified ?? 0);
-  const statusRaw = profile.status ?? raw.admin_action ?? raw.status ?? statusFromVerified(is_verified);
-  const status = statusRaw ? String(statusRaw).toLowerCase() : statusFromVerified(is_verified);
+  // ✅ Extract is_verified from top level (API response has it at root level)
+  const is_verified = Number(
+    raw.is_verified ?? 
+    raw.user?.is_verified ??
+    userInfo.is_verified ?? 
+    profile.is_verified ?? 
+    0
+  );
+
+  // ✅ IMPORTANT: Status is determined ONLY by is_verified field
+  // is_verified === 1 → "approved"
+  // is_verified === 0 → "pending"
+  // Don't use admin_action or profile.status - only is_verified matters
+  let finalStatus;
+  if (is_verified === 1) {
+    finalStatus = "approved";
+  } else {
+    // is_verified === 0 or null → "pending"
+    finalStatus = "pending";
+  }
 
   return {
     id: profile_id || uid || Math.random(),
     uid,
-    user_name: raw.user_name ?? "No Recruiter",
-    email: raw.email ?? "No Email",
-    phone_number: raw.phone_number ?? "No Phone",
-    role: raw.role ?? "recruiter",
+    user_name: raw.user_name ?? userInfo.user_name ?? "No Recruiter",
+    email: raw.email ?? userInfo.email ?? "No Email",
+    phone_number: raw.phone_number ?? userInfo.phone_number ?? "No Phone",
+    role: raw.role ?? userInfo.role ?? "recruiter",
     profile_id,
     company_name,
     company_logo,
@@ -66,7 +84,7 @@ function normalizeEmployer(raw) {
     applied_date,
     last_modified,
     is_verified,
-    status,
+    status: finalStatus,
   };
 }
 
@@ -224,10 +242,8 @@ function ApprovalCard({
             icon={<LuCheck size={16} />}
             className={
               status === "approved"
-                ? "opacity-50 cursor-not-allowed"
-                : status === "pending"
-                  ? "!bg-green-600 text-white"
-                  : "!bg-green-500 text-white"
+                ? "opacity-30 cursor-not-allowed !bg-gray-400"
+                : "!bg-green-600 text-white hover:!bg-green-700"
             }
             disabled={status === "approved"}
           >
@@ -560,12 +576,93 @@ function ReviewModal({ recruiter, isOpen, onClose }) {
 
 export default function PendingRecruiterApprovals({ employers = [] }) {
   const normalized = useMemo(() => employers.map(normalizeEmployer), [employers]);
-  const [items, setItems] = useState(normalized);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // ✅ Fetch verification status from users table and set items
   React.useEffect(() => {
-    if (employers && employers.length > 0) {
+    const fetchVerificationStatus = async () => {
+      if (!employers || employers.length === 0) {
+        setItems([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        // ✅ Log full API response structure first
+        console.log('🔍 FULL EMPLOYERS API RESPONSE:', {
+          total_employers: employers.length,
+          first_employer_structure: employers[0] ? {
+            all_keys: Object.keys(employers[0]),
+            full_object: employers[0],
+            has_profile: !!employers[0].profile,
+            has_user_info: !!employers[0].user_info,
+            profile_keys: employers[0].profile ? Object.keys(employers[0].profile) : [],
+            user_info_keys: employers[0].user_info ? Object.keys(employers[0].user_info) : []
+          } : 'No employers'
+        });
+        
+        // First normalize employers
+        const normalizedEmployers = employers.map(normalizeEmployer);
+        
+        console.log('📊 Initial normalized employers:', normalizedEmployers.map(emp => ({
+          name: emp.user_name,
+          uid: emp.uid,
+          is_verified: emp.is_verified,
+          status: emp.status
+        })));
+
+        // ✅ Override status based on is_verified from original API response
+        const itemsWithVerification = normalizedEmployers.map((emp, index) => {
+          // Get original employer data to check is_verified directly
+          const originalEmployer = employers[index];
+          
+          // ✅ Extract is_verified from top level (API response has it at root level)
+          const isVerifiedValue = Number(originalEmployer?.is_verified ?? 0);
+          
+          console.log(`🔍 Processing ${emp.user_name || originalEmployer?.user_name}:`, {
+            original_is_verified: originalEmployer?.is_verified,
+            isVerifiedValue: isVerifiedValue,
+            current_status: emp.status
+          });
+          
+          // ✅ Status is determined ONLY by is_verified
+          // is_verified === 1 → "approved"
+          // is_verified === 0 → "pending"
+          let finalStatus;
+          if (isVerifiedValue === 1) {
+            finalStatus = "approved";
+          } else {
+            finalStatus = "pending";
+          }
+          
+          console.log(`✅ ${emp.user_name}: is_verified=${isVerifiedValue} → status="${finalStatus}"`);
+          
+          return {
+            ...emp,
+            status: finalStatus,
+            is_verified: isVerifiedValue
+          };
+        });
+
+        console.log('✅ Final items with verification:', itemsWithVerification.map(emp => ({
+          name: emp.user_name,
+          is_verified: emp.is_verified,
+          status: emp.status
+        })));
+
+        setItems(itemsWithVerification);
+      } catch (error) {
+        console.error("Error fetching verification status:", error);
+        // Fallback: use normalized data
       setItems(employers.map(normalizeEmployer));
+      } finally {
+        setLoading(false);
     }
+    };
+
+    fetchVerificationStatus();
   }, [employers]);
 
   // ✅ Review modal control
@@ -660,7 +757,12 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
       {/* ✅ Cards */}
       {/* Cards */}
       <div className="space-y-4">
-        {items.map((c) => (
+        {loading ? (
+          <div className="bg-white rounded-lg border border-dashed p-8 text-center">
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>Checking verification status...</p>
+          </div>
+        ) : (
+          items.map((c) => (
           <ApprovalCard
             key={c.id}
             company={c.company_name}
@@ -687,9 +789,10 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
             onApprove={() => handleApprove(c.uid)}
             onReject={() => handleReject(c.uid)}
           />
-        ))}
+          ))
+        )}
 
-        {items.length === 0 && (
+        {!loading && items.length === 0 && (
           <div className="bg-white rounded-lg border border-dashed p-8 text-center">
             <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>No recruiters found.</p>
           </div>

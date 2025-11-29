@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { TAILWIND_COLORS, COLORS } from '../WebConstant'
 import { LuUsers, LuPlus, LuBuilding2, LuMenu, LuX } from 'react-icons/lu'
 
@@ -143,9 +143,35 @@ export const PillNavigation = ({
   tabs = [], 
   activeTab = 0, 
   onTabChange,
-  className = ''
+  className = '',
+  storageKey
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  // Load persisted tab on mount
+  useEffect(() => {
+    if (!storageKey || typeof window === 'undefined' || typeof onTabChange !== 'function') return
+
+    const storedValue = window.localStorage.getItem(storageKey)
+    if (storedValue === null) return
+
+    const parsedValue = Number(storedValue)
+    if (
+      Number.isInteger(parsedValue) &&
+      parsedValue >= 0 &&
+      parsedValue < tabs.length &&
+      parsedValue !== activeTab
+    ) {
+      onTabChange(parsedValue)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey, tabs.length])
+
+  // Persist active tab whenever it changes
+  useEffect(() => {
+    if (!storageKey || typeof window === 'undefined') return
+    window.localStorage.setItem(storageKey, String(activeTab))
+  }, [storageKey, activeTab])
 
   return (
     <div className={`flex justify-center ${className}`}>

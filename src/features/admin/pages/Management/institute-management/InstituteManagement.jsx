@@ -150,6 +150,7 @@ export default function InstituteManagement() {
             setActiveTab(newTab)
           }
         }}
+        storageKey="admin_institute_management_tab"
       />
 
       {/* Conditional Content */}

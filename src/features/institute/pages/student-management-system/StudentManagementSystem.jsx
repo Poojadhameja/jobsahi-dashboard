@@ -69,6 +69,7 @@ export default function StudentManagementSystem() {
           tabs={navigationTabs}
           activeTab={activeTab}
           onTabChange={handleTabChange}
+          storageKey="institute_student_management_tab"
           className="w-full max-w-4xl"
         />
       </div>

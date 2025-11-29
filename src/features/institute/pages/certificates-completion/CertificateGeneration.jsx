@@ -62,15 +62,71 @@ function CertificateGeneration() {
     const fetchData = async () => {
       try {
         const nestedRes = await getMethod({
-          apiUrl: apiService.CourseBatchStudents, // ✅ fixed key name
+          apiUrl: apiService.CourseBatchStudents,
         });
 
-        if (nestedRes?.status && Array.isArray(nestedRes.data)) {
-          const formattedCourses = nestedRes.data.map((course) => ({
-            id: course.course_id,
-            title: course.course_name,
-            batches: course.batches || [],
-          }));
+        // Handle multiple possible response structures
+        let coursesData = [];
+        
+        // Priority 1: Check if data is directly an array
+        if (Array.isArray(nestedRes)) {
+          coursesData = nestedRes;
+        }
+        // Priority 2: Check nestedRes.data as array
+        else if (Array.isArray(nestedRes?.data)) {
+          coursesData = nestedRes.data;
+        }
+        // Priority 3: Check nestedRes.courses as array
+        else if (Array.isArray(nestedRes?.courses)) {
+          coursesData = nestedRes.courses;
+        }
+        // Priority 4: Check nestedRes.data.courses
+        else if (nestedRes?.data?.courses && Array.isArray(nestedRes.data.courses)) {
+          coursesData = nestedRes.data.courses;
+        }
+        // Priority 5: Check nestedRes.data.data
+        else if (nestedRes?.data?.data && Array.isArray(nestedRes.data.data)) {
+          coursesData = nestedRes.data.data;
+        }
+        // Priority 6: Check if status is true/false and data exists
+        else if ((nestedRes?.status === true || nestedRes?.status === 'success' || nestedRes?.success === true || nestedRes?.status === 1) && nestedRes?.data) {
+          if (Array.isArray(nestedRes.data)) {
+            coursesData = nestedRes.data;
+          } else if (nestedRes.data.courses && Array.isArray(nestedRes.data.courses)) {
+            coursesData = nestedRes.data.courses;
+          } else if (typeof nestedRes.data === 'object' && !Array.isArray(nestedRes.data)) {
+            // Try to find any array property in data object
+            const dataKeys = Object.keys(nestedRes.data);
+            for (const key of dataKeys) {
+              if (Array.isArray(nestedRes.data[key])) {
+                coursesData = nestedRes.data[key];
+                break;
+              }
+            }
+          }
+        }
+        // Priority 7: Check all top-level keys for arrays
+        else if (nestedRes && typeof nestedRes === 'object') {
+          const topLevelKeys = Object.keys(nestedRes);
+          for (const key of topLevelKeys) {
+            if (Array.isArray(nestedRes[key]) && nestedRes[key].length > 0) {
+              // Check if first item looks like a course object
+              const firstItem = nestedRes[key][0];
+              if (firstItem && (firstItem.course_id || firstItem.id || firstItem.course_name || firstItem.title)) {
+                coursesData = nestedRes[key];
+                break;
+              }
+            }
+          }
+        }
+
+        if (coursesData.length > 0) {
+          const formattedCourses = coursesData.map((course) => ({
+            id: course.course_id || course.id || course.courseId,
+            title: course.course_name || course.title || course.courseName || course.name || course.course_title,
+            batches: course.batches || course.batch_list || course.batchList || [],
+          })).filter(course => course.id && course.title); // Filter out invalid courses
+          
           setCourses(formattedCourses);
         } else {
           setCourses([]);
@@ -86,12 +142,24 @@ function CertificateGeneration() {
   const fetchTemplateDefaults = async () => {
     try {
       const resp = await getMethod({
-        apiUrl: apiService.certificateTemplatesList, // Fixed: use correct endpoint
+        apiUrl: apiService.certificateTemplatesList,
       });
   
-  
+      // Handle multiple possible response structures
+      let templatesData = [];
+      
       if (resp?.status && Array.isArray(resp.data)) {
-        setTemplates(resp.data);
+        templatesData = resp.data;
+      } else if (Array.isArray(resp?.data)) {
+        templatesData = resp.data;
+      } else if (Array.isArray(resp)) {
+        templatesData = resp;
+      } else if (resp?.templates && Array.isArray(resp.templates)) {
+        templatesData = resp.templates;
+      }
+
+      if (templatesData.length > 0) {
+        setTemplates(templatesData);
   
         // Don't auto-select first template - let user choose
         // Reset to default "Choose a template"
@@ -133,15 +201,18 @@ function CertificateGeneration() {
       (c) => String(c.id) === String(selectedCourse)
     );
     const batchObj = course?.batches?.find(
-      (b) => String(b.batch_id) === String(bid)
+      (b) => String(b.batch_id || b.id || b.batchId) === String(bid)
     );
 
-    let mappedStudents = (batchObj?.students || []).map((s) => ({
-      id: s.student_id,
-      name: s.name,
-      email: s.email,
-      phone: s.phone_number,
-      enrollmentId: s.student_id,
+    // Handle multiple possible student data structures
+    const studentsList = batchObj?.students || batchObj?.student_list || batchObj?.enrolled_students || [];
+    
+    let mappedStudents = studentsList.map((s) => ({
+      id: s.student_id || s.id || s.studentId,
+      name: s.name || s.student_name || s.user_name || '',
+      email: s.email || s.student_email || '',
+      phone: s.phone || s.phone_number || s.phoneNumber || '',
+      enrollmentId: s.student_id || s.id || s.enrollment_id || s.studentId,
     }));
 
     // ✅ Remove duplicates (sometimes API sends same student twice)
@@ -894,11 +965,19 @@ function CertificateGeneration() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
                     <option value="">Choose a course</option>
-                    {courses.map((course) => (
-                      <option key={course.id} value={course.id}>
-                        {course.title}
-                      </option>
-                    ))}
+                    {courses && courses.length > 0 ? (
+                      courses.map((course) => {
+                        const courseId = course.id || course.course_id || course.courseId;
+                        const courseTitle = course.title || course.course_name || course.name || course.courseName || `Course ${courseId}`;
+                        return (
+                          <option key={courseId} value={courseId}>
+                            {courseTitle}
+                          </option>
+                        );
+                      })
+                    ) : (
+                      <option value="" disabled>No courses available</option>
+                    )}
                   </select>
                 </div>
 
@@ -910,11 +989,15 @@ function CertificateGeneration() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
                     <option value="">Choose a batch</option>
-                    {batches.map((batch) => (
-                      <option key={batch.batch_id} value={batch.batch_id}>
-                        {batch.batch_name}
-                      </option>
-                    ))}
+                    {batches.map((batch) => {
+                      const batchId = batch.batch_id || batch.id || batch.batchId;
+                      const batchName = batch.batch_name || batch.name || batch.batchName || `Batch ${batchId}`;
+                      return (
+                        <option key={batchId} value={batchId}>
+                          {batchName}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 

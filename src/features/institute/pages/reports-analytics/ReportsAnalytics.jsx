@@ -111,7 +111,8 @@ export default function ReportsAnalytics() {
         <PillNavigation 
           tabs={navigationTabs}
           activeTab={activeTabIndex}
-          onTabChange={setActiveTabIndex}
+        onTabChange={setActiveTabIndex}
+        storageKey="institute_reports_analytics_tab"
         />
       </div>
 

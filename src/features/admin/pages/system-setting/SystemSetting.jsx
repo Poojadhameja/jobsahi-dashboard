@@ -79,6 +79,7 @@ export default function SystemSetting() {
         tabs={navigationTabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        storageKey="admin_system_settings_tab"
       />
 
       {/* Tab Content */}

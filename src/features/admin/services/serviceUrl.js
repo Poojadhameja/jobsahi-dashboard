@@ -36,6 +36,11 @@ const service = {
     updateAlertSettings: '/admin/update_alert_settings.php',
     getUpcomingCourseDeadlines: '/admin/get_upcoming_course_deadlines.php',
 
+    //jobs and courses for filters
+    getJobs: '/jobs/jobs.php',
+    getCourses: '/courses/courses.php',
+    getJobDetail: '/jobs/job-detail.php',
+
 }
 
 export default service;

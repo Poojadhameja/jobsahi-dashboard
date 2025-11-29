@@ -771,6 +771,7 @@ export default function FeaturedContent() {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          storageKey="admin_featured_content_tab"
         />
       </div>
 

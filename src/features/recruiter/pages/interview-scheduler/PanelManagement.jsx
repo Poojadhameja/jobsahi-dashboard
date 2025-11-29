@@ -415,13 +415,29 @@ const PanelManagement = () => {
       return
     }
     
-    // Ensure panel_id is set in selectedFeedback
+    // Get panel_id from originalData (API response has 'id' field which is the panel_id)
+    const panelId = feedback.originalData?.id || 
+                   feedback.originalData?.panel_id || 
+                   feedback.id || 
+                   feedback.panel_id
+    
+    // Ensure all required fields are set, especially originalData
     const feedbackWithPanelId = {
       ...feedback,
-      panel_id: feedback.panel_id || feedback.id || feedback.originalData?.panel_id || feedback.originalData?.id
+      panel_id: panelId, // Ensure panel_id is set
+      // Preserve originalData - this is critical for update
+      originalData: feedback.originalData || {
+        id: panelId,
+        interview_id: feedback.interview_id,
+        panelist_name: feedback.panelist || feedback.candidate,
+        feedback: feedback.remarks,
+        rating: feedback.rating
+      }
     }
     
     console.log('📋 Selected feedback for update:', feedbackWithPanelId)
+    console.log('📋 Panel ID extracted:', panelId)
+    console.log('📋 Original Data:', feedbackWithPanelId.originalData)
     setSelectedFeedback(feedbackWithPanelId)
     setShowUpdateModal(true)
   }
@@ -431,33 +447,45 @@ const PanelManagement = () => {
   }
 
   const handleSaveUpdate = async () => {
-    if (!selectedFeedback) return
+    if (!selectedFeedback) {
+      Swal.fire({
+        title: "Error",
+        text: "No feedback selected. Please try again.",
+        icon: "error",
+        confirmButtonColor: '#d33'
+      })
+      return
+    }
 
     try {
       setIsSubmitting(true)
 
-      // Get the correct ID field - try multiple possible field names
-      const feedbackId = selectedFeedback.panel_id || 
-                        selectedFeedback.id || 
-                        selectedFeedback.originalData?.panel_id || 
-                        selectedFeedback.originalData?.id || 
-                        selectedFeedback.originalData?.interview_panel_id
+      // Get data from originalData (from GET API response)
+      // GET response structure: { id: 3, interview_id: 5, panelist_name: "...", feedback: "...", rating: 5, ... }
+      // id = panel record ID (primary key)
+      // interview_id = interview ID (foreign key)
+      
+      const panelId = selectedFeedback.originalData?.id || 
+                     selectedFeedback.id || 
+                     selectedFeedback.panel_id
 
-      // Get interview_id from original data
-      const interviewId = selectedFeedback.interview_id || 
-                         selectedFeedback.originalData?.interview_id
+      const interviewId = selectedFeedback.originalData?.interview_id || 
+                         selectedFeedback.interview_id
+
+      console.log('🔍 Debug - Data from GET response:', {
+        'originalData': selectedFeedback.originalData,
+        'panelId (originalData.id)': selectedFeedback.originalData?.id,
+        'interviewId (originalData.interview_id)': selectedFeedback.originalData?.interview_id,
+        'Final panelId': panelId,
+        'Final interviewId': interviewId,
+        'Full selectedFeedback': selectedFeedback
+      })
 
       // Validate required fields
-      if (!feedbackId) {
-        console.error('❌ Panel ID not found:', {
-          selectedFeedback,
-          id: selectedFeedback.id,
-          panel_id: selectedFeedback.panel_id,
-          originalData: selectedFeedback.originalData
-        })
+      if (!panelId || panelId === null || panelId === undefined) {
         Swal.fire({
           title: "Error",
-          text: "Panel ID is required. Please refresh and try again.",
+          text: "Panel ID is missing. Please refresh and try again.",
           icon: "error",
           confirmButtonColor: '#d33'
         })
@@ -465,7 +493,7 @@ const PanelManagement = () => {
         return
       }
 
-      if (!interviewId) {
+      if (!interviewId || interviewId === null || interviewId === undefined) {
         Swal.fire({
           title: "Error",
           text: "Interview ID is missing. Please refresh and try again.",
@@ -476,20 +504,19 @@ const PanelManagement = () => {
         return
       }
 
-      // Build payload with correct field names
-      // Backend expects panel_id as the primary identifier
+      // Convert to numbers
+      const panelIdNumber = typeof panelId === 'string' ? parseInt(panelId) : Number(panelId)
+      const interviewIdNumber = typeof interviewId === 'string' ? parseInt(interviewId) : Number(interviewId)
+
+      // Build payload using values from GET response (originalData)
+      // panel_id = panel record ID (id from GET response)
+      // interview_id = interview ID (interview_id from GET response)
       const payload = {
-        panel_id: feedbackId, // Primary field name for update - REQUIRED
-        interview_id: interviewId,
-        panelist_name: selectedFeedback.panelist || selectedFeedback.originalData?.panelist_name || selectedFeedback.candidate || '',
+        panel_id: panelIdNumber,  // ✅ Panel record ID (id from GET response)
+        interview_id: interviewIdNumber,  // ✅ Interview ID (interview_id from GET response)
+        panelist_name: selectedFeedback.panelist || selectedFeedback.candidate || selectedFeedback.originalData?.panelist_name || '',
         feedback: selectedFeedback.remarks || selectedFeedback.originalData?.feedback || '',
-        rating: parseInt(selectedFeedback.rating || selectedFeedback.originalData?.rating || 0),
-        notes: selectedFeedback.decision || selectedFeedback.originalData?.notes || ''
-      }
-      
-      // Ensure panel_id is a number if backend expects it
-      if (typeof payload.panel_id === 'string') {
-        payload.panel_id = parseInt(payload.panel_id) || payload.panel_id
+        rating: parseInt(selectedFeedback.rating || selectedFeedback.originalData?.rating || 0)
       }
 
       console.log('📤 Update Panel Feedback Payload:', payload)
@@ -517,7 +544,7 @@ const PanelManagement = () => {
           fetchPanelFeedbacks() // Refresh list
         })
       } else {
-        const errorMessage = response?.message || response?.error || "Failed to update feedback. Please try again."
+        const errorMessage = response?.message || response?.error || response?.error_message || "Failed to update feedback. Please try again."
         console.error('❌ Update failed:', {
           response,
           payload,
@@ -532,9 +559,13 @@ const PanelManagement = () => {
       }
     } catch (error) {
       console.error('❌ Error updating feedback:', error)
+      const errorMessage = error?.response?.data?.message || 
+                          error?.response?.data?.error || 
+                          error?.message || 
+                          "Something went wrong. Please try again."
       Swal.fire({
         title: "Error",
-        text: error?.message || "Something went wrong. Please try again.",
+        text: errorMessage,
         icon: "error",
         confirmButtonColor: '#d33'
       })
@@ -830,7 +861,7 @@ const PanelManagement = () => {
                   Rating
                 </label>
                 {renderStars(selectedFeedback.rating, true, (r) =>
-                  setSelectedFeedback({ ...selectedFeedback, rating: r })
+                  setSelectedFeedback(prev => ({ ...prev, rating: r }))
                 )}
               </div>
 
@@ -843,7 +874,7 @@ const PanelManagement = () => {
                   rows={3}
                   value={selectedFeedback.remarks}
                   onChange={(e) =>
-                    setSelectedFeedback({ ...selectedFeedback, remarks: e.target.value })
+                    setSelectedFeedback(prev => ({ ...prev, remarks: e.target.value }))
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
                 />
@@ -858,7 +889,7 @@ const PanelManagement = () => {
                   type="text"
                   value={selectedFeedback.decision}
                   onChange={(e) =>
-                    setSelectedFeedback({ ...selectedFeedback, decision: e.target.value })
+                    setSelectedFeedback(prev => ({ ...prev, decision: e.target.value }))
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />

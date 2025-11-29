@@ -46,6 +46,7 @@ const CompanyProfile = () => {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          storageKey="recruiter_company_profile_tab"
         />
       </div>
 

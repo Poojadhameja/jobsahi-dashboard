@@ -174,25 +174,68 @@ export default function CreateCourse() {
   // ✅ Save handler (updated with postMultipart)
   const handleSave = async () => {
     setValidationErrors({})
-    const requiredFields = [
-      { field: 'courseTitle', label: 'Course Title' },
-      { field: 'duration', label: 'Duration' },
-      { field: 'category', label: 'Category' },
-      { field: 'description', label: 'Course Description' },
-      { field: 'batchLimits', label: 'Batch Limits' },
-      { field: 'mode', label: 'Mode' },
-      { field: 'fee', label: 'fee' }
-    ]
-
-    const missingFields = requiredFields.filter(field => !formData[field.field] || formData[field.field].toString().trim() === '')
-    if (missingFields.length > 0) {
-      const errors = {}
-      missingFields.forEach(field => { errors[field.field] = `${field.label} is required` })
+    const errors = {}
+    
+    // Helper function to check if description has actual content (not just HTML tags)
+    const hasDescriptionContent = (desc) => {
+      if (!desc) return false
+      const text = desc.toString().trim()
+      if (text === '') return false
+      // Remove HTML tags and check if there's actual text content
+      const textContent = text.replace(/<[^>]*>/g, '').trim()
+      return textContent.length > 0
+    }
+    
+    // Validate Course Title
+    if (!formData.courseTitle || formData.courseTitle.toString().trim() === '') {
+      errors.courseTitle = 'Course Title is required'
+    }
+    
+    // Validate Duration
+    if (!formData.duration || formData.duration.toString().trim() === '') {
+      errors.duration = 'Duration is required'
+    }
+    
+    // Validate Category
+    if (!formData.category || formData.category.toString().trim() === '') {
+      errors.category = 'Category is required'
+    }
+    
+    // Validate Description (check for actual content, not just HTML tags)
+    if (!hasDescriptionContent(formData.description)) {
+      errors.description = 'Course Description is required'
+    }
+    
+    // Validate Batch Limits
+    if (!formData.batchLimits || formData.batchLimits.toString().trim() === '' || parseInt(formData.batchLimits) <= 0) {
+      errors.batchLimits = 'Batch Limits is required and must be greater than 0'
+    }
+    
+    // Validate Mode
+    if (!formData.mode || formData.mode.toString().trim() === '') {
+      errors.mode = 'Mode is required'
+    }
+    
+    // Validate Fee (must be a valid number)
+    if (!formData.fee || formData.fee.toString().trim() === '') {
+      errors.fee = 'Fee is required'
+    } else {
+      const feeValue = parseFloat(formData.fee.toString().replace(/,/g, ''))
+      if (isNaN(feeValue) || feeValue <= 0) {
+        errors.fee = 'Fee must be a valid number greater than 0'
+      }
+    }
+    
+    // Media is NOT required - no validation needed
+    
+    // If there are errors, show them and return
+    if (Object.keys(errors).length > 0) {
       setValidationErrors(errors)
+      const missingFieldsList = Object.values(errors).join(', ')
       Swal.fire({
         title: 'Validation Error',
-        text: 'Please fill in all required fields',
-        icon: 'warning',
+        text: `Please fill in all required fields: ${missingFieldsList}`,
+        icon: 'error',
         confirmButtonText: 'OK'
       })
       return
@@ -208,28 +251,39 @@ export default function CreateCourse() {
       module_description = newModule.description.trim()
     }
 
-    // Find category ID from categories array
+    // Find category from categories array - API expects category name, not ID
     const selectedCategory = categories.find(cat => cat.category_name === formData.category)
-    const categoryId = selectedCategory ? selectedCategory.id : null
+    const categoryName = selectedCategory ? selectedCategory.category_name : formData.category
 
     try {
       let res
+
+      // Normalize values according to API expectations:
+      // - status: lowercase ("active", "inactive", "draft")
+      // - mode: lowercase ("online", "offline", "hybrid")
+      // - certification_allowed: 1 or 0 (number, not boolean)
+      const normalizedStatus = formData.courseStatus.toLowerCase()
+      const normalizedMode = formData.mode.toLowerCase()
+      const normalizedCertification = formData.certificationAllowed ? 1 : 0
+      
+      // Parse fee (remove commas if any)
+      const feeValue = parseFloat(formData.fee.toString().replace(/,/g, ''))
 
       if (selectedMedia.length > 0) {
         const formDataToSend = new FormData()
         formDataToSend.append('title', formData.courseTitle.trim())
         formDataToSend.append('description', formData.description.trim())
         formDataToSend.append('duration', formData.duration.trim())
-        formDataToSend.append('fee', parseFloat(formData.fee))
-        formDataToSend.append('category_id', categoryId)
-        formDataToSend.append('tagged_skills', formData.taggedSkills.trim())
+        formDataToSend.append('fee', feeValue)
+        formDataToSend.append('category', categoryName) // API expects category name, not category_id
+        formDataToSend.append('tagged_skills', formData.taggedSkills.trim() || '')
         formDataToSend.append('batch_limit', parseInt(formData.batchLimits))
-        formDataToSend.append('status', formData.courseStatus)
+        formDataToSend.append('status', normalizedStatus) // lowercase
         // Instructor not required at course level - will be assigned at batch level
-        formDataToSend.append('mode', formData.mode)
-        formDataToSend.append('certification_allowed', formData.certificationAllowed ? 1 : 0)
-        formDataToSend.append('module_title', module_title)
-        formDataToSend.append('module_description', module_description)
+        formDataToSend.append('mode', normalizedMode) // lowercase
+        formDataToSend.append('certification_allowed', normalizedCertification) // 1 or 0
+        formDataToSend.append('module_title', module_title || '')
+        formDataToSend.append('module_description', module_description || '')
 
         selectedMedia.forEach(file => {
           formDataToSend.append('media_files[]', file.file)
@@ -244,16 +298,16 @@ export default function CreateCourse() {
           title: formData.courseTitle.trim(),
           description: formData.description.trim(),
           duration: formData.duration.trim(),
-          fee: parseFloat(formData.fee),
-          category_id: categoryId,
-          tagged_skills: formData.taggedSkills.trim(),
+          fee: feeValue,
+          category: categoryName, // API expects category name, not category_id
+          tagged_skills: formData.taggedSkills.trim() || '',
           batch_limit: parseInt(formData.batchLimits),
-          status: formData.courseStatus,
+          status: normalizedStatus, // lowercase
           // instructor_name: removed - instructor assigned at batch level, not course level
-          mode: formData.mode,
-          certification_allowed: formData.certificationAllowed,
-          module_title,
-          module_description
+          mode: normalizedMode, // lowercase
+          certification_allowed: normalizedCertification, // 1 or 0 (number)
+          module_title: module_title || '',
+          module_description: module_description || ''
         }
         res = await postMethod({ apiUrl: apiService.createCourse, payload })
       }
@@ -467,6 +521,9 @@ export default function CreateCourse() {
                   height="150px"
                   returnPlainText={true}
                 />
+                {validationErrors.description && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.description}</p>
+                )}
               </div>
             </div>
 

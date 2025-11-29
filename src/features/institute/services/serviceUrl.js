@@ -53,6 +53,7 @@ const apiService = {
   list_students: "/admin/list_students.php",
   assign_course_batch: "/institute/assign_course_batch.php",
   update_student: "/institute/update_student.php",
+  get_student_profile: "/institute/get_student_profile.php", // For fetching single student profile
   INSTITUTE_REPORT: "/institute/institute_report.php",
 
   getInstituteProfile: '/institute/profile.php',

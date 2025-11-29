@@ -120,6 +120,7 @@ const JobManagement = () => {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={handleTabChange}
+          storageKey="recruiter_job_management_tab"
           className="justify-start"
         />
       </div>

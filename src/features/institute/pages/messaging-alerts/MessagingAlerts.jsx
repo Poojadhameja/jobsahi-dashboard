@@ -76,6 +76,7 @@ export default function MessagingAlerts() {
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          storageKey="institute_messaging_alerts_tab"
           className=""
         />
       </div>

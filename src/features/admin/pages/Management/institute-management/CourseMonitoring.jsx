@@ -122,6 +122,8 @@ function CourseListTable({ courseData, onViewCourse, loading }) {
 
 // Enrollment Trends Chart Component
 function EnrollmentTrendsChart({ enrollmentTrends, loading }) {
+  const [timeFilter, setTimeFilter] = useState('Last 6 Months')
+  
   // All months array
   const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   
@@ -143,19 +145,53 @@ function EnrollmentTrendsChart({ enrollmentTrends, loading }) {
     });
   }
 
-  // Calculate statistics
-  const allValues = Object.values(trendsMap);
-  const totalEnrollments = allValues.reduce((sum, val) => sum + val, 0);
-  const averageEnrollments = allValues.length > 0 ? Math.round(totalEnrollments / allValues.length) : 0;
-  const maxEnrollments = allValues.length > 0 ? Math.max(...allValues) : 0;
-  const minEnrollments = allValues.length > 0 ? Math.min(...allValues.filter(v => v > 0)) : 0;
-  const monthsWithData = allValues.filter(v => v > 0).length;
+  // Filter months based on time filter
+  const getFilteredMonths = () => {
+    const now = new Date()
+    const currentMonth = now.getMonth() // 0-11 (Jan = 0, Dec = 11)
+    
+    switch (timeFilter) {
+      case 'Last 6 Months':
+        // Get last 6 months from current month (including current month)
+        const last6Months = []
+        for (let i = 5; i >= 0; i--) {
+          const monthIndex = (currentMonth - i + 12) % 12
+          last6Months.push(allMonths[monthIndex])
+        }
+        return last6Months
+      
+      case 'Last 12 Months':
+        return allMonths
+      
+      case 'This Year':
+        // Get months from January to current month (including current month)
+        return allMonths.slice(0, currentMonth + 1)
+      
+      default:
+        return allMonths
+    }
+  }
+
+  const filteredMonths = getFilteredMonths()
+  
+  // Create filtered trends map - include all filtered months (even if no data)
+  const filteredTrendsMap = {}
+  filteredMonths.forEach(month => {
+    // Always include the month, use 0 if no data
+    filteredTrendsMap[month] = trendsMap[month] !== undefined ? trendsMap[month] : 0
+  })
+
+  // Calculate statistics from filtered data (only months with data > 0)
+  const allValues = Object.values(filteredTrendsMap).filter(v => v > 0)
+  const totalEnrollments = allValues.reduce((sum, val) => sum + val, 0)
+  const averageEnrollments = allValues.length > 0 ? Math.round(totalEnrollments / allValues.length) : 0
+  const maxEnrollments = allValues.length > 0 ? Math.max(...allValues) : 0
+  const monthsWithData = allValues.length
   
   // Calculate max value for scaling (add 20% padding for better visualization)
-  const valuesWithData = Object.values(trendsMap).filter(v => v > 0);
-  const maxValue = valuesWithData.length > 0 
-    ? Math.ceil(Math.max(...valuesWithData) * 1.2)
-    : 100;
+  const maxValue = allValues.length > 0 
+    ? Math.ceil(Math.max(...allValues) * 1.2)
+    : 100
 
   if (loading) {
     return (
@@ -174,10 +210,14 @@ function EnrollmentTrendsChart({ enrollmentTrends, loading }) {
       <div className="mb-3 sm:mb-4 flex-shrink-0">
         <div className="flex items-center justify-between mb-2 sm:mb-3 flex-wrap gap-2">
           <h3 className={`text-base sm:text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Enrollment Trends</h3>
-          <select className="px-2 sm:px-3 py-1 border border-gray-300 rounded text-xs sm:text-sm bg-white">
-            <option>Last 12 Months</option>
-            <option>Last 6 Months</option>
-            <option>This Year</option>
+          <select 
+            value={timeFilter}
+            onChange={(e) => setTimeFilter(e.target.value)}
+            className="px-2 sm:px-3 py-1 border border-gray-300 rounded text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="Last 6 Months">Last 6 Months</option>
+            <option value="Last 12 Months">Last 12 Months</option>
+            <option value="This Year">This Year</option>
           </select>
         </div>
         
@@ -217,8 +257,8 @@ function EnrollmentTrendsChart({ enrollmentTrends, loading }) {
           
           {/* Chart bars */}
           <div className="flex-1 flex items-end justify-between px-1 sm:px-2 gap-0.5 sm:gap-1 h-full">
-            {allMonths.map((month, index) => {
-              const value = trendsMap[month] || 0;
+            {filteredMonths.map((month, index) => {
+              const value = filteredTrendsMap[month] || 0;
               const hasData = value > 0;
               // Calculate height percentage (max 95% of available height)
               const heightPercent = hasData && maxValue > 0 

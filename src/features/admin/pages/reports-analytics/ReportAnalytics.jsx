@@ -147,6 +147,7 @@ export default function ReportAnalytics() {
           tabs={navigationTabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          storageKey="admin_reports_analytics_tab"
           className=""
         />
       </div>

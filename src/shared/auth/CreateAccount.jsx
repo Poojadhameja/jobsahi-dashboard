@@ -255,6 +255,9 @@ export default function CreateAccount() {
       
       console.log('✅ Response - User + Profile Creation:', userResponse)
       
+      // Hide loading
+      setIsLoading(false);
+
       // Check if registration was successful
       const isSuccess = (userResponse.status === true || 
           userResponse.status === 'success' || 
@@ -266,9 +269,6 @@ export default function CreateAccount() {
           !userResponse.message?.includes('already exists') &&
           !userResponse.message?.includes('failed') &&
           !userResponse.message?.includes('error');
-      
-      // Hide loading
-      setIsLoading(false);
 
       if (isSuccess) {
         // Get email for redirect
@@ -291,19 +291,78 @@ export default function CreateAccount() {
           }
         });
       } else {
+        // Handle specific error cases with proper messages
+        const errorMessage = userResponse.message || "";
+        let alertTitle = "Registration Failed";
+        let alertText = "Registration failed. Please try again.";
+        
+        // Check for specific error messages
+        if (errorMessage.toLowerCase().includes('email already exists') || 
+            errorMessage.toLowerCase().includes('email already registered')) {
+          alertTitle = "Email Already Exists";
+          alertText = "This email address is already registered. Please use a different email or try logging in.";
+        } else if (errorMessage.toLowerCase().includes('phone number already exists') ||
+                   errorMessage.toLowerCase().includes('phone already registered')) {
+          alertTitle = "Phone Number Already Exists";
+          alertText = "This phone number is already registered. Please use a different phone number or try logging in.";
+        } else if (errorMessage.toLowerCase().includes('already exists')) {
+          alertTitle = "Account Already Exists";
+          alertText = "An account with these details already exists. Please use different information or try logging in.";
+        } else if (errorMessage.toLowerCase().includes('not found') ||
+                   errorMessage.toLowerCase().includes('does not exist') ||
+                   errorMessage.toLowerCase().includes('id not found')) {
+          alertTitle = "Invalid Information";
+          alertText = "The provided information is invalid or not found. Please check your details and try again.";
+        } else if (errorMessage.toLowerCase().includes('validation') ||
+                   errorMessage.toLowerCase().includes('invalid')) {
+          alertTitle = "Validation Error";
+          alertText = errorMessage || "Please check all the fields and ensure they are filled correctly.";
+        } else if (errorMessage) {
+          // Use the actual error message from API if available
+          alertText = errorMessage;
+        }
+        
         Swal.fire({
-          title: "Failed",
-          text: userResponse.message || "Registration failed. Please try again.",
-          icon: "error"
+          title: alertTitle,
+          text: alertText,
+          icon: "error",
+          confirmButtonText: "Ok"
         });
       }
     } catch (error) {
       console.error('Registration error:', error);
       setIsLoading(false);
+      
+      // Handle specific error cases in catch block
+      const errorMessage = error.message || error.response?.data?.message || "";
+      let alertTitle = "API Error";
+      let alertText = "Something went wrong. Please try again.";
+      
+      if (errorMessage.toLowerCase().includes('email already exists') || 
+          errorMessage.toLowerCase().includes('email already registered')) {
+        alertTitle = "Email Already Exists";
+        alertText = "This email address is already registered. Please use a different email or try logging in.";
+      } else if (errorMessage.toLowerCase().includes('phone number already exists') ||
+                 errorMessage.toLowerCase().includes('phone already registered')) {
+        alertTitle = "Phone Number Already Exists";
+        alertText = "This phone number is already registered. Please use a different phone number or try logging in.";
+      } else if (errorMessage.toLowerCase().includes('already exists')) {
+        alertTitle = "Account Already Exists";
+        alertText = "An account with these details already exists. Please use different information or try logging in.";
+      } else if (errorMessage.toLowerCase().includes('not found') ||
+                 errorMessage.toLowerCase().includes('does not exist') ||
+                 errorMessage.toLowerCase().includes('id not found')) {
+        alertTitle = "Invalid Information";
+        alertText = "The provided information is invalid or not found. Please check your details and try again.";
+      } else if (errorMessage) {
+        alertText = errorMessage;
+      }
+      
       Swal.fire({
-        title: "API Error",
-        text: error.message || "Something went wrong. Please try again.",
-        icon: "error"
+        title: alertTitle,
+        text: alertText,
+        icon: "error",
+        confirmButtonText: "Ok"
       });
     }
   }

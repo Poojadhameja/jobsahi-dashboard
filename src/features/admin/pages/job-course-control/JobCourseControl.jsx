@@ -148,7 +148,8 @@ const JobCourseControlView = () => {
       <PillNavigation 
         tabs={navigationTabs} 
         activeTab={activeTab} 
-        onTabChange={setActiveTab} 
+        onTabChange={setActiveTab}
+        storageKey="admin_job_course_control_tab"
       />
 
       {/* Job Posting */}

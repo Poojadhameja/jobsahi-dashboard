@@ -3,7 +3,6 @@ import {
   LuBuilding2,
   LuUpload,
   LuX,
-  LuChevronDown,
   LuSearch,
   LuLock,
   LuEye,
@@ -54,12 +53,6 @@ const CompanyInfo = () => {
     location: "",
     gst_pan: "",
   });
-
-  const tradeOptions = [
-    { value: "Civil", label: "Civil" },
-    { value: "IT", label: "IT" },
-    { value: "Mechanical", label: "Mechanical" },
-  ];
 
   // =====================
   // 📌 Fetch Recruiter Profile
@@ -479,24 +472,13 @@ const CompanyInfo = () => {
 
             <div>
               <label className="block text-sm font-medium mb-2">Trade</label>
-              <div className="relative">
-                <select
-                  value={companyData.industry}
-                  onChange={(e) => handleChange("industry", e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 appearance-none bg-white"
-                >
-                  <option value="">Select Trade</option>
-                  {tradeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <LuChevronDown
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
-                  size={16}
-                />
-              </div>
+              <input
+                type="text"
+                value={companyData.industry}
+                onChange={(e) => handleChange("industry", e.target.value)}
+                placeholder="Enter trade/industry"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
             </div>
 
             <div>

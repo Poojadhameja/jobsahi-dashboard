@@ -67,7 +67,7 @@ function AdvancedFilters({
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         
-        {/* TRADE FILTER */}
+        {/* TRADE FILTER - Shows Applied Jobs */}
         <div className="space-y-2">
           <label className={`block text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Trade
@@ -77,10 +77,10 @@ function AdvancedFilters({
             value={filters.trade || "all"}
             onChange={(e) => onFilterChange({ ...filters, trade: e.target.value })}
           >
-            <option value="all">All Trades</option>
-            {tradeList.map((t, index) => (
-              <option key={index} value={t}>
-                {t}
+            <option value="all">All Jobs</option>
+            {tradeList.map((jobTitle, index) => (
+              <option key={index} value={jobTitle}>
+                {jobTitle}
               </option>
             ))}
           </select>
@@ -244,13 +244,13 @@ function ActionDropdown({ student, onViewCV, onDelete }) {
             <LuEye size={16} />
             View CV
           </button>
-          <button
+          {/* <button
             onClick={handleDelete}
             className={`w-full px-4 py-2 text-left text-sm text-error hover:bg-red-50 flex items-center gap-2 transition-colors duration-200`}
           >
             <LuTrash2 size={16} />
             Delete
-          </button>
+          </button> */}
         </div>
       )}
     </div>
@@ -1256,7 +1256,7 @@ function StudentTable({
               <th className="py-3 px-4 font-medium">CGPA</th>
               <th className="py-3 px-4 font-medium">Region</th>
               <th className="py-3 px-4 font-medium">Skills</th>
-              <th className="py-3 px-4 font-medium">Progress</th>
+              <th className="py-3 px-4 font-medium">Trade</th>
               <th className="py-3 px-4 font-medium">Actions</th>
             </tr>
           </thead>
@@ -1305,29 +1305,20 @@ function StudentTable({
                   )}
                 </td>
 
-                <td className="py-4 px-4">
+                <td className={`py-4 px-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                   {student.applied_jobs && student.applied_jobs.length > 0 ? (
-                    <div className="flex flex-wrap gap-1">
+                    <span className="text-sm">
                       {student.applied_jobs
-                        .slice(0, 3)
-                        .map((job, index) => {
-                          // Handle both object and string formats
-                          const jobTitle = typeof job === 'object' && job !== null ? (job.job_title || job.title || JSON.stringify(job)) : job;
-                          return (
-                            <span
-                              key={index}
-                              className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800"
-                            >
-                              {jobTitle}
-                            </span>
-                          );
-                        })}
-                      {student.applied_jobs.length > 3 && (
-                        <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
-                          +{student.applied_jobs.length - 3} more
-                        </span>
-                      )}
-                    </div>
+                        .map((job) => {
+                          // Extract job_title from API response
+                          if (typeof job === 'object' && job !== null) {
+                            return job.job_title || job.title || job.jobTitle || 'N/A';
+                          }
+                          return job;
+                        })
+                        .filter(title => title && title !== 'N/A')
+                        .join(", ")}
+                    </span>
                   ) : (
                     <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                       No Applications
@@ -1352,7 +1343,12 @@ function StudentTable({
 }
 
 export default function StudentManagement() {
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({
+    trade: "all",
+    course: "all",
+    placementStatus: "all",
+    skills: "all",
+  });
   const [students, setStudents] = useState([]);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -1372,6 +1368,61 @@ export default function StudentManagement() {
     student: null,
   });
   const [addStudentModal, setAddStudentModal] = useState({ isOpen: false });
+  const [jobsList, setJobsList] = useState([]);
+  const [coursesList, setCoursesList] = useState([]);
+  
+  // Fetch Jobs for Trade filter
+  useEffect(() => {
+    async function fetchJobs() {
+      try {
+        const response = await getMethod({
+          apiUrl: apiService.getJobs,
+          payload: {},
+        });
+        
+        if (response?.status === "success" || response?.status === true || response?.success === true) {
+          const jobs = response.data || response.jobs || response.rows || [];
+          // Extract unique job titles
+          const uniqueJobTitles = [...new Set(
+            jobs
+              .map((job) => job.title || job.job_title || '')
+              .filter((title) => title && title.trim() !== '')
+          )].sort();
+          setJobsList(uniqueJobTitles);
+        }
+      } catch (error) {
+        console.error("Jobs API Error:", error);
+      }
+    }
+    fetchJobs();
+  }, []);
+
+  // Fetch Courses for Course filter
+  useEffect(() => {
+    async function fetchCourses() {
+      try {
+        const response = await getMethod({
+          apiUrl: apiService.getCourses,
+          payload: {},
+        });
+        
+        if (response?.status === "success" || response?.status === true || response?.success === true) {
+          const courses = response.courses || response.data || [];
+          // Extract unique course titles
+          const uniqueCourseTitles = [...new Set(
+            courses
+              .map((course) => course.title || course.course_name || course.name || '')
+              .filter((title) => title && title.trim() !== '')
+          )].sort();
+          setCoursesList(uniqueCourseTitles);
+        }
+      } catch (error) {
+        console.error("Courses API Error:", error);
+      }
+    }
+    fetchCourses();
+  }, []);
+
   useEffect(() => {
     let called = false;
     // TODO: replace with ApiService
@@ -1405,13 +1456,30 @@ export default function StudentManagement() {
             dob: item.profile_info.dob,
             gender: item.profile_info.gender,
             job_type: item.profile_info.job_type,
-            course: item.profile_info.trade,
-            region: item.profile_info.location,
+            // Extract course name - prioritize courses array, then course field, never use trade
+            course: (() => {
+              // First check if courses array exists and has course names
+              if (item.courses && Array.isArray(item.courses) && item.courses.length > 0) {
+                const courseName = item.courses[0].course_name || item.courses[0].title || item.courses[0].name;
+                if (courseName && courseName.trim() !== '') {
+                  return courseName.trim();
+                }
+              }
+              // Then check profile_info.course
+              if (item.profile_info.course && item.profile_info.course.trim() !== '' && item.profile_info.course.toLowerCase() !== 'no course') {
+                return item.profile_info.course.trim();
+              }
+              // If no course found, return "No Course"
+              return "No Course";
+            })(),
+            trade: item.profile_info.trade || "",
+            region: item.profile_info.location || "No Region",
+            cgpa: item.profile_info.cgpa || "No CGPA",
+            placement_status: item.profile_info.placement_status || item.profile_info.admin_action || "pending",
             admin_action: item.profile_info.admin_action,
             bio: item.profile_info.bio,
             experience: item.profile_info.experience,
             graduation_year: item.profile_info.graduation_year,
-            cgpa: item.profile_info.cgpa,
             applied_jobs: Array.isArray(item.applied_jobs)
               ? item.applied_jobs
               : item.applied_jobs
@@ -1454,24 +1522,87 @@ export default function StudentManagement() {
     fetchData();
   }, []);
 
+  // Use jobs from API for Trade filter
+  const tradeList = useMemo(() => {
+    return jobsList;
+  }, [jobsList]);
+
+  // Use courses from API for Course filter
+  const courseList = useMemo(() => {
+    return coursesList;
+  }, [coursesList]);
+
+  const skillsList = useMemo(() => {
+    const skills = new Set();
+    students.forEach((student) => {
+      if (Array.isArray(student.skills)) {
+        student.skills.forEach((skill) => {
+          if (skill && skill.trim() !== '') {
+            skills.add(skill.trim());
+          }
+        });
+      } else if (typeof student.skills === 'string' && student.skills.trim() !== '') {
+        student.skills.split(',').forEach((skill) => {
+          if (skill.trim() !== '') {
+            skills.add(skill.trim());
+          }
+        });
+      }
+    });
+    return Array.from(skills).sort();
+  }, [students]);
+
   const filteredStudents = useMemo(() => {
     return students.filter((student) => {
+      // Search filter
       const matchesSearch =
         !searchTerm ||
-        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.id.toString().includes(searchTerm);
+        student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.id?.toString().includes(searchTerm);
 
+      // Trade filter (applied jobs - job titles)
+      const matchesTrade =
+        !filters.trade ||
+        filters.trade === "all" ||
+        (student.applied_jobs && Array.isArray(student.applied_jobs) && student.applied_jobs.length > 0 &&
+          student.applied_jobs.some((job) => {
+            const jobTitle = typeof job === 'object' && job !== null
+              ? (job.job_title || job.title || job.jobTitle || '')
+              : (typeof job === 'string' ? job : '');
+            return jobTitle && jobTitle.toLowerCase().trim() === filters.trade.toLowerCase().trim();
+          }));
+
+      // Course filter
+      const studentCourse = (student.course || '').toLowerCase().trim();
       const matchesCourse =
         !filters.course ||
         filters.course === "all" ||
-        student.course.toLowerCase() === filters.course;
+        studentCourse === filters.course.toLowerCase().trim() ||
+        studentCourse.includes(filters.course.toLowerCase().trim());
+
+      // Placement Status filter
+      const studentPlacementStatus = (student.placement_status || student.admin_action || 'pending').toLowerCase();
+      const matchesPlacementStatus =
+        !filters.placementStatus ||
+        filters.placementStatus === "all" ||
+        (filters.placementStatus === "placed" && studentPlacementStatus === "placed") ||
+        (filters.placementStatus === "placement-ready" && (studentPlacementStatus === "placement-ready" || studentPlacementStatus === "approved")) ||
+        (filters.placementStatus === "in-progress" && studentPlacementStatus === "in-progress") ||
+        (filters.placementStatus === "not-ready" && (studentPlacementStatus === "not-ready" || studentPlacementStatus === "pending"));
+
+      // Skills filter
+      const studentSkills = Array.isArray(student.skills) 
+        ? student.skills.map(s => s.toLowerCase().trim())
+        : (typeof student.skills === 'string' 
+          ? student.skills.split(',').map(s => s.trim().toLowerCase())
+          : []);
       const matchesSkills =
         !filters.skills ||
         filters.skills === "all" ||
-        student.skills.some((skill) => skill.toLowerCase() === filters.skills);
+        studentSkills.some((skill) => skill === filters.skills.toLowerCase().trim() || skill.includes(filters.skills.toLowerCase().trim()));
 
-      return matchesSearch && matchesCourse && matchesSkills;
+      return matchesSearch && matchesTrade && matchesCourse && matchesPlacementStatus && matchesSkills;
     });
   }, [students, filters, searchTerm]);
 
@@ -1497,10 +1628,10 @@ export default function StudentManagement() {
 
   const handleClearAll = () => {
     setFilters({
+      trade: "all",
       course: "all",
       placementStatus: "all",
       skills: "all",
-      experience: "all",
     });
   };
 
@@ -1749,6 +1880,9 @@ export default function StudentManagement() {
         onFilterChange={handleFilterChange}
         onClearAll={handleClearAll}
         onApplyFilter={handleApplyFilter}
+        tradeList={tradeList}
+        courseList={courseList}
+        skillsList={skillsList}
       />
 
       {/* Student Table */}
@@ -1763,6 +1897,7 @@ export default function StudentManagement() {
         onDelete={handleDelete}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        totalCount={filteredStudents.length}
       />
 
       {/* View CV Modal */}
