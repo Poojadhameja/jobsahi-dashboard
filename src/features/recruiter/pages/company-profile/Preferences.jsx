@@ -254,7 +254,7 @@ const Preferences = ({ onBack }) => {
       </div>
 
       {/* ✅ Coming Soon Popup (like TeamManagement.jsx) */}
-      <ComingSoonPopup />
+      <ComingSoonPopup onClose={onBack} />
     </div>
   );
 };

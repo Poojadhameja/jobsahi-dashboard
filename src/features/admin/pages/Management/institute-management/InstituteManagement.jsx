@@ -40,7 +40,8 @@ export default function InstituteManagement() {
           var response = await getMethod(data);
           console.log('Institute API Response:', response)
           if (response.status === 'success' || response.status === true) {
-            // Map API response to required format
+            // ✅ Pass raw API response data directly to ensure all fields (including is_verified) are available
+            // Map API response to required format while preserving raw data
             const formatted = response.data.map((item, index) => ({
               id: item.user_info.user_id,
               name: item.user_info.user_name, // User name
@@ -67,6 +68,11 @@ export default function InstituteManagement() {
               created_at: item.profile_info.created_at,
               modified_at: item.profile_info.modified_at,
               deleted_at: item.profile_info.deleted_at,
+              // ✅ Include is_verified from user_info
+              is_verified: item.user_info.is_verified ?? 0,
+              // ✅ Preserve raw data for PendingInstitute to access
+              user_info: item.user_info,
+              profile_info: item.profile_info,
             }));
   
             const pendingFormatted = response.data
@@ -97,9 +103,15 @@ export default function InstituteManagement() {
               created_at: item.profile_info.created_at,
               modified_at: item.profile_info.modified_at,
               deleted_at: item.profile_info.deleted_at,
+              // ✅ Include is_verified from user_info
+              is_verified: item.user_info.is_verified ?? 0,
+              // ✅ Preserve raw data for PendingInstitute to access
+              user_info: item.user_info,
+              profile_info: item.profile_info,
             }));
   
-            setInstitutes(formatted);
+            // ✅ Pass raw API response data directly (similar to EmployerManagement)
+            setInstitutes(response.data);
             setPendingApprovalInstitutes(pendingFormatted);
             setTotalInstituteCount(response.count);
             setPendingApprovalsCount(pendingFormatted.length);

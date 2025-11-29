@@ -31,6 +31,8 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
   const [showWarning, setShowWarning] = useState(false);
   const [jobCategories, setJobCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
 
   // ✅ Fetch categories
   useEffect(() => {
@@ -54,6 +56,13 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
     // ✅ If it's a draft, load directly from job object (no API call needed)
     if (job.isDraft || job.draftId) {
       setLoading(false);
+      
+      // ✅ Convert backend "paused" to frontend "draft" for display
+      let displayStatus = job.vacancyStatus || job.status || "";
+      if (displayStatus?.toLowerCase() === "paused") {
+        displayStatus = "draft"; // Convert "paused" → "draft" for frontend display
+      }
+      
       setFormData({
         jobTitle: job.jobTitle || job.title || "",
         jobSector: job.jobSector || job.category_name || "",
@@ -69,7 +78,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
         contactPerson: job.contactPerson || job.person_name || "",
         phone: job.phone || "",
         additionalContact: job.additionalContact || job.additional_contact || "",
-        vacancyStatus: job.vacancyStatus || job.status || "",
+        vacancyStatus: displayStatus, // ✅ Use converted status (paused → draft)
         no_of_vacancies: job.no_of_vacancies || "",
         closingDate: job.closingDate || job.application_deadline?.split(" ")[0] || "",
         draftId: job.draftId || job.id, // Keep draftId for reference
@@ -87,6 +96,14 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
 
         if (res?.status && res?.data?.job_info) {
           const d = res.data.job_info;
+          
+          // ✅ Convert backend "paused" to frontend "draft" for display
+          // Backend sends "paused" but frontend shows "draft"
+          let displayStatus = d.status || "";
+          if (displayStatus?.toLowerCase() === "paused") {
+            displayStatus = "draft"; // Convert "paused" → "draft" for frontend display
+          }
+          
           setFormData({
             jobTitle: d.title || "",
             jobSector: d.category_id?.toString() || "",
@@ -107,9 +124,15 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
             contactPerson: d.person_name || "",
             phone: d.phone || "",
             additionalContact: d.additional_contact || "",
-            vacancyStatus: d.status || "",
+            vacancyStatus: displayStatus, // ✅ Use converted status (paused → draft)
             no_of_vacancies: d.no_of_vacancies || "",
             closingDate: d.application_deadline?.split(" ")[0] || "",
+          });
+          
+          console.log("📥 [EditCard] ➜ Status conversion:", {
+            backend: d.status,
+            frontend: displayStatus,
+            note: d.status?.toLowerCase() === "paused" ? "✅ Converted 'paused' → 'draft' for display" : "✅ No conversion needed"
           });
         }
       } catch (err) {
@@ -130,6 +153,59 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
 
   const handleRichTextChange = (value) => {
     setFormData((prev) => ({ ...prev, jobDescription: value }));
+  };
+
+  // ✅ Add category modal logic
+  const handleAddCategory = () => {
+    if (!newCategory.trim()) return;
+    
+    // ✅ Check if category already exists (case-insensitive)
+    const categoryExists = jobCategories.find(
+      (cat) => cat.category_name?.toLowerCase().trim() === newCategory.toLowerCase().trim()
+    );
+    
+    if (categoryExists) {
+      // ✅ Show "already exist" popup
+      Swal.fire({
+        title: "Category Already Exists!",
+        text: `The category "${newCategory.trim()}" already exists. Please choose a different name.`,
+        icon: "warning",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#3085d6",
+      });
+      return; // Don't close modal, let user try again
+    }
+    
+    // ✅ Category doesn't exist, add it
+    const newCatId = Date.now();
+    setJobCategories((prev) => [
+      ...prev,
+      { id: newCatId, category_name: newCategory.trim() },
+    ]);
+    setFormData((prev) => ({
+      ...prev,
+      jobSector: newCatId.toString(),
+      jobSectorName: newCategory.trim(),
+    }));
+    
+    // ✅ Show success message
+    Swal.fire({
+      title: "Success!",
+      text: `Category "${newCategory.trim()}" added successfully.`,
+      icon: "success",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#3085d6",
+      timer: 2000,
+      showConfirmButton: true
+    });
+    
+    setShowAddCategoryModal(false);
+    setNewCategory("");
+  };
+
+  const handleCancelAddCategory = () => {
+    setShowAddCategoryModal(false);
+    setNewCategory("");
   };
 
   // ✅ Validation
@@ -221,6 +297,26 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
       return;
     }
 
+    // ✅ Handle vacancy status: If "draft" is selected in frontend, send "paused" to backend
+    // Backend enum has "paused" value (not "draft"), so we need to convert "draft" → "paused"
+    let statusToSend = formData.vacancyStatus?.toLowerCase() || formData.vacancyStatus;
+    
+    // ✅ Critical: When "draft" is selected in frontend, convert it to "paused" for backend
+    // Backend enum values: open, closed, paused (NOT "draft")
+    if (statusToSend === "draft") {
+      statusToSend = "paused"; // Convert "draft" to "paused" for backend enum
+    } else if (statusToSend === "open") {
+      statusToSend = "open";
+    } else if (statusToSend === "closed") {
+      statusToSend = "closed";
+    }
+    
+    console.log("📋 [EditCard] ➜ Vacancy Status:", {
+      original: formData.vacancyStatus,
+      processed: statusToSend,
+      note: formData.vacancyStatus?.toLowerCase() === "draft" ? "✅ Converted 'draft' → 'paused' for backend" : "✅ Sending as-is"
+    });
+
     const payload = {
       title: formData.jobTitle,
       category_id: formData.jobSector,
@@ -236,7 +332,7 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
       person_name: formData.contactPerson,
       phone: formData.phone,
       additional_contact: formData.additionalContact,
-      status: formData.vacancyStatus,
+      status: statusToSend, // ✅ Use processed status (draft, not paused)
       no_of_vacancies: formData.no_of_vacancies,
       application_deadline: formData.closingDate,
     };
@@ -374,30 +470,87 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
               placeholder="Enter job title"
             />
 
-            {/* Job Sector */}
-            <select
-              name="jobSector"
-              value={formData.jobSectorName} // ✅ use the category name instead of ID
-              onChange={(e) => {
-                const selectedName = e.target.value; // selected category name
-                const selectedCategory = jobCategories.find(
-                  (cat) => cat.category_name === selectedName
-                );
-                setFormData((prev) => ({
-                  ...prev,
-                  jobSector: selectedCategory?.id || "", // keep id internally
-                  jobSectorName: selectedName, // store name for payload
-                }));
-              }}
-              className={`w-full px-4 py-3 mb-6 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-            >
-              <option value="">Choose Category</option>
-              {jobCategories.map((cat) => (
-                <option key={cat.id} value={cat.category_name}>
-                  {cat.category_name}
-                </option>
-              ))}
-            </select>
+            {/* Job Sector with Add Category Button */}
+            <div className="flex items-center gap-3 mb-6">
+              <select
+                name="jobSector"
+                value={formData.jobSectorName || ""} // ✅ use the category name instead of ID
+                onChange={(e) => {
+                  const selectedName = e.target.value; // selected category name
+                  const selectedCategory = jobCategories.find(
+                    (cat) => cat.category_name === selectedName
+                  );
+                  setFormData((prev) => ({
+                    ...prev,
+                    jobSector: selectedCategory?.id || "", // keep id internally
+                    jobSectorName: selectedName, // store name for payload
+                  }));
+                }}
+                className={`flex-1 px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
+                  errors.jobSector ? "border-red-500" : ""
+                }`}
+              >
+                <option value="">Choose Category</option>
+                {jobCategories.map((cat) => (
+                  <option key={cat.id} value={cat.category_name}>
+                    {cat.category_name}
+                  </option>
+                ))}
+              </select>
+              <Button
+                type="button"
+                onClick={() => setShowAddCategoryModal(true)}
+                variant="primary"
+                size="sm"
+              >
+                + Add
+              </Button>
+            </div>
+            {errors.jobSector && (
+              <p className="text-red-500 text-sm mt-1 mb-6">{errors.jobSector}</p>
+            )}
+
+            {/* Add Category Modal */}
+            {showAddCategoryModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]">
+                <div className="bg-white rounded-xl p-6 w-[90%] max-w-sm shadow-lg">
+                  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
+                    Add New Category
+                  </h3>
+                  <input
+                    type="text"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                    placeholder="Enter new category name"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-[var(--color-secondary)]"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddCategory();
+                      }
+                    }}
+                  />
+                  <div className="flex justify-end gap-3">
+                    <Button
+                      onClick={handleCancelAddCategory}
+                      type="button"
+                      variant="light"
+                      size="md"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleAddCategory}
+                      type="button"
+                      variant="primary"
+                      size="md"
+                    >
+                      Add
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Job Description */}
             <RichTextEditor

@@ -948,22 +948,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
               </div>
             ) : null}
 
-            <div className="flex items-center gap-3 mb-4">
-              <input
-                type="radio"
-                id="scheduleInterview"
-                checked={scheduleInterview}
-                onChange={(e) => setScheduleInterview(e.target.checked)}
-                className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                disabled={!!existingInterview}
-              />
-              <label
-                htmlFor="scheduleInterview"
-                className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer ${existingInterview ? 'opacity-50' : ''}`}
-              >
-                {existingInterview ? 'Update Interview' : 'Schedule Interview'}
-              </label>
-            </div>
+           
 
             {scheduleInterview && (
               <div className="bg-gray-50 rounded-lg p-6 space-y-4">

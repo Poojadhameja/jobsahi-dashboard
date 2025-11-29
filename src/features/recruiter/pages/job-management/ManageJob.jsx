@@ -247,11 +247,15 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob, onNavigateT
     // Status filter
     if (statusFilter) {
       filtered = filtered.filter((job) => {
+        // ✅ Convert backend "paused" to "draft" for filtering
+        const jobStatus = job.status?.toLowerCase();
+        const normalizedStatus = jobStatus === 'paused' ? 'draft' : jobStatus;
+        
         // Check both status field and isDraft flag for Draft status
         if (statusFilter.toLowerCase() === 'draft') {
-          return job.isDraft === true || (job.status && job.status.toLowerCase() === 'draft');
+          return job.isDraft === true || normalizedStatus === 'draft';
         }
-        return job.status && job.status.toLowerCase() === statusFilter.toLowerCase();
+        return normalizedStatus === statusFilter.toLowerCase();
       });
     }
 
@@ -553,6 +557,12 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob, onNavigateT
 
       const postedDate = formatPostedDate(job);
 
+      // ✅ Convert backend "paused" to frontend "draft" for display
+      // Backend sends "paused" but frontend shows "draft"
+      const displayStatus = job.status?.toLowerCase() === "paused" 
+        ? "draft" 
+        : (job.status || "Open");
+
       return (
         <div
           key={job.id}
@@ -572,7 +582,7 @@ const ManageJob = ({ jobs: initialJobs = [], onEditJob, onDeleteJob, onNavigateT
                     ? 'bg-gray-200 text-gray-700' 
                     : 'bg-[var(--color-secondary)] text-white'
                 }`}>
-                  {job.status || "Open"}
+                  {displayStatus}
                 </span>
                 <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
                   {job.company_name || "—"}

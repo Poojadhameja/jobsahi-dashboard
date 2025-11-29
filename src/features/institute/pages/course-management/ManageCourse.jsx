@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { LuSearch, LuChevronDown, LuCalendar, LuPencil, LuBuilding, LuRefreshCw } from 'react-icons/lu'
 import { useCourseContext } from '../../context/CourseContext'
@@ -25,6 +25,8 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [showEditPopup, setShowEditPopup] = useState(false)
   const [categories, setCategories] = useState([])
+  const isInitialLoad = useRef(true) // Track if initial load is done
+  const debounceTimerRef = useRef(null) // Store debounce timer
 
   // ✅ Fetch categories on component mount
   useEffect(() => {
@@ -47,9 +49,10 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
     fetchCategories()
   }, [])
 
-  // ✅ Fetch courses on component mount
+  // ✅ Fetch courses on component mount (no debounce for initial load)
   useEffect(() => {
-    fetchCourses()
+    fetchCourses('') // Pass empty string for initial load
+    isInitialLoad.current = false // Mark initial load as done
     
     // Show success message if redirected from create course
     if (location.state?.message) {
@@ -64,6 +67,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
         window.history.replaceState({}, document.title)
       }, 100)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location])
 
   // ✅ Update course categories when categories are loaded
@@ -87,12 +91,12 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
   }, [categories, coursesData.length])
 
   // ✅ Fetch courses from backend - UPDATED to match backend response
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async (searchQuery = '') => {
     try {
       setLoading(true)
       
       // Build query params if needed
-      const queryParams = searchTerm ? `?q=${encodeURIComponent(searchTerm)}` : ''
+      const queryParams = searchQuery ? `?q=${encodeURIComponent(searchQuery)}` : ''
       const apiUrl = `${apiService.getCourses}${queryParams}`
       
       const res = await getMethod({ apiUrl })
@@ -139,7 +143,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [categories])
 
   // Helper function to get category name from ID
   const getCategoryName = (categoryId) => {
@@ -204,19 +208,37 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
   const currentCourses = filteredCourses.slice(startIndex, endIndex)
 
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value)
+    const value = e.target.value
+    setSearchTerm(value)
     setCurrentPage(1)
+    
+    // ✅ Always clear previous timer when user types
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
+    }
+    
+    // ✅ Skip debounce on initial mount (handled by mount effect)
+    if (isInitialLoad.current) {
+      return
+    }
+    
+    // ✅ Set new timer - API will be called ONLY after 500ms of no typing
+    debounceTimerRef.current = setTimeout(() => {
+      console.log('🔍 Debounced API call for:', value)
+      fetchCourses(value) // Pass current value
+      debounceTimerRef.current = null
+    }, 500) // Wait 500ms after user stops typing
   }
 
-  // ✅ Debounced search - fetch from backend
+  // ✅ Cleanup timer on unmount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchTerm) {
-        fetchCourses()
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
       }
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [searchTerm])
+    }
+  }, [])
 
   const handleFilterChange = (filterType, value) => {
     setFilters(prev => ({
@@ -295,7 +317,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
       setSelectedCourse(null)
       
       // Refresh from backend
-      fetchCourses()
+      fetchCourses(searchTerm)
     } catch (err) {
       Swal.fire({
         icon: 'error',
@@ -314,7 +336,12 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
       fields: '',
       Courses: ''
     })
-    fetchCourses()
+    // Clear any pending debounce timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = null
+    }
+    fetchCourses('') // Refresh with empty search
   }
 
   // Loading state
