@@ -171,7 +171,71 @@ export default function CourseDetail({ courseData, onBack }) {
   }
 
   const handleUpdateBatch = (updatedData) => {
-    // Optionally refetch here
+    // ✅ Update batch in real-time without API call
+    if (updatedData && liveCourse?.batches) {
+      const batchId = updatedData.batch_id || updatedData.id || updatedData.batch_id
+      let updatedBatchData = null
+      
+      setLiveCourse((prev) => {
+        if (!prev || !prev.batches) return prev
+        
+        const updatedBatches = prev.batches.map((batch) => {
+          // Match by batch_id - check multiple possible ID fields
+          const currentBatchId = batch.batch_id || batch.id
+          if (Number(currentBatchId) === Number(batchId)) {
+            // ✅ Update all fields including instructor information
+            const updatedBatch = {
+              ...batch,
+              batch_name: updatedData.batch_name || updatedData.name || batch.batch_name,
+              batch_time_slot: updatedData.batch_time_slot !== undefined ? updatedData.batch_time_slot : batch.batch_time_slot,
+              start_date: updatedData.start_date || batch.start_date,
+              end_date: updatedData.end_date || batch.end_date,
+              instructor_id: updatedData.instructor_id !== undefined ? updatedData.instructor_id : batch.instructor_id,
+            }
+            
+            // ✅ If instructor object is provided, update instructor-related fields
+            if (updatedData.instructor) {
+              updatedBatch.assigned_instructor = {
+                ...batch.assigned_instructor,
+                faculty_id: updatedData.instructor.id,
+                name: updatedData.instructor.name,
+                email: updatedData.instructor.email || '',
+                phone: updatedData.instructor.phone || ''
+              }
+            } else if (updatedData.instructor_id === null || updatedData.instructor_id === 0) {
+              // Clear instructor if removed
+              updatedBatch.assigned_instructor = null
+            }
+            
+            updatedBatchData = updatedBatch
+            return updatedBatch
+          }
+          return batch
+        })
+        
+        return {
+          ...prev,
+          batches: updatedBatches,
+        }
+      })
+      
+      // ✅ Also update selectedBatch if this is the batch currently being viewed
+      // Do this outside setLiveCourse to avoid stale closure issues
+      if (updatedBatchData) {
+        setSelectedBatch((prevSelected) => {
+          if (prevSelected && Number(prevSelected.batchId) === Number(batchId)) {
+            return {
+              ...prevSelected,
+              batch: {
+                ...prevSelected.batch,
+                ...updatedBatchData,
+              }
+            }
+          }
+          return prevSelected
+        })
+      }
+    }
   }
 
   const handleOpenCoursePopup = (course) => {
@@ -248,7 +312,13 @@ export default function CourseDetail({ courseData, onBack }) {
   ]
 
   if (currentView === 'batch' && selectedBatch) {
-    return <BatchDetail batchData={selectedBatch} onBack={handleBackFromBatch} />
+    return (
+      <BatchDetail 
+        batchData={selectedBatch} 
+        onBack={handleBackFromBatch}
+        onBatchUpdate={handleUpdateBatch}
+      />
+    )
   }
 
   // 🔻 UI BELOW IS UNCHANGED 🔻
@@ -473,9 +543,6 @@ export default function CourseDetail({ courseData, onBack }) {
                       <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                         <LuEye className="w-5 h-5 text-blue-600" />
                       </div>
-                      <span className="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
-                        {course.admin_action === 'approved' ? 'Available' : 'Pending'}
-                      </span>
                     </div>
                     <h3
                       className={`font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}

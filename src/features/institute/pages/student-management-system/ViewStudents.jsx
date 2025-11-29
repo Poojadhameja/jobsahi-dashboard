@@ -624,30 +624,45 @@ const fetchStudentDetails = async (studentId) => {
         onSubmit={(e) => {
           e.preventDefault();
           
-          // Check if batches are available for this course
-          if (batchOptions.length === 0) {
+          const formData = new FormData(e.target);
+          const courseValue = formData.get("course");
+          const batchValue = formData.get("batch");
+          const statusValue = formData.get("status");
+          
+          // Validate course selection if course is editable
+          const isCourseEditable = !selectedStudent.course_id || selectedStudent.course === 'Not Assigned';
+          if (isCourseEditable && (!courseValue || courseValue === "")) {
             Swal.fire({
               icon: 'warning',
-              title: 'No Batches Available',
-              text: 'इस course के लिए कोई batches उपलब्ध नहीं हैं। Student को update नहीं किया जा सकता।\n\nNo batches available for this course. Cannot update student.',
+              title: 'Validation Error',
+              text: 'कृपया एक course चुनें।\n\nPlease select a course.',
               confirmButtonColor: '#5C9A24'
             })
             return;
           }
           
-          const formData = new FormData(e.target);
-          const batchValue = formData.get("batch");
-          const statusValue = formData.get("status");
-          
-          // Validate batch selection
-          if (!batchValue || batchValue === "") {
-            Swal.fire({
-              icon: 'warning',
-              title: 'Validation Error',
-              text: 'कृपया एक batch चुनें।\n\nPlease select a batch.',
-              confirmButtonColor: '#5C9A24'
-            })
-            return;
+          // Validate batch selection if batch is editable
+          const isBatchEditable = !selectedStudent.batch_id;
+          if (isBatchEditable) {
+            if (batchOptions.length === 0) {
+              Swal.fire({
+                icon: 'warning',
+                title: 'No Batches Available',
+                text: 'इस course के लिए कोई batches उपलब्ध नहीं हैं। कृपया पहले batch create करें।\n\nNo batches available for this course. Please create a batch first.',
+                confirmButtonColor: '#5C9A24'
+              })
+              return;
+            }
+            
+            if (!batchValue || batchValue === "") {
+              Swal.fire({
+                icon: 'warning',
+                title: 'Validation Error',
+                text: 'कृपया एक batch चुनें।\n\nPlease select a batch.',
+                confirmButtonColor: '#5C9A24'
+              })
+              return;
+            }
           }
 
           // Normalize status to lowercase (backend expects: enrolled, completed, dropped)
@@ -664,7 +679,8 @@ const fetchStudentDetails = async (studentId) => {
 
           const updatedStudent = {
             ...selectedStudent,
-            batch: batchValue,
+            course_id: courseValue ? Number(courseValue) : selectedStudent.course_id,
+            batch: batchValue || selectedStudent.batch_id,
             status: normalizedStatus,
           };
 

@@ -7,7 +7,7 @@ import EditBatchModal from './EditBatchModal'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl.js'
 
-export default function BatchDetail({ batchData, onBack }) {
+export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
   const navigate = useNavigate()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState(null)
@@ -53,7 +53,6 @@ export default function BatchDetail({ batchData, onBack }) {
                 status: typeof response.status === 'string' ? response.status : (response.admin_action || 'Active'),
                 duration: `${response.start_date || response.startDate || 'N/A'} - ${response.end_date || response.endDate || 'N/A'}`,
                 timeSlot: response.batch_time_slot || response.time_slot || response.batchTimeSlot || 'N/A',
-                description: response.description || response.course_title || `${batchData.courseTitle} - Practical oriented training batch`,
                 totalStudents: response.enrolled_students || response.total_students || response.enrolledStudents || studentsData.length,
                 maxStudents: response.max_students || response.maxStudents || response.batch_limit || 30,
                 activeStudents: studentsData.filter((s) => {
@@ -73,7 +72,6 @@ export default function BatchDetail({ batchData, onBack }) {
                 status: typeof currentBatch.status === 'string' ? currentBatch.status : (currentBatch.admin_action || 'Active'),
                 duration: `${currentBatch.start_date || currentBatch.startDate || 'N/A'} - ${currentBatch.end_date || currentBatch.endDate || 'N/A'}`,
                 timeSlot: currentBatch.batch_time_slot || currentBatch.time_slot || currentBatch.batchTimeSlot || 'N/A',
-                description: currentBatch.description || `${batchData.courseTitle} - Practical oriented training batch`,
                 totalStudents: currentBatch.enrolled_students || currentBatch.total_students || currentBatch.enrolledStudents || studentsData.length,
                 maxStudents: currentBatch.max_students || currentBatch.maxStudents || currentBatch.batch_limit || 30,
                 activeStudents: studentsData.filter((s) => {
@@ -100,7 +98,6 @@ export default function BatchDetail({ batchData, onBack }) {
                 status: typeof response.data.status === 'string' ? response.data.status : (response.data.admin_action || 'Active'),
                 duration: `${response.data.start_date || response.data.startDate || 'N/A'} - ${response.data.end_date || response.data.endDate || 'N/A'}`,
                 timeSlot: response.data.batch_time_slot || response.data.time_slot || response.data.batchTimeSlot || 'N/A',
-                description: response.data.description || response.data.course_title || `${batchData.courseTitle} - Practical oriented training batch`,
                 totalStudents: response.data.enrolled_students || response.data.total_students || response.data.enrolledStudents || studentsData.length,
                 maxStudents: response.data.max_students || response.data.maxStudents || response.data.batch_limit || 30,
                 activeStudents: studentsData.filter((s) => {
@@ -212,9 +209,7 @@ export default function BatchDetail({ batchData, onBack }) {
               name: currentBatch.batch_name || currentBatch.name || '',
               status: typeof currentBatch.status === 'string' ? currentBatch.status : (currentBatch.admin_action || 'Active'),
               duration: `${currentBatch.start_date || currentBatch.startDate || 'N/A'} - ${currentBatch.end_date || currentBatch.endDate || 'N/A'}`,
-              timeSlot: currentBatch.batch_time_slot || currentBatch.time_slot || currentBatch.batchTimeSlot || 'N/A',
-              description: currentBatch.description || `${batchData.courseTitle} - Practical oriented training batch`,
-              totalStudents: currentBatch.enrolled_students || currentBatch.total_students || currentBatch.enrolledStudents || (currentBatch.students?.length || 0),
+              timeSlot: currentBatch.batch_time_slot || currentBatch.time_slot || currentBatch.batchTimeSlot || 'N/A',              totalStudents: currentBatch.enrolled_students || currentBatch.total_students || currentBatch.enrolledStudents || (currentBatch.students?.length || 0),
               maxStudents: currentBatch.max_students || currentBatch.maxStudents || currentBatch.batch_limit || 30,
               activeStudents: currentBatch.students?.filter((s) => 
                 (s.status || '').toLowerCase() === 'active' || 
@@ -381,10 +376,15 @@ export default function BatchDetail({ batchData, onBack }) {
           ? `${updatedData.start_date} - ${updatedData.end_date}`
           : prev.duration
 
+      // ✅ Explicitly update timeSlot if batch_time_slot is provided in updatedData
+      const updatedTimeSlot = updatedData?.batch_time_slot !== undefined 
+        ? updatedData.batch_time_slot 
+        : prev.timeSlot
+
       return {
         ...prev,
         name: updatedData?.batch_name || updatedData?.name || prev.name,
-        timeSlot: updatedData?.batch_time_slot || prev.timeSlot,
+        timeSlot: updatedTimeSlot,
         duration: updatedDuration,
       }
     })
@@ -395,10 +395,25 @@ export default function BatchDetail({ batchData, onBack }) {
             ...prev,
             ...updatedData,
             batch_name: updatedData?.batch_name || updatedData?.name || prev.batch_name,
-            batch_time_slot: updatedData?.batch_time_slot || prev.batch_time_slot,
+            batch_time_slot: updatedData?.batch_time_slot !== undefined 
+              ? updatedData.batch_time_slot 
+              : prev.batch_time_slot,
           }
         : prev
     )
+
+    // ✅ Update instructor state in real-time if instructor was updated
+    if (updatedData?.instructor) {
+      setInstructors([updatedData.instructor])
+    } else if (updatedData?.instructor_id === null || updatedData?.instructor_id === 0) {
+      // If instructor was removed (set to null or 0), clear the instructors list
+      setInstructors([])
+    }
+
+    // ✅ Notify parent component (CourseDetail) about the batch update for real-time list update
+    if (onBatchUpdate) {
+      onBatchUpdate(updatedData)
+    }
 
     setIsEditModalOpen(false)
   }
@@ -610,16 +625,6 @@ export default function BatchDetail({ batchData, onBack }) {
                 <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{batchInfo.timeSlot}</p>
               </div>
             </div>
-            <div>
-              <p
-                className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}
-              >
-                Description
-              </p>
-              <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} leading-relaxed`}>
-                {batchInfo.description}
-              </p>
-            </div>
           </div>
         </div>
 
@@ -630,14 +635,14 @@ export default function BatchDetail({ batchData, onBack }) {
           </h2>
           <div className="space-y-4">
             {instructors.length > 0 ? (
-              instructors.map((instructor) => (
+              instructors.map((instructor, index) => (
                 <div
-                  key={instructor.id || instructor.name}
+                  key={instructor.id || (instructor.name && typeof instructor.name === 'string' ? instructor.name : `instructor-${index}`)}
                   className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                 >
                   <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                     <span className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>
-                      {instructor.name
+                      {instructor.name && typeof instructor.name === 'string'
                         ? instructor.name
                             .split(' ')
                             .map((n) => n[0])
@@ -647,7 +652,7 @@ export default function BatchDetail({ batchData, onBack }) {
                   </div>
                   <div className="flex-1">
                     <h3 className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                      {instructor.name || 'No instructor assigned'}
+                      {instructor.name && typeof instructor.name === 'string' ? instructor.name : 'No instructor assigned'}
                     </h3>
                     {instructor.email && (
                       <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED}`}>{instructor.email}</p>

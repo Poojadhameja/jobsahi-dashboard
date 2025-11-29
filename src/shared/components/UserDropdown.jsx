@@ -70,9 +70,12 @@ const UserDropdown = ({ user: propUser = { user_name: 'Admin', role: 'Administra
   }, [])
 
   const handleProfileClick = () => {
-    // For recruiter, navigate to company-profile instead of profile
-    if (user.role?.toLowerCase() === 'recruiter') {
+    // Navigate based on user role
+    const role = user.role?.toLowerCase()
+    if (role === 'recruiter') {
       navigate(`/${user.role}/company-profile`)
+    } else if (role === 'institute') {
+      navigate('/institute/profile-setting')
     } else {
       navigate(`/${user.role}/profile`)
     }

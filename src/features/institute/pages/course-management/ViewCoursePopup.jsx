@@ -237,7 +237,7 @@ const ViewCoursePopup = ({ course, onClose }) => {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-800">
-                  {c.instructor_name || 'Not specified'}
+                  {c.instructor?.instructor_name || c.instructor_name || c.instructor?.name || 'Not specified'}
                 </p>
               </div>
             </div>
