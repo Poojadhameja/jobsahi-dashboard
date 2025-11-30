@@ -25,6 +25,9 @@ import {
   LuMapPin,
   LuCalendar,
   LuCheck,
+  LuBuilding2,
+  LuUsers,
+  LuSchool,
 } from 'react-icons/lu'
 import { getChartTooltipStyle, getChartTextColor, getChartGridColor, getChartColors } from '../../../shared/utils/chartColors'
 import { getMethod } from '../../../service/api'
@@ -530,7 +533,9 @@ export default function Dashboard() {
       applied_jobs: '0',
       interview_jobs: '0',
       active_jobs: '0',
-      active_courses: '0'
+      active_courses: '0',
+      total_institutes: '0',
+      total_recruiters: '0'
     },
     placement_funnel: {
       applications: '0',
@@ -573,29 +578,59 @@ export default function Dashboard() {
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await getMethod({
-        apiUrl: apiService.adminDashboard
-      })
+      
+      // Fetch dashboard data and jobs in parallel
+      const [dashboardResponse, jobsResponse] = await Promise.allSettled([
+        getMethod({ apiUrl: apiService.adminDashboard }),
+        getMethod({ apiUrl: apiService.getJobs })
+      ])
+
+      const response = dashboardResponse.status === 'fulfilled' ? dashboardResponse.value : null
+      const jobsData = jobsResponse.status === 'fulfilled' ? jobsResponse.value : null
 
       console.log('📊 Admin Dashboard API Response:', response)
+      console.log('📊 Jobs API Response:', jobsData)
 
       const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true
 
+      // Calculate job counts from jobs API
+      let appliedJobsCount = '0'
+      let interviewJobsCount = '0'
+      let activeJobsCount = '0'
+
+      if (jobsData?.status === true && Array.isArray(jobsData?.data)) {
+        const allJobs = jobsData.data
+        // Count active jobs (approved and active status)
+        activeJobsCount = String(allJobs.filter(job => 
+          job.admin_action === 'approved' || 
+          job.status === 'active' || 
+          job.status === 'open' ||
+          (job.admin_action !== 'rejected' && job.admin_action !== 'pending')
+        ).length)
+        
+        console.log('📊 Job counts calculated:', {
+          totalJobs: allJobs.length,
+          activeJobs: activeJobsCount
+        })
+      }
+
+      // Use placement_funnel data for applications and interviews
       if (isSuccess && response?.data) {
+        const placementFunnel = response.data.placement_funnel || {}
+        appliedJobsCount = placementFunnel.applications || response.data.cards?.applied_jobs || '0'
+        interviewJobsCount = placementFunnel.interviews || response.data.cards?.interview_jobs || '0'
+        
         setDashboardData({
-          cards: response.data.cards || {
-            total_students: '0',
-            applied_jobs: '0',
-            interview_jobs: '0',
-            active_jobs: '0',
-            active_courses: '0'
+          cards: {
+            total_students: response.data.cards?.total_students || '0',
+            applied_jobs: appliedJobsCount,
+            interview_jobs: interviewJobsCount,
+            active_jobs: activeJobsCount,
+            active_courses: response.data.cards?.active_courses || '0',
+            total_institutes: response.data.cards?.total_institutes || '0',
+            total_recruiters: response.data.cards?.total_recruiters || '0'
           },
-          placement_funnel: response.data.placement_funnel || {
-            applications: '0',
-            interviews: '0',
-            active_courses: '0',
-            hired: '0'
-          },
+          placement_funnel: placementFunnel,
           applications_trend: response.data.applications_trend || [],
           top_jobs_in_demand: response.data.top_jobs_in_demand || [],
           recent_applications: response.data.recent_applications || []
@@ -913,8 +948,8 @@ export default function Dashboard() {
 
   const overview = [
     { title:'Total Students', value: formatNumber(dashboardData.cards.total_students), icon:<LuGraduationCap className="w-5 h-5" /> },
-    { title:'Applied Job', value: formatNumber(dashboardData.cards.applied_jobs), icon:<LuBriefcase className="w-5 h-5" /> },
-    { title:'Interview Job', value: formatNumber(dashboardData.cards.interview_jobs), icon:<LuUserCheck className="w-5 h-5" /> },
+    { title:'Total Institutes', value: formatNumber(dashboardData.cards.total_institutes), icon:<LuSchool className="w-5 h-5" /> },
+    { title:'Total Recruiters', value: formatNumber(dashboardData.cards.total_recruiters), icon:<LuBuilding2 className="w-5 h-5" /> },
     { title:'Active Jobs', value: formatNumber(dashboardData.cards.active_jobs), icon:<LuTrendingUp className="w-5 h-5" /> },
   ]
 

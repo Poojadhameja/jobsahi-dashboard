@@ -38,17 +38,64 @@ export default function InstituteHeader({ toggleSidebar }) {
     return null
   }
 
-  // Format date for display
+  // Parse date string (handles MySQL datetime format and ISO format)
+  const parseDate = (dateString) => {
+    if (!dateString) return null
+    
+    // Handle MySQL datetime format: "YYYY-MM-DD HH:MM:SS"
+    if (typeof dateString === 'string' && dateString.includes(' ') && !dateString.includes('T')) {
+      const [datePart, timePart] = dateString.split(' ')
+      const [year, month, day] = datePart.split('-')
+      const [hours, minutes, seconds] = timePart ? timePart.split(':') : ['00', '00', '00']
+      // Create date in local timezone (not UTC)
+      return new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day),
+        parseInt(hours),
+        parseInt(minutes),
+        parseInt(seconds || 0)
+      )
+    }
+    
+    // Handle ISO format or other formats
+    return new Date(dateString)
+  }
+
+  // Format date for display with proper relative time
   const formatNotificationDate = (dateString) => {
     if (!dateString) return 'Recently'
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffTime = Math.abs(now - date)
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     
+    const date = parseDate(dateString)
+    if (!date || isNaN(date.getTime())) return 'Recently'
+    
+    const now = new Date()
+    const diffMs = now - date
+    const diffSeconds = Math.floor(diffMs / 1000)
+    const diffMinutes = Math.floor(diffSeconds / 60)
+    const diffHours = Math.floor(diffMinutes / 60)
+    const diffDays = Math.floor(diffHours / 24)
+    
+    // Show relative time for recent items
+    if (diffSeconds < 60) return 'Just now'
+    if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
     if (diffDays === 0) return 'Today'
     if (diffDays === 1) return 'Yesterday'
-    return `${diffDays} days ago`
+    if (diffDays < 7) return `${diffDays} days ago`
+    
+    // For older items, show actual date and time
+    const formattedDate = date.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    })
+    const formattedTime = date.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+    return `${formattedDate} at ${formattedTime}`
   }
 
   // Fetch institute-specific notifications
