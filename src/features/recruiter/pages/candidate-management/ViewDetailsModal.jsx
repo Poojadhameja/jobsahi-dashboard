@@ -17,7 +17,7 @@ import {
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
 import { Button, IconButton } from "../../../../shared/components/Button";
 import Swal from "sweetalert2";
-import { postMethod, getMethod } from "../../../../service/api";
+import { postMethod, getMethod, putMethod } from "../../../../service/api";
 import apiService from "../../services/serviceUrl";
 
 const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onInterviewScheduled }) => {
@@ -75,55 +75,135 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
           interviews = response;
         }
 
-        // Simple Logic: Show interview ONLY if it matches the current application/job
-        // If student applied for Job A and Job B, but interview is scheduled only for Job A:
-        // - Viewing Job A -> Show interview ✅
-        // - Viewing Job B -> Don't show interview ❌
+        // ✅ STRICT Logic: Show interview ONLY if it matches the EXACT current application/job
+        // If student applied for Job A (application_id: 9) and Job B (application_id: 10):
+        // - Interview scheduled for Job A (application_id: 9) -> Only show when viewing Job A ✅
+        // - When viewing Job B (application_id: 10) -> Don't show interview for Job A ❌
+        
+        console.log('🔍 Fetching interview for candidate:', {
+          applicationId,
+          jobId,
+          studentId,
+          candidateName: candidate.name || candidate.candidate_name
+        });
         
         let foundInterview = null;
         
-        // Step 1: Try to find interview by application_id (most specific match)
+        // ✅ Step 1: STRICT match by application_id (most specific - this is the PRIMARY key)
+        // Only match if BOTH application_id exist and match exactly
         if (applicationId) {
           foundInterview = interviews.find((interview) => {
             const interviewAppId = interview.application_id || interview.applicationId;
-            return interviewAppId && (interviewAppId == applicationId || String(interviewAppId) === String(applicationId));
+            const matches = interviewAppId && (interviewAppId == applicationId || String(interviewAppId) === String(applicationId));
+            
+            if (matches) {
+              console.log('✅ Found interview by application_id:', {
+                candidateAppId: applicationId,
+                interviewAppId: interviewAppId,
+                interviewJobId: interview.job_id || interview.jobId
+              });
+            }
+            
+            return matches;
           });
         }
         
-        // Step 2: If no match by application_id, try by job_id (to match the specific job)
+        // ✅ Step 2: If no match by application_id AND candidate has no application_id, 
+        // then try by job_id BUT ensure it matches the candidate's current job_id exactly
         if (!foundInterview && jobId) {
-          foundInterview = interviews.find((interview) => {
-            const interviewJobId = interview.job_id || interview.jobId;
-            return interviewJobId && (interviewJobId == jobId || String(interviewJobId) === String(jobId));
-          });
+          // Get candidate's current job_id to ensure exact match
+          const candidateJobId = candidate.job_id || candidate.jobId || candidate.applied_job_id;
+          
+          if (candidateJobId) {
+            foundInterview = interviews.find((interview) => {
+              const interviewJobId = interview.job_id || interview.jobId;
+              // ✅ STRICT: Both job_ids must exist and match exactly
+              const matches = interviewJobId && candidateJobId && 
+                            (interviewJobId == candidateJobId || String(interviewJobId) === String(candidateJobId));
+              
+              // ✅ Additional check: If interview has application_id, don't match by job_id alone
+              // (because application_id is more specific)
+              const interviewHasAppId = interview.application_id || interview.applicationId;
+              if (matches && interviewHasAppId) {
+                console.log('⚠️ Interview has application_id, skipping job_id match to avoid cross-job display');
+                return false;
+              }
+              
+              if (matches) {
+                console.log('✅ Found interview by job_id:', {
+                  candidateJobId: candidateJobId,
+                  interviewJobId: interviewJobId
+                });
+              }
+              
+              return matches;
+            });
+          }
         }
         
-        // Step 3: If interview found, verify it matches current application/job before showing
+        // ✅ Step 3: STRICT verification - Double check the match before showing
         if (foundInterview) {
           const interviewAppId = foundInterview.application_id || foundInterview.applicationId;
           const interviewJobId = foundInterview.job_id || foundInterview.jobId;
           const candidateJobId = candidate.job_id || candidate.jobId || candidate.applied_job_id;
           
-          // Check if this interview belongs to the current application/job being viewed
-          const matchesApplication = applicationId && interviewAppId && 
-                                    (interviewAppId == applicationId || String(interviewAppId) === String(applicationId));
-          const matchesJob = candidateJobId && interviewJobId && 
-                            (interviewJobId == candidateJobId || String(interviewJobId) === String(candidateJobId));
+          // ✅ STRICT matching: Must match by application_id OR (job_id AND no application_id mismatch)
+          let shouldShow = false;
           
-          // Only show if it matches the current application or job
-          if (matchesApplication || matchesJob) {
+          if (applicationId && interviewAppId) {
+            // ✅ Primary match: application_id must match exactly
+            shouldShow = (interviewAppId == applicationId || String(interviewAppId) === String(applicationId));
+            console.log('🔍 Verifying by application_id:', {
+              candidateAppId: applicationId,
+              interviewAppId: interviewAppId,
+              shouldShow
+            });
+          } else if (candidateJobId && interviewJobId && !applicationId) {
+            // ✅ Fallback match: job_id must match exactly AND candidate has no application_id
+            shouldShow = (interviewJobId == candidateJobId || String(interviewJobId) === String(candidateJobId));
+            console.log('🔍 Verifying by job_id:', {
+              candidateJobId: candidateJobId,
+              interviewJobId: interviewJobId,
+              shouldShow
+            });
+          }
+          
+          // Only show if strict match passes
+          if (shouldShow) {
             // Normalize interview data
+            // ✅ CRITICAL: Map feedback to interview_info (API sends 'feedback', DB stores as 'interview_info')
+            const mappedInterviewInfo = foundInterview.interview_info || 
+                                       foundInterview.interviewInfo || 
+                                       foundInterview.feedback || 
+                                       foundInterview.notes || 
+                                       foundInterview.description || 
+                                       '';
+            
             const normalizedInterview = {
               ...foundInterview,
+              // ✅ CRITICAL: Preserve interview_id for update functionality
+              interview_id: foundInterview.interview_id || foundInterview.id || foundInterview.interviewId,
+              id: foundInterview.id || foundInterview.interview_id || foundInterview.interviewId,
               scheduled_at: foundInterview.scheduled_at || foundInterview.scheduledAt || foundInterview.scheduled_date || foundInterview.date,
+              scheduledAt: foundInterview.scheduled_at || foundInterview.scheduledAt || foundInterview.scheduled_date || foundInterview.date,
+              scheduled_date: foundInterview.scheduled_at || foundInterview.scheduledAt || foundInterview.scheduled_date || foundInterview.date,
               mode: foundInterview.mode || foundInterview.interviewMode || foundInterview.interview_mode,
               interview_link: foundInterview.interview_link || foundInterview.interviewLink || foundInterview.meeting_link || foundInterview.meetingLink || foundInterview.link,
               location: foundInterview.location || foundInterview.interview_location || foundInterview.address,
               platform_name: foundInterview.platform_name || foundInterview.platformName || foundInterview.platform,
               status: foundInterview.status || foundInterview.interview_status,
-              interview_info: foundInterview.interview_info || foundInterview.interviewInfo || foundInterview.feedback || foundInterview.notes || foundInterview.description,
+              // ✅ CRITICAL: Map feedback to interview_info for consistent display
+              interview_info: mappedInterviewInfo,
+              feedback: mappedInterviewInfo, // Also keep feedback for API compatibility
               application_id: interviewAppId
             };
+            
+            console.log('✅ Normalized Interview Data:', {
+              interview_id: normalizedInterview.interview_id,
+              id: normalizedInterview.id,
+              application_id: normalizedInterview.application_id,
+              scheduled_at: normalizedInterview.scheduled_at
+            });
             
             setExistingInterview(normalizedInterview);
             
@@ -153,11 +233,22 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
               setInterviewFeedback(normalizedInterview.interview_info || '');
             }
           } else {
-            // Interview found but doesn't match this application/job - don't show it
+            // ❌ Interview found but doesn't match this application/job - don't show it
+            console.log('❌ Interview found but does NOT match current application/job:', {
+              candidateAppId: applicationId,
+              candidateJobId: candidate.job_id || candidate.jobId || candidate.applied_job_id,
+              interviewAppId: foundInterview.application_id || foundInterview.applicationId,
+              interviewJobId: foundInterview.job_id || foundInterview.jobId
+            });
             setExistingInterview(null);
           }
         } else {
-          // No interview found for this application/job
+          // ❌ No interview found for this application/job
+          console.log('❌ No interview found for this application/job:', {
+            applicationId,
+            jobId: candidate.job_id || candidate.jobId || candidate.applied_job_id,
+            totalInterviews: interviews.length
+          });
           setExistingInterview(null);
         }
       } else {
@@ -233,8 +324,10 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
       // Combine date and time into scheduled_at format (YYYY-MM-DD HH:MM:SS)
       const scheduledAt = `${interviewDate} ${interviewTime}:00`;
 
-      // Get application_id from candidate (required field in interviews table)
-      // Also get job_id and student_id as fallback if API needs them
+      // ✅ Get application_id from candidate (required field in interviews table)
+      // This is CRITICAL - each application has a unique application_id
+      // If student applied to Job A (app_id: 9) and Job B (app_id: 10),
+      // interview for Job A should use app_id: 9, not app_id: 10
       const applicationId = candidate.application_id || 
                            candidate.applicationId || 
                            null;
@@ -252,6 +345,14 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
                        candidate.id ||
                        null;
 
+      console.log('📅 Scheduling interview with:', {
+        applicationId,
+        jobId,
+        studentId,
+        candidateName: candidate.name || candidate.candidate_name,
+        appliedFor: candidate.applied_for || candidate.job_title
+      });
+
       // Check if we have required IDs
       if (!applicationId && (!jobId || !studentId)) {
         Swal.fire({
@@ -263,38 +364,118 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
         return;
       }
 
-      // Prepare payload according to database structure
-      // Database fields: application_id, scheduled_at, mode, interview_link, location, status, interview_info, platform_name
-      const payload = {
-        // Primary: application_id (foreign key to applications table)
-        ...(applicationId && { application_id: applicationId }),
-        // Fallback: if application_id not available, send job_id and student_id
-        ...(!applicationId && jobId && { job_id: jobId }),
-        ...(!applicationId && studentId && { student_id: studentId }),
-        // Required fields
-        scheduled_at: scheduledAt,
-        mode: interviewMode === "online" ? "online" : "offline", // lowercase as per DB enum
-        status: "scheduled", // as per DB enum
-        // Conditional fields based on mode
-        ...(interviewMode === "online" ? {
-          interview_link: interviewLocation, // For online interviews
-          platform_name: interviewLocation.includes('zoom') ? 'Zoom' : 
-                        interviewLocation.includes('meet') ? 'Google Meet' : 
-                        interviewLocation.includes('teams') ? 'Microsoft Teams' : 
-                        'Other'
-        } : {
-          location: interviewLocation // For offline interviews
-        }),
-        // Additional info/notes
-        interview_info: interviewFeedback || "Initial screening interview." // DB field name is interview_info, not feedback
-      };
+      // ✅ Check if we're updating an existing interview or creating a new one
+      // Try multiple possible field names for interview_id
+      const interviewId = existingInterview?.interview_id || 
+                          existingInterview?.id || 
+                          existingInterview?.interviewId ||
+                          null;
+      
+      const isUpdate = existingInterview && interviewId;
 
-      // 📅 API Call: POST /applications/schedule_interview.php
-      // This API schedules an interview for a candidate
-      const response = await postMethod({
-        apiUrl: apiService.scheduleInterview, // "/applications/schedule_interview.php"
-        payload: payload
+      console.log('🔄 Interview Action Check:', {
+        isUpdate,
+        interviewId,
+        existingInterviewExists: !!existingInterview,
+        existingInterviewKeys: existingInterview ? Object.keys(existingInterview) : [],
+        interview_id: existingInterview?.interview_id,
+        id: existingInterview?.id,
+        interviewId: existingInterview?.interviewId
       });
+
+      let response;
+      
+      if (isUpdate && interviewId) {
+        // ✅ UPDATE EXISTING INTERVIEW
+        // Prepare update payload - Backend expects "interview_info" (DB field name)
+        const updatePayload = {
+          interview_id: Number(interviewId), // Ensure it's a number
+          scheduled_at: scheduledAt,
+          mode: interviewMode === "online" ? "online" : "offline", // lowercase as per DB enum
+          status: existingInterview.status || "scheduled", // Keep existing status or default to "scheduled"
+          // ✅ CRITICAL: Backend expects "interview_info" (DB field name), not "feedback"
+          interview_info: interviewFeedback || existingInterview.interview_info || existingInterview.feedback || "Initial screening interview.",
+          // Conditional fields based on mode
+          ...(interviewMode === "online" ? {
+            interview_link: interviewLocation // For online interviews
+            // Don't send location for online interviews
+          } : {
+            location: interviewLocation // For offline interviews
+            // Don't send interview_link for offline interviews
+          })
+        };
+
+        console.log('📤 Update Interview Payload:', updatePayload);
+        console.log('📤 Update Interview - interview_info being sent:', updatePayload.interview_info);
+        console.log('📤 Update Interview - Full existingInterview:', existingInterview);
+
+        try {
+          // 📅 API Call: PUT /applications/update_interview.php
+          response = await putMethod({
+            apiUrl: apiService.updateInterview, // "/applications/update_interview.php"
+            payload: updatePayload
+          });
+
+          console.log('📥 Update Interview API Response:', response);
+        } catch (error) {
+          console.error('❌ Update Interview API Error:', error);
+          Swal.fire({
+            title: "❌ Error",
+            text: error?.message || "Failed to update interview. Please check console for details.",
+            icon: "error",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      } else if (existingInterview && !interviewId) {
+        // ❌ Interview exists but interview_id is missing
+        console.error('❌ Cannot update: Interview exists but interview_id is missing:', existingInterview);
+        Swal.fire({
+          title: "❌ Error",
+          text: "Interview ID is missing. Please refresh the page and try again.",
+          icon: "error",
+        });
+        setIsSubmitting(false);
+        return;
+      } else {
+        // ✅ CREATE NEW INTERVIEW
+        // Prepare payload according to database structure
+        // Database fields: application_id, scheduled_at, mode, interview_link, location, status, interview_info, platform_name
+        const createPayload = {
+          // Primary: application_id (foreign key to applications table)
+          ...(applicationId && { application_id: applicationId }),
+          // Fallback: if application_id not available, send job_id and student_id
+          ...(!applicationId && jobId && { job_id: jobId }),
+          ...(!applicationId && studentId && { student_id: studentId }),
+          // Required fields
+          scheduled_at: scheduledAt,
+          mode: interviewMode === "online" ? "online" : "offline", // lowercase as per DB enum
+          status: "scheduled", // as per DB enum
+          // Conditional fields based on mode
+          ...(interviewMode === "online" ? {
+            interview_link: interviewLocation, // For online interviews
+            platform_name: interviewLocation.includes('zoom') ? 'Zoom' : 
+                          interviewLocation.includes('meet') ? 'Google Meet' : 
+                          interviewLocation.includes('teams') ? 'Microsoft Teams' : 
+                          'Other'
+          } : {
+            location: interviewLocation // For offline interviews
+          }),
+          // Additional info/notes
+          interview_info: interviewFeedback || "Initial screening interview." // DB field name is interview_info, not feedback
+        };
+
+        console.log('📤 Create Interview Payload:', createPayload);
+
+        // 📅 API Call: POST /applications/schedule_interview.php
+        // This API schedules an interview for a candidate
+        response = await postMethod({
+          apiUrl: apiService.scheduleInterview, // "/applications/schedule_interview.php"
+          payload: createPayload
+        });
+
+        console.log('📥 Create Interview API Response:', response);
+      }
 
       const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true;
 
@@ -302,28 +483,84 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
         // ✅ Immediately update interview data from response if available
         if (response?.data || response?.interview) {
           const interviewData = response.data || response.interview;
+          
+          // ✅ CRITICAL: Map feedback to interview_info (DB field name)
+          // API sends 'feedback' but DB stores as 'interview_info'
+          const mappedInterviewInfo = interviewData.interview_info || 
+                                     interviewData.feedback || 
+                                     interviewFeedback || 
+                                     existingInterview?.interview_info || 
+                                     "Initial screening interview.";
+          
           const normalizedInterview = {
             ...interviewData,
-            scheduled_at: interviewData.scheduled_at || scheduledAt,
-            mode: interviewData.mode || interviewMode,
-            interview_link: interviewData.interview_link || (interviewMode === "online" ? interviewLocation : null),
-            location: interviewData.location || (interviewMode === "offline" ? interviewLocation : null),
-            status: interviewData.status || "scheduled",
-            interview_info: interviewData.interview_info || interviewFeedback || "Initial screening interview.",
-            platform_name: interviewData.platform_name || (interviewMode === "online" ? (interviewLocation.includes('zoom') ? 'Zoom' : interviewLocation.includes('meet') ? 'Google Meet' : interviewLocation.includes('teams') ? 'Microsoft Teams' : 'Other') : null)
+            // ✅ Use the NEW scheduled_at from form (not old one)
+            scheduled_at: scheduledAt, // Always use the new value from form
+            scheduledAt: scheduledAt, // Also set camelCase version
+            scheduled_date: scheduledAt, // Also set alternative field name
+            mode: interviewMode === "online" ? "online" : "offline", // Use new mode from form
+            interview_link: interviewMode === "online" ? interviewLocation : (interviewData.interview_link || null),
+            location: interviewMode === "offline" ? interviewLocation : (interviewData.location || null),
+            status: interviewData.status || existingInterview?.status || "scheduled",
+            // ✅ CRITICAL: Map feedback to interview_info for display
+            interview_info: mappedInterviewInfo,
+            feedback: mappedInterviewInfo, // Also keep feedback for API compatibility
+            platform_name: interviewMode === "online" ? (interviewLocation.includes('zoom') ? 'Zoom' : interviewLocation.includes('meet') ? 'Google Meet' : interviewLocation.includes('teams') ? 'Microsoft Teams' : 'Other') : (interviewData.platform_name || null),
+            // ✅ Ensure application_id and interview_id are preserved
+            application_id: interviewData.application_id || applicationId || existingInterview?.application_id,
+            interview_id: interviewData.interview_id || interviewData.id || interviewData.interviewId || interviewId,
+            id: interviewData.id || interviewData.interview_id || interviewData.interviewId || interviewId
           };
+          
+          console.log(`✅ Interview ${isUpdate ? 'updated' : 'scheduled'} successfully:`, {
+            interview_id: normalizedInterview.interview_id,
+            application_id: normalizedInterview.application_id,
+            job_id: normalizedInterview.job_id || jobId,
+            scheduled_at: normalizedInterview.scheduled_at,
+            interview_info: normalizedInterview.interview_info,
+            mode: normalizedInterview.mode
+          });
+          
           setExistingInterview(normalizedInterview);
+        } else if (isUpdate) {
+          // ✅ If update response doesn't have data, update existing interview with new values from form
+          const updatedInterview = {
+            ...existingInterview,
+            // ✅ CRITICAL: Use NEW values from form, not old ones
+            scheduled_at: scheduledAt, // NEW scheduled time
+            scheduledAt: scheduledAt, // Also set camelCase version
+            scheduled_date: scheduledAt, // Also set alternative field name
+            mode: interviewMode === "online" ? "online" : "offline", // NEW mode
+            interview_link: interviewMode === "online" ? interviewLocation : (existingInterview.interview_link || null),
+            location: interviewMode === "offline" ? interviewLocation : (existingInterview.location || null),
+            // ✅ CRITICAL: Map feedback to interview_info
+            interview_info: interviewFeedback || existingInterview.interview_info || "Initial screening interview.",
+            feedback: interviewFeedback || existingInterview.feedback || existingInterview.interview_info || "Initial screening interview.",
+            platform_name: interviewMode === "online" ? (interviewLocation.includes('zoom') ? 'Zoom' : interviewLocation.includes('meet') ? 'Google Meet' : interviewLocation.includes('teams') ? 'Microsoft Teams' : 'Other') : (existingInterview.platform_name || null)
+          };
+          
+          console.log('✅ Updated existingInterview state with new values:', {
+            scheduled_at: updatedInterview.scheduled_at,
+            interview_info: updatedInterview.interview_info,
+            mode: updatedInterview.mode
+          });
+          
+          setExistingInterview(updatedInterview);
         }
         
-        // ✅ Immediately fetch fresh interview data from API (don't wait for alert)
-        fetchExistingInterview();
+        // ✅ For updates, don't re-fetch immediately (use updated state instead)
+        // For creates, we can optionally fetch to get the full interview object
+        if (!isUpdate) {
+          // Only fetch for new interviews to get complete data
+          fetchExistingInterview();
+        }
         
         // ✅ Immediately refresh applicants list (get recent applications API)
         if (onInterviewScheduled && typeof onInterviewScheduled === 'function') {
           onInterviewScheduled();
         }
         
-        // Reset form immediately
+        // Reset form immediately (this will close the form and show updated interview)
         setScheduleInterview(false);
         setInterviewDate("");
         setInterviewTime("");
@@ -333,17 +570,21 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
         
         // Show success message
         Swal.fire({
-          title: "Success!",
-          text: existingInterview 
+          title: isUpdate ? "✅ Interview Updated!" : "✅ Interview Scheduled!",
+          text: isUpdate 
             ? `Interview updated successfully for ${interviewDate} at ${interviewTime} (${interviewMode})`
             : `Interview scheduled for ${interviewDate} at ${interviewTime} (${interviewMode})`,
           icon: "success",
           confirmButtonText: "OK",
+          timer: 2000,
+          showConfirmButton: true
         });
       } else {
         Swal.fire({
-          title: "Error",
-          text: response?.message || "Failed to schedule interview. Please try again.",
+          title: "❌ Error",
+          text: response?.message || (isUpdate 
+            ? "Failed to update interview. Please try again." 
+            : "Failed to schedule interview. Please try again."),
           icon: "error",
         });
       }
@@ -805,6 +1046,10 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
 
           {/* Schedule Interview Section */}
           <div className="border-t border-gray-200 pt-6">
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4`}>
+              Interview Schedule
+            </h3>
+            
             {/* Show Existing Interview if Available */}
             {loadingInterview ? (
               <div className="mb-4 text-center text-sm text-gray-500">
@@ -827,9 +1072,36 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
                             <strong className="text-green-800 block mb-1">Scheduled Date & Time:</strong>
                             <span className="text-green-700 font-medium">
                               {(() => {
-                                const dateStr = existingInterview.scheduled_at || existingInterview.scheduledAt || existingInterview.scheduled_date;
+                                // ✅ Get the most recent scheduled_at value (prioritize scheduled_at)
+                                const dateStr = existingInterview.scheduled_at || 
+                                               existingInterview.scheduledAt || 
+                                               existingInterview.scheduled_date;
+                                
+                                console.log('📅 Displaying interview date:', {
+                                  scheduled_at: existingInterview.scheduled_at,
+                                  scheduledAt: existingInterview.scheduledAt,
+                                  scheduled_date: existingInterview.scheduled_date,
+                                  dateStr: dateStr
+                                });
+                                
+                                if (!dateStr) return 'Not scheduled';
+                                
                                 try {
-                                  const date = new Date(dateStr);
+                                  // ✅ Parse date string (format: "YYYY-MM-DD HH:MM:SS")
+                                  // Handle both "2025-12-02 05:30:00" and ISO formats
+                                  let date;
+                                  if (dateStr.includes('T')) {
+                                    // ISO format
+                                    date = new Date(dateStr);
+                                  } else {
+                                    // MySQL datetime format: "YYYY-MM-DD HH:MM:SS"
+                                    // Parse as local time to avoid timezone conversion
+                                    const [datePart, timePart] = dateStr.split(' ');
+                                    const [year, month, day] = datePart.split('-');
+                                    const [hours, minutes, seconds] = timePart ? timePart.split(':') : ['00', '00', '00'];
+                                    date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes), parseInt(seconds || 0));
+                                  }
+                                  
                                   if (!isNaN(date.getTime())) {
                                     const formattedDate = date.toLocaleDateString('en-IN', {
                                       day: 'numeric',
@@ -844,7 +1116,8 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
                                     return `${formattedDate} at ${formattedTime}`;
                                   }
                                   return dateStr;
-                                } catch {
+                                } catch (error) {
+                                  console.error('❌ Error parsing date:', error, dateStr);
                                   return dateStr;
                                 }
                               })()}
@@ -948,7 +1221,30 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
               </div>
             ) : null}
 
-           
+            {/* Schedule Interview Button */}
+            {!scheduleInterview && (
+              <div className="mb-4">
+                <Button
+                  onClick={() => {
+                    setScheduleInterview(true);
+                    // Reset form if no existing interview
+                    if (!existingInterview) {
+                      setInterviewDate("");
+                      setInterviewTime("");
+                      setInterviewMode("online");
+                      setInterviewLocation("");
+                      setInterviewFeedback("");
+                    }
+                  }}
+                  variant="primary"
+                  size="md"
+                  className="w-full sm:w-auto"
+                  icon={<LuCalendar size={18} />}
+                >
+                  {existingInterview ? "Update Interview Schedule" : "Schedule Interview"}
+                </Button>
+              </div>
+            )}
 
             {scheduleInterview && (
               <div className="bg-gray-50 rounded-lg p-6 space-y-4">
@@ -1092,16 +1388,35 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
                   />
                 </div>
 
-                {/* Confirm Button */}
-                <div className="pt-2">
+                {/* Action Buttons */}
+                <div className="pt-2 flex gap-3">
+                  <Button
+                    onClick={() => {
+                      setScheduleInterview(false);
+                      // Reset form
+                      if (!existingInterview) {
+                        setInterviewDate("");
+                        setInterviewTime("");
+                        setInterviewMode("online");
+                        setInterviewLocation("");
+                        setInterviewFeedback("");
+                      }
+                    }}
+                    variant="outline"
+                    size="md"
+                    className="flex-1"
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </Button>
                   <Button
                     onClick={handleScheduleInterview}
                     variant="primary"
                     size="md"
-                    className="w-full"
+                    className="flex-1"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Scheduling..." : "Confirm Schedule"}
+                    {isSubmitting ? "Scheduling..." : existingInterview ? "Update Schedule" : "Confirm Schedule"}
                   </Button>
                 </div>
               </div>
