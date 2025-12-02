@@ -48,6 +48,84 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
     }
   }
 
+  // ✅ Calculate completion percentage based on dates (Frontend Logic)
+  const calculateCompletionPercentage = (startDate, endDate) => {
+    if (!startDate || !endDate || startDate === 'N/A' || endDate === 'N/A') {
+      console.warn('⚠️ Missing dates for completion calculation:', { startDate, endDate })
+      return 0
+    }
+    
+    try {
+      // Parse dates (handle YYYY-MM-DD format, remove time if present)
+      let startDateStr = typeof startDate === 'string' ? startDate.split(' ')[0] : startDate
+      let endDateStr = typeof endDate === 'string' ? endDate.split(' ')[0] : endDate
+      
+      // Parse dates in local timezone to avoid UTC issues
+      const parseLocalDate = (dateStr) => {
+        const [year, month, day] = dateStr.split('-').map(Number)
+        return new Date(year, month - 1, day) // month is 0-indexed
+      }
+      
+      // Create date objects in local timezone
+      const start = parseLocalDate(startDateStr)
+      const end = parseLocalDate(endDateStr)
+      const today = new Date()
+      
+      // Reset time to midnight for accurate day calculation
+      today.setHours(0, 0, 0, 0)
+      
+      // Check if dates are valid
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        console.error('❌ Invalid dates:', { startDate: startDateStr, endDate: endDateStr, start, end })
+        return 0
+      }
+      
+      // Calculate total days from start to end
+      const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24))
+      
+      // If batch hasn't started yet
+      if (today < start) {
+        console.log('📅 Batch not started yet:', { 
+          today: today.toISOString().split('T')[0], 
+          start: start.toISOString().split('T')[0], 
+          end: end.toISOString().split('T')[0] 
+        })
+        return 0
+      }
+      
+      // If batch has ended
+      if (today > end) {
+        console.log('📅 Batch ended:', { 
+          today: today.toISOString().split('T')[0], 
+          start: start.toISOString().split('T')[0], 
+          end: end.toISOString().split('T')[0] 
+        })
+        return 100
+      }
+      
+      // Calculate elapsed days from start to today
+      const elapsedDays = Math.max(1, Math.ceil((today - start) / (1000 * 60 * 60 * 24)))
+      
+      // Calculate percentage
+      const percentage = Math.round((elapsedDays / totalDays) * 100)
+      
+      console.log('📊 Completion Calculation:', {
+        startDate: startDateStr,
+        endDate: endDateStr,
+        today: today.toISOString().split('T')[0],
+        totalDays,
+        elapsedDays,
+        percentage
+      })
+      
+      // Ensure percentage is between 0 and 100
+      return Math.min(100, Math.max(0, percentage))
+    } catch (error) {
+      console.error('❌ Error calculating completion percentage:', error, { startDate, endDate })
+      return 0
+    }
+  }
+
   // ✅ Fetch Batch Details - Try batch_id first, fallback to course_id
   useEffect(() => {
     const fetchBatchDetail = async () => {
@@ -94,6 +172,9 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
               const formattedStart = startDate ? formatDate(startDate) : 'N/A'
               const formattedEnd = endDate ? formatDate(endDate) : 'N/A'
               
+              // ✅ Calculate completion percentage from dates (Frontend Logic)
+              const calculatedCompletion = calculateCompletionPercentage(startDate, endDate)
+              
               batchInfoData = {
                 name: response.batch_name || response.name || batchData?.batch?.batch_name || '',
                 status: typeof response.status === 'string' ? response.status : (response.admin_action || 'Active'),
@@ -106,7 +187,7 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
                   const statusStr = typeof status === 'string' ? status : String(status)
                   return statusStr.toLowerCase() === 'active' || statusStr.toLowerCase() === 'enrolled'
                 }).length,
-                completionPercentage: response.completion_percent || response.completionPercentage || response.completion_rate || 0,
+                completionPercentage: calculatedCompletion, // ✅ Frontend calculated, not from backend
               }
               
               console.log('✅ Batch Info Data Set:', batchInfoData)
@@ -120,6 +201,9 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
               const formattedStart = startDate ? formatDate(startDate) : 'N/A'
               const formattedEnd = endDate ? formatDate(endDate) : 'N/A'
               
+              // ✅ Calculate completion percentage from dates (Frontend Logic)
+              const calculatedCompletion = calculateCompletionPercentage(startDate, endDate)
+              
               batchInfoData = {
                 name: currentBatch.batch_name || currentBatch.name || '',
                 status: typeof currentBatch.status === 'string' ? currentBatch.status : (currentBatch.admin_action || 'Active'),
@@ -132,7 +216,7 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
                   const statusStr = typeof status === 'string' ? status : String(status)
                   return statusStr.toLowerCase() === 'active' || statusStr.toLowerCase() === 'enrolled'
                 }).length,
-                completionPercentage: currentBatch.completion_percent || currentBatch.completionPercentage || currentBatch.completion_rate || 0,
+                completionPercentage: calculatedCompletion, // ✅ Frontend calculated, not from backend
               }
             }
             // Case 3: response.data.students or response.data.batch
@@ -151,6 +235,9 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
               const formattedStart = startDate ? formatDate(startDate) : 'N/A'
               const formattedEnd = endDate ? formatDate(endDate) : 'N/A'
               
+              // ✅ Calculate completion percentage from dates (Frontend Logic)
+              const calculatedCompletion = calculateCompletionPercentage(startDate, endDate)
+              
               batchInfoData = {
                 name: response.data.batch_name || response.data.name || batchData?.batch?.batch_name || '',
                 status: typeof response.data.status === 'string' ? response.data.status : (response.data.admin_action || 'Active'),
@@ -163,7 +250,7 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
                   const statusStr = typeof status === 'string' ? status : String(status)
                   return statusStr.toLowerCase() === 'active' || statusStr.toLowerCase() === 'enrolled'
                 }).length,
-                completionPercentage: response.data.completion_percent || response.data.completionPercentage || response.data.completion_rate || 0,
+                completionPercentage: calculatedCompletion, // ✅ Frontend calculated, not from backend
               }
             }
             
@@ -276,6 +363,9 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
             const formattedStart = startDate ? formatDate(startDate) : 'N/A'
             const formattedEnd = endDate ? formatDate(endDate) : 'N/A'
             
+            // ✅ Calculate completion percentage from dates (Frontend Logic)
+            const calculatedCompletion = calculateCompletionPercentage(startDate, endDate)
+            
             const batchInfoToSet = {
               name: currentBatch.batch_name || currentBatch.name || '',
               status: typeof currentBatch.status === 'string' ? currentBatch.status : (currentBatch.admin_action || 'Active'),
@@ -287,7 +377,7 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
                 (s.status || '').toLowerCase() === 'active' || 
                 (s.status || '').toLowerCase() === 'enrolled'
               ).length || 0,
-              completionPercentage: currentBatch.completion_percent || currentBatch.completionPercentage || currentBatch.completion_rate || 0,
+              completionPercentage: calculatedCompletion, // ✅ Frontend calculated, not from backend
             }
             
             console.log('✅ Fallback Batch Info Set:', batchInfoToSet)

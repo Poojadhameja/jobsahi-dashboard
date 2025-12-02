@@ -8,8 +8,16 @@ const Calendar = ({
    highlightedDates = [],
   className = "",
   variant = "default", // ✅ 'default' or 'recruiter'
+  onMonthChange, // ✅ Callback when month changes
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date()); // Current visible month
+  
+  // ✅ Notify parent about initial month on mount
+  React.useEffect(() => {
+    if (onMonthChange && typeof onMonthChange === 'function') {
+      onMonthChange(currentDate.getMonth(), currentDate.getFullYear());
+    }
+  }, []); // Only on mount
   
   // Debug: Log highlightedDates when it changes
   React.useEffect(() => {
@@ -62,12 +70,23 @@ const Calendar = ({
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
       newDate.setMonth(prev.getMonth() + direction);
+      
+      // ✅ Notify parent component about month change
+      if (onMonthChange && typeof onMonthChange === 'function') {
+        onMonthChange(newDate.getMonth(), newDate.getFullYear());
+      }
+      
       return newDate;
     });
   };
 
   const isSelected = (date) => {
     if (!date || !selectedDate) return false;
+    // ✅ Handle both cases: selectedDate can be a number (day) or Date object
+    if (selectedDate instanceof Date) {
+      return date.toDateString() === selectedDate.toDateString();
+    }
+    // If selectedDate is a number (day of month), compare day numbers
     return date.getDate() === selectedDate;
   };
 
@@ -172,7 +191,12 @@ const hasHighlightedInterview = (date) => {
           return (
             <button
               key={index}
-              onClick={() => date && onDateSelect && onDateSelect(date.getDate())}
+              onClick={() => {
+                if (date && onDateSelect) {
+                  // ✅ Pass full Date object instead of just day number
+                  onDateSelect(date);
+                }
+              }}
               className={`w-8 h-8 text-sm rounded flex items-center justify-center transition-colors ${
                 !date ? "cursor-default" : "hover:bg-gray-200 cursor-pointer"
               } ${getClasses()}`}

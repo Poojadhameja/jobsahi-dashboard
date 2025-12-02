@@ -11,7 +11,6 @@ const CourseOversight = () => {
   // Courses state
   const [courses, setCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState([]);
-  const [courseStatusFilter, setCourseStatusFilter] = useState('All Status');
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState('');
   const [minTopRated, setMinTopRated] = useState(4.5);
@@ -22,10 +21,8 @@ const CourseOversight = () => {
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   // ====== COMPUTED VALUES ======
-  const filteredCourses = courses.filter(course => {
-    const matchesStatus = courseStatusFilter === 'All Status' || course.status === courseStatusFilter;
-    return matchesStatus;
-  });
+  // ✅ Show all courses (status filter removed)
+  const filteredCourses = courses;
 
   // ====== EVENT HANDLERS ======
   // Course selection handlers (for CentralizedDataTable)
@@ -350,20 +347,6 @@ const CourseOversight = () => {
             <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Course Oversight</h2>
             <p className="text-gray-600 text-sm">Manage course approvals, categories, and quality control</p>
           </div>
-        </div>
-
-        {/* Status Filter */}
-        <div className="mb-4">
-            <select
-              value={courseStatusFilter}
-              onChange={(e) => setCourseStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent"
-            >
-              <option value="All Status">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Approved">Approved</option>
-              <option value="Featured">Featured</option>
-            </select>
         </div>
 
         {/* Course Table */}

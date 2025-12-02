@@ -45,6 +45,8 @@ const Dashboard = () => {
   const [applicantCards, setApplicantCards] = useState([]);
   const [weekRange, setWeekRange] = useState("");
   const [selectedDate, setSelectedDate] = useState(10);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth()); // Current month (0-11)
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Current year
   const [recruiterName, setRecruiterName] = useState("");
 
 
@@ -171,13 +173,27 @@ const Dashboard = () => {
 
         setInterviewDetails(dataArr);
 
+        // ✅ Extract dates for calendar highlighting (all months, not just current)
         const dates = dataArr
           .map((item) => {
-            if (item.scheduled_at) {
-              const d = new Date(item.scheduled_at);
-              return d.getDate();
+            const interviewDate = item.scheduled_at || item.scheduled_date || item.date || item.interview_date;
+            if (!interviewDate) return null;
+            
+            try {
+              let date;
+              // Handle "YYYY-MM-DD" format
+              if (typeof interviewDate === 'string' && interviewDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                const [year, month, day] = interviewDate.split('-').map(Number);
+                date = new Date(year, month - 1, day);
+              } else {
+                date = new Date(interviewDate);
+              }
+              
+              if (isNaN(date.getTime())) return null;
+              return date.getDate();
+            } catch {
+              return null;
             }
-            return null;
           })
           .filter(Boolean);
         setInterviewDates(dates);
@@ -500,6 +516,13 @@ const Dashboard = () => {
                   selectedDate={selectedDate}
                   onDateSelect={setSelectedDate}
                   interviewDates={interviewDates}
+                  onMonthChange={(month, year) => {
+                    // ✅ Update selected month/year when calendar month changes
+                    console.log(`📅 Month changed to: ${month + 1}/${year}`);
+                    setSelectedMonth(month);
+                    setSelectedYear(year);
+                    setSelectedDate(0); // Reset selected date when month changes
+                  }}
                 />
               </div>
             </div>
@@ -511,30 +534,79 @@ const Dashboard = () => {
               </h4>
 
               {(() => {
-                // Filter interviews for selected date
-                // If selectedDate is set and valid, filter by date, otherwise show all interviews
-                let filteredInterviews = interviewDetails
+                // ✅ Filter interviews by selected month and year (STRICTLY)
+                // Only show interviews for the currently selected month/year
                 
-                if (selectedDate && selectedDate > 0) {
-                  filteredInterviews = interviewDetails.filter((item) => {
-                    const interviewDate = item.scheduled_at || item.scheduled_date || item.date || item.interview_date
-                    if (!interviewDate) return false
-                    try {
-                      const date = new Date(interviewDate)
-                      // Check if date is valid and matches selected date
-                      if (isNaN(date.getTime())) return false
-                      const dayOfMonth = date.getDate()
-                      return dayOfMonth === selectedDate
-                    } catch {
-                      return false
-                    }
-                  })
-                  
-                  // If filtering by date returns no results, show all interviews as fallback
-                  if (filteredInterviews.length === 0 && interviewDetails.length > 0) {
-                    filteredInterviews = interviewDetails
+                console.log('🔍 Filtering interviews:', {
+                  totalInterviews: interviewDetails.length,
+                  selectedMonth: selectedMonth,
+                  selectedYear: selectedYear,
+                  selectedDate: selectedDate
+                });
+                
+                let filteredInterviews = interviewDetails.filter((item) => {
+                  const interviewDate = item.scheduled_at || item.scheduled_date || item.date || item.interview_date
+                  if (!interviewDate) {
+                    console.log('❌ No interview date found:', item);
+                    return false;
                   }
-                }
+                  
+                  try {
+                    // Parse date - handle "2025-11-29" format (date only, no time)
+                    let date;
+                    if (typeof interviewDate === 'string') {
+                      // Handle "YYYY-MM-DD" format (date only)
+                      if (interviewDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                        // Split and create date in local timezone to avoid UTC issues
+                        const [year, month, day] = interviewDate.split('-').map(Number);
+                        date = new Date(year, month - 1, day); // month is 0-indexed
+                        console.log(`📅 Parsed date "${interviewDate}" -> Year: ${year}, Month: ${month} (0-indexed: ${month-1}), Day: ${day}`);
+                      } else if (interviewDate.includes('T') || interviewDate.includes(' ')) {
+                        // Full datetime string
+                        date = new Date(interviewDate);
+                      } else {
+                        date = new Date(interviewDate);
+                      }
+                    } else {
+                      date = new Date(interviewDate);
+                    }
+                    
+                    if (isNaN(date.getTime())) {
+                      console.log('❌ Invalid date:', interviewDate);
+                      return false;
+                    }
+                    
+                    // ✅ STRICTLY filter by month and year
+                    const interviewMonth = date.getMonth(); // 0-11 (November = 10)
+                    const interviewYear = date.getFullYear();
+                    
+                    console.log(`📊 Interview: ${interviewDate} -> Month: ${interviewMonth}, Year: ${interviewYear} | Selected: Month: ${selectedMonth}, Year: ${selectedYear}`);
+                    
+                    // Must match selected month AND year
+                    if (interviewMonth !== selectedMonth || interviewYear !== selectedYear) {
+                      console.log(`❌ Filtered out: Month mismatch (${interviewMonth} !== ${selectedMonth}) or Year mismatch (${interviewYear} !== ${selectedYear})`);
+                      return false;
+                    }
+                    
+                    console.log(`✅ Interview matches selected month/year!`);
+                    
+                    // If a specific date is selected, also filter by day
+                    if (selectedDate && selectedDate > 0) {
+                      const dayOfMonth = date.getDate();
+                      const matches = dayOfMonth === selectedDate;
+                      console.log(`📅 Day filter: ${dayOfMonth} === ${selectedDate}? ${matches}`);
+                      return matches;
+                    }
+                    
+                    // If no specific date selected, show all interviews for the selected month
+                    return true;
+                  } catch (error) {
+                    console.error('❌ Error parsing date:', interviewDate, error);
+                    return false;
+                  }
+                })
+                
+                console.log(`✅ Filtered result: ${filteredInterviews.length} interviews for ${selectedMonth + 1}/${selectedYear}`);
 
                 // Format date helper
                 const formatDate = (dateString) => {
@@ -574,7 +646,29 @@ const Dashboard = () => {
                   }
                 }
 
-                return filteredInterviews.length > 0 ? (
+                // ✅ Show "No interviews" message if no interviews for selected month
+                if (filteredInterviews.length === 0) {
+                  const monthNames = ["January", "February", "March", "April", "May", "June", 
+                                     "July", "August", "September", "October", "November", "December"];
+                  const monthName = monthNames[selectedMonth];
+                  
+                  return (
+                    <div className="text-center py-6 sm:py-8 md:py-12 text-gray-500 flex flex-col items-center justify-center">
+                      <FaCalendarAlt className="text-3xl sm:text-4xl md:text-5xl mb-3 text-gray-300" />
+                      <p className="text-sm sm:text-base font-medium text-gray-700 mb-1">
+                        No Interviews Scheduled
+                      </p>
+                      <p className="text-xs sm:text-sm text-gray-500 max-w-xs">
+                        {dataLoaded 
+                          ? `No interviews scheduled for ${monthName} ${selectedYear}. Change the month to view interviews for other months.`
+                          : "Loading interview data..."
+                        }
+                      </p>
+                    </div>
+                  );
+                }
+
+                return (
                   <div className="overflow-y-auto max-h-[300px] sm:max-h-[400px] md:max-h-[500px] lg:max-h-[600px] xl:max-h-[450px] 2xl:max-h-[500px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 px-1">
                     {filteredInterviews.map((item, i) => {
                       // Extract candidate name
@@ -654,26 +748,7 @@ const Dashboard = () => {
                       )
                     })}
                   </div>
-                ) : interviewDetails.length > 0 ? (
-                  <div className="text-center py-6 sm:py-8 md:py-12 text-gray-400 text-xs sm:text-sm flex flex-col items-center justify-center">
-                    <FaCalendarAlt className="text-xl sm:text-2xl md:text-3xl mb-2" />
-                    <p className="text-xs sm:text-sm">No interviews found for selected date</p>
-                    <p className="text-xs mt-1">Try selecting a different date from the calendar</p>
-                  </div>
-              ) : (
-                <div className="text-center py-6 sm:py-8 md:py-12 text-gray-500 flex flex-col items-center justify-center">
-                  <FaCalendarAlt className="text-3xl sm:text-4xl md:text-5xl mb-3 text-gray-300" />
-                  <p className="text-sm sm:text-base font-medium text-gray-700 mb-1">
-                    No Interviews Scheduled Yet
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500 max-w-xs">
-                    {dataLoaded 
-                      ? "This recruiter doesn't have any scheduled interviews yet. Start scheduling interviews to see them here."
-                      : "Loading interview data..."
-                    }
-                  </p>
-                </div>
-              )
+                )
               })()}
             </div>
 

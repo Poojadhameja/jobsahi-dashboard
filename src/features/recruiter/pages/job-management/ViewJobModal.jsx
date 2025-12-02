@@ -314,7 +314,7 @@ const ViewJobModal = ({ isOpen, onClose, job }) => {
                   </div>
                   <div>
                     <div className={`w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                      {job.status || 'N/A'}
+                      {job.status?.toLowerCase() === 'paused' ? 'draft' : (job.status || 'N/A')}
                     </div>
                   </div>
                 </div>

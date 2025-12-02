@@ -31,9 +31,24 @@ const PanelManagement = () => {
       console.log('🔄 Step 1: Fetching scheduled interviews...')
       console.log('📤 API URL:', apiService.getScheduledInterviews)
       
-      const response = await getMethod({
-        apiUrl: apiService.getScheduledInterviews
-      })
+      // ✅ Fetch both scheduled interviews and recent applicants to get job titles
+      const [response, applicantsResponse] = await Promise.all([
+        getMethod({ apiUrl: apiService.getScheduledInterviews }),
+        getMethod({ apiUrl: apiService.getRecentApplicants })
+      ])
+      
+      // ✅ Create a map of application_id -> job_title from applicants
+      const jobTitleMap = {};
+      if (applicantsResponse?.status && applicantsResponse?.all_applicants?.data) {
+        applicantsResponse.all_applicants.data.forEach((app) => {
+          const appId = String(app.application_id || app.applicationId || '');
+          const jobTitle = app.applied_for || app.job_title || app.jobTitle || '';
+          if (appId && jobTitle) {
+            jobTitleMap[appId] = jobTitle;
+          }
+        });
+        console.log('📋 Job title map created:', Object.keys(jobTitleMap).length, 'applications with job titles');
+      }
 
       console.log('📅 Scheduled Interviews Response:', response)
       console.log('📅 Response Type:', typeof response)
@@ -79,12 +94,57 @@ const PanelManagement = () => {
         }
         
         // Extract only the 4 important fields: interviewId, candidateName, candidateId, jobTitle
-        const students = interviews.map((item) => {
+        const allStudents = interviews.map((item, index) => {
+          // ✅ Log complete item structure for first few items
+          if (index < 3) {
+            console.log(`📋 Item ${index} complete structure:`, JSON.stringify(item, null, 2));
+            console.log(`📋 Item ${index} all keys:`, Object.keys(item));
+          }
+          
           // ✅ Try multiple possible field names for interview_id
           const interviewId = item.interviewId || item.interview_id || item.id || item.interviewId || null
           const candidateName = item.candidateName || item.candidate_name || item.name || item.candidate || 'N/A'
           const candidateId = item.candidateId || item.student_id || item.studentId || item.user_id || item.candidate_id
-          const jobTitle = item.jobTitle || item.job_title || item.title || ''
+          
+          // ✅ Try multiple possible field names for job_title (including nested)
+          let jobTitle = item.jobTitle || 
+                          item.job_title || 
+                          item.title || 
+                          item.applied_for || 
+                          item.job_name || 
+                          item.jobName || 
+                          item.job || 
+                          item.position ||
+                          item.position_title ||
+                          (item.jobDetails && (item.jobDetails.title || item.jobDetails.job_title || item.jobDetails.jobTitle)) ||
+                          (item.job_info && (item.job_info.title || item.job_info.job_title || item.job_info.jobTitle)) ||
+                          (item.job && typeof item.job === 'object' && (item.job.title || item.job.job_title || item.job.jobTitle || item.job.name)) ||
+                          ''
+          
+          // ✅ If job title not found in interview item, try to get it from jobTitleMap using application_id
+          if (!jobTitle || jobTitle === '') {
+            const appId = String(item.application_id || item.applicationId || '');
+            if (appId && jobTitleMap[appId]) {
+              jobTitle = jobTitleMap[appId];
+              console.log(`✅ Found job title from map for application_id ${appId}:`, jobTitle);
+            }
+          }
+          
+          // ✅ Log job title extraction for debugging
+          if (index < 3) {
+            console.log(`📋 Item ${index} job title extraction:`, {
+              jobTitle: item.jobTitle,
+              job_title: item.job_title,
+              title: item.title,
+              applied_for: item.applied_for,
+              job_name: item.job_name,
+              jobName: item.jobName,
+              job: item.job,
+              position: item.position,
+              position_title: item.position_title,
+              extracted_jobTitle: jobTitle
+            });
+          }
           
           // Log for debugging if required fields are missing
           if (!interviewId || !candidateName) {
@@ -111,11 +171,54 @@ const PanelManagement = () => {
           }
         }).filter(s => s.interview_id !== null && s.candidate_name !== 'N/A') // ✅ Filter out invalid entries
         
+        // ✅ Group by candidate_id to remove duplicates - keep first interview_id for each unique candidate
+        const groupedByCandidate = {};
+        const seenCandidateIds = new Set();
+        
+        allStudents.forEach((student) => {
+          const candidateId = String(student.candidate_id || student.candidate_name);
+          
+          // Only add if we haven't seen this candidate before
+          if (!seenCandidateIds.has(candidateId)) {
+            seenCandidateIds.add(candidateId);
+            groupedByCandidate[candidateId] = { ...student }; // Create a copy
+          } else {
+            // If candidate already exists, update job_title if current one is missing or empty
+            const existing = groupedByCandidate[candidateId];
+            if ((!existing.job_title || existing.job_title === '') && student.job_title) {
+              // Update job_title if existing doesn't have one
+              existing.job_title = student.job_title;
+            } else if (student.job_title && existing.job_title && existing.job_title !== student.job_title) {
+              // If both have job titles and they're different, keep the first one (or combine)
+              // For now, keep the first one
+            }
+          }
+        });
+        
+        // ✅ Convert back to array - each candidate appears only once
+        const students = Object.values(groupedByCandidate);
+        
+        console.log('📋 Total interviews before deduplication:', allStudents.length);
+        console.log('📋 Unique candidates after deduplication:', students.length);
         console.log('📋 Mapped students with job titles:', students.map(s => ({ 
           interview_id: s.interview_id,
           candidate_name: s.candidate_name, 
-          job_title: s.job_title 
+          job_title: s.job_title,
+          has_job_title: !!s.job_title && s.job_title !== ''
         })))
+        
+        // ✅ Debug: Check if any students have job_title
+        const studentsWithJobTitle = students.filter(s => s.job_title && s.job_title !== '');
+        console.log('📋 Students with job_title:', studentsWithJobTitle.length, 'out of', students.length);
+        if (studentsWithJobTitle.length > 0) {
+          console.log('📋 Sample student with job_title:', studentsWithJobTitle[0]);
+        } else {
+          console.warn('⚠️ No students have job_title! Checking first student:', students[0]);
+          if (students[0] && students[0].originalData) {
+            console.log('📋 Original data fields:', Object.keys(students[0].originalData));
+            console.log('📋 Original data:', students[0].originalData);
+          }
+        }
 
         console.log('✅ Step 1 Complete: Mapped Students List with interview_id and candidate_name:', students)
         console.log('📋 Total students found:', students.length)
@@ -689,11 +792,21 @@ const PanelManagement = () => {
                     {studentsList.length > 0 ? (
                       studentsList
                         .filter(student => student.interview_id && student.candidate_name) // Filter out invalid entries
-                        .map((student) => (
-                          <option key={student.interview_id} value={String(student.interview_id)}>
-                            {student.candidate_name}{student.job_title ? ` (${student.job_title})` : ''}
-                          </option>
-                        ))
+                        .map((student) => {
+                          // ✅ Get job title - check multiple conditions
+                          const jobTitle = student.job_title && student.job_title.trim() !== '' 
+                            ? student.job_title 
+                            : '';
+                          const displayText = jobTitle 
+                            ? `${student.candidate_name} (${jobTitle})` 
+                            : student.candidate_name;
+                          
+                          return (
+                            <option key={student.interview_id} value={String(student.interview_id)}>
+                              {displayText}
+                            </option>
+                          );
+                        })
                     ) : (
                       <option value="" disabled>No candidates available</option>
                     )}

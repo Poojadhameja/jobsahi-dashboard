@@ -18,9 +18,6 @@ const DataTable = ({
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-              View All
-            </button>
           </div>
         </div>
       )}

@@ -25,35 +25,70 @@ export default function Header({ toggleSidebar }) {
   const [showNotifications, setShowNotifications] = useState(false)
   const notificationRef = useRef(null)
 
-  // Check if date is within last 5 days (or all dates for testing - set to false to enable 5-day filter)
-  const TEST_MODE = false // Set to true to show all notifications (for testing)
-  
+  // Show all activities - no date filter
   const isWithinLast5Days = (dateString) => {
-    if (TEST_MODE) return true // Show all for testing
-    if (!dateString) return false
-    try {
-      const date = new Date(dateString)
-      const now = new Date()
-      const diffTime = Math.abs(now - date)
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      return diffDays <= 5
-    } catch (error) {
-      console.error('Error parsing date:', dateString, error)
-      return false
-    }
+    // Always return true to show all activities
+    return true
   }
 
-  // Format date for display
+  // Parse date string (handles MySQL datetime format and ISO format)
+  const parseDate = (dateString) => {
+    if (!dateString) return null
+    
+    // Handle MySQL datetime format: "YYYY-MM-DD HH:MM:SS"
+    if (typeof dateString === 'string' && dateString.includes(' ') && !dateString.includes('T')) {
+      const [datePart, timePart] = dateString.split(' ')
+      const [year, month, day] = datePart.split('-')
+      const [hours, minutes, seconds] = timePart ? timePart.split(':') : ['00', '00', '00']
+      // Create date in local timezone (not UTC)
+      return new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day),
+        parseInt(hours),
+        parseInt(minutes),
+        parseInt(seconds || 0)
+      )
+    }
+    
+    // Handle ISO format or other formats
+    return new Date(dateString)
+  }
+
+  // Format date for display with proper relative time
   const formatNotificationDate = (dateString) => {
     if (!dateString) return 'Recently'
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffTime = Math.abs(now - date)
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     
+    const date = parseDate(dateString)
+    if (!date || isNaN(date.getTime())) return 'Recently'
+    
+    const now = new Date()
+    const diffMs = now - date
+    const diffSeconds = Math.floor(diffMs / 1000)
+    const diffMinutes = Math.floor(diffSeconds / 60)
+    const diffHours = Math.floor(diffMinutes / 60)
+    const diffDays = Math.floor(diffHours / 24)
+    
+    // Show relative time for recent items
+    if (diffSeconds < 60) return 'Just now'
+    if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
     if (diffDays === 0) return 'Today'
     if (diffDays === 1) return 'Yesterday'
-    return `${diffDays} days ago`
+    if (diffDays < 7) return `${diffDays} days ago`
+    
+    // For older items, show actual date and time
+    const formattedDate = date.toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    })
+    const formattedTime = date.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+    return `${formattedDate} at ${formattedTime}`
   }
 
   // Fetch recent notifications
@@ -62,7 +97,7 @@ export default function Header({ toggleSidebar }) {
       console.log('🔔 Fetching notifications...')
       const allNotifications = []
 
-      // Fetch recent recruiters (last 5 days)
+      // Fetch all recruiters
       try {
         console.log('📤 Fetching recruiters from:', service.employersList)
         const recruitersResponse = await getMethod({
@@ -74,28 +109,26 @@ export default function Header({ toggleSidebar }) {
           const allRecruiters = Array.isArray(recruitersResponse.data) ? recruitersResponse.data : []
           console.log(`📊 Total recruiters: ${allRecruiters.length}`)
           
-          const recentRecruiters = allRecruiters.filter(recruiter => {
-            const date = recruiter.created_at || recruiter.registration_date
-            const isRecent = isWithinLast5Days(date)
-            if (isRecent) {
-              console.log('✅ Recent recruiter found:', recruiter.company_name || recruiter.name, date)
-            }
-            return isRecent
-          })
-          
-          console.log(`📊 Recent recruiters (last 5 days): ${recentRecruiters.length}`)
-          
-          recentRecruiters.forEach(recruiter => {
+          // Process all recruiters - handle nested structure
+          allRecruiters.forEach(recruiter => {
+            const profile = recruiter.profile || recruiter.profile_info || recruiter.recruiter_info || {}
+            const userInfo = recruiter.user_info || recruiter
+            const companyName = recruiter.company_name || profile.company_name || userInfo.company_name || recruiter.name || userInfo.user_name || 'A recruiter'
+            const date = recruiter.created_at || profile.created_at || userInfo.created_at || recruiter.registration_date || profile.registration_date || new Date().toISOString()
+            
             allNotifications.push({
-              id: `recruiter-${recruiter.id}`,
+              id: `recruiter-${recruiter.id || recruiter.user_id || Date.now()}`,
               type: 'recruiter',
               title: 'New Recruiter Joined',
-              message: `${recruiter.company_name || recruiter.name || 'A recruiter'} has joined the platform`,
-              date: recruiter.created_at || recruiter.registration_date,
+              message: `${companyName} has joined the platform`,
+              date: date,
               icon: '👤',
-              color: 'bg-blue-100 text-blue-800'
+              color: 'bg-blue-100 text-blue-800',
+              name: companyName
             })
           })
+          
+          console.log(`✅ Added ${allRecruiters.length} recruiter activities`)
         } else {
           console.log('⚠️ Recruiters response not successful or no data')
         }
@@ -103,7 +136,7 @@ export default function Header({ toggleSidebar }) {
         console.error('❌ Error fetching recruiters:', error)
       }
 
-      // Fetch recent institutes (last 5 days)
+      // Fetch all institutes
       try {
         console.log('📤 Fetching institutes from:', service.institutesList)
         const institutesResponse = await getMethod({
@@ -115,28 +148,26 @@ export default function Header({ toggleSidebar }) {
           const allInstitutes = Array.isArray(institutesResponse.data) ? institutesResponse.data : []
           console.log(`📊 Total institutes: ${allInstitutes.length}`)
           
-          const recentInstitutes = allInstitutes.filter(institute => {
-            const date = institute.created_at || institute.registration_date
-            const isRecent = isWithinLast5Days(date)
-            if (isRecent) {
-              console.log('✅ Recent institute found:', institute.institute_name || institute.name, date)
-            }
-            return isRecent
-          })
-          
-          console.log(`📊 Recent institutes (last 5 days): ${recentInstitutes.length}`)
-          
-          recentInstitutes.forEach(institute => {
+          // Process all institutes - handle nested structure
+          allInstitutes.forEach(institute => {
+            const userInfo = institute.user_info || institute
+            const profileInfo = institute.profile_info || institute.institute_info || institute
+            const instituteName = userInfo.user_name || profileInfo.institute_name || institute.institute_name || institute.name || 'An institute'
+            const date = profileInfo.created_at || userInfo.created_at || institute.created_at || institute.registration_date || new Date().toISOString()
+            
             allNotifications.push({
-              id: `institute-${institute.id}`,
+              id: `institute-${institute.id || institute.user_id || Date.now()}`,
               type: 'institute',
               title: 'New Institute Joined',
-              message: `${institute.institute_name || institute.name || 'An institute'} has joined the platform`,
-              date: institute.created_at || institute.registration_date,
+              message: `${instituteName} has joined the platform`,
+              date: date,
               icon: '🏫',
-              color: 'bg-green-100 text-green-800'
+              color: 'bg-green-100 text-green-800',
+              name: instituteName
             })
           })
+          
+          console.log(`✅ Added ${allInstitutes.length} institute activities`)
         } else {
           console.log('⚠️ Institutes response not successful or no data')
         }
@@ -144,7 +175,7 @@ export default function Header({ toggleSidebar }) {
         console.error('❌ Error fetching institutes:', error)
       }
 
-      // Fetch recent course completions (last 5 days)
+      // Fetch all course completions
       try {
         console.log('📤 Fetching certificates from:', apiService.getCertificateIssuance)
         const certificatesResponse = await getMethod({
@@ -156,35 +187,147 @@ export default function Header({ toggleSidebar }) {
           const allCertificates = Array.isArray(certificatesResponse.data) ? certificatesResponse.data : []
           console.log(`📊 Total certificates: ${allCertificates.length}`)
           
-          const recentCertificates = allCertificates.filter(cert => {
-            const date = cert.issue_date
-            const isRecent = isWithinLast5Days(date)
-            if (isRecent) {
-              console.log('✅ Recent certificate found:', cert.student_name, cert.course_title, date)
-            }
-            return isRecent
-          })
-          
-          console.log(`📊 Recent certificates (last 5 days): ${recentCertificates.length}`)
-          
-          recentCertificates.forEach(cert => {
+          allCertificates.forEach(cert => {
+            const studentName = cert.student_name || 'A student'
+            const courseTitle = cert.course_title || 'a course'
+            const date = cert.issue_date || new Date().toISOString()
+            
             allNotifications.push({
-              id: `certificate-${cert.certificate_id}`,
+              id: `certificate-${cert.certificate_id || Date.now()}`,
               type: 'certificate',
               title: 'Course Completed',
-              message: `${cert.student_name || 'A student'} completed "${cert.course_title || 'a course'}"`,
-              date: cert.issue_date,
+              message: `${studentName} completed "${courseTitle}"`,
+              date: date,
               icon: '🎓',
               color: 'bg-purple-100 text-purple-800',
               institute: cert.institute_name,
-              course: cert.course_title
+              course: courseTitle,
+              name: studentName
             })
           })
+          
+          console.log(`✅ Added ${allCertificates.length} certificate activities`)
         } else {
           console.log('⚠️ Certificates response not successful or no data')
         }
       } catch (error) {
         console.error('❌ Error fetching certificates:', error)
+      }
+
+      // Fetch all students
+      try {
+        console.log('📤 Fetching students from:', apiService.studentsList)
+        const studentsResponse = await getMethod({
+          apiUrl: apiService.studentsList
+        })
+        console.log('📥 Students Response:', studentsResponse)
+        
+        if (studentsResponse?.status === true && studentsResponse?.data) {
+          const allStudents = Array.isArray(studentsResponse.data) ? studentsResponse.data : []
+          console.log(`📊 Total students: ${allStudents.length}`)
+          
+          allStudents.forEach(student => {
+            const userInfo = student.user_info || student
+            const profileInfo = student.profile_info || student
+            const studentName = userInfo.user_name || profileInfo.student_name || student.student_name || student.name || 'A student'
+            const date = profileInfo.created_at || userInfo.created_at || student.created_at || student.registration_date || new Date().toISOString()
+            
+            allNotifications.push({
+              id: `student-${student.id || student.user_id || Date.now()}`,
+              type: 'student',
+              title: 'New Student Registered',
+              message: `${studentName} has registered on the platform`,
+              date: date,
+              icon: '🎓',
+              color: 'bg-indigo-100 text-indigo-800',
+              name: studentName
+            })
+          })
+          
+          console.log(`✅ Added ${allStudents.length} student activities`)
+        } else {
+          console.log('⚠️ Students response not successful or no data')
+        }
+      } catch (error) {
+        console.error('❌ Error fetching students:', error)
+      }
+
+      // Fetch job applications from admin dashboard
+      try {
+        console.log('📤 Fetching job applications from:', apiService.adminDashboard)
+        const dashboardResponse = await getMethod({
+          apiUrl: apiService.adminDashboard
+        })
+        console.log('📥 Dashboard Response:', dashboardResponse)
+        
+        if (dashboardResponse?.status === true && dashboardResponse?.data) {
+          const recentApplications = dashboardResponse.data.recent_applications || []
+          console.log(`📊 Total applications: ${recentApplications.length}`)
+          
+          recentApplications.forEach(app => {
+            const candidateName = app.candidate_name || app.student_name || app.name || app.user_name || 'A candidate'
+            const jobTitle = app.job_title || app.jobTitle || app.applied_for || 'a job'
+            const companyName = app.company_name || app.company || 'a company'
+            const date = app.applied_date || app.created_at || app.date || new Date().toISOString()
+            
+            allNotifications.push({
+              id: `application-${app.application_id || app.id || Date.now()}`,
+              type: 'application',
+              title: 'New Job Application',
+              message: `${candidateName} applied for "${jobTitle}" at ${companyName}`,
+              date: date,
+              icon: '📝',
+              color: 'bg-yellow-100 text-yellow-800',
+              name: candidateName,
+              job: jobTitle,
+              company: companyName
+            })
+          })
+          
+          console.log(`✅ Added ${recentApplications.length} job application activities`)
+        } else {
+          console.log('⚠️ Dashboard response not successful or no data')
+        }
+      } catch (error) {
+        console.error('❌ Error fetching job applications:', error)
+      }
+
+      // Fetch job postings
+      try {
+        console.log('📤 Fetching jobs from:', apiService.getJobs)
+        const jobsResponse = await getMethod({
+          apiUrl: apiService.getJobs
+        })
+        console.log('📥 Jobs Response:', jobsResponse)
+        
+        if (jobsResponse?.status === true && jobsResponse?.data) {
+          const allJobs = Array.isArray(jobsResponse.data) ? jobsResponse.data : []
+          console.log(`📊 Total jobs: ${allJobs.length}`)
+          
+          allJobs.forEach(job => {
+            const jobTitle = job.job_title || job.title || job.position || 'A job'
+            const companyName = job.company_name || job.company || job.employer_name || 'A company'
+            const date = job.created_at || job.posted_date || job.date || new Date().toISOString()
+            
+            allNotifications.push({
+              id: `job-${job.job_id || job.id || Date.now()}`,
+              type: 'job',
+              title: 'New Job Posted',
+              message: `${companyName} posted a new job: "${jobTitle}"`,
+              date: date,
+              icon: '💼',
+              color: 'bg-emerald-100 text-emerald-800',
+              name: companyName,
+              job: jobTitle
+            })
+          })
+          
+          console.log(`✅ Added ${allJobs.length} job posting activities`)
+        } else {
+          console.log('⚠️ Jobs response not successful or no data')
+        }
+      } catch (error) {
+        console.error('❌ Error fetching jobs:', error)
       }
 
       // Sort by date (newest first)
@@ -194,15 +337,15 @@ export default function Header({ toggleSidebar }) {
         return dateB - dateA
       })
 
-      // Limit to 20 most recent
-      const limitedNotifications = allNotifications.slice(0, 20)
+      // Show all notifications (no limit) or limit to 50 for better performance
+      const limitedNotifications = allNotifications.slice(0, 50)
       
       console.log(`✅ Total notifications found: ${allNotifications.length}`)
-      console.log(`✅ Limited to: ${limitedNotifications.length}`)
+      console.log(`✅ Showing: ${limitedNotifications.length} notifications`)
       console.log('📋 Notifications:', limitedNotifications)
       
       setNotifications(limitedNotifications)
-      setNotificationCount(limitedNotifications.length)
+      setNotificationCount(allNotifications.length) // Show total count, not limited count
     } catch (error) {
       console.error('❌ Error fetching notifications:', error)
     }
@@ -334,8 +477,8 @@ export default function Header({ toggleSidebar }) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                       </svg>
                     </div>
-                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No recent activities</p>
-                    <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Activities from last 5 days will appear here</p>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>No activities found</p>
+                    <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>All activities from the platform will appear here</p>
                   </div>
                 ) : (
                   <div className="divide-y divide-gray-100">
@@ -352,6 +495,12 @@ export default function Header({ toggleSidebar }) {
                             navigate('/admin/management?tab=institute-management')
                           } else if (notification.type === 'certificate') {
                             navigate('/admin/management?tab=institute-management')
+                          } else if (notification.type === 'student') {
+                            navigate('/admin/management?tab=student-management')
+                          } else if (notification.type === 'application') {
+                            navigate('/admin/dashboard')
+                          } else if (notification.type === 'job') {
+                            navigate('/admin/job-course-control?tab=job-posting')
                           }
                         }}
                       >
@@ -366,9 +515,27 @@ export default function Header({ toggleSidebar }) {
                             <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-0.5 line-clamp-2`}>
                               {notification.message}
                             </p>
+                            {notification.name && (
+                              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1 font-medium`}>
+                                {notification.type === 'student' && 'Student: '}
+                                {notification.type === 'recruiter' && 'Recruiter: '}
+                                {notification.type === 'institute' && 'Institute: '}
+                                {notification.name}
+                              </p>
+                            )}
                             {notification.institute && (
                               <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
                                 Institute: {notification.institute}
+                              </p>
+                            )}
+                            {notification.job && (
+                              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
+                                Job: {notification.job}
+                              </p>
+                            )}
+                            {notification.company && (
+                              <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
+                                Company: {notification.company}
                               </p>
                             )}
                             <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>

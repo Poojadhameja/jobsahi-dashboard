@@ -48,13 +48,23 @@ function normalizeEmployer(raw) {
   const last_modified = profile.last_modified ?? raw.modified_at ?? null;
 
   // ✅ Extract is_verified from top level (API response has it at root level)
-  const is_verified = Number(
-    raw.is_verified ?? 
+  // Handle both string and number values
+  const isVerifiedRaw = raw.is_verified ?? 
     raw.user?.is_verified ??
     userInfo.is_verified ?? 
     profile.is_verified ?? 
-    0
-  );
+    0;
+  
+  // Convert to number (handle "1", 1, "0", 0, null, undefined)
+  const is_verified = isVerifiedRaw === 1 || isVerifiedRaw === "1" || isVerifiedRaw === true ? 1 : 0;
+  
+  // ✅ Debug log
+  console.log(`🔍 normalizeEmployer for ${raw.user_name || 'Unknown'}:`, {
+    raw_is_verified: raw.is_verified,
+    isVerifiedRaw,
+    is_verified,
+    user_id: raw.user_id || raw.uid || raw.id
+  });
 
   // ✅ IMPORTANT: Status is determined ONLY by is_verified field
   // is_verified === 1 → "approved"
@@ -66,6 +76,15 @@ function normalizeEmployer(raw) {
   } else {
     // is_verified === 0 or null → "pending"
     finalStatus = "pending";
+  }
+  
+  // ✅ Debug log
+  if (is_verified === 1 && finalStatus !== "approved") {
+    console.error(`❌ Status mismatch in normalizeEmployer for ${raw.user_name}:`, {
+      is_verified,
+      finalStatus,
+      raw_is_verified: raw.is_verified
+    });
   }
 
   return {
@@ -129,6 +148,7 @@ function ApprovalCard({
   last_modified,
   documents,
   status,
+  is_verified,
   onReview,
   onApprove,
   onReject,
@@ -241,11 +261,11 @@ function ApprovalCard({
             size="sm"
             icon={<LuCheck size={16} />}
             className={
-              status === "approved"
+              is_verified === 1
                 ? "opacity-30 cursor-not-allowed !bg-gray-400"
                 : "!bg-green-600 text-white hover:!bg-green-700"
             }
-            disabled={status === "approved"}
+            disabled={is_verified === 1}
           >
             Approve
           </Button>
@@ -603,33 +623,25 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
           } : 'No employers'
         });
         
-        // First normalize employers
+        // ✅ Normalize employers - normalizeEmployer already sets status based on is_verified
         const normalizedEmployers = employers.map(normalizeEmployer);
         
-        console.log('📊 Initial normalized employers:', normalizedEmployers.map(emp => ({
+        console.log('📊 Normalized employers:', normalizedEmployers.map(emp => ({
           name: emp.user_name,
           uid: emp.uid,
           is_verified: emp.is_verified,
           status: emp.status
         })));
 
-        // ✅ Override status based on is_verified from original API response
-        const itemsWithVerification = normalizedEmployers.map((emp, index) => {
-          // Get original employer data to check is_verified directly
-          const originalEmployer = employers[index];
-          
-          // ✅ Extract is_verified from top level (API response has it at root level)
-          const isVerifiedValue = Number(originalEmployer?.is_verified ?? 0);
-          
-          console.log(`🔍 Processing ${emp.user_name || originalEmployer?.user_name}:`, {
-            original_is_verified: originalEmployer?.is_verified,
-            isVerifiedValue: isVerifiedValue,
-            current_status: emp.status
-          });
-          
-          // ✅ Status is determined ONLY by is_verified
+        // ✅ Ensure status matches is_verified (double check)
+        const itemsWithVerification = normalizedEmployers.map((emp) => {
+          // ✅ Status should match is_verified
           // is_verified === 1 → "approved"
-          // is_verified === 0 → "pending"
+          // is_verified === 0 or null → "pending"
+          // Handle both string and number values
+          const isVerifiedRaw = emp.is_verified ?? 0;
+          const isVerifiedValue = isVerifiedRaw === 1 || isVerifiedRaw === "1" || isVerifiedRaw === true ? 1 : 0;
+          
           let finalStatus;
           if (isVerifiedValue === 1) {
             finalStatus = "approved";
@@ -637,11 +649,24 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
             finalStatus = "pending";
           }
           
-          console.log(`✅ ${emp.user_name}: is_verified=${isVerifiedValue} → status="${finalStatus}"`);
+          // ✅ Log if there's a mismatch
+          if (emp.status !== finalStatus) {
+            console.warn(`⚠️ Status mismatch for ${emp.user_name}:`, {
+              current_status: emp.status,
+              expected_status: finalStatus,
+              is_verified: isVerifiedValue,
+              is_verified_raw: emp.is_verified
+            });
+          }
+          
+          console.log(`✅ Final status for ${emp.user_name}:`, {
+            is_verified: isVerifiedValue,
+            status: finalStatus
+          });
           
           return {
             ...emp,
-            status: finalStatus,
+            status: finalStatus, // ✅ Force status to match is_verified
             is_verified: isVerifiedValue
           };
         });
@@ -677,11 +702,20 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
   // ✅ Approve/Reject logic
   const updateStatus = async (uid, is_verified, label) => {
     try {
+      console.log(`📡 Making API call to verifyUser for ${label}:`, {
+        uid,
+        is_verified,
+        apiUrl: service.verifyUser
+      });
+
       const data = {
         apiUrl: service.verifyUser,
         payload: { uid, is_verified },
       };
+      
+      console.log('📤 API Request Data:', data);
       const res = await postMethod(data);
+      console.log('📥 API Response:', res);
 
       if (res?.success || res?.status) {
         setItems((prev) =>
@@ -715,8 +749,14 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
     }
   };
 
-  const handleApprove = (id) => updateStatus(id, 1, "Approved");
-  const handleReject = (id) => updateStatus(id, 0, "Rejected");
+  const handleApprove = (id) => {
+    console.log('🚀 handleApprove called for recruiter with id:', id);
+    updateStatus(id, 1, "Approved");
+  };
+  const handleReject = (id) => {
+    console.log('🚀 handleReject called for recruiter with id:', id);
+    updateStatus(id, 0, "Rejected");
+  };
 
   const counts = {
     approved: items.filter((i) => i.status === "approved").length,
@@ -779,6 +819,7 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
             }
             documents={["Business License", "Tax Certificate", "Company Profile"]}
             status={c.status}
+            is_verified={c.is_verified || 0} // ✅ Pass is_verified prop
 
             // ✅ FIXED LINE ↓↓↓
             onReview={() => {

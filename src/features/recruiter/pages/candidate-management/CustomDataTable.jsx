@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { FaEye } from "react-icons/fa";
 import { LuMail } from "react-icons/lu";
 import { TAILWIND_COLORS } from "../../../../shared/WebConstant";
@@ -12,24 +12,6 @@ const CustomDataTable = ({
   showHeader = true,
   onViewDetails = () => {},
 }) => {
-  const [selectedRows, setSelectedRows] = useState([]);
-
-  // 🔹 Row Selection Logic
-  const handleSelectRow = (rowId) => {
-    setSelectedRows((prev) =>
-      prev.includes(rowId)
-        ? prev.filter((id) => id !== rowId)
-        : [...prev, rowId]
-    );
-  };
-
-  const handleSelectAll = () => {
-    if (selectedRows.length === data.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(data.map((row) => row.id));
-    }
-  };
 
   // 🔹 Status Badge Colors
   const getStatusColor = (status) => {
@@ -52,9 +34,6 @@ const CustomDataTable = ({
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-center">
             <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>{title}</h3>
-            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-              View All
-            </button>
           </div>
         </div>
       )}
@@ -64,14 +43,6 @@ const CustomDataTable = ({
         <table className="w-full border-collapse">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left">
-                <input
-                  type="checkbox"
-                  checked={selectedRows.length === data.length && data.length > 0}
-                  onChange={handleSelectAll}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                />
-              </th>
               <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                 Candidate
               </th>
@@ -97,7 +68,7 @@ const CustomDataTable = ({
             {data.length === 0 ? (
               <tr>
                 <td
-                  colSpan="7"
+                  colSpan="6"
                   className={`text-center py-6 ${TAILWIND_COLORS.TEXT_MUTED} text-sm`}
                 >
                   No applicants found
@@ -106,16 +77,6 @@ const CustomDataTable = ({
             ) : (
               data.map((row, rowIndex) => (
                 <tr key={rowIndex} className="hover:bg-gray-50 transition">
-                  {/* Checkbox */}
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <input
-                      type="checkbox"
-                      checked={selectedRows.includes(row.id)}
-                      onChange={() => handleSelectRow(row.id)}
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                    />
-                  </td>
-
                   {/* Candidate Info */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-col">
