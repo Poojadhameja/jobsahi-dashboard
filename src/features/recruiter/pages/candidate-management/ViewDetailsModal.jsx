@@ -20,7 +20,7 @@ import Swal from "sweetalert2";
 import { postMethod, getMethod } from "../../../../service/api";
 import apiService from "../../services/serviceUrl";
 
-const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
+const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onInterviewScheduled }) => {
   const [scheduleInterview, setScheduleInterview] = useState(false);
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
@@ -299,6 +299,39 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
       const isSuccess = response?.status === true || response?.status === 'success' || response?.success === true;
 
       if (isSuccess) {
+        // ✅ Immediately update interview data from response if available
+        if (response?.data || response?.interview) {
+          const interviewData = response.data || response.interview;
+          const normalizedInterview = {
+            ...interviewData,
+            scheduled_at: interviewData.scheduled_at || scheduledAt,
+            mode: interviewData.mode || interviewMode,
+            interview_link: interviewData.interview_link || (interviewMode === "online" ? interviewLocation : null),
+            location: interviewData.location || (interviewMode === "offline" ? interviewLocation : null),
+            status: interviewData.status || "scheduled",
+            interview_info: interviewData.interview_info || interviewFeedback || "Initial screening interview.",
+            platform_name: interviewData.platform_name || (interviewMode === "online" ? (interviewLocation.includes('zoom') ? 'Zoom' : interviewLocation.includes('meet') ? 'Google Meet' : interviewLocation.includes('teams') ? 'Microsoft Teams' : 'Other') : null)
+          };
+          setExistingInterview(normalizedInterview);
+        }
+        
+        // ✅ Immediately fetch fresh interview data from API (don't wait for alert)
+        fetchExistingInterview();
+        
+        // ✅ Immediately refresh applicants list (get recent applications API)
+        if (onInterviewScheduled && typeof onInterviewScheduled === 'function') {
+          onInterviewScheduled();
+        }
+        
+        // Reset form immediately
+        setScheduleInterview(false);
+        setInterviewDate("");
+        setInterviewTime("");
+        setInterviewMode("online");
+        setInterviewLocation("");
+        setInterviewFeedback("");
+        
+        // Show success message
         Swal.fire({
           title: "Success!",
           text: existingInterview 
@@ -306,16 +339,6 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV }) => {
             : `Interview scheduled for ${interviewDate} at ${interviewTime} (${interviewMode})`,
           icon: "success",
           confirmButtonText: "OK",
-        }).then(() => {
-          // Refresh existing interview data
-          fetchExistingInterview();
-          // Reset form
-          setScheduleInterview(false);
-          setInterviewDate("");
-          setInterviewTime("");
-          setInterviewMode("online");
-          setInterviewLocation("");
-          setInterviewFeedback("");
         });
       } else {
         Swal.fire({

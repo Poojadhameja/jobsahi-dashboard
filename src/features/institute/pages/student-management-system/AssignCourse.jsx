@@ -21,26 +21,56 @@ const AssignCourse = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [previewData, setPreviewData] = useState(null)
 
-  // 🟢 Fetch students on load
+  // 🟢 Fetch students on load using get_institute_students.php API
   useEffect(() => {
     const fetchStudents = async () => {
       setLoading(true)
       try {
-        const resp = await getMethod({ apiUrl: apiService.list_students })
-        if (resp.status && Array.isArray(resp.data)) {
-          const formatted = resp.data.map((s, index) => ({
-            id: s.user_info?.user_id,
-            name: s.user_info?.user_name,
-            currentCourse: s.profile_info?.trade || 'N/A',
-            currentBatch: s.profile_info?.batch || 'N/A',
-            status: s.profile_info?.admin_action || 'Active'
+        const resp = await getMethod({ apiUrl: apiService.institute_view_students })
+        
+        console.log('📊 get_institute_students API Response:', resp)
+        
+        // Handle response structure: { status: true, data: [{ student_id, name, email, course, batch, status, ... }] }
+        if (resp?.status && Array.isArray(resp.data)) {
+          const formatted = resp.data.map((s) => ({
+            id: s.student_id || s.id,
+            name: s.name || 'N/A',
+            email: s.email || '',
+            phone: s.phone || '',
+            currentCourse: s.course || s.course_name || 'N/A',
+            currentBatch: s.batch && s.batch !== 'Not Assigned' ? s.batch : 'N/A',
+            course_id: s.course_id || null,
+            batch_id: s.batch_id || null,
+            status: s.status || 'Enrolled',
+            enrollment_date: s.enrollment_date || null
+          }))
+          setStudents(formatted)
+          console.log('✅ Formatted students:', formatted)
+        } else if (resp?.status && Array.isArray(resp.students)) {
+          // Fallback: if data is in resp.students
+          const formatted = resp.students.map((s) => ({
+            id: s.student_id || s.id,
+            name: s.name || 'N/A',
+            email: s.email || '',
+            phone: s.phone || '',
+            currentCourse: s.course || s.course_name || 'N/A',
+            currentBatch: s.batch && s.batch !== 'Not Assigned' ? s.batch : 'N/A',
+            course_id: s.course_id || null,
+            batch_id: s.batch_id || null,
+            status: s.status || 'Enrolled',
+            enrollment_date: s.enrollment_date || null
           }))
           setStudents(formatted)
         } else {
+          console.warn('⚠️ No students data found in response:', resp)
+          setStudents([])
         }
       } catch (err) {
+        console.error('❌ Error fetching students:', err)
+        setStudents([])
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     fetchStudents()
@@ -130,12 +160,13 @@ const AssignCourse = () => {
   }
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'Active':
+    switch (status?.toLowerCase()) {
+      case 'active':
+      case 'enrolled':
         return 'bg-green-100 text-green-800 border-green-200'
-      case 'Completed':
+      case 'completed':
         return 'bg-blue-100 text-blue-800 border-blue-200'
-      case 'On Hold':
+      case 'on hold':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200'
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200'

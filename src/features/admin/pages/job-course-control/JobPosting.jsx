@@ -444,13 +444,35 @@ const JobPosting = () => {
           // New flag - create using flag API
           console.log('📤 Flagging new job - job_id:', jobId);
           
+          // Get current user info
+          let currentUser = null
+          try {
+            const authUser = localStorage.getItem("authUser")
+            if (authUser) {
+              currentUser = JSON.parse(authUser)
+            }
+          } catch (e) {
+            console.error('Error getting user from localStorage:', e)
+          }
+          
+          // Prepare payload - don't send flagged_by if user is admin (backend should handle this)
+          const payload = {
+            job_id: jobId,
+            reason: reason,
+            admin_action: 'pending'
+          }
+          
+          // Only send flagged_by if it's a student (for backend compatibility)
+          // If admin, backend should use NULL or admin user_id
+          if (currentUser && currentUser.role === 'student' && currentUser.id) {
+            payload.flagged_by = currentUser.id
+          }
+          
+          console.log('📤 Flag Job Payload:', payload)
+          
           const response = await postMethod({
             apiUrl: apiService.flagJob,
-            payload: {
-              job_id: jobId,
-              reason: reason,
-              admin_action: 'pending'
-            }
+            payload: payload
           });
 
           console.log('📥 Flag Job Response:', response);

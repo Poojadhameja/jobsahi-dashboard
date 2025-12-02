@@ -123,10 +123,10 @@ const CentralizedDataTable = ({
           {selectedRows.length > 0 && (
             <div className="flex gap-3">
               <button
-                onClick={() => onBulkAction && onBulkAction('approve', selectedRows)}
+                onClick={() => onBulkAction && onBulkAction('promote', selectedRows)}
                 className={`px-4 py-2 rounded-lg transition-colors duration-200 ${TAILWIND_COLORS.BTN_PRIMARY}`}
               >
-                Approve Selected
+                Promote Selected
               </button>
               <button
                 onClick={() => onBulkAction && onBulkAction('delete', selectedRows)}

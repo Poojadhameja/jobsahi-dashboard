@@ -23,6 +23,30 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
     setSelectedBatchForEdit(batchData?.batch ?? null)
   }, [batchData])
 
+  // Format date from API (YYYY-MM-DD HH:mm:ss or YYYY-MM-DD)
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === 'N/A' || dateString === 'null' || dateString === 'undefined') return 'N/A'
+    try {
+      // Handle different date formats
+      let date
+      if (typeof dateString === 'string') {
+        // Remove time part if present (YYYY-MM-DD HH:mm:ss -> YYYY-MM-DD)
+        const dateOnly = dateString.split(' ')[0]
+        date = new Date(dateOnly)
+      } else {
+        date = new Date(dateString)
+      }
+      
+      if (isNaN(date.getTime())) return dateString
+      return date.toLocaleDateString('en-IN', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      })
+    } catch {
+      return dateString
+    }
+  }
 
   // ✅ Fetch Batch Details - Try batch_id first, fallback to course_id
   useEffect(() => {
@@ -41,6 +65,11 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
               apiUrl: `${apiService.getBatches}?batch_id=${batchId}`,
             })
             
+            // Debug: Log the full API response to see structure
+            console.log('🔍 BatchDetail API Response:', response)
+            console.log('🔍 Batch ID:', batchId)
+            console.log('🔍 API URL:', `${apiService.getBatches}?batch_id=${batchId}`)
+            
             // Handle multiple possible response structures
             let studentsData = []
             let batchInfoData = {}
@@ -48,11 +77,28 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
             // Case 1: response.students (direct array at root) - This is the actual API response structure
             if (Array.isArray(response?.students)) {
               studentsData = response.students
+              
+              // Check all possible date field names
+              const startDate = response.start_date || response.startDate || response.batch_start_date || 
+                               response.startDate || response.batch?.start_date || response.data?.start_date || ''
+              const endDate = response.end_date || response.endDate || response.batch_end_date || 
+                             response.endDate || response.batch?.end_date || response.data?.end_date || ''
+              
+              // Check all possible time slot field names
+              const timeSlot = response.batch_time_slot || response.time_slot || response.batchTimeSlot || 
+                              response.time_slot_name || response.batch?.batch_time_slot || response.batch?.time_slot ||
+                              response.data?.batch_time_slot || response.data?.time_slot || ''
+              
+              console.log('📅 Date Fields Found:', { startDate, endDate, timeSlot })
+              
+              const formattedStart = startDate ? formatDate(startDate) : 'N/A'
+              const formattedEnd = endDate ? formatDate(endDate) : 'N/A'
+              
               batchInfoData = {
                 name: response.batch_name || response.name || batchData?.batch?.batch_name || '',
                 status: typeof response.status === 'string' ? response.status : (response.admin_action || 'Active'),
-                duration: `${response.start_date || response.startDate || 'N/A'} - ${response.end_date || response.endDate || 'N/A'}`,
-                timeSlot: response.batch_time_slot || response.time_slot || response.batchTimeSlot || 'N/A',
+                duration: `${formattedStart} - ${formattedEnd}`,
+                timeSlot: timeSlot || 'N/A',
                 totalStudents: response.enrolled_students || response.total_students || response.enrolledStudents || studentsData.length,
                 maxStudents: response.max_students || response.maxStudents || response.batch_limit || 30,
                 activeStudents: studentsData.filter((s) => {
@@ -62,16 +108,23 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
                 }).length,
                 completionPercentage: response.completion_percent || response.completionPercentage || response.completion_rate || 0,
               }
+              
+              console.log('✅ Batch Info Data Set:', batchInfoData)
             }
             // Case 2: response.batch (nested object)
             else if (response?.status && response?.batch) {
               const currentBatch = response.batch
               studentsData = currentBatch.students || []
+              const startDate = currentBatch.start_date || currentBatch.startDate || currentBatch.batch_start_date || ''
+              const endDate = currentBatch.end_date || currentBatch.endDate || currentBatch.batch_end_date || ''
+              const formattedStart = startDate ? formatDate(startDate) : 'N/A'
+              const formattedEnd = endDate ? formatDate(endDate) : 'N/A'
+              
               batchInfoData = {
                 name: currentBatch.batch_name || currentBatch.name || '',
                 status: typeof currentBatch.status === 'string' ? currentBatch.status : (currentBatch.admin_action || 'Active'),
-                duration: `${currentBatch.start_date || currentBatch.startDate || 'N/A'} - ${currentBatch.end_date || currentBatch.endDate || 'N/A'}`,
-                timeSlot: currentBatch.batch_time_slot || currentBatch.time_slot || currentBatch.batchTimeSlot || 'N/A',
+                duration: `${formattedStart} - ${formattedEnd}`,
+                timeSlot: currentBatch.batch_time_slot || currentBatch.time_slot || currentBatch.batchTimeSlot || currentBatch.time_slot_name || 'N/A',
                 totalStudents: currentBatch.enrolled_students || currentBatch.total_students || currentBatch.enrolledStudents || studentsData.length,
                 maxStudents: currentBatch.max_students || currentBatch.maxStudents || currentBatch.batch_limit || 30,
                 activeStudents: studentsData.filter((s) => {
@@ -93,11 +146,16 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
                   ...response.data.batch,
                 }
               }
+              const startDate = response.data.start_date || response.data.startDate || response.data.batch_start_date || ''
+              const endDate = response.data.end_date || response.data.endDate || response.data.batch_end_date || ''
+              const formattedStart = startDate ? formatDate(startDate) : 'N/A'
+              const formattedEnd = endDate ? formatDate(endDate) : 'N/A'
+              
               batchInfoData = {
                 name: response.data.batch_name || response.data.name || batchData?.batch?.batch_name || '',
                 status: typeof response.data.status === 'string' ? response.data.status : (response.data.admin_action || 'Active'),
-                duration: `${response.data.start_date || response.data.startDate || 'N/A'} - ${response.data.end_date || response.data.endDate || 'N/A'}`,
-                timeSlot: response.data.batch_time_slot || response.data.time_slot || response.data.batchTimeSlot || 'N/A',
+                duration: `${formattedStart} - ${formattedEnd}`,
+                timeSlot: response.data.batch_time_slot || response.data.time_slot || response.data.batchTimeSlot || response.data.time_slot_name || 'N/A',
                 totalStudents: response.data.enrolled_students || response.data.total_students || response.data.enrolledStudents || studentsData.length,
                 maxStudents: response.data.max_students || response.data.maxStudents || response.data.batch_limit || 30,
                 activeStudents: studentsData.filter((s) => {
@@ -193,10 +251,12 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
         }
         
         // Fallback: Fetch batch details using course_id
+        console.log('🔄 Fallback: Fetching by course_id:', batchData.courseId)
         response = await getMethod({
           apiUrl: apiService.courseByBatch,
           params: { course_id: batchData.courseId },
         })
+        console.log('🔍 Fallback API Response:', response)
 
         if (response.status && response.batches?.length > 0) {
           const currentBatch = response.batches.find(
@@ -205,18 +265,33 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
         
           if (currentBatch) {
             // Extract all batch fields properly from API response
-            setBatchInfo({
+            console.log('📦 Current Batch Data:', currentBatch)
+            
+            const startDate = currentBatch.start_date || currentBatch.startDate || currentBatch.batch_start_date || ''
+            const endDate = currentBatch.end_date || currentBatch.endDate || currentBatch.batch_end_date || ''
+            const timeSlot = currentBatch.batch_time_slot || currentBatch.time_slot || currentBatch.batchTimeSlot || currentBatch.time_slot_name || ''
+            
+            console.log('📅 Fallback Date Fields:', { startDate, endDate, timeSlot })
+            
+            const formattedStart = startDate ? formatDate(startDate) : 'N/A'
+            const formattedEnd = endDate ? formatDate(endDate) : 'N/A'
+            
+            const batchInfoToSet = {
               name: currentBatch.batch_name || currentBatch.name || '',
               status: typeof currentBatch.status === 'string' ? currentBatch.status : (currentBatch.admin_action || 'Active'),
-              duration: `${currentBatch.start_date || currentBatch.startDate || 'N/A'} - ${currentBatch.end_date || currentBatch.endDate || 'N/A'}`,
-              timeSlot: currentBatch.batch_time_slot || currentBatch.time_slot || currentBatch.batchTimeSlot || 'N/A',              totalStudents: currentBatch.enrolled_students || currentBatch.total_students || currentBatch.enrolledStudents || (currentBatch.students?.length || 0),
+              duration: `${formattedStart} - ${formattedEnd}`,
+              timeSlot: timeSlot || 'N/A',
+              totalStudents: currentBatch.enrolled_students || currentBatch.total_students || currentBatch.enrolledStudents || (currentBatch.students?.length || 0),
               maxStudents: currentBatch.max_students || currentBatch.maxStudents || currentBatch.batch_limit || 30,
               activeStudents: currentBatch.students?.filter((s) => 
                 (s.status || '').toLowerCase() === 'active' || 
                 (s.status || '').toLowerCase() === 'enrolled'
               ).length || 0,
               completionPercentage: currentBatch.completion_percent || currentBatch.completionPercentage || currentBatch.completion_rate || 0,
-            })
+            }
+            
+            console.log('✅ Fallback Batch Info Set:', batchInfoToSet)
+            setBatchInfo(batchInfoToSet)
         
             setStudents(
               (currentBatch.students || []).map((s) => ({
@@ -304,22 +379,6 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
 
     fetchBatchDetail()
   }, [batchData?.batch?.batch_id, batchData?.courseId])
-
-  // Format date from API (YYYY-MM-DD HH:mm:ss or YYYY-MM-DD)
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A'
-    try {
-      const date = new Date(dateString)
-      if (isNaN(date.getTime())) return dateString
-      return date.toLocaleDateString('en-IN', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-      })
-    } catch {
-      return dateString
-    }
-  }
 
   const getStatusColor = (status) => {
     // Ensure status is a string before calling toLowerCase
@@ -736,7 +795,7 @@ export default function BatchDetail({ batchData, onBack, onBatchUpdate }) {
                         {student.phone && (
                           <div className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
                             {student.phone}
-                          </div>
+                      </div>
                         )}
                     </div>
                   </td>
