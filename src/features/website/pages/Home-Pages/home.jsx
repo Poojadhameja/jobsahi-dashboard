@@ -6,6 +6,7 @@ import BrowseJobByCategory from "../../components/UI8Cards.jsx";
 import FAQ from "../../components/FAQ";
 import NewsletterSubscription from "../../components/NewsletterSubscription";
 import { WEBSITE_COLOR_CLASSES, getWebsiteColor } from "../../components/colorClasses";
+import { WEBSITE_COLOR_CLASSES, getWebsiteColor } from "../../components/colorClasses";
 import uploadresumebg from "../../assets/uploadresumebg.png";
 import textunderline from "../../assets/website_text_underline.png";
 import homebanner from "../../assets/home/homebanner.jpg";
@@ -57,6 +58,7 @@ import {
 const Home = () => {
   const navigate = useNavigate();
   const { BG, TEXT, BORDER, HOVER_BG, HOVER_TEXT } = WEBSITE_COLOR_CLASSES;
+  const colorHex = getWebsiteColor;
 
   const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
