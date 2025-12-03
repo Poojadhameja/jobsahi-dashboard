@@ -11,6 +11,8 @@ const CustomDataTable = ({
   className = "",
   showHeader = true,
   onViewDetails = () => {},
+  currentPage = 1,
+  recordsPerPage = 10,
 }) => {
 
   // 🔹 Status Badge Colors
@@ -44,6 +46,9 @@ const CustomDataTable = ({
           <thead className="bg-gray-50">
             <tr>
               <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
+                Sr. No
+              </th>
+              <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
                 Candidate
               </th>
               <th className={`px-6 py-3 text-left text-xs font-medium ${TAILWIND_COLORS.TEXT_MUTED} uppercase tracking-wider`}>
@@ -68,15 +73,24 @@ const CustomDataTable = ({
             {data.length === 0 ? (
               <tr>
                 <td
-                  colSpan="6"
+                  colSpan="7"
                   className={`text-center py-6 ${TAILWIND_COLORS.TEXT_MUTED} text-sm`}
                 >
                   No applicants found
                 </td>
               </tr>
             ) : (
-              data.map((row, rowIndex) => (
+              data.map((row, rowIndex) => {
+                // Calculate serial number based on pagination
+                const serialNumber = (currentPage - 1) * recordsPerPage + rowIndex + 1;
+                
+                return (
                 <tr key={rowIndex} className="hover:bg-gray-50 transition">
+                  {/* Serial Number */}
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}>
+                    {serialNumber}
+                  </td>
+                  
                   {/* Candidate Info */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-col">
@@ -146,7 +160,8 @@ const CustomDataTable = ({
                     </div>
                   </td>
                 </tr>
-              ))
+              );
+              })
             )}
           </tbody>
         </table>

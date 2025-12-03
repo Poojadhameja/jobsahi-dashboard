@@ -30,6 +30,60 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [existingInterview, setExistingInterview] = useState(null);
   const [loadingInterview, setLoadingInterview] = useState(false);
+  const [recruiterJobs, setRecruiterJobs] = useState([]);
+  const [jobTitle, setJobTitle] = useState("");
+
+  // Fetch recruiter jobs to get job title
+  useEffect(() => {
+    const fetchRecruiterJobs = async () => {
+      if (!candidate || !isOpen) return;
+      
+      try {
+        const res = await getMethod({ apiUrl: apiService.getRecruiterJobs });
+        console.log("📊 Recruiter Jobs API Response (Modal):", res);
+
+        if (res?.status === true && Array.isArray(res?.data)) {
+          const formattedJobs = res.data.map((job) => ({
+            id: job.job_id || job.id,
+            title: job.job_title || job.title || job.position || "Untitled Job",
+            company: job.company_name || job.company || "—",
+          }));
+          setRecruiterJobs(formattedJobs);
+          
+          // Match candidate's job_id with recruiter jobs to get job title
+          const candidateJobId = candidate.job_id?.toString() || candidate.jobId?.toString();
+          if (candidateJobId) {
+            const matchedJob = formattedJobs.find(
+              (job) => job.id?.toString() === candidateJobId
+            );
+            if (matchedJob) {
+              setJobTitle(matchedJob.title);
+              console.log("✅ Matched job title:", matchedJob.title);
+            } else {
+              // Fallback to applied_for or job_title
+              setJobTitle(candidate.applied_for || candidate.job_title || "—");
+            }
+          } else {
+            // Fallback to applied_for or job_title
+            setJobTitle(candidate.applied_for || candidate.job_title || "—");
+          }
+        } else {
+          // Fallback to applied_for or job_title
+          setJobTitle(candidate.applied_for || candidate.job_title || "—");
+        }
+      } catch (err) {
+        console.error("❌ Error fetching recruiter jobs (Modal):", err);
+        // Fallback to applied_for or job_title
+        setJobTitle(candidate.applied_for || candidate.job_title || "—");
+      }
+    };
+
+    if (isOpen && candidate) {
+      fetchRecruiterJobs();
+    } else {
+      setJobTitle("");
+    }
+  }, [isOpen, candidate]);
 
   // Fetch existing interview when modal opens
   useEffect(() => {
@@ -686,7 +740,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
                   Applied for
                 </span>
                 <span className="bg-green-500 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                  {candidate.applied_for}
+                  {jobTitle || candidate.applied_for || candidate.job_title || "—"}
                 </span>
               </div>
             </div>
@@ -848,7 +902,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
                     <span
                       className={`text-xs sm:text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} font-medium`}
                     >
-                      {candidate.applied_for || candidate.job_title || "—"}
+                      {jobTitle || candidate.applied_for || candidate.job_title || "—"}
                     </span>
                   </div>
                 </div>

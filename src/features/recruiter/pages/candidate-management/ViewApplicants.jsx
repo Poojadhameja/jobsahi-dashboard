@@ -6,6 +6,8 @@ import {
   LuMessageCircle,
   LuChevronLeft,
   LuChevronRight,
+  LuFilter,
+  LuChevronDown,
 } from "react-icons/lu";
 import CustomDataTable from "./CustomDataTable";
 import ViewDetailsModal from "./ViewDetailsModal";
@@ -28,6 +30,12 @@ const ViewApplicants = () => {
   const [applicants, setApplicants] = useState([]);
   const [filteredApplicants, setFilteredApplicants] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  // Filter states
+  const [filterType, setFilterType] = useState("all"); // "all" or "byJob"
+  const [selectedJobId, setSelectedJobId] = useState("");
+  const [recruiterJobs, setRecruiterJobs] = useState([]);
+  const [loadingJobs, setLoadingJobs] = useState(false);
 
   // ✅ Prevent background scroll when modal is open
   useEffect(() => {
@@ -137,35 +145,92 @@ const ViewApplicants = () => {
     }
   };
 
+  // ✅ Fetch recruiter jobs
+  const fetchRecruiterJobs = async () => {
+    setLoadingJobs(true);
+    try {
+      const res = await getMethod({ apiUrl: apiService.getRecruiterJobs });
+      console.log("📊 Recruiter Jobs API Response:", res);
+
+      if (res?.status === true && Array.isArray(res?.data)) {
+        const formattedJobs = res.data.map((job) => ({
+          id: job.job_id || job.id,
+          title: job.job_title || job.title || job.position || "Untitled Job",
+          company: job.company_name || job.company || "—",
+        }));
+        setRecruiterJobs(formattedJobs);
+        console.log("✅ Formatted Recruiter Jobs:", formattedJobs);
+      } else {
+        setRecruiterJobs([]);
+      }
+    } catch (err) {
+      console.error("❌ Error fetching recruiter jobs:", err);
+      setRecruiterJobs([]);
+    } finally {
+      setLoadingJobs(false);
+    }
+  };
+
+  // ✅ Fetch recruiter jobs when filter type changes to "byJob"
+  useEffect(() => {
+    if (filterType === "byJob" && recruiterJobs.length === 0) {
+      fetchRecruiterJobs();
+    }
+  }, [filterType]);
+
   // ✅ Fetch applicants on component mount
   useEffect(() => {
     fetchApplicants();
   }, []);
 
-  // ✅ Search Functionality
+  // ✅ Filter and Search Functionality
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredApplicants(applicants);
-      return;
+    let filtered = [...applicants];
+
+    // Apply job filter
+    if (filterType === "byJob" && selectedJobId) {
+      filtered = filtered.filter((app) => {
+        // Match by job_id or appliedFor (job name)
+        const appJobId = app.job_id?.toString();
+        const selectedJobIdStr = selectedJobId.toString();
+        
+        // Try matching by job_id first
+        if (appJobId === selectedJobIdStr) {
+          return true;
+        }
+        
+        // If no match, try matching by job name (appliedFor)
+        const selectedJob = recruiterJobs.find((job) => job.id.toString() === selectedJobIdStr);
+        if (selectedJob && app.appliedFor) {
+          return app.appliedFor.toLowerCase().includes(selectedJob.title.toLowerCase()) ||
+                 selectedJob.title.toLowerCase().includes(app.appliedFor.toLowerCase());
+        }
+        
+        return false;
+      });
     }
 
-    const lowerSearch = searchTerm.toLowerCase();
-    const filtered = applicants.filter((app) =>
-      [
-        app.name,
-        app.email,
-        app.phone_number,
-        app.appliedFor,
-        app.qualification,
-        app.skills,
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(lowerSearch)
-    );
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const lowerSearch = searchTerm.toLowerCase();
+      filtered = filtered.filter((app) =>
+        [
+          app.name,
+          app.email,
+          app.phone_number,
+          app.appliedFor,
+          app.qualification,
+          app.skills,
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(lowerSearch)
+      );
+    }
 
     setFilteredApplicants(filtered);
-  }, [searchTerm, applicants]);
+    setCurrentPage(1); // Reset to first page when filter changes
+  }, [searchTerm, applicants, filterType, selectedJobId, recruiterJobs]);
 
   // ✅ Export all applicants to Excel
   const handleExportAll = () => {
@@ -280,9 +345,59 @@ const ViewApplicants = () => {
         </Button>
       </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative max-w-md">
+      {/* Filter and Search */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        {/* Filter Section */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Filter Type Dropdown */}
+          <div className="relative">
+            <select
+              value={filterType}
+              onChange={(e) => {
+                setFilterType(e.target.value);
+                if (e.target.value === "all") {
+                  setSelectedJobId("");
+                }
+              }}
+              className="appearance-none pl-4 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none bg-white cursor-pointer min-w-[140px]"
+            >
+              <option value="all">View All</option>
+              <option value="byJob">By Job</option>
+            </select>
+            <LuChevronDown
+              className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`}
+              size={20}
+            />
+          </div>
+
+          {/* Job Dropdown (shown only when "By Job" is selected) */}
+          {filterType === "byJob" && (
+            <div className="relative">
+              <select
+                value={selectedJobId}
+                onChange={(e) => setSelectedJobId(e.target.value)}
+                disabled={loadingJobs || recruiterJobs.length === 0}
+                className="appearance-none pl-4 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--color-secondary)] focus:border-transparent outline-none bg-white cursor-pointer min-w-[200px] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="">
+                  {loadingJobs ? "Loading jobs..." : recruiterJobs.length === 0 ? "No jobs found" : "Select a job"}
+                </option>
+                {recruiterJobs.map((job) => (
+                  <option key={job.id} value={job.id}>
+                    {job.title}
+                  </option>
+                ))}
+              </select>
+              <LuChevronDown
+                className={`absolute right-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`}
+                size={20}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Search */}
+        <div className="relative flex-1 max-w-md">
           <LuSearch
             className={`absolute left-3 top-1/2 -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`}
             size={20}
@@ -304,6 +419,8 @@ const ViewApplicants = () => {
           data={paginatedApplicants}
           showHeader={false}
           onViewDetails={handleViewDetails}
+          currentPage={currentPage}
+          recordsPerPage={recordsPerPage}
         />
       </div>
 
