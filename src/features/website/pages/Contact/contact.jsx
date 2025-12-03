@@ -7,6 +7,9 @@ import textunderline from '../../assets/website_text_underline.png'
 import contactImage from '../../assets/contact.jpg'
 import contactSmallImage from '../../assets/contactsmall.jpg'
 import { COLOR_CLASSES } from '../../components/colorClasses'
+import { postMethod } from '../../../../service/api'
+import serviceUrl from '../../services/serviceUrl'
+import Swal from 'sweetalert2'
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +20,7 @@ const Contact = () => {
   })
   const [newsletterEmail, setNewsletterEmail] = useState('')
   const [isSubscribed, setIsSubscribed] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -26,20 +30,86 @@ const Contact = () => {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log('Form submitted:', formData)
-    setFormData({ name: '', email: '', phone: '', message: '' })
+    setIsSubmitting(true)
+    
+    try {
+      const response = await postMethod({
+        apiUrl: serviceUrl.submitContactForm,
+        payload: {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message
+        }
+      })
+
+      if (response.status) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: response.message || 'Your message has been sent successfully. We will get back to you soon.',
+          timer: 3000,
+          showConfirmButton: false
+        })
+        setFormData({ name: '', email: '', phone: '', message: '' })
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.message || 'Failed to send message. Please try again.',
+        })
+      }
+    } catch (error) {
+      console.error('Contact form error:', error)
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong. Please try again later.',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const handleNewsletterSubscribe = (subscriberEmail) => {
-    console.log('Subscribing email:', subscriberEmail)
-    setIsSubscribed(true)
-    setNewsletterEmail('')
-    // You can add API call here to save the subscription
-    setTimeout(() => {
-      setIsSubscribed(false)
-    }, 5000)
+  const handleNewsletterSubscribe = async (subscriberEmail) => {
+    try {
+      const response = await postMethod({
+        apiUrl: serviceUrl.subscribeNewsletter,
+        payload: {
+          email: subscriberEmail
+        }
+      })
+
+      if (response.status) {
+        setIsSubscribed(true)
+        setNewsletterEmail('')
+        Swal.fire({
+          icon: 'success',
+          title: 'Subscribed!',
+          text: response.message || 'Thank you for subscribing to our newsletter.',
+          timer: 3000,
+          showConfirmButton: false
+        })
+        setTimeout(() => {
+          setIsSubscribed(false)
+        }, 5000)
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.message || 'Failed to subscribe. Please try again.',
+        })
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error)
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Something went wrong. Please try again later.',
+      })
+    }
   }
 
   return (
@@ -181,8 +251,12 @@ const Contact = () => {
               placeholder="Your Number here" className="w-full px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 border rounded-xl text-xs sm:text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-green-500" required />
             <textarea name="message" value={formData.message} onChange={handleInputChange}
               placeholder="Tell us about your messages" rows={4} className="w-full px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4 border rounded-xl text-xs sm:text-sm md:text-base resize-none focus:outline-none focus:ring-2 focus:ring-green-500" required />
-            <button type="submit" className={`${COLOR_CLASSES.bg.accentGreen} text-white px-5 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-xl ${COLOR_CLASSES.hoverBg.accentGreenDeepest} text-xs sm:text-sm md:text-base font-semibold w-full sm:w-auto transition-all duration-200`}>
-              Submit Message
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className={`${COLOR_CLASSES.bg.accentGreen} text-white px-5 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-xl ${COLOR_CLASSES.hoverBg.accentGreenDeepest} text-xs sm:text-sm md:text-base font-semibold w-full sm:w-auto transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Message'}
             </button>
           </form>
         </div>

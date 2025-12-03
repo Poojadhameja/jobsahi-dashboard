@@ -158,19 +158,21 @@ const JobDetails = ({ job, onClose, onApplyJob }) => {
               </div>
 
               {/* Skills */}
-              <div className="mb-4 sm:mb-6">
-                <h4 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base" style={{ color: 'var(--color-text-primary)' }}>Skills</h4>
-                <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                  {job.skills.map((skill, index) => (
-                    <span 
-                      key={index}
-                      className="px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full bg-gray-200 text-gray-700"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+              {job.skills && job.skills.length > 0 && (
+                <div className="mb-4 sm:mb-6">
+                  <h4 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base" style={{ color: 'var(--color-text-primary)' }}>Skills</h4>
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                    {job.skills.map((skill, index) => (
+                      <span 
+                        key={index}
+                        className="px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium rounded-full bg-gray-200 text-gray-700"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Quick Info Subsection */}
               <div className="p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">

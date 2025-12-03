@@ -4,10 +4,12 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import Rounded4Cards from "../../components/Rounded4Cards";
 import UI8Cards from "../../components/UI8Cards";
-import { FaChevronLeft, FaChevronRight, FaArrowUp, FaArrowRight, FaBolt, FaWrench, FaCog, FaPlug, FaHammer, FaCar, FaHardHat, FaUserCheck, FaClipboardList, FaPencilAlt, FaWater, FaGraduationCap, FaUsers, FaBookReader } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaArrowUp, FaArrowRight, FaBolt, FaWrench, FaCog, FaPlug, FaHammer, FaCar, FaHardHat, FaUserCheck, FaClipboardList, FaPencilAlt, FaWater, FaGraduationCap, FaUsers, FaBookReader, FaBriefcase, FaFire, FaCogs, FaIndustry, FaTools, FaSnowflake, FaHandsHelping } from "react-icons/fa";
 import textunderline from "../../assets/website_text_underline.png";
 import howitworksbg from "../../assets/Worksbg_courses.png"
 import { COLOR_CLASSES } from "../../components/colorClasses";
+import { getMethod } from "../../../../service/api";
+import serviceUrl from "../../services/serviceUrl";
 import copaImage from "../../assets/courses/COPA.jpg";
 import electricianImage from "../../assets/courses/Electrician.jpg";
 import fitterImage from "../../assets/courses/Fitter.jpg";
@@ -69,57 +71,107 @@ const Courses = () => {
     description: "Begin your journey toward a better future—completely free!"
   };
 
-  // Course categories data for UI8Cards component
-  const courseCategories = [
-    {
-      title: "Electrician Jobs",
-      count: 25,
-      subject: "courses Available",
-      icon: FaBolt
-    },
-    {
-      title: "Welder Jobs",
-      count: 18,
-      subject: "courses Available",
-      icon: FaWrench
-    },
-    {
-      title: "Mechanical",
-      count: 32,
-      subject: "courses Available",
-      icon: FaCog
-    },
-    {
-      title: "Electrical",
-      count: 28,
-      subject: "courses Available",
-      icon: FaPlug
-    },
-    {
-      title: "Automotive",
-      count: 22,
-      subject: "courses Available",
-      icon: FaCar
-    },
-    {
-      title: "Construction",
-      count: 15,
-      subject: "courses Available",
-      icon: FaHardHat
-    },
-    {
-      title: "Plumbing",
-      count: 20,
-      subject: "courses Available",
-      icon: FaWater
-    },
-    {
-      title: "Carpentry",
-      count: 12,
-      subject: "courses Available",
-      icon: FaHammer
-    }
-  ];
+  // State for dynamic categories
+  const [courseCategories, setCourseCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  // Icon mapping for categories
+  const getCategoryIcon = (categoryName) => {
+    const name = categoryName.toLowerCase();
+    if (name.includes('electrician') || name.includes('electrical')) return FaBolt;
+    if (name.includes('welder') || name.includes('welding')) return FaFire;
+    if (name.includes('fitter') || name.includes('fitting')) return FaCogs;
+    if (name.includes('cnc') || name.includes('operator')) return FaIndustry;
+    if (name.includes('plumber') || name.includes('plumbing')) return FaTools;
+    if (name.includes('ac') || name.includes('air conditioning') || name.includes('technician')) return FaSnowflake;
+    if (name.includes('helper') || name.includes('assistant')) return FaHandsHelping;
+    if (name.includes('maintenance') || name.includes('machine')) return FaCogs;
+    if (name.includes('mechanic') || name.includes('automotive')) return FaCar;
+    if (name.includes('construction') || name.includes('builder')) return FaHardHat;
+    if (name.includes('carpentry') || name.includes('carpenter')) return FaHammer;
+    return FaBriefcase; // Default icon
+  };
+
+  // Fetch course categories and courses count
+  useEffect(() => {
+    const fetchCourseCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        
+        // Fetch course categories and courses in parallel
+        const [categoriesResponse, coursesResponse] = await Promise.all([
+          getMethod({ apiUrl: serviceUrl.getCourseCategory }),
+          getMethod({ apiUrl: serviceUrl.getCourses })
+        ]);
+
+        console.log('Course Categories API Response:', categoriesResponse);
+        console.log('Courses API Response:', coursesResponse);
+
+        let categories = [];
+        let courses = [];
+
+        // Extract course categories - API returns { status: true, categories: [...] }
+        if (categoriesResponse?.status === true || categoriesResponse?.status === 'success') {
+          if (Array.isArray(categoriesResponse.categories)) {
+            categories = categoriesResponse.categories;
+          } else if (Array.isArray(categoriesResponse.data)) {
+            categories = categoriesResponse.data;
+          }
+        }
+
+        // Extract courses
+        if (coursesResponse?.status === true || coursesResponse?.status === 'success') {
+          if (Array.isArray(coursesResponse.courses)) {
+            courses = coursesResponse.courses;
+          } else if (Array.isArray(coursesResponse.data)) {
+            courses = coursesResponse.data;
+          }
+        }
+
+        console.log('Extracted Course Categories:', categories);
+        console.log('Extracted Courses:', courses);
+
+        // Count courses per category
+        const categoryCounts = {};
+        courses.forEach(course => {
+          const categoryName = course.category_name || course.category || 'Other';
+          const formattedCategory = categoryName.trim().toLowerCase();
+          categoryCounts[formattedCategory] = (categoryCounts[formattedCategory] || 0) + 1;
+        });
+
+        console.log('Course Category Counts:', categoryCounts);
+
+        // Map categories with counts and icons
+        const mappedCategories = categories
+          .map(cat => {
+            const categoryName = cat.category_name || cat.name || cat.title || 'Other';
+            const formattedName = categoryName.trim();
+            const formattedNameLower = formattedName.toLowerCase();
+            const count = categoryCounts[formattedNameLower] || 0;
+            
+            return {
+              title: formattedName,
+              count: count,
+              subject: "courses Available",
+              icon: getCategoryIcon(formattedName),
+            };
+          })
+          .filter(cat => cat.count > 0) // Only show categories with courses
+          .sort((a, b) => b.count - a.count) // Sort by count descending
+          .slice(0, 8); // Limit to 8 categories
+
+        console.log('Mapped Course Categories:', mappedCategories);
+        setCourseCategories(mappedCategories);
+      } catch (error) {
+        console.error('Error fetching course categories:', error);
+        setCourseCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCourseCategories();
+  }, []);
 
   // Courses for Grow Your Skill Set section
   const skillSetCourses = [
@@ -481,6 +533,8 @@ const Courses = () => {
       <UI8Cards 
         jobCategories={courseCategories}
         headerContent={ui8CardsHeaderContent}
+        loadingCategories={loadingCategories}
+        isCoursesPage={true}
       />
 
       {/* Why ITI Offline Courses Are The Best Section */}

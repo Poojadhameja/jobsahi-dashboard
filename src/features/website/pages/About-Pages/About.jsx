@@ -283,7 +283,7 @@ const About = () => {
                 <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
                   <FaCheckCircle className={`${COLOR_CLASSES.text.accentGreen} text-base sm:text-lg flex-shrink-0 mt-0.5 sm:mt-0`} />
                   <span className={`${COLOR_CLASSES.text.deepBlue} font-medium text-sm sm:text-base`}>
-                    For Employers - Tap Into A Motivated Talent Pool.
+                    For Recruiters - Tap Into A Motivated Talent Pool.
                   </span>
                 </div>
                 <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">

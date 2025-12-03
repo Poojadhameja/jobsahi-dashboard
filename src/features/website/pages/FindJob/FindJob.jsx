@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { FaSearch, FaMapMarkerAlt, FaBriefcase, FaFilter, FaTimes } from 'react-icons/fa'
 import NewsletterSubscription from '../../components/NewsletterSubscription'
 import Footer from '../../components/Footer'
@@ -13,13 +13,17 @@ import {
   getWebsiteColorClass,
 } from '../../components/colorClasses'
 import { COLOR_CLASSES } from "../../components/colorClasses";
+import { getMethod, postMethod } from '../../../../service/api'
+import serviceUrl from '../../services/serviceUrl'
 
-const EMPLOYMENT_FILTERS = ['Part Time', 'Full Time', 'Remote', 'Internship', 'Freelance']
-const CATEGORY_FILTERS = ['Creative Design', 'Development', 'Marketing', 'Customer Care', 'Customer Service', 'Finance']
-const LEVEL_FILTERS = ['Entry Level', 'Mid Level', 'Senior Level', 'Director', 'VP']
+// Base filter options - will be dynamically populated from API data
+const BASE_EMPLOYMENT_FILTERS = ['Part Time', 'Full Time', 'Remote', 'Internship', 'Freelance']
+const BASE_LEVEL_FILTERS = ['Entry Level', 'Mid Level', 'Senior Level', 'Director', 'VP']
+// Categories will be completely dynamic from API - no hardcoded base categories
 
 const FindJob = ({ onClose }) => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const colorHex = getWebsiteColor
   const colorClass = getWebsiteColorClass
   const {
@@ -32,19 +36,220 @@ const FindJob = ({ onClose }) => {
   const [selectedEmployment, setSelectedEmployment] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
   const [selectedLevels, setSelectedLevels] = useState([])
-  const [salaryRange, setSalaryRange] = useState([1000, 6000])
+  const [salaryRange, setSalaryRange] = useState([0, 100000]) // Wider range to show all jobs by default
   const [showJobPopup, setShowJobPopup] = useState(false)
   const [selectedJob, setSelectedJob] = useState(null)
   const [email, setEmail] = useState('')
   const [isSubscribed, setIsSubscribed] = useState(false)
   const [sortOption, setSortOption] = useState('Newest Upward')
   const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [jobListings, setJobListings] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searching, setSearching] = useState(false)
+  const [error, setError] = useState(null)
+  const [searchLocation, setSearchLocation] = useState('')
+  const [searchCategory, setSearchCategory] = useState('')
+  const [activeLocationFilter, setActiveLocationFilter] = useState('')
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState('')
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false)
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const hasFetchedJobsRef = useRef(false)
+
+  // Initialize search filters from URL params
+  useEffect(() => {
+    const locationParam = searchParams.get('location') || '';
+    const categoryParam = searchParams.get('category') || '';
+    
+    if (locationParam) {
+      setSearchLocation(locationParam);
+      setActiveLocationFilter(locationParam);
+    }
+    if (categoryParam) {
+      setSearchCategory(categoryParam);
+      setActiveCategoryFilter(categoryParam);
+    }
+  }, [searchParams])
+
+  // Normalize employment type from API to filter format
+  const normalizeEmploymentType = useCallback((type) => {
+    if (!type) return 'Full Time'
+    const typeLower = type.toLowerCase().trim()
+    const typeMap = {
+      'full_time': 'Full Time',
+      'fulltime': 'Full Time',
+      'full-time': 'Full Time',
+      'part_time': 'Part Time',
+      'parttime': 'Part Time',
+      'part-time': 'Part Time',
+      'remote': 'Remote',
+      'internship': 'Internship',
+      'freelance': 'Freelance',
+      'contract': 'Freelance',
+      'contractual': 'Freelance'
+    }
+    return typeMap[typeLower] || type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()
+  }, [])
+
+  // Format category from API - keep original, just capitalize properly
+  const formatCategory = useCallback((category) => {
+    if (!category) return 'Other'
+    // Keep original category name, just format it properly
+    const trimmed = category.trim()
+    // Capitalize first letter of each word
+    return trimmed.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ')
+  }, [])
+
+  // Normalize experience level from API to filter format
+  const normalizeExperienceLevel = useCallback((level) => {
+    if (!level) return 'Entry Level'
+    const levelLower = level.toLowerCase().trim()
+    const levelMap = {
+      'entry level': 'Entry Level',
+      'entry': 'Entry Level',
+      'fresher': 'Entry Level',
+      'beginner': 'Entry Level',
+      'intermediate': 'Mid Level',
+      'mid level': 'Mid Level',
+      'mid': 'Mid Level',
+      'senior': 'Senior Level',
+      'senior level': 'Senior Level',
+      'executive': 'Executive',
+      'director': 'Director',
+      'vice president': 'VP'
+    }
+    return levelMap[levelLower] || level.charAt(0).toUpperCase() + level.slice(1).toLowerCase()
+  }, [])
+
+  // Fetch jobs from API - only once on mount
+  const fetchJobs = useCallback(async () => {
+    // Prevent multiple calls using ref
+    if (hasFetchedJobsRef.current) {
+      console.log('Jobs already fetched, skipping API call')
+      return
+    }
+
+    try {
+      hasFetchedJobsRef.current = true // Mark as fetched before API call
+      setLoading(true)
+      setError(null)
+      
+      const response = await getMethod({
+        apiUrl: serviceUrl.getJobs,
+        params: {}
+      })
+
+      console.log('Jobs API Response:', response)
+      console.log('Response Status:', response.status)
+      console.log('Response Data:', response.data)
+      
+      // Handle different response structures
+      let jobsData = []
+      // Check multiple status formats (responseModify converts true to 'success')
+      const isSuccess = response.status === true || 
+                       response.status === 'success' || 
+                       response.status === 'true' ||
+                       response.success === true
+      
+      console.log('Response Status Check:', {
+        status: response.status,
+        success: response.success,
+        isSuccess: isSuccess,
+        hasData: !!response.data,
+        dataType: Array.isArray(response.data) ? 'array' : typeof response.data,
+        dataLength: Array.isArray(response.data) ? response.data.length : 'N/A'
+      })
+      
+      if (isSuccess) {
+        if (Array.isArray(response.data)) {
+          jobsData = response.data
+        } else if (Array.isArray(response.jobs)) {
+          jobsData = response.jobs
+        } else if (Array.isArray(response)) {
+          jobsData = response
+        }
+      } else {
+        // Even if status check fails, try to get data if it exists
+        if (Array.isArray(response.data)) {
+          jobsData = response.data
+        }
+      }
+
+      console.log('Is Success:', isSuccess)
+      console.log('Extracted Jobs Data:', jobsData)
+      console.log('Jobs Count:', jobsData.length)
+
+      if (jobsData.length > 0) {
+        // Transform API data to match component structure
+        const transformedJobs = jobsData.map((job, index) => {
+          const rawType = job.employment_type || job.job_type || job.type || 'Full Time'
+          const rawCategory = job.category_name || job.category || job.job_category || 'Other'
+          const rawExperience = job.experience_required || job.experience_level || job.experience || 'Entry Level'
+          
+          // Extract and format skills from API
+          const rawSkills = job.skills_required || job.skills || job.required_skills || ''
+          let skillsArray = []
+          if (rawSkills) {
+            if (Array.isArray(rawSkills)) {
+              skillsArray = rawSkills.map(s => s.trim()).filter(s => s)
+            } else if (typeof rawSkills === 'string') {
+              skillsArray = rawSkills.split(',').map(s => s.trim()).filter(s => s)
+            }
+          }
+          
+          // Format salary display
+          const salaryDisplay = job.salary_min && job.salary_max 
+            ? `${job.salary_min}-${job.salary_max}/Monthly`
+            : job.salary || job.salary_range || '1500/Monthly'
+          
+          return {
+            id: job.id || job.job_id || index + 1,
+            title: job.title || job.job_title || 'Job Title',
+            company: job.company_name || job.employer_name || 'Company',
+            location: job.location || job.city || 'Location',
+            type: normalizeEmploymentType(rawType),
+            category: formatCategory(rawCategory), // Use original category from API
+            salary: salaryDisplay,
+            applied: job.applied_count || job.applications_count || 0,
+            capacity: job.capacity || job.max_applications || job.no_of_vacancies || 100,
+            skills: skillsArray.length > 0 ? skillsArray : ['Skill'],
+            logo: (job.company_name || job.employer_name || 'C')[0].toUpperCase(),
+            logoColor: colorHex('PRIMARY.NAVY'),
+            experience: normalizeExperienceLevel(rawExperience),
+            postedOn: job.created_at || job.posted_date || new Date().toLocaleDateString(),
+            applyBefore: job.deadline || job.apply_before || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+            description: job.description || job.job_description || 'Job description not available.',
+            responsibilities: job.responsibilities ? (Array.isArray(job.responsibilities) ? job.responsibilities : job.responsibilities.split(',')) : [],
+            requirements: job.requirements ? (Array.isArray(job.requirements) ? job.requirements : job.requirements.split(',')) : [],
+            benefits: job.benefits ? (Array.isArray(job.benefits) ? job.benefits : job.benefits.split(',').map(b => ({ title: b, icon: 'FaShieldAlt', description: b }))) : []
+          }
+        })
+        console.log('Transformed Jobs:', transformedJobs)
+        setJobListings(transformedJobs)
+      } else {
+        console.log('No jobs data found in response')
+        // Fallback to empty array if no data
+        setJobListings([])
+      }
+    } catch (err) {
+      console.error('Error fetching jobs:', err)
+      setError('Failed to load jobs. Please try again later.')
+      setJobListings([])
+      hasFetchedJobsRef.current = false // Reset on error so it can retry
+    } finally {
+      setLoading(false)
+    }
+  }, [normalizeEmploymentType, formatCategory, normalizeExperienceLevel])
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.scrollTo(0, 0)
     }
-  }, [])
+    fetchJobs()
+  }, [fetchJobs])
+
 
   const parsePostedDate = (dateString) => {
     if (!dateString) return 0
@@ -57,317 +262,151 @@ const FindJob = ({ onClose }) => {
   const parseSalaryValue = (salaryString) => {
     if (!salaryString) return 0
 
+    // Handle salary ranges like "20000-35000/Monthly"
+    if (typeof salaryString === 'string' && salaryString.includes('-')) {
+      const parts = salaryString.split('-')
+      if (parts.length >= 2) {
+        const minSalary = parts[0].replace(/[^0-9.]/g, '')
+        return Number(minSalary) || 0
+      }
+    }
+
     const numericPart = salaryString.replace(/[^0-9.]/g, '')
     return Number(numericPart) || 0
   }
 
-  const jobListings = useMemo(() => [
-    {
-      id: 1,
-      title: 'Product Designer',
-      company: 'Lounge Tech',
-      location: 'Mig, Indonesia',
-      type: 'Full Time',
-      category: 'Creative Design',
-      salary: '1500/Monthly',
-      applied: 4,
-      capacity: 70,
-      skills: ['App', 'Figma', 'PSD'],
-      logo: 'L',
-      logoColor: colorHex('PRIMARY.NAVY'),
-      experience: 'Entry Level',
-      postedOn: 'May, 10 2024',
-      applyBefore: 'June, 10 2024',
-      description: 'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.',
-      responsibilities: [
-        'Collaborate daily with a multidisciplinary team of Software Engineers, Researchers, Strategists, and Project Managers.',
-        'Maintain quality of the design process and ensure that when designs are translated into code they accurately reflect the design specifications.',
-        'Co-lead ideation sessions, workshops, demos, and presentations with clients on-site',
-        'Push for and create inclusive, accessible design for all',
-        'Ensure content strategy and design are perfectly in-sync'
-      ],
-      requirements: [
-        'Advanced troubleshooting skills',
-        'bachelor\'s degree in computer science or a related field',
-        'Knowledge of HTML/CSS',
-        'Experience with Git and GitHub',
-        'The ability to use JavaScript'
-      ],
-      benefits: [
-        { title: 'Full Healthcare', icon: 'FaShieldAlt', description: 'We believe in thriving communities and that starts with our team being happy and healthy.' },
-        { title: 'Skill Development', icon: 'FaRocket', description: 'We believe in thriving communities and that starts with our team being happy and healthy.' },
-        { title: 'Team Summits', icon: 'FaUsers', description: 'We believe in thriving communities and that starts with our team being happy and healthy.' },
-        { title: 'Team Gathering', icon: 'FaBullhorn', description: 'We believe in thriving communities and that starts with our team being happy and healthy.' },
-        { title: 'Commuter Benefits', icon: 'FaBus', description: 'We believe in thriving communities and that starts with our team being happy and healthy.' }
-      ]
-    },
-    {
-      id: 2,
-      title: 'Full Stack Engineer',
-      company: 'Orange Tech',
-      location: 'Hbg, Indonesia',
-      type: 'Full Time',
-      category: 'Development',
-      salary: '1800/Monthly',
-      applied: 3,
-      capacity: 50,
-      skills: ['React', 'Node.js', 'MongoDB'],
-      logo: 'O',
-      logoColor: colorHex('ACCENT.GREEN'),
-      experience: 'Mid Level',
-      postedOn: 'May, 12 2024',
-      applyBefore: 'June, 12 2024',
-      description: 'We are looking for a passionate Full Stack Engineer to join our dynamic team. You will be responsible for developing and maintaining web applications using modern technologies.',
-      responsibilities: [
-        'Develop and maintain web applications using React and Node.js',
-        'Design and implement RESTful APIs and microservices',
-        'Collaborate with cross-functional teams to deliver high-quality software',
-        'Write clean, maintainable, and efficient code',
-        'Participate in code reviews and technical discussions'
-      ],
-      requirements: [
-        '3+ years of experience in full-stack development',
-        'Strong knowledge of JavaScript, React, and Node.js',
-        'Experience with databases (MongoDB, PostgreSQL)',
-        'Familiarity with cloud platforms (AWS, Azure)',
-        'Excellent problem-solving and communication skills'
-      ],
-      benefits: [
-        { title: 'Health Insurance', icon: 'FaShieldAlt', description: 'Comprehensive health coverage for you and your family.' },
-        { title: 'Learning Budget', icon: 'FaRocket', description: 'Annual budget for courses, conferences, and certifications.' },
-        { title: 'Team Events', icon: 'FaUsers', description: 'Regular team building activities and company retreats.' },
-        { title: 'Flexible Hours', icon: 'FaBullhorn', description: 'Work-life balance with flexible working hours.' },
-        { title: 'Transportation', icon: 'FaBus', description: 'Commuter benefits and transportation allowances.' }
-      ]
-    },
-    {
-      id: 3,
-      title: 'Ads Management Specialist',
-      company: 'Google',
-      location: 'California, US',
-      type: 'Full Time',
-      category: 'Marketing',
-      salary: '2500/Monthly',
-      applied: 5,
-      capacity: 30,
-      skills: ['Google Ads', 'Analytics', 'Marketing'],
-      logo: 'G',
-      logoColor: colorHex('ACCENT.GREEN'),
-      experience: 'Senior Level',
-      postedOn: 'May, 15 2024',
-      applyBefore: 'June, 15 2024',
-      description: 'Join Google\'s advertising team to help businesses grow through effective digital marketing strategies. You will manage and optimize ad campaigns across various platforms.',
-      responsibilities: [
-        'Manage and optimize Google Ads campaigns for clients',
-        'Analyze campaign performance and provide strategic recommendations',
-        'Collaborate with marketing teams to develop advertising strategies',
-        'Monitor budget allocation and ROI across multiple channels',
-        'Stay updated with latest advertising trends and platform changes'
-      ],
-      requirements: [
-        '5+ years of experience in digital advertising',
-        'Google Ads and Google Analytics certifications preferred',
-        'Strong analytical and data interpretation skills',
-        'Experience with A/B testing and conversion optimization',
-        'Excellent communication and client management skills'
-      ],
-      benefits: [
-        { title: 'Premium Health', icon: 'FaShieldAlt', description: 'Top-tier health insurance with dental and vision coverage.' },
-        { title: 'Career Growth', icon: 'FaRocket', description: 'Clear career progression paths and mentorship programs.' },
-        { title: 'Google Perks', icon: 'FaUsers', description: 'Access to Google\'s world-class facilities and amenities.' },
-        { title: 'Work Flexibility', icon: 'FaBullhorn', description: 'Hybrid work model with flexible scheduling options.' },
-        { title: 'Commute Support', icon: 'FaBus', description: 'Shuttle service and parking benefits for office days.' }
-      ]
-    },
-    {
-      id: 4,
-      title: 'UI/UX Designer',
-      company: 'Behance',
-      location: 'New York, US',
-      type: 'Full Time',
-      category: 'Creative Design',
-      salary: '2000/Monthly',
-      applied: 2,
-      capacity: 25,
-      skills: ['Figma', 'Sketch', 'Prototyping'],
-      logo: 'B',
-      logoColor: colorHex('PRIMARY.NAVY'),
-      experience: 'Mid Level',
-      postedOn: 'May, 18 2024',
-      applyBefore: 'June, 18 2024',
-      description: 'Create beautiful and intuitive user experiences for our creative platform. You will work closely with product managers and developers to bring designs to life.',
-      responsibilities: [
-        'Design user interfaces and user experiences for web and mobile applications',
-        'Create wireframes, prototypes, and high-fidelity mockups',
-        'Conduct user research and usability testing',
-        'Collaborate with developers to ensure design implementation',
-        'Maintain design systems and style guides'
-      ],
-      requirements: [
-        '3+ years of UI/UX design experience',
-        'Proficiency in Figma, Sketch, and Adobe Creative Suite',
-        'Strong portfolio showcasing design skills',
-        'Experience with user research and testing methodologies',
-        'Knowledge of HTML/CSS and front-end development principles'
-      ],
-      benefits: [
-        { title: 'Health Coverage', icon: 'FaShieldAlt', description: 'Comprehensive health and wellness benefits package.' },
-        { title: 'Design Tools', icon: 'FaRocket', description: 'Latest design software and hardware provided.' },
-        { title: 'Creative Community', icon: 'FaUsers', description: 'Join a vibrant community of creative professionals.' },
-        { title: 'Flexible Schedule', icon: 'FaBullhorn', description: 'Flexible working hours and remote work options.' },
-        { title: 'Transportation', icon: 'FaBus', description: 'Metro card and transportation reimbursement.' }
-      ]
-    },
-    {
-      id: 5,
-      title: 'Brand Designer',
-      company: 'Adobe Creative',
-      location: 'San Francisco, CA',
-      type: 'Part Time',
-      category: 'Marketing',
-      salary: '2200/Monthly',
-      applied: 6,
-      capacity: 40,
-      skills: ['Illustrator', 'Photoshop', 'Branding'],
-      logo: 'A',
-      logoColor: colorHex('ACCENT.GREEN'),
-      experience: 'Senior Level',
-      postedOn: 'May, 20 2024',
-      applyBefore: 'June, 20 2024',
-      description: 'Lead brand design initiatives for Adobe\'s creative suite. You will be responsible for creating compelling visual identities and brand experiences.',
-      responsibilities: [
-        'Develop and maintain brand guidelines and visual identity systems',
-        'Create marketing materials, presentations, and digital assets',
-        'Collaborate with marketing teams on brand campaigns',
-        'Design logos, icons, and visual elements for products',
-        'Ensure brand consistency across all touchpoints'
-      ],
-      requirements: [
-        '5+ years of brand design experience',
-        'Expert proficiency in Adobe Creative Suite',
-        'Strong understanding of brand strategy and positioning',
-        'Experience with print and digital design',
-        'Excellent typography and color theory knowledge'
-      ],
-      benefits: [
-        { title: 'Health Benefits', icon: 'FaShieldAlt', description: 'Premium health, dental, and vision insurance coverage.' },
-        { title: 'Creative Tools', icon: 'FaRocket', description: 'Access to Adobe\'s complete creative suite and latest tools.' },
-        { title: 'Design Team', icon: 'FaUsers', description: 'Work with world-class designers and creative professionals.' },
-        { title: 'Work Balance', icon: 'FaBullhorn', description: 'Flexible work arrangements and unlimited PTO.' },
-        { title: 'Bay Area Perks', icon: 'FaBus', description: 'Commuter benefits and Bay Area transportation options.' }
-      ]
-    },
-    {
-      id: 6,
-      title: 'Social Media Officer',
-      company: 'Parsons Intl',
-      location: 'London, UK',
-      type: 'Remote',
-      category: 'Customer Service',
-      salary: '1900/Monthly',
-      applied: 3,
-      capacity: 35,
-      skills: ['Social Media', 'Content Creation', 'Analytics'],
-      logo: 'P',
-      logoColor: colorHex('ACCENT.GREEN'),
-      experience: 'Mid Level',
-      postedOn: 'May, 22 2024',
-      applyBefore: 'June, 22 2024',
-      description: 'Manage and grow our social media presence across multiple platforms. Create engaging content and build strong online communities.',
-      responsibilities: [
-        'Develop and execute social media strategies across all platforms',
-        'Create engaging content including posts, videos, and graphics',
-        'Monitor social media analytics and optimize performance',
-        'Engage with followers and manage community interactions',
-        'Collaborate with marketing team on campaign development'
-      ],
-      requirements: [
-        '3+ years of social media management experience',
-        'Proficiency in social media platforms and management tools',
-        'Strong content creation and copywriting skills',
-        'Experience with social media analytics and reporting',
-        'Creative thinking and trend awareness'
-      ],
-      benefits: [
-        { title: 'Health Plan', icon: 'FaShieldAlt', description: 'Comprehensive health insurance with mental health support.' },
-        { title: 'Skill Development', icon: 'FaRocket', description: 'Training budget for courses and professional development.' },
-        { title: 'Team Culture', icon: 'FaUsers', description: 'Collaborative and creative work environment.' },
-        { title: 'Flexible Work', icon: 'FaBullhorn', description: 'Hybrid work model with flexible hours.' },
-        { title: 'London Transport', icon: 'FaBus', description: 'Oyster card and transportation benefits.' }
-      ]
-    },
-    {
-      id: 7,
-      title: 'Product Designer',
-      company: 'Inova Agency',
-      location: 'Madrid, Spain',
-      type: 'Freelance',
-      category: 'Creative Design',
-      salary: '2100/Monthly',
-      applied: 4,
-      capacity: 70,
-      skills: ['Product Design', 'User Research', 'Prototyping'],
-      logo: 'I',
-      logoColor: colorHex('PRIMARY.NAVY'),
-      experience: 'Senior Level',
-      postedOn: 'May, 25 2024',
-      applyBefore: 'June, 25 2024',
-      description: 'Lead product design initiatives for innovative digital products. Work with cross-functional teams to create user-centered solutions.',
-      responsibilities: [
-        'Lead end-to-end product design process from research to implementation',
-        'Conduct user research and usability testing sessions',
-        'Create user personas, journey maps, and design specifications',
-        'Collaborate with product managers and engineers on feature development',
-        'Mentor junior designers and contribute to design system development'
-      ],
-      requirements: [
-        '5+ years of product design experience',
-        'Strong portfolio demonstrating user-centered design process',
-        'Proficiency in Figma, Sketch, and prototyping tools',
-        'Experience with user research methodologies',
-        'Excellent communication and presentation skills'
-      ],
-      benefits: [
-        { title: 'Health Insurance', icon: 'FaShieldAlt', description: 'Comprehensive health coverage including dental and vision.' },
-        { title: 'Design Resources', icon: 'FaRocket', description: 'Access to latest design tools and professional development.' },
-        { title: 'Design Team', icon: 'FaUsers', description: 'Work with talented designers in a collaborative environment.' },
-        { title: 'Work Flexibility', icon: 'FaBullhorn', description: 'Flexible hours and remote work opportunities.' },
-        { title: 'Madrid Benefits', icon: 'FaBus', description: 'Transportation benefits and Madrid city perks.' }
-      ]
-    }
-  ], [colorHex])
 
-  const employmentTypes = useMemo(() => (
-    EMPLOYMENT_FILTERS.map((name) => ({
+  // Get unique values from job listings for dynamic filters
+  const employmentTypes = useMemo(() => {
+    const uniqueTypes = [...new Set(jobListings.map(job => job.type))]
+    const allTypes = [...new Set([...BASE_EMPLOYMENT_FILTERS, ...uniqueTypes])]
+    
+    return allTypes.map((name) => ({
       name,
       count: jobListings.filter((job) => job.type === name).length,
       selected: selectedEmployment.includes(name),
-    }))
-  ), [jobListings, selectedEmployment])
+    })).filter(item => item.count > 0 || BASE_EMPLOYMENT_FILTERS.includes(item.name))
+  }, [jobListings, selectedEmployment])
 
-  const jobCategories = useMemo(() => (
-    CATEGORY_FILTERS.map((name) => ({
+  const jobCategories = useMemo(() => {
+    // Get unique categories from actual job listings - show only what exists
+    const uniqueCategories = [...new Set(jobListings.map(job => job.category).filter(Boolean))]
+    
+    return uniqueCategories.map((name) => ({
       name,
       count: jobListings.filter((job) => job.category === name).length,
-    }))
-  ), [jobListings])
+    })).sort((a, b) => b.count - a.count) // Sort by count descending
+  }, [jobListings])
 
-  const jobLevels = useMemo(() => (
-    LEVEL_FILTERS.map((name) => ({
+  const jobLevels = useMemo(() => {
+    const uniqueLevels = [...new Set(jobListings.map(job => job.experience))]
+    const allLevels = [...new Set([...BASE_LEVEL_FILTERS, ...uniqueLevels])]
+    
+    return allLevels.map((name) => ({
       name,
       count: jobListings.filter((job) => job.experience === name).length,
-    }))
-  ), [jobListings])
+    })).filter(item => item.count > 0 || BASE_LEVEL_FILTERS.includes(item.name))
+  }, [jobListings])
 
-  const filteredJobListings = useMemo(() => jobListings.filter((job) => {
+  // Get unique locations and categories for search dropdowns
+  const uniqueLocations = useMemo(() => {
+    const locations = [...new Set(jobListings.map(job => job.location).filter(Boolean))]
+    return locations.sort()
+  }, [jobListings])
+
+  const uniqueCategories = useMemo(() => {
+    const categories = [...new Set(jobListings.map(job => job.category).filter(Boolean))]
+    return categories.sort()
+  }, [jobListings])
+
+  // Filter locations and categories based on search input
+  const filteredLocations = useMemo(() => {
+    if (!searchLocation) return uniqueLocations
+    return uniqueLocations.filter(loc => 
+      loc.toLowerCase().includes(searchLocation.toLowerCase())
+    )
+  }, [uniqueLocations, searchLocation])
+
+  const filteredCategories = useMemo(() => {
+    if (!searchCategory) return uniqueCategories
+    return uniqueCategories.filter(cat => 
+      cat.toLowerCase().includes(searchCategory.toLowerCase())
+    )
+  }, [uniqueCategories, searchCategory])
+
+  const filteredJobListings = useMemo(() => {
+    // If no filters are applied, show all jobs
+    const hasNoFilters = 
+      selectedEmployment.length === 0 &&
+      selectedCategories.length === 0 &&
+      selectedLevels.length === 0 &&
+      (!activeLocationFilter || activeLocationFilter.trim() === '') &&
+      (!activeCategoryFilter || activeCategoryFilter.trim() === '') &&
+      salaryRange[0] === 0 &&
+      salaryRange[1] >= 100000
+    
+    if (hasNoFilters) {
+      console.log('No filters applied - showing all jobs:', jobListings.length)
+      return jobListings
+    }
+    
+    console.log('Filtering Jobs:', {
+      totalJobs: jobListings.length,
+      selectedEmployment,
+      selectedCategories,
+      selectedLevels,
+      salaryRange,
+      activeLocationFilter,
+      activeCategoryFilter
+    })
+    
+    const filtered = jobListings.filter((job) => {
+      // Employment type filter - empty array means show all
     const matchesEmployment = selectedEmployment.length === 0 || selectedEmployment.includes(job.type)
+      
+      // Category filter - empty array means show all
     const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(job.category)
+      
+      // Level filter - empty array means show all
     const matchesLevel = selectedLevels.length === 0 || selectedLevels.includes(job.experience)
+      
+      // Salary filter
     const salaryValue = parseSalaryValue(job.salary)
-    const matchesSalary = salaryValue >= salaryRange[0] && salaryValue <= salaryRange[1]
+      // If salary is 0 or not found, include it (might be "Negotiable" or missing)
+      // Also handle salary ranges - check if min salary is within range
+      const matchesSalary = salaryValue === 0 || (salaryValue >= salaryRange[0] && salaryValue <= salaryRange[1])
 
-    return matchesEmployment && matchesCategory && matchesLevel && matchesSalary
-  }), [jobListings, selectedEmployment, selectedCategories, selectedLevels, salaryRange])
+      // Search filters - empty string means show all
+      const locationFilter = activeLocationFilter ? activeLocationFilter.trim() : ''
+      const categoryFilter = activeCategoryFilter ? activeCategoryFilter.trim() : ''
+      const matchesLocation = !locationFilter || job.location.toLowerCase().includes(locationFilter.toLowerCase())
+      const matchesSearchCategory = !categoryFilter || job.category.toLowerCase().includes(categoryFilter.toLowerCase())
+
+      const matches = matchesEmployment && matchesCategory && matchesLevel && matchesSalary && matchesLocation && matchesSearchCategory
+      
+      if (!matches) {
+        console.log('Job filtered out:', {
+          title: job.title,
+          matchesEmployment,
+          matchesCategory,
+          matchesLevel,
+          matchesSalary,
+          matchesLocation,
+          matchesSearchCategory,
+          jobType: job.type,
+          jobCategory: job.category,
+          jobExperience: job.experience,
+          jobSalary: job.salary,
+          salaryValue
+        })
+      }
+
+      return matches
+    })
+    
+    console.log('Filtered Jobs Count:', filtered.length)
+    return filtered
+  }, [jobListings, selectedEmployment, selectedCategories, selectedLevels, salaryRange, activeLocationFilter, activeCategoryFilter])
 
   const sortedJobListings = useMemo(() => {
     const listings = [...filteredJobListings]
@@ -410,6 +449,45 @@ const FindJob = ({ onClose }) => {
     }
   }
 
+  // Handle search button click with smooth transition
+  const handleSearchJobs = async () => {
+    setShowLocationDropdown(false)
+    setShowCategoryDropdown(false)
+    
+    // Start transition
+    setIsTransitioning(true)
+    setSearching(true)
+    
+    // Small delay for smooth transition
+    await new Promise(resolve => setTimeout(resolve, 200))
+    
+    // Apply filters - trim whitespace and set empty string if no value
+    const locationFilter = searchLocation.trim() || ''
+    const categoryFilter = searchCategory.trim() || ''
+    setActiveLocationFilter(locationFilter)
+    setActiveCategoryFilter(categoryFilter)
+    
+    // End transition after a brief moment
+    setTimeout(() => {
+      setIsTransitioning(false)
+      setSearching(false)
+    }, 300)
+  }
+
+  // Clear all filters function
+  const handleClearFilters = () => {
+    setSelectedEmployment([])
+    setSelectedCategories([])
+    setSelectedLevels([])
+    setSalaryRange([0, 100000])
+    setSearchLocation('')
+    setSearchCategory('')
+    setActiveLocationFilter('')
+    setActiveCategoryFilter('')
+    setShowLocationDropdown(false)
+    setShowCategoryDropdown(false)
+  }
+
   const handleJobClick = (job) => {
     setSelectedJob(job)
     setShowJobPopup(true)
@@ -430,14 +508,27 @@ const FindJob = ({ onClose }) => {
     navigate('/login')
   }, [navigate])
 
-  const handleSubscribe = (subscriberEmail) => {
-    console.log('Subscribing email:', subscriberEmail)
+  const handleSubscribe = async (subscriberEmail) => {
+    try {
+      const response = await postMethod({
+        apiUrl: serviceUrl.subscribeNewsletter,
+        payload: {
+          email: subscriberEmail
+        }
+      })
+
+      if (response.status) {
     setIsSubscribed(true)
     setEmail('')
-    // You can add API call here to save the subscription
     setTimeout(() => {
       setIsSubscribed(false)
     }, 5000)
+      } else {
+        console.error('Newsletter subscription failed:', response.message)
+      }
+    } catch (error) {
+      console.error('Newsletter subscription error:', error)
+    }
   }
 
   // Prevent body scroll when popup or filters are open
@@ -453,6 +544,66 @@ const FindJob = ({ onClose }) => {
       document.body.style.overflow = 'unset'
     }
   }, [showJobPopup, isFilterOpen])
+
+  // Auto-clear filters when search bars are empty and all filters are unchecked
+  useEffect(() => {
+    const isSearchEmpty = !searchLocation.trim() && !searchCategory.trim()
+    const areFiltersEmpty = 
+      selectedEmployment.length === 0 &&
+      selectedCategories.length === 0 &&
+      selectedLevels.length === 0 &&
+      salaryRange[0] === 0 &&
+      salaryRange[1] >= 100000
+
+    // If search is empty and filters are empty, automatically clear active filters
+    if (isSearchEmpty && areFiltersEmpty) {
+      if (activeLocationFilter || activeCategoryFilter) {
+        setActiveLocationFilter('')
+        setActiveCategoryFilter('')
+      }
+    }
+  }, [searchLocation, searchCategory, selectedEmployment, selectedCategories, selectedLevels, salaryRange, activeLocationFilter, activeCategoryFilter])
+
+  // Auto-apply search filters when typing (real-time filtering with debounce)
+  useEffect(() => {
+    // Debounce the filter application
+    const timeoutId = setTimeout(() => {
+      const locationFilter = searchLocation.trim() || ''
+      const categoryFilter = searchCategory.trim() || ''
+      
+      // Only update if values have changed
+      if (locationFilter !== activeLocationFilter || categoryFilter !== activeCategoryFilter) {
+        setActiveLocationFilter(locationFilter)
+        setActiveCategoryFilter(categoryFilter)
+      }
+    }, 300) // 300ms debounce for better performance
+
+    return () => clearTimeout(timeoutId)
+  }, [searchLocation, searchCategory, activeLocationFilter, activeCategoryFilter])
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if click is outside both dropdown containers
+      const locationInput = event.target.closest('[data-location-input]')
+      const categoryInput = event.target.closest('[data-category-input]')
+      
+      if (!locationInput && !categoryInput) {
+        setShowLocationDropdown(false)
+        setShowCategoryDropdown(false)
+      }
+    }
+
+    // Use a slight delay to allow click events on dropdown items
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside)
+    }, 100)
+
+    return () => {
+      clearTimeout(timeoutId)
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   const renderFilterSections = () => (
     <div
@@ -552,9 +703,9 @@ const FindJob = ({ onClose }) => {
           </div>
           <input
             type="range"
-            min="1000"
-            max="10000"
-            step="500"
+            min="0"
+            max="100000"
+            step="5000"
             value={salaryRange[1]}
             onChange={(event) => setSalaryRange([salaryRange[0], parseInt(event.target.value, 10)])}
             className="w-full h-1.5 sm:h-2 rounded-lg appearance-none cursor-pointer slider bg-gray-200"
@@ -587,76 +738,225 @@ const FindJob = ({ onClose }) => {
       <Navbar />
       <div className="w-full">
         {/* Hero Section */}
-        <div className={`py-8 sm:py-12 md:py-16 rounded-[30px] sm:rounded-[40px] md:rounded-[50px] ${colorClass('BG.SURFACE_PALE_BLUE')} mx-2 sm:mx-4 md:mx-6 lg:mx-8 my-4 sm:my-6 md:my-8`}>
-          <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 md:px-8">
-            <div className="mb-4 sm:mb-5">
-              <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-3 py-1.5 sm:px-4 sm:py-2 md:px-6 md:py-2 rounded-full text-xs sm:text-sm font-semibold`}>
+        <div className={`py-4 xs:py-6 sm:py-8 md:py-12 lg:py-16 rounded-[20px] xs:rounded-[25px] sm:rounded-[30px] md:rounded-[40px] lg:rounded-[50px] ${colorClass('BG.SURFACE_PALE_BLUE')} mx-1 xs:mx-2 sm:mx-3 md:mx-4 lg:mx-6 xl:mx-8 my-2 xs:my-3 sm:my-4 md:my-6 lg:my-8`}>
+            <div className="max-w-4xl mx-auto text-center px-3 sm:px-4 md:px-6 lg:px-8">
+            <div className="mb-3 sm:mb-4 md:mb-5">
+              <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 lg:px-6 lg:py-2 rounded-full text-[10px] xs:text-xs sm:text-sm font-semibold`}>
                 #1 PORTAL JOB PLATFORM
               </div>
             </div>
 
-            <div className="flex flex-col items-center justify-center text-center mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-              <h1 className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl px-4 sm:px-8 md:px-12 lg:px-20 font-bold mb-4 sm:mb-6 md:mb-8 ${colorClass('TEXT.PRIMARY_DEEP_BLUE')} leading-tight`}>
+            <div className="flex flex-col items-center justify-center text-center mb-3 sm:mb-4 md:mb-6 lg:mb-8 xl:mb-12">
+              <h1 className={`text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl px-2 sm:px-4 md:px-8 lg:px-12 xl:px-20 font-bold mb-2 sm:mb-4 md:mb-6 lg:mb-8 ${colorClass('TEXT.PRIMARY_DEEP_BLUE')} leading-tight`}>
                 Find Your Dream Job
               </h1>
-              <img src={textunderline} alt="" className="w-[50%] sm:w-[45%] md:w-[40%] lg:w-[35%] xl:w-[30%] h-[10px] sm:h-[12px] md:h-[15px] lg:h-[20px] xl:h-[25px] -mt-4 sm:-mt-6 md:-mt-8 lg:-mt-10" />
+              <img src={textunderline} alt="" className="w-[60%] xs:w-[50%] sm:w-[45%] md:w-[40%] lg:w-[35%] xl:w-[30%] h-[8px] xs:h-[10px] sm:h-[12px] md:h-[15px] lg:h-[20px] xl:h-[25px] -mt-2 sm:-mt-4 md:-mt-6 lg:-mt-8 xl:-mt-10" />
             </div>
 
-            <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto px-4" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }}>
+            <p className="text-xs xs:text-sm sm:text-base md:text-lg mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto px-2 sm:px-4" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }}>
               Discover thousands of job opportunities from top companies. Start your career journey with just one click.
             </p>
 
-            <div className="rounded-2xl sm:rounded-3xl shadow-lg p-3 sm:p-4 md:p-6 max-w-2xl mx-auto mb-6 sm:mb-8" style={{ backgroundColor: colorHex('NEUTRAL.WHITE') }}>
-              <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center">
-                <div className="flex-1 flex items-center px-3 py-2.5 sm:px-4 sm:py-3 md:px-6 sm:border-r border-gray-200 rounded-xl sm:rounded-2xl md:rounded-full bg-white shadow-sm sm:shadow-none">
-                  <FaMapMarkerAlt className="mr-2 sm:mr-3 text-sm sm:text-base" style={{ color: colorHex('ACCENT.GREEN') }} />
-                  <span className="mr-2 text-sm sm:text-base" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }}>Location</span>
-                  <FaSearch className="text-xs sm:text-sm" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }} />
+            <div className="rounded-xl xs:rounded-2xl sm:rounded-3xl shadow-lg p-2 xs:p-2.5 sm:p-3 md:p-4 lg:p-6 max-w-2xl mx-auto mb-4 xs:mb-5 sm:mb-6 md:mb-8" style={{ backgroundColor: colorHex('NEUTRAL.WHITE'), position: 'relative', zIndex: 10 }}>
+              <div className="flex flex-col gap-2 xs:gap-2.5 sm:gap-3 sm:flex-row sm:items-stretch w-full relative">
+                {/* Location Search Input */}
+                <div className="flex-1 relative w-full sm:w-auto min-w-0 z-50" data-location-input>
+                  <div className="flex items-center px-2 py-1.5 xs:px-2.5 xs:py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 lg:px-5 lg:py-3 xl:px-6 rounded-lg xs:rounded-xl sm:rounded-2xl md:rounded-full bg-white shadow-sm sm:shadow-none border border-gray-200 w-full min-w-0">
+                    <FaMapMarkerAlt className="mr-1 xs:mr-1.5 sm:mr-2 md:mr-3 text-[10px] xs:text-xs sm:text-sm md:text-base flex-shrink-0" style={{ color: colorHex('ACCENT.GREEN') }} />
+                    <input
+                      type="text"
+                      placeholder="Location..."
+                      value={searchLocation}
+                      onChange={(e) => {
+                        setSearchLocation(e.target.value)
+                        setShowLocationDropdown(true)
+                      }}
+                      onFocus={() => setShowLocationDropdown(true)}
+                      onBlur={(e) => {
+                        // Delay hiding dropdown to allow click events
+                        setTimeout(() => {
+                          if (!e.currentTarget.contains(document.activeElement)) {
+                            setShowLocationDropdown(false)
+                          }
+                        }, 200)
+                      }}
+                      className="flex-1 text-[11px] xs:text-xs sm:text-sm md:text-base outline-none bg-transparent min-w-0 w-0"
+                      style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }}
+                    />
+                    <FaSearch className="text-[9px] xs:text-[10px] sm:text-xs md:text-sm flex-shrink-0 ml-0.5 xs:ml-1" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }} />
+                  </div>
+                  {/* Location Dropdown */}
+                  {showLocationDropdown && filteredLocations.length > 0 && (
+                    <div 
+                      className="absolute z-[100] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto"
+                      style={{ 
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.15)'
+                      }}
+                      onMouseDown={(e) => e.preventDefault()}
+                    >
+                      {filteredLocations.map((location, index) => (
+                        <div
+                          key={index}
+                          onClick={() => {
+                            setSearchLocation(location)
+                            setActiveLocationFilter(location)
+                            setShowLocationDropdown(false)
+                          }}
+                          className="px-3 xs:px-4 py-2 hover:bg-gray-100 cursor-pointer text-xs xs:text-sm transition-colors"
+                          style={{ color: colorHex('PRIMARY.NAVY') }}
+                        >
+                          {location}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex-1 flex items-center px-3 py-2.5 sm:px-4 sm:py-3 md:px-6 sm:border-r border-gray-200 rounded-xl sm:rounded-2xl md:rounded-full bg-white shadow-sm sm:shadow-none">
-                  <FaBriefcase className="mr-2 sm:mr-3 text-sm sm:text-base" style={{ color: colorHex('ACCENT.GREEN') }} />
-                  <span className="mr-2 text-sm sm:text-base" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }}>Category</span>
-                  <FaSearch className="text-xs sm:text-sm" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }} />
+                {/* Category Search Input */}
+                <div className="flex-1 relative w-full sm:w-auto min-w-0 z-50" data-category-input>
+                  <div className="flex items-center px-2 py-1.5 xs:px-2.5 xs:py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 lg:px-5 lg:py-3 xl:px-6 rounded-lg xs:rounded-xl sm:rounded-2xl md:rounded-full bg-white shadow-sm sm:shadow-none border border-gray-200 w-full min-w-0">
+                    <FaBriefcase className="mr-1 xs:mr-1.5 sm:mr-2 md:mr-3 text-[10px] xs:text-xs sm:text-sm md:text-base flex-shrink-0" style={{ color: colorHex('ACCENT.GREEN') }} />
+                    <input
+                      type="text"
+                      placeholder="Category..."
+                      value={searchCategory}
+                      onChange={(e) => {
+                        setSearchCategory(e.target.value)
+                        setShowCategoryDropdown(true)
+                      }}
+                      onFocus={() => setShowCategoryDropdown(true)}
+                      onBlur={(e) => {
+                        // Delay hiding dropdown to allow click events
+                        setTimeout(() => {
+                          if (!e.currentTarget.contains(document.activeElement)) {
+                            setShowCategoryDropdown(false)
+                          }
+                        }, 200)
+                      }}
+                      className="flex-1 text-[11px] xs:text-xs sm:text-sm md:text-base outline-none bg-transparent min-w-0 w-0"
+                      style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }}
+                    />
+                    <FaSearch className="text-[9px] xs:text-[10px] sm:text-xs md:text-sm flex-shrink-0 ml-0.5 xs:ml-1" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }} />
+                  </div>
+                  {/* Category Dropdown */}
+                  {showCategoryDropdown && filteredCategories.length > 0 && (
+                    <div 
+                      className="absolute z-[100] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto"
+                      style={{ 
+                        top: '100%',
+                        left: 0,
+                        right: 0,
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.15)'
+                      }}
+                      onMouseDown={(e) => e.preventDefault()}
+                    >
+                      {filteredCategories.map((category, index) => (
+                        <div
+                          key={index}
+                          onClick={() => {
+                            setSearchCategory(category)
+                            setActiveCategoryFilter(category)
+                            setShowCategoryDropdown(false)
+                          }}
+                          className="px-3 xs:px-4 py-2 hover:bg-gray-100 cursor-pointer text-xs xs:text-sm transition-colors"
+                          style={{ color: colorHex('PRIMARY.NAVY') }}
+                        >
+                          {category}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <button
-                  className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 rounded-full transition-colors flex items-center justify-center shadow-sm sm:shadow-none text-sm sm:text-base"
+                  onClick={handleSearchJobs}
+                  disabled={searching}
+                  className={`w-full sm:w-auto sm:flex-shrink-0 px-3 xs:px-4 sm:px-5 md:px-6 lg:px-8 py-2 xs:py-2.5 sm:py-2.5 md:py-3 rounded-lg xs:rounded-xl sm:rounded-full transition-all duration-300 flex items-center justify-center shadow-sm sm:shadow-none text-[11px] xs:text-xs sm:text-sm md:text-base whitespace-nowrap ${
+                    searching ? 'opacity-75 cursor-not-allowed' : 'hover:shadow-md'
+                  }`}
                   style={{
                     color: colorHex('NEUTRAL.WHITE'),
                     backgroundColor: colorHex('ACCENT.GREEN'),
+                    transform: searching ? 'scale(0.98)' : 'scale(1)',
                   }}
-                  onMouseEnter={(event) => (event.currentTarget.style.backgroundColor = colorHex('HOVER.ACCENT_GREEN'))}
-                  onMouseLeave={(event) => (event.currentTarget.style.backgroundColor = colorHex('ACCENT.GREEN'))}
+                  onMouseEnter={(event) => {
+                    if (!searching) {
+                      event.currentTarget.style.backgroundColor = colorHex('HOVER.ACCENT_GREEN')
+                    }
+                  }}
+                  onMouseLeave={(event) => {
+                    if (!searching) {
+                      event.currentTarget.style.backgroundColor = colorHex('ACCENT.GREEN')
+                    }
+                  }}
                 >
-                  <span className="mr-2">Search Jobs</span>
-                  <FaSearch />
+                  {searching ? (
+                    <>
+                      <div className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1.5 xs:mr-2"></div>
+                      <span className="hidden xs:inline">Searching...</span>
+                      <span className="xs:hidden">Search...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="mr-1 xs:mr-1.5 sm:mr-2 hidden sm:inline">Search Jobs</span>
+                      <span className="mr-1 xs:mr-1.5 sm:mr-2 sm:hidden">Search</span>
+                      <FaSearch className="text-[10px] xs:text-xs sm:text-sm" />
+                    </>
+                  )}
                 </button>
               </div>
             </div>
 
-            <p className="text-xs sm:text-sm md:text-base px-4" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }}>
+            <p className="text-[10px] xs:text-xs sm:text-sm md:text-base px-2 sm:px-4 mt-2 sm:mt-3" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }}>
               Popular: <span className="font-medium" style={{ color: colorHex('ACCENT.GREEN') }}>UI Designer, Graphic Designer, Data Analyst, Developer</span>
             </p>
           </div>
         </div>
       
-        <div className="flex flex-col lg:flex-row lg:gap-6 xl:gap-10 py-6 sm:py-8 md:py-10 px-3 sm:px-4 md:px-5 lg:px-12 xl:px-16 mb-12 sm:mb-16 md:mb-20 bg-white">
+        <div className="flex flex-col lg:flex-row lg:gap-4 xl:gap-6 2xl:gap-10 py-4 xs:py-5 sm:py-6 md:py-8 lg:py-10 px-2 xs:px-3 sm:px-4 md:px-5 lg:px-8 xl:px-12 2xl:px-16 mb-8 sm:mb-12 md:mb-16 lg:mb-20 bg-white">
           {/* Left Panel - Filters */}
-          <aside className="hidden lg:block lg:w-72 xl:w-80 2xl:w-96 flex-shrink-0">
-            <h3 className="text-lg xl:text-xl font-semibold mb-4 xl:mb-6" style={{ color: colorHex('PRIMARY.NAVY') }}>
+          <aside className="hidden lg:block lg:w-64 xl:w-72 2xl:w-80 flex-shrink-0">
+            <div className="flex items-center justify-between mb-3 xl:mb-4 2xl:mb-6">
+              <h3 className="text-base xl:text-lg 2xl:text-xl font-semibold" style={{ color: colorHex('PRIMARY.NAVY') }}>
               Filter By
             </h3>
+              {(selectedEmployment.length > 0 || selectedCategories.length > 0 || selectedLevels.length > 0 || activeLocationFilter || activeCategoryFilter || salaryRange[0] > 0 || salaryRange[1] < 100000) && (
+                <button
+                  onClick={handleClearFilters}
+                  className="text-xs xl:text-sm font-medium px-2 py-1 rounded hover:underline"
+                  style={{ color: colorHex('ACCENT.GREEN') }}
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
             {renderFilterSections()}
           </aside>
 
           {/* Right Panel - Job Listings */}
-          <div className="flex-1 w-full lg:p-4 xl:p-6 rounded-r-lg" style={{ backgroundColor: 'var(--color-bg-white)' }}>
+          <div className="flex-1 w-full lg:p-2 xl:p-4 2xl:p-6 rounded-r-lg overflow-hidden" style={{ backgroundColor: 'var(--color-bg-white)' }}>
             {/* Header */}
-            <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between mb-4 sm:mb-6 mx-1 sm:mx-2">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: colorHex('PRIMARY.NAVY') }}>
-                All {sortedJobListings.length} Jobs Found
+            <div className={`flex flex-col gap-2 xs:gap-2.5 sm:gap-3 md:gap-4 lg:flex-row lg:items-center lg:justify-between mb-3 xs:mb-3.5 sm:mb-4 md:mb-5 lg:mb-6 mx-0.5 xs:mx-1 sm:mx-2 transition-all duration-300 ${isTransitioning ? 'opacity-50' : 'opacity-100'}`}>
+              <div className="flex items-center gap-2 xs:gap-3 flex-wrap">
+                <h2 className="text-lg xs:text-xl sm:text-2xl md:text-2xl lg:text-3xl font-bold transition-all duration-300 break-words" style={{ color: colorHex('PRIMARY.NAVY') }}>
+                  {searching ? 'Searching...' : `All ${sortedJobListings.length} Jobs Found`}
               </h2>
+                {(selectedEmployment.length > 0 || selectedCategories.length > 0 || selectedLevels.length > 0 || activeLocationFilter || activeCategoryFilter || salaryRange[0] > 0 || salaryRange[1] < 100000) && (
+                  <button
+                    onClick={handleClearFilters}
+                    className="text-xs xs:text-sm font-medium px-2 xs:px-3 py-1 xs:py-1.5 rounded border transition-colors hover:bg-gray-50"
+                    style={{ 
+                      color: colorHex('ACCENT.GREEN'),
+                      borderColor: colorHex('ACCENT.GREEN')
+                    }}
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 md:space-x-3 gap-2 sm:gap-3">
                 <button
                   className="inline-flex items-center justify-center px-3 py-2 sm:px-4 sm:py-2 rounded-lg border border-gray-200 shadow-sm transition-colors lg:hidden text-sm sm:text-base"
@@ -697,9 +997,39 @@ const FindJob = ({ onClose }) => {
             </div>
 
             {/* Job Cards */}
-            <div className="space-y-4 sm:space-y-5 md:space-y-6">
-              {sortedJobListings.length === 0 && (
-                <div className="p-6 sm:p-8 md:p-10 text-center rounded-lg mx-1 sm:mx-2" style={{ backgroundColor: 'var(--color-gray-100)' }}>
+            <div className={`space-y-4 sm:space-y-5 md:space-y-6 transition-all duration-500 ease-in-out ${isTransitioning ? 'opacity-50' : 'opacity-100'}`}>
+              {/* Initial Loading State */}
+              {loading && !searching && (
+                <div className="p-6 sm:p-8 md:p-10 text-center rounded-lg mx-1 sm:mx-2 animate-pulse">
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-green-500 rounded-full animate-spin"></div>
+                    <p className="text-lg sm:text-xl font-medium" style={{ color: colorHex('PRIMARY.NAVY') }}>
+                      Loading jobs...
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Search Loading State */}
+              {searching && (
+                <div className="p-6 sm:p-8 md:p-10 text-center rounded-lg mx-1 sm:mx-2 animate-pulse">
+                  <div className="flex flex-col items-center justify-center space-y-4">
+                    <div className="w-10 h-10 border-4 border-gray-200 border-t-green-500 rounded-full animate-spin"></div>
+                    <p className="text-base sm:text-lg font-medium" style={{ color: colorHex('PRIMARY.NAVY') }}>
+                      Searching jobs...
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {error && (
+                <div className="p-6 sm:p-8 md:p-10 text-center rounded-lg mx-1 sm:mx-2 animate-fade-in" style={{ backgroundColor: '#fee' }}>
+                  <p className="text-sm sm:text-base text-red-600">{error}</p>
+                </div>
+              )}
+              
+              {!loading && !searching && !error && sortedJobListings.length === 0 && (
+                <div className="p-6 sm:p-8 md:p-10 text-center rounded-lg mx-1 sm:mx-2 animate-fade-in" style={{ backgroundColor: 'var(--color-gray-100)' }}>
                   <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2" style={{ color: colorHex('PRIMARY.NAVY') }}>
                     No jobs match the selected filters
                   </h3>
@@ -708,11 +1038,17 @@ const FindJob = ({ onClose }) => {
                   </p>
                 </div>
               )}
-              {sortedJobListings.map((job) => (
+              
+              {!loading && !searching && !error && sortedJobListings.map((job, index) => (
                 <div 
                   key={job.id} 
-                  className="rounded-lg p-4 sm:p-5 md:p-6 hover:shadow-md transition-shadow mx-1 sm:mx-2 cursor-pointer" 
-                  style={{ backgroundColor: 'var(--color-bg-white)', border: '1px solid var(--color-gray-200)' }}
+                  className="rounded-lg p-4 sm:p-5 md:p-6 hover:shadow-md transition-all duration-300 ease-in-out mx-1 sm:mx-2 cursor-pointer animate-fade-in-up" 
+                  style={{ 
+                    backgroundColor: 'var(--color-bg-white)', 
+                    border: '1px solid var(--color-gray-200)',
+                    animationDelay: `${index * 50}ms`,
+                    animationFillMode: 'both'
+                  }}
                   onClick={() => handleJobClick(job)}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -745,6 +1081,7 @@ const FindJob = ({ onClose }) => {
                         </div>
                         
                         {/* Skills */}
+                        {job.skills && job.skills.length > 0 && (
                         <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                           {job.skills.map((skill, index) => (
                             <span 
@@ -756,6 +1093,7 @@ const FindJob = ({ onClose }) => {
                             </span>
                           ))}
                         </div>
+                        )}
                         
                         {/* Application Progress */}
                         <div className="mb-3 sm:mb-4">

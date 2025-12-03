@@ -1,7 +1,34 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { FaArrowRight } from "react-icons/fa";
 
-const BrowseJobByCategory = ({ jobCategories = [], headerContent }) => {
+const BrowseJobByCategory = ({ jobCategories = [], headerContent, loading = false, onCategoryClick, isCoursesPage = false }) => {
+  const navigate = useNavigate();
+
+  const handleCategoryClick = (category) => {
+    if (onCategoryClick) {
+      onCategoryClick(category);
+    } else {
+      // Default behavior based on page type
+      const params = new URLSearchParams();
+      if (category.title) {
+        params.append('category', category.title.trim());
+      }
+      
+      if (isCoursesPage) {
+        // Navigate to courses page with category filter (or stay on same page and filter)
+        // For now, navigate to courses page with category parameter
+        navigate(`/courses?category=${encodeURIComponent(category.title.trim())}`);
+      } else {
+        // Navigate to find-job page with category filter
+        navigate(`/find-job?${params.toString()}`);
+      }
+      
+      if (typeof window !== "undefined") {
+        window.scrollTo(0, 0);
+      }
+    }
+  };
   return (
     <section className="py-8 sm:py-12 md:py-16 bg-[#00395B]">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6">
@@ -29,11 +56,25 @@ const BrowseJobByCategory = ({ jobCategories = [], headerContent }) => {
           </div>
         )}
 
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-12">
+            <p className="text-white text-lg">Loading categories...</p>
+          </div>
+        )}
+
         {/* Job Category Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {jobCategories.map((category, index) => (
+        {!loading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {jobCategories.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-white text-lg">No categories available</p>
+              </div>
+            ) : (
+              jobCategories.map((category, index) => (
             <div
               key={index}
+              onClick={() => handleCategoryClick(category)}
               className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-105"
             >
               {/* Icon */}
@@ -54,8 +95,10 @@ const BrowseJobByCategory = ({ jobCategories = [], headerContent }) => {
                 <FaArrowRight className="text-[#0B537D] text-sm group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
-          ))}
-        </div>
+          ))
+            )}
+          </div>
+        )}
       </div>
     </section>
   );
