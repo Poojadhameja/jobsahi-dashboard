@@ -38,7 +38,7 @@ export default function Management() {
       {/* Header */}
       {/* <div className="mb-6">
         <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Management Dashboard</h1>
-        <p className={TAILWIND_COLORS.TEXT_MUTED}>Manage students, employers, and institutes from one place.</p>
+        <p className={TAILWIND_COLORS.TEXT_MUTED}>Manage candidates, recruiters, and skill partners from one place.</p>
       </div> */}
 
       {/* Navigation using shared component */}

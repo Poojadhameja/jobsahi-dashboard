@@ -201,9 +201,9 @@ function EmployerRatings() {
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
               <span className="text-blue-600 text-lg font-bold">📝</span>
             </div>
-            <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Employer Ratings (Student Feedback)</h2>
+            <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Recruiter Ratings (Candidate Feedback)</h2>
           </div>
-          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Monitor employer ratings and feedback from job seekers</p>
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>Monitor recruiter ratings and feedback from job seekers</p>
         </div>
         
         {/* Time Filter */}

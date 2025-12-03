@@ -14,7 +14,7 @@ const SegmentBasedMessaging = () => {
   // User segments data for Horizontal4Cards
   const userSegments = [
     { title: "Active job seekers", value: "1,234", icon: "👥" },
-    { title: "Employers", value: "852", icon: "🏢" },
+    { title: "Recruiters", value: "852", icon: "🏢" },
     { title: "Premium Users", value: "456", icon: "⭐" },
     { title: "Inactive users", value: "1,234", icon: "😴" }
   ];
@@ -71,7 +71,7 @@ const SegmentBasedMessaging = () => {
               >
                 <option value="" style={{ color: 'var(--color-text-muted)' }}>Select user segment</option>
                 <option value="active-job-seekers" style={{ color: 'var(--color-text-primary)' }}>Active job seekers</option>
-                <option value="employers" style={{ color: 'var(--color-text-primary)' }}>Employers</option>
+                <option value="employers" style={{ color: 'var(--color-text-primary)' }}>Recruiters</option>
                 <option value="premium-users" style={{ color: 'var(--color-text-primary)' }}>Premium Users</option>
                 <option value="inactive-users" style={{ color: 'var(--color-text-primary)' }}>Inactive users</option>
               </select>

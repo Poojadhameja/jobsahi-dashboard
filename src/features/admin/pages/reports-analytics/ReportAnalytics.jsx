@@ -33,7 +33,7 @@ export default function ReportAnalytics() {
       icon: <LuFileText size={20} />
     },
     {
-      title: 'Active Employers',
+      title: 'Active Recruiters',
       value: '0',
       icon: <LuUsers size={20} />
     },
@@ -78,7 +78,7 @@ export default function ReportAnalytics() {
             icon: <LuFileText size={20} />
           },
           {
-            title: 'Active Employers',
+            title: 'Active Recruiters',
             value: formatNumber(cards.active_employers || cards.total_employers || '0'),
             icon: <LuUsers size={20} />
           },

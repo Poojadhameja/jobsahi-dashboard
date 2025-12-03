@@ -262,7 +262,7 @@ function ViewCVModal({ student, isOpen, onClose }) {
   const handleDownloadCV = () => {
     // Create a sample CV content (in real app, this would come from API)
     const cvContent = `
-STUDENT CV
+CANDIDATE CV
 
 Personal Information:
 Name: ${student.name}
@@ -325,7 +325,7 @@ Generated on: ${new Date().toLocaleDateString()}
           <h2
             className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
           >
-            Student CV Details
+            Candidate CV Details
           </h2>
           <button
             onClick={onClose}
@@ -722,7 +722,7 @@ function AddStudentModal({ isOpen, onClose, onAddStudent }) {
           <h2
             className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
           >
-            Add New Student
+            Add New Candidate
           </h2>
           <button
             onClick={handleClose}
@@ -1097,7 +1097,7 @@ function AddStudentModal({ isOpen, onClose, onAddStudent }) {
               Cancel
             </Button>
             <PrimaryButton type="submit" size="md" disabled={isSubmitting}>
-              {isSubmitting ? "Adding Student..." : "Add Student"}
+              {isSubmitting ? "Adding Candidate..." : "Add Candidate"}
             </PrimaryButton>
           </div>
         </form>
@@ -1127,7 +1127,7 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
               <h2
                 className={`text-xl font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
               >
-                Delete Student
+                Delete Candidate
               </h2>
               <p className={TAILWIND_COLORS.TEXT_MUTED}>
                 This action cannot be undone
@@ -1139,10 +1139,10 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
             <p className={TAILWIND_COLORS.TEXT_PRIMARY}>
               Are you sure you want to delete{" "}
               <span className="font-semibold">{student.name}</span> from the
-              student list?
+              candidate list?
             </p>
             <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>
-              This will permanently remove all data associated with this student
+              This will permanently remove all data associated with this candidate
               including their profile, progress, and records.
             </p>
           </div>
@@ -1152,7 +1152,7 @@ function DeleteConfirmationModal({ student, isOpen, onClose, onConfirm }) {
               Cancel
             </Button>
             <DangerButton onClick={handleConfirm} size="md">
-              Delete Student
+              Delete Candidate
             </DangerButton>
           </div>
         </div>
@@ -1209,7 +1209,7 @@ function StudentTable({
           <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
           <input
             type="text"
-            placeholder="Search by name, email, or student ID..."
+            placeholder="Search by name, email, or candidate ID..."
             className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-80"
           />
         </div> */}
@@ -1217,8 +1217,8 @@ function StudentTable({
 
       {/* ✅ Use CentralizedDataTable for stable UI during search */}
       <CentralizedDataTable
-        title="All Student Profiles"
-        subtitle="Manage and view student profiles"
+        title="All Candidate Profiles"
+        subtitle="Manage and view candidate profiles"
         data={students}
         columns={[
           {
@@ -1337,8 +1337,8 @@ function StudentTable({
         searchable={true}
         selectable={true}
         showAutoScrollToggle={false}
-        searchPlaceholder="Search by name, email, or student ID..."
-        emptyStateMessage="No students found"
+        searchPlaceholder="Search by name, email, or candidate ID..."
+        emptyStateMessage="No candidates found"
         onRowSelect={(selectedIds) => setSelectedStudents(selectedIds)}
       />
     </div>
@@ -1798,7 +1798,7 @@ export default function StudentManagement() {
   const handleExportData = () => {
     // Prepare data for export
     const exportData = filteredStudents.map((student) => ({
-      "Student ID": student.id,
+      "Candidate ID": student.id,
       Name: student.name,
       Email: student.email,
       Course: student.course,

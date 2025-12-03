@@ -49,7 +49,7 @@ function MessageSpecificInstitute() {
         <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
           <span className="text-white text-sm font-bold">✓</span>
         </div>
-        <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Message Specific Institute</h2>
+        <h2 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Message Specific Skill Partner</h2>
       </div>
 
       {/* Message Form */}
@@ -57,7 +57,7 @@ function MessageSpecificInstitute() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Institute Selection */}
           <div className="space-y-4">
-            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Select Institute</h3>
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Select Skill Partner</h3>
             
             {/* Institute List */}
             <div className="space-y-2 max-h-60 overflow-y-auto">

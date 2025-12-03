@@ -66,8 +66,8 @@ const About = () => {
       answer: "Creating an account is simple! Just click on the \"Sign Up\" button, fill in your basic information, verify your email, and you're ready to start your job search journey."
     },
     {
-      question: "Is JOBSAHI free for students?",
-      answer: "Yes, JOBSAHI is completely free for ITI and Polytechnic students. We believe in providing equal opportunities for all students to access quality job opportunities."
+      question: "Is JOBSAHI free for candidates?",
+      answer: "Yes, JOBSAHI is completely free for ITI and Polytechnic candidates. We believe in providing equal opportunities for all candidates to access quality job opportunities."
     },
     {
       question: "What types of jobs are available on JOBSAHI?",
@@ -79,7 +79,7 @@ const About = () => {
     },
     {
       question: "Can I apply for jobs directly through JOBSAHI?",
-      answer: "Yes! You can apply for jobs directly through our platform. Simply browse jobs, click apply, and your application will be sent to the employer."
+      answer: "Yes! You can apply for jobs directly through our platform. Simply browse jobs, click apply, and your application will be sent to the recruiter."
     },
     {
       question: "How do I update my resume on JOBSAHI?",

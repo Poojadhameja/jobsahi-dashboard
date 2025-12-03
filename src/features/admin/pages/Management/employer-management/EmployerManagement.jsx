@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant.js'
 import { MatrixCard, MetricPillRow } from '../../../../../shared/components/metricCard'
+import { PillNavigation } from '../../../../../shared/components/navigation'
 import Button from '../../../../../shared/components/Button'
 import PendingRecruiterApprovals from './PendingRecruiter'
 import JobPostingAnalytics from './JobPosting'
@@ -14,7 +15,12 @@ import {
   LuUsers,
   LuSearch,
   LuDownload,
-  LuMenu
+  LuCheck,
+  LuBriefcase,
+  LuBanknote,
+  LuStar,
+  LuFileText,
+  LuShield
 } from 'react-icons/lu'
 import { getMethod } from '../../../../../service/api'
 import apiService from '../../../../admin/services/serviceUrl'
@@ -45,7 +51,7 @@ function EmployerTable({ employers }) {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <LuBuilding className={TAILWIND_COLORS.TEXT_MUTED} size={20} />
-          <h3 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>All Employer Profiles</h3>
+          <h3 className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>All Recruiter Profiles</h3>
         </div>
         <div className="relative">
           <LuSearch className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED}`} size={16} />
@@ -108,16 +114,18 @@ function EmployerTable({ employers }) {
 export default function EmployerManagement() {
   const [employers, setEmployers] = useState([])
   const [pendingApprovalEmployers, setPendingApprovalEmployers] = useState([])
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [activeView, setActiveView] = useState(() => {
-    if (typeof window === 'undefined') return 'approve-reject'
-    return window.localStorage.getItem('admin_employer_management_view') || 'approve-reject'
-  }) // 'overview', 'approve-reject', etc.
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    window.localStorage.setItem('admin_employer_management_view', activeView)
-  }, [activeView])
-  const dropdownRef = useRef(null)
+  const [activeTab, setActiveTab] = useState(0)
+  const [previousTab, setPreviousTab] = useState(0)
+
+  // Navigation tabs configuration
+  const navigationTabs = [
+    { id: 'approve-reject', label: 'Approve/Reject', icon: LuCheck },
+    { id: 'job-tracking', label: 'Job Tracking', icon: LuBriefcase },
+    { id: 'payments', label: 'Payments', icon: LuBanknote },
+    { id: 'ratings', label: 'Ratings', icon: LuStar },
+    { id: 'resume-usage', label: 'Resume Usage', icon: LuFileText },
+    { id: 'fraud-control', label: 'Fraud Control', icon: LuShield }
+  ]
   const [totalEmployerCount, setTotalEmployerCount] = useState('0')
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState('0')
   const [activeJobsCount, setActiveJobsCount] = useState('0')
@@ -219,26 +227,14 @@ else {
   }, [])
 
   // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
 
   return (
     <div className="space-y-6">
       {/* Header Section */}
       <div className="space-y-4">
         <MatrixCard
-          title="Employer Management"
-          subtitle="Comprehensive employer management system with approval work flows and analytics"
+          title="Recruiter Management"
+          subtitle="Comprehensive recruiter management system with approval work flows and analytics"
           className=""
         />
 
@@ -254,7 +250,7 @@ else {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
-          title="Total Employers"
+          title="Total Recruiters"
           value={totalEmployerCount}
           icon={<LuUsers size={24} color={COLORS.PRIMARY} />}
           color={COLORS.PRIMARY}
@@ -279,118 +275,42 @@ else {
         />
       </div>
 
-      {/* Toggle Button with Dropdown */}
-      <div className="flex justify-end relative" ref={dropdownRef}>
-        <button
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="bg-primary text-white p-3 rounded-lg shadow-lg transition-colors duration-200 hover:bg-primary-dark"
-        >
-          <LuMenu size={24} />
-        </button>
-
-        {/* Dropdown Menu */}
-        {isDropdownOpen && (
-          <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-            {/* Menu Items */}
-            <div className="py-2">
-              <Button
-                onClick={() => { setActiveView('approve-reject'); setIsDropdownOpen(false); }}
-                variant="unstyled"
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
-                  activeView === 'approve-reject'
-                    ? 'bg-primary text-white'
-                    : 'text-primary hover:bg-gray-50'
-                  }`}
-              >
-                Approve/Reject
-              </Button>
-              <Button
-                onClick={() => { setActiveView('job-tracking'); setIsDropdownOpen(false); }}
-                variant="unstyled"
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
-                  activeView === 'job-tracking'
-                    ? 'bg-primary text-white'
-                    : 'text-primary hover:bg-gray-50'
-                  }`}
-              >
-                Job Tracking
-              </Button>
-              <Button
-                onClick={() => { setActiveView('payments'); setIsDropdownOpen(false); }}
-                variant="unstyled"
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
-                  activeView === 'payments'
-                    ? 'bg-primary text-white'
-                    : 'text-primary hover:bg-gray-50'
-                  }`}
-              >
-                Payments
-              </Button>
-              <Button
-                onClick={() => { setActiveView('ratings'); setIsDropdownOpen(false); }}
-                variant="unstyled"
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
-                  activeView === 'ratings'
-                    ? 'bg-primary text-white'
-                    : 'text-primary hover:bg-gray-50'
-                  }`}
-              >
-                Ratings
-              </Button>
-              <Button
-                onClick={() => { setActiveView('resume-usage'); setIsDropdownOpen(false); }}
-                variant="unstyled"
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
-                  activeView === 'resume-usage'
-                    ? 'bg-primary text-white'
-                    : 'text-primary hover:bg-gray-50'
-                  }`}
-              >
-                Resume Usage
-              </Button>
-              <Button
-                onClick={() => { setActiveView('fraud-control'); setIsDropdownOpen(false); }}
-                variant="unstyled"
-                className={`w-full text-left px-4 py-3 font-bold transition-colors duration-200 rounded-none ${
-                  activeView === 'fraud-control'
-                    ? 'bg-primary text-white'
-                    : 'text-primary hover:bg-gray-50'
-                  }`}
-              >
-                Fraud Control
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Navigation Tabs */}
+      <PillNavigation 
+        tabs={navigationTabs}
+        activeTab={activeTab}
+        onTabChange={(newTab) => {
+          if (newTab !== activeTab) {
+            setPreviousTab(activeTab)
+            setActiveTab(newTab)
+          }
+        }}
+        storageKey="admin_employer_management_tab"
+      />
 
       {/* Conditional Content Rendering */}
-      {activeView === 'approve-reject' && (
+      {activeTab === 0 && (
         <PendingRecruiterApprovals employers={employers} />
       )}
 
-      {activeView === 'job-tracking' && (
+      {activeTab === 1 && (
         <JobPostingAnalytics />
       )}
 
-      {activeView === 'payments' && (
-        <PaymentHistory onComingSoonClose={() => setActiveView('approve-reject')} />
+      {activeTab === 2 && (
+        <PaymentHistory onComingSoonClose={() => setActiveTab(previousTab)} />
       )}
 
-      {activeView === 'ratings' && (
+      {activeTab === 3 && (
         <EmployerRatings />
       )}
 
-      {activeView === 'resume-usage' && (
-        <ResumeUsageTracker onComingSoonClose={() => setActiveView('approve-reject')} />
+      {activeTab === 4 && (
+        <ResumeUsageTracker onComingSoonClose={() => setActiveTab(previousTab)} />
       )}
 
-      {activeView === 'fraud-control' && (
+      {activeTab === 5 && (
         <FraudControlSystem />
-      )}
-
-      {activeView === 'overview' && (
-        <EmployerTable employers={employers} />
       )}
 
     </div>

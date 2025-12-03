@@ -6,7 +6,6 @@ import BrowseJobByCategory from "../../components/UI8Cards.jsx";
 import FAQ from "../../components/FAQ";
 import NewsletterSubscription from "../../components/NewsletterSubscription";
 import { WEBSITE_COLOR_CLASSES, getWebsiteColor } from "../../components/colorClasses";
-import { WEBSITE_COLOR_CLASSES, getWebsiteColor } from "../../components/colorClasses";
 import uploadresumebg from "../../assets/uploadresumebg.png";
 import textunderline from "../../assets/website_text_underline.png";
 import homebanner from "../../assets/home/homebanner.jpg";
@@ -413,9 +412,9 @@ const Home = () => {
         'Creating an account is simple! Just click on the "Sign Up" button, fill in your basic information, verify your email, and you\'re ready to start your job search journey.',
     },
     {
-      question: "Is JOBSAHI free for students?",
+      question: "Is JOBSAHI free for candidates?",
       answer:
-        "Yes, JOBSAHI is completely free for ITI and Polytechnic students. We believe in providing equal opportunities for all students to access quality job opportunities.",
+        "Yes, JOBSAHI is completely free for ITI and Polytechnic candidates. We believe in providing equal opportunities for all candidates to access quality job opportunities.",
     },
     {
       question: "What types of jobs are available on JOBSAHI?",
@@ -430,7 +429,7 @@ const Home = () => {
     {
       question: "Can I apply for jobs directly through JOBSAHI?",
       answer:
-        "Yes! You can apply for jobs directly through our platform. Simply browse jobs, click apply, and your application will be sent to the employer.",
+        "Yes! You can apply for jobs directly through our platform. Simply browse jobs, click apply, and your application will be sent to the recruiter.",
     },
     {
       question: "How do I update my resume on JOBSAHI?",
@@ -601,7 +600,7 @@ const Home = () => {
           {/* Description */}
           <div className="text-center mb-8 sm:mb-12 md:mb-14 lg:mb-16 max-w-4xl mx-auto px-2">
             <p className="text-sm sm:text-base md:text-lg font-light mb-3 sm:mb-4 leading-relaxed text-gray-700">
-              Every month, over 5 lakh ITI students use JobSahi to explore jobs,
+              Every month, over 5 lakh ITI candidates use JobSahi to explore jobs,
               apprenticeships, and courses. Start your career journey with just
               one click.
             </p>
@@ -765,7 +764,7 @@ const Home = () => {
                 {/* Mobile Image - jobsahi.jpg - Visible only on mobile (< 768px) - Auto height */}
                 <img 
                   src={jobsahi} 
-                  alt="JobSahi - The easiest way to get your new job. Find opportunities for ITI and Polytechnic students." 
+                  alt="JobSahi - The easiest way to get your new job. Find opportunities for ITI and Polytechnic candidates." 
                   className="block md:hidden w-full h-auto max-h-[400px] xs:max-h-[420px] sm:max-h-[450px] object-contain object-center rounded-2xl sm:rounded-3xl"
                   loading="eager"
                   decoding="async"
@@ -776,7 +775,7 @@ const Home = () => {
                 {/* Desktop Image - homebanner.jpg - Visible only on desktop (>= 768px) - Fixed height */}
                 <img 
                   src={homebanner} 
-                  alt="JobSahi - The easiest way to get your new job. Find opportunities for ITI and Polytechnic students." 
+                  alt="JobSahi - The easiest way to get your new job. Find opportunities for ITI and Polytechnic candidates." 
                   className="hidden md:block absolute top-0 left-0 w-full h-full object-cover object-center rounded-2xl sm:rounded-3xl md:rounded-[2.5rem]"
                   style={{
                     width: '100%',
@@ -799,7 +798,7 @@ const Home = () => {
                 <div className="w-[140px] h-[120px] sm:w-[180px] sm:h-[160px] md:w-[200px] md:h-[180px] lg:w-[240px] lg:h-[220px] bg-white rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl rounded-br-[2.5rem] shadow-[0_15px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-gray-100/50">
                   <img 
                     src={homesquare} 
-                    alt="JobSahi platform showcase - Career opportunities for students" 
+                    alt="JobSahi platform showcase - Career opportunities for candidates" 
                     className="absolute inset-0 w-full h-full object-cover object-center rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl rounded-br-[2.5rem]"
                     loading="lazy"
                     decoding="async"
@@ -1281,7 +1280,7 @@ const Home = () => {
                 Complete Your Profile
               </h3>
               <p className="text-gray-600 text-base sm:text-lg leading-relaxed px-2">
-                Fill in your details to get noticed by employers faster.
+                Fill in your details to get noticed by recruiters faster.
               </p>
             </div>
 
@@ -1301,7 +1300,7 @@ const Home = () => {
               </h3>
               <p className="text-gray-600 text-base sm:text-lg leading-relaxed px-2">
                 Apply to jobs that match your skills or post a job if you&apos;re
-                an employer.
+                a recruiter.
               </p>
             </div>
           </div>

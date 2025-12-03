@@ -379,8 +379,7 @@ const ViewDetailsModal = ({ isOpen, onClose, candidate, onDownloadCV, onIntervie
         existingInterviewExists: !!existingInterview,
         existingInterviewKeys: existingInterview ? Object.keys(existingInterview) : [],
         interview_id: existingInterview?.interview_id,
-        id: existingInterview?.id,
-        interviewId: existingInterview?.interviewId
+        id: existingInterview?.id
       });
 
       let response;

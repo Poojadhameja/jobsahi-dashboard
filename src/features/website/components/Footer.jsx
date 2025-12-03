@@ -129,7 +129,7 @@ const Footer = () => {
                   to="/login" 
                   className="text-gray-600 hover:text-gray-800 transition-colors text-sm"
                 >
-                  Institutes
+                  Skill Partners
                 </Link>
               </li>
               <li>

@@ -146,6 +146,7 @@ function ApprovalCard({
   industry,
   appliedDate,
   last_modified,
+  location,
   documents,
   status,
   is_verified,
@@ -213,7 +214,7 @@ function ApprovalCard({
               />
               <InfoRow
                 label="Location"
-                value="N/A"
+                value={location || "N/A"}
                 icon={<LuMapPin size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
               />
             </div>
@@ -811,6 +812,7 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
             phone={c.phone_number}
             website={c.website}
             industry={c.industry}
+            location={c.location}
             appliedDate={
               c.applied_date ? new Date(c.applied_date).toLocaleDateString() : "N/A"
             }

@@ -303,17 +303,17 @@ export const PillNavigation = ({
 export const MANAGEMENT_TABS = [
   {
     id: 'student',
-    label: 'Student Management',
+    label: 'Candidate Management',
     icon: LuUsers
   },
   {
     id: 'employer',
-    label: 'Employer Management', 
+    label: 'Recruiter Management', 
     icon: LuPlus
   },
   {
     id: 'institute',
-    label: 'Institute Management',
+    label: 'Skill Partner Management',
     icon: LuBuilding2
   }
 ]

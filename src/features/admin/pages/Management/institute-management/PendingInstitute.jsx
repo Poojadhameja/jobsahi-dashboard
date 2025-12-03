@@ -147,11 +147,11 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
           <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
             <h3 className={`text-sm sm:text-base md:text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2 sm:mb-3 md:mb-4 flex items-center gap-2`}>
               <LuBuilding className="text-blue-600 flex-shrink-0" size={16} />
-              <span>Institute Information</span>
+              <span>Skill Partner Information</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
               <div className="min-w-0">
-                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Institute Name</label>
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Skill Partner Name</label>
                 <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium text-sm sm:text-base break-words`}>{institute.institute_name || 'N/A'}</p>
               </div>
               <div className="min-w-0">
@@ -164,7 +164,7 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
                 </p>
               </div>
               <div className="min-w-0">
-                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Institute Type</label>
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Skill Partner Type</label>
                 <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm sm:text-base`}>{institute.institute_type || 'N/A'}</p>
               </div>
               <div className="min-w-0">

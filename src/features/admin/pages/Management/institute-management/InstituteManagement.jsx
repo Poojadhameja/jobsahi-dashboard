@@ -136,19 +136,19 @@ export default function InstituteManagement() {
 
   // Navigation tabs configuration
   const navigationTabs = [
-    { id: 'verify-approve', label: 'Verify / Approve Institute', icon: LuCheck },
+    { id: 'verify-approve', label: 'Verify / Approve Skill Partner', icon: LuCheck },
     { id: 'course-monitoring', label: 'Course & Enrollment Monitoring', icon: LuBookOpen },
     { id: 'placement-students', label: 'Placement-Ready Students', icon: LuUsers },
     { id: 'certificate-issuance', label: 'Certificate Issuance', icon: LuAward },
-    { id: 'message-institute', label: 'Message Specific Institute', icon: LuMessageSquare }
+    { id: 'message-institute', label: 'Message Specific Skill Partner', icon: LuMessageSquare }
   ]
 
   return (
     <div className={`space-y-4 sm:space-y-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Title Section with MatrixCard */}
       <MatrixCard 
-        title="Institute Management"
-        subtitle="Manage institute onboarding, course monitoring, payments, and communications."
+        title="Skill Partner Management"
+        subtitle="Manage skill partner onboarding, course monitoring, payments, and communications."
         className="mb-4 sm:mb-6"  
       />
 
