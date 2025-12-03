@@ -91,7 +91,10 @@ const ScheduleInterviews = () => {
         // Now fetch all applicants
         const res = await getMethod({ apiUrl: apiService.getRecentApplicants });
         if (res?.status && Array.isArray(res?.all_applicants?.data)) {
+          // ✅ Group by student_id to avoid duplicates (not by name)
           const grouped = {};
+          const seenStudentIds = new Set(); // ✅ Track seen student IDs
+          
           res.all_applicants.data.forEach((item) => {
             const appId = String(item.application_id || item.applicationId || '');
             
@@ -100,22 +103,51 @@ const ScheduleInterviews = () => {
               return; // Skip applications without scheduled interviews
             }
             
-            const name = item.name;
-            if (!grouped[name]) {
-              grouped[name] = {
-                candidate_name: name,
-                candidate_id: item.student_id,
+            // ✅ Use student_id as unique key to prevent duplicates
+            const studentId = String(item.student_id || item.studentId || '');
+            if (!studentId) return; // Skip if no student_id
+            
+            // ✅ Only add student once, even if they have multiple applications
+            if (!seenStudentIds.has(studentId)) {
+              seenStudentIds.add(studentId);
+              grouped[studentId] = {
+                candidate_name: item.name || item.candidate_name || '—',
+                candidate_id: studentId,
+                student_id: studentId,
                 applications: [],
               };
             }
-            grouped[name].applications.push({
-              application_id: item.application_id,
-              job_id: item.job_id,
-              job_title: item.applied_for || item.job_title || "—",
-              status: item.status || "Pending",
-            });
+            
+            // ✅ Add application only if not already added (avoid duplicate applications)
+            const existingApp = grouped[studentId].applications.find(
+              app => String(app.application_id) === String(item.application_id)
+            );
+            if (!existingApp) {
+              grouped[studentId].applications.push({
+                application_id: item.application_id,
+                job_id: item.job_id,
+                job_title: item.applied_for || item.job_title || "—",
+                status: item.status || "Pending",
+              });
+            }
           });
-          setCandidates(Object.values(grouped));
+          
+          // ✅ Convert to array - each student_id appears only once
+          const uniqueCandidates = Object.values(grouped);
+          
+          // ✅ Additional safeguard: Filter out any duplicates by student_id
+          const finalCandidates = [];
+          const finalSeenIds = new Set();
+          uniqueCandidates.forEach(candidate => {
+            const id = String(candidate.student_id || candidate.candidate_id);
+            if (id && !finalSeenIds.has(id)) {
+              finalSeenIds.add(id);
+              finalCandidates.push(candidate);
+            }
+          });
+          
+          console.log('✅ Unique candidates:', finalCandidates.length, 'out of', res.all_applicants.data.length, 'applications');
+          setCandidates(finalCandidates);
         } else setCandidates([]);
       } catch (err) {
         console.error("❌ Error fetching candidates:", err);
@@ -670,25 +702,36 @@ const handleUpdateInterview = async () => {
             </p>
           </div>
       <Calendar
-  selectedDate={selectedDate}
-  highlightedDates={highlightedDates}  // 🔥 yeh new line add
-  onDateSelect={(d) => {
-    // ✅ Ensure d is a Date object
-    const dateObj = d instanceof Date ? d : new Date(d);
-    
-    // ✅ Validate date before using
-    if (isNaN(dateObj.getTime())) {
-      console.error("Invalid date received:", d);
-      return;
-    }
-    
-    setSelectedDate(dateObj);
-    setFormData((p) => ({
-      ...p,
-      date: dateObj.toISOString().split("T")[0],
-    }));
-  }}
-/>
+        selectedDate={selectedDate}
+        highlightedDates={highlightedDates}
+        onDateSelect={(dateObj) => {
+          // ✅ Calendar now passes full Date object
+          if (!dateObj || !(dateObj instanceof Date)) {
+            console.error("Invalid date received:", dateObj);
+            return;
+          }
+          
+          // ✅ Validate date before using
+          if (isNaN(dateObj.getTime())) {
+            console.error("Invalid date:", dateObj);
+            return;
+          }
+          
+          // ✅ Format date as YYYY-MM-DD for input field
+          const year = dateObj.getFullYear();
+          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+          const day = String(dateObj.getDate()).padStart(2, '0');
+          const formattedDate = `${year}-${month}-${day}`;
+          
+          console.log(`📅 Date selected from calendar: ${formattedDate}`);
+          
+          setSelectedDate(dateObj);
+          setFormData((prev) => ({
+            ...prev,
+            date: formattedDate, // ✅ Set date in form field
+          }));
+        }}
+      />
 
 
         </div>
@@ -731,22 +774,32 @@ const handleUpdateInterview = async () => {
             {showCandidateDropdown && (
               <div className="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow-lg max-h-56 overflow-y-auto">
                 {candidates.length > 0 ? (
-                  candidates.map((c) => (
-                    <button
-                      key={c.candidate_id}
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleCandidateSelect(c);
-                      }}
-                      className={`block w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
-                        formData.candidate_id === c.candidate_id ? 'bg-blue-50 font-medium' : ''
-                      }`}
-                    >
-                      {c.candidate_name}
-                    </button>
-                  ))
+                  candidates.map((c, index) => {
+                    // Get job title(s) from applications
+                    const jobTitles = c.applications && c.applications.length > 0
+                      ? c.applications.map(app => app.job_title || '—').filter(title => title !== '—')
+                      : [];
+                    const displayJobTitle = jobTitles.length > 0 
+                      ? ` (${jobTitles[0]}${jobTitles.length > 1 ? `, +${jobTitles.length - 1} more` : ''})`
+                      : '';
+                    
+                    return (
+                      <button
+                        key={`candidate-${c.student_id || c.candidate_id}`}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleCandidateSelect(c);
+                        }}
+                        className={`block w-full text-left px-4 py-2 hover:bg-gray-50 transition-colors ${
+                          formData.candidate_id === c.candidate_id ? 'bg-blue-50 font-medium' : ''
+                        }`}
+                      >
+                        {c.candidate_name}{displayJobTitle}
+                      </button>
+                    );
+                  })
                 ) : (
                   <div className="px-4 py-2 text-sm text-gray-500">
                     {loadingCandidates ? "Loading candidates..." : "No candidates available"}

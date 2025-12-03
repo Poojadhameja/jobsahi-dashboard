@@ -398,15 +398,6 @@ export default function CourseDetail({ courseData, onBack }) {
           <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
             Course Information & Details
           </h2>
-          <span
-            className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-              liveCourse.admin_action === 'approved'
-                ? TAILWIND_COLORS.BADGE_SUCCESS
-                : TAILWIND_COLORS.BADGE_WARN
-            }`}
-          >
-            {liveCourse.admin_action === 'approved' ? 'Active' : 'Pending'}
-          </span>
         </div>
 
         {/* Course Info Grid */}

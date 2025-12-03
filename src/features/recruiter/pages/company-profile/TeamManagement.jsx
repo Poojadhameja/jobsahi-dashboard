@@ -12,7 +12,6 @@ import {
 import { TAILWIND_COLORS } from "@shared/WebConstant";
 import { Button, IconButton } from "@shared/components/Button";
 import EditTeamMemberModal from "./EditTeamMemberModal";
-import ComingSoonPopup from "../../../../shared/components/ComingSoon";
 
 const TeamManagement = ({ onBack }) => {
   const [inviteData, setInviteData] = useState({
@@ -306,8 +305,6 @@ const TeamManagement = ({ onBack }) => {
         member={editingMember}
         onSave={handleSaveEdit}
       />
-
-      <ComingSoonPopup />
     </div>
   );
 };

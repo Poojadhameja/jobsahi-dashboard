@@ -133,7 +133,9 @@ export default function EmployerManagement() {
           },
         };
         var response = await getMethod(data);
-        console.log('Employer API Response:', response)
+        console.log('📥 Employer API Response:', response)
+        console.log('📥 First employer data:', response.data?.[0])
+        console.log('📥 First employer is_verified:', response.data?.[0]?.is_verified)
         // if (response.status === 'success' || response.status === true) {
         //   // Map API response to required format
         //   const formatted = response.data.map((item, index) => ({
@@ -160,28 +162,33 @@ export default function EmployerManagement() {
         //   setPendingApprovalsCount(pendingFormatted.length);
         // } 
         if (response.status === 'success' || response.status === true) {
+  // ✅ Pass full raw API response data to PendingRecruiter
+  // This ensures is_verified and all other fields are available for normalizeEmployer
+  // normalizeEmployer will handle the formatting and status determination
+  setEmployers(response.data || []); // ✅ Pass raw API response data with is_verified field
+  
+  // Formatted data for other views (if needed)
   const formatted = response.data.map((item) => ({
     id: item.user_id,
     email: item.email,
     role: item.role,
     user_name: item.user_name,
     phone_number: item.phone_number,
-    profile_id: item.profile.profile_id,
-    company_name: item.profile.company_name,
-    company_logo: item.profile.company_logo,
-    industry: item.profile.industry,
-    website: item.profile.website,
-    location: item.profile.location,
-    admin_action: item.profile.status,
-    created_at: item.profile.applied_date,
+    profile_id: item.profile?.profile_id,
+    company_name: item.profile?.company_name,
+    company_logo: item.profile?.company_logo,
+    industry: item.profile?.industry,
+    website: item.profile?.website,
+    location: item.profile?.location,
+    admin_action: item.profile?.status,
+    created_at: item.profile?.applied_date,
+    is_verified: item.is_verified ?? 0,
   }));
 
-  // ✅ Pending = not approved
+  // ✅ Pending = not approved (for other views)
   const pendingFormatted = formatted.filter(
     (emp) => emp.admin_action !== "approved"
   );
-
-  setEmployers(formatted);
   // setPendingApprovalEmployers(pendingFormatted);
   // setTotalEmployerCount(response.total_count);
   // setPendingApprovalsCount(pendingFormatted.length);

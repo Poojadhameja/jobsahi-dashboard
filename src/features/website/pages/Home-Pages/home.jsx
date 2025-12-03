@@ -5,7 +5,7 @@ import Footer from "../../components/Footer";
 import BrowseJobByCategory from "../../components/UI8Cards.jsx";
 import FAQ from "../../components/FAQ";
 import NewsletterSubscription from "../../components/NewsletterSubscription";
-import { WEBSITE_COLOR_CLASSES } from "../../components/colorClasses";
+import { WEBSITE_COLOR_CLASSES, getWebsiteColor } from "../../components/colorClasses";
 import uploadresumebg from "../../assets/uploadresumebg.png";
 import textunderline from "../../assets/website_text_underline.png";
 import homebanner from "../../assets/home/homebanner.jpg";
@@ -54,6 +54,7 @@ import {
 const Home = () => {
   const navigate = useNavigate();
   const { BG, TEXT, BORDER, HOVER_BG, HOVER_TEXT } = WEBSITE_COLOR_CLASSES;
+  const colorHex = getWebsiteColor;
 
   const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -369,17 +370,17 @@ const Home = () => {
                   }
                 }}
               >
-                <FaMapMarkerAlt className="text-[#8CD63E] text-base sm:text-lg md:text-xl flex-shrink-0" />
+                <FaMapMarkerAlt className="text-base sm:text-lg md:text-xl flex-shrink-0" style={{ color: colorHex('ACCENT.GREEN') }} />
                 <div className="flex items-center justify-between flex-1 min-w-0">
-                  <p className="text-sm sm:text-base text-[#8CD63E] font-medium truncate">
+                  <p className="text-sm sm:text-base font-medium truncate" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }}>
                     Location
                   </p>
-                  <FaChevronDown className="text-[#8CD63E] text-xs sm:text-sm flex-shrink-0 ml-2" />
+                  <FaChevronDown className="text-xs sm:text-sm flex-shrink-0 ml-2" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }} />
                 </div>
               </div>
 
               {/* Divider */}
-              <div className="hidden sm:block w-px h-7 sm:h-8 md:h-9 bg-[#8CD63E] flex-shrink-0" />
+              <div className="hidden sm:block w-px h-7 sm:h-8 md:h-9 flex-shrink-0" style={{ backgroundColor: colorHex('ACCENT.GREEN') }} />
 
               {/* Mobile Divider */}
               <div className="block sm:hidden w-full h-px bg-gray-200" />
@@ -397,12 +398,12 @@ const Home = () => {
                   }
                 }}
               >
-                <FaBriefcase className="text-[#8CD63E] text-base sm:text-lg md:text-xl flex-shrink-0" />
+                <FaBriefcase className="text-base sm:text-lg md:text-xl flex-shrink-0" style={{ color: colorHex('ACCENT.GREEN') }} />
                 <div className="flex items-center justify-between flex-1 min-w-0">
-                  <p className="text-sm sm:text-base text-[#8CD63E] font-medium truncate">
+                  <p className="text-sm sm:text-base font-medium truncate" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }}>
                     Category
                   </p>
-                  <FaChevronDown className="text-[#8CD63E] text-xs sm:text-sm flex-shrink-0 ml-2" />
+                  <FaChevronDown className="text-xs sm:text-sm flex-shrink-0 ml-2" style={{ color: colorHex('NEUTRAL.BLUE_GRAY') }} />
                 </div>
               </div>
 
@@ -412,11 +413,21 @@ const Home = () => {
               {/* Search Button */}
               <button
                 onClick={navigateToFindJob}
-                className="w-full sm:w-auto border-2 border-[#8CD63E] text-[#8CD63E] hover:bg-[#8CD63E] hover:text-white active:bg-[#7BC52E] active:border-[#7BC52E] rounded-xl sm:rounded-full px-4 sm:px-5 md:px-6 py-2.5 sm:py-2 md:py-2.5 font-semibold text-sm sm:text-base md:text-lg flex items-center justify-center gap-2 transition-all duration-200 min-h-[48px] sm:min-h-[44px] md:min-h-0 shadow-sm sm:shadow-none"
+                className="w-full sm:w-auto rounded-xl sm:rounded-full px-4 sm:px-5 md:px-6 py-2.5 sm:py-2 md:py-2.5 font-semibold text-sm sm:text-base md:text-lg flex items-center justify-center gap-2 transition-all duration-200 min-h-[48px] sm:min-h-[44px] md:min-h-0 shadow-sm sm:shadow-none"
+                style={{
+                  color: colorHex('NEUTRAL.WHITE'),
+                  backgroundColor: colorHex('ACCENT.GREEN'),
+                }}
+                onMouseEnter={(event) => {
+                  event.currentTarget.style.backgroundColor = colorHex('HOVER.ACCENT_GREEN');
+                }}
+                onMouseLeave={(event) => {
+                  event.currentTarget.style.backgroundColor = colorHex('ACCENT.GREEN');
+                }}
               >
                 <span className="whitespace-nowrap">नौकरी खोजें</span>
-                <span className="w-5 h-5 sm:w-6 sm:h-6 bg-[#8CD63E] rounded-full flex items-center justify-center flex-shrink-0">
-                  <FaSearch className="text-white text-xs sm:text-xs md:text-sm" />
+                <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
+                  <FaSearch className="text-xs sm:text-xs md:text-sm" style={{ color: colorHex('NEUTRAL.WHITE') }} />
                 </span>
               </button>
             </div>

@@ -16,22 +16,32 @@ const CompanyProfile = () => {
       id: "company-info",
       label: "Company Info",
       icon: LuBuilding2,
-      component: <CompanyInfo />
     },
     {
       id: "team-management",
       label: "Team Management",
       icon: LuUsers,
-      // ✅ Pass onBack: switch back to Company Info tab
-      component: <TeamManagement onBack={() => setActiveTab(0)} />
     },
     {
       id: "preferences",
       label: "Preferences",
       icon: LuSettings,
-      component: <Preferences onBack={() => setActiveTab(0)} />
     }
   ];
+
+  // ✅ Render component conditionally based on activeTab to ensure proper unmounting
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 0:
+        return <CompanyInfo key="company-info" />;
+      case 1:
+        return <TeamManagement key="team-management" onBack={() => setActiveTab(0)} />;
+      case 2:
+        return <Preferences key="preferences" onBack={() => setActiveTab(0)} />;
+      default:
+        return <CompanyInfo key="company-info" />;
+    }
+  };
 
   // console.log(service)
   return (
@@ -51,7 +61,7 @@ const CompanyProfile = () => {
       </div>
 
       <div className="mt-5">
-        {tabs[activeTab]?.component}
+        {renderTabContent()}
       </div>
     </div>
   );

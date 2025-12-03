@@ -396,18 +396,47 @@ const PostJob = ({ onJobSubmit }) => {
   // ✅ Add category modal logic (fixed)
   const handleAddCategory = () => {
     if (!newCategory.trim()) return;
-      if (!jobCategories.find((cat) => cat.category_name === newCategory.trim())) {
-      const newCatId = Date.now();
-      setJobCategories((prev) => [
-        ...prev,
-        { id: newCatId, category_name: newCategory.trim() },
-      ]);
-      setFormData((prev) => ({ 
-        ...prev, 
-        jobSector: newCategory.trim(),
-        jobSectorId: newCatId.toString()
-      }));
+    
+    // ✅ Check if category already exists (case-insensitive)
+    const categoryExists = jobCategories.find(
+      (cat) => cat.category_name?.toLowerCase().trim() === newCategory.toLowerCase().trim()
+    );
+    
+    if (categoryExists) {
+      // ✅ Show "already exist" popup
+      Swal.fire({
+        title: "Category Already Exists!",
+        text: `The category "${newCategory.trim()}" already exists. Please choose a different name.`,
+        icon: "warning",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#3085d6",
+      });
+      return; // Don't close modal, let user try again
     }
+    
+    // ✅ Category doesn't exist, add it
+    const newCatId = Date.now();
+    setJobCategories((prev) => [
+      ...prev,
+      { id: newCatId, category_name: newCategory.trim() },
+    ]);
+    setFormData((prev) => ({ 
+      ...prev, 
+      jobSector: newCategory.trim(),
+      jobSectorId: newCatId.toString()
+    }));
+    
+    // ✅ Show success message
+    Swal.fire({
+      title: "Success!",
+      text: `Category "${newCategory.trim()}" added successfully.`,
+      icon: "success",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#3085d6",
+      timer: 2000,
+      showConfirmButton: true
+    });
+    
     setShowAddCategoryModal(false);
     setNewCategory("");
   };
@@ -441,14 +470,14 @@ const PostJob = ({ onJobSubmit }) => {
           Create Job Posts
         </h1>
         <div className="flex space-x-2">
-          <Button
+          {/* <Button
             onClick={handleCancel}
             variant="light"
             size="md"
             className="rounded-full"
           >
             Cancel
-          </Button>
+          </Button> */}
           <Button
             onClick={handleSaveDraft}
             type="button"
