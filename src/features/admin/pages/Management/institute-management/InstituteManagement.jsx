@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { MatrixCard } from '../../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../../shared/components/navigation'
@@ -7,25 +8,56 @@ import {
   LuBookOpen, 
   LuUsers, 
   LuAward, 
-  LuMessageSquare 
+  // LuMessageSquare 
 } from 'react-icons/lu'
 import PendingInstituteApprovals from './PendingInstitute'
 import CourseMonitoring from './CourseMonitoring'
 import PlacementStudent from './PlacementStudent'
 import CertificateIssuance from './CertificateIssuance'
-import MessageInstitute from './MessageInstitute'
+// import MessageInstitute from './MessageInstitute'
 import { getMethod } from '../../../../../service/api'
 import apiService from '../../../../admin/services/serviceUrl'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 
 
 export default function InstituteManagement() {
+  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
   const [previousTab, setPreviousTab] = useState(0)
   const [institutes, setInstitutes] = useState([])
   const [pendingApprovalInstitutes, setPendingApprovalInstitutes] = useState([])
   const [totalInstituteCount, setTotalInstituteCount] = useState('0')
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState('0')
+
+  // Read tab from URL query params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    const subtabParam = searchParams.get('subtab')
+    
+    // If we're in institute management context, check subtab
+    if (tabParam === 'institute' || subtabParam) {
+      if (subtabParam === 'course-monitoring') {
+        setActiveTab(1)
+      } else if (subtabParam === 'placement-students') {
+        setActiveTab(2)
+      } else if (subtabParam === 'certificate-issuance') {
+        setActiveTab(3)
+      } else {
+        setActiveTab(0)
+      }
+    } else {
+      // Legacy support for direct tab param
+      if (tabParam === 'course-monitoring') {
+        setActiveTab(1)
+      } else if (tabParam === 'placement-students') {
+        setActiveTab(2)
+      } else if (tabParam === 'certificate-issuance') {
+        setActiveTab(3)
+      } else {
+        setActiveTab(0)
+      }
+    }
+  }, [searchParams])
 
   useEffect(() => {
   
@@ -140,7 +172,7 @@ export default function InstituteManagement() {
     { id: 'course-monitoring', label: 'Course & Enrollment Monitoring', icon: LuBookOpen },
     { id: 'placement-students', label: 'Placement-Ready Students', icon: LuUsers },
     { id: 'certificate-issuance', label: 'Certificate Issuance', icon: LuAward },
-    { id: 'message-institute', label: 'Message Specific Skill Partner', icon: LuMessageSquare }
+    // { id: 'message-institute', label: 'Message Specific Skill Partner', icon: LuMessageSquare }
   ]
 
   return (
@@ -153,7 +185,7 @@ export default function InstituteManagement() {
       />
 
       {/* Navigation Tabs */}
-      <PillNavigation 
+      {/* <PillNavigation 
         tabs={navigationTabs}
         activeTab={activeTab}
         onTabChange={(newTab) => {
@@ -163,7 +195,7 @@ export default function InstituteManagement() {
           }
         }}
         storageKey="admin_institute_management_tab"
-      />
+      /> */}
 
       {/* Conditional Content */}
       {activeTab === 0 && (
@@ -182,9 +214,9 @@ export default function InstituteManagement() {
         <CertificateIssuance />
       )}
 
-      {activeTab === 4 && (
+      {/* {activeTab === 4 && (
         <MessageInstitute onBack={() => setActiveTab(previousTab)} />
-      )}
+      )} */}
      </div>
   )
 }

@@ -75,16 +75,17 @@ export default function SystemSetting() {
       />
 
       {/* Navigation Tabs */}
-      <PillNavigation
+      {/* <PillNavigation
         tabs={navigationTabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         storageKey="admin_system_settings_tab"
-      />
+      /> */}
 
       {/* Tab Content */}
       <div className="mt-8">
-        {renderTabContent()}
+        {/* {renderTabContent()} */}
+        {navigationTabs[0] && renderTabContent()}
       </div>
 
       {/* Coming Soon Popup */}

@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import MetricCard, { MatrixCard, Horizontal4Cards } from '../../../../shared/components/metricCard.jsx'
 import { PrimaryButton, OutlineButton } from '../../../../shared/components/Button.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
@@ -37,7 +38,22 @@ const Toggle = ({ checked, onChange, label }) => (
 )
 
 const AlertsAutomation = () => {
+  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
+
+  // Read tab from URL query params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam === 'auto-flag') {
+      setActiveTab(1)
+    } else if (tabParam === 'resume') {
+      setActiveTab(2)
+    } else if (tabParam === 'course') {
+      setActiveTab(3)
+    } else {
+      setActiveTab(0)
+    }
+  }, [searchParams])
   const [alertMetrics, setAlertMetrics] = useState([
     { title: "Active Alerts", value: "0", icon: "⚠️" },
     { title: "Automation Rules", value: "0", icon: "⚙️" },
@@ -186,12 +202,12 @@ const AlertsAutomation = () => {
 
       <Horizontal4Cards data={alertMetrics} />
 
-      <PillNavigation 
+      {/* <PillNavigation 
         tabs={navigationTabs} 
         activeTab={activeTab} 
         onTabChange={setActiveTab}
         storageKey="admin_alerts_automation_tab"
-      />
+      /> */}
 
       {renderActiveTab()}
     </div>

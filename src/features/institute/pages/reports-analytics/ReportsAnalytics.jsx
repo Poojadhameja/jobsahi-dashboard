@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { 
   LuUsers, 
   LuGraduationCap,
@@ -16,7 +16,18 @@ import apiService from '../../services/serviceUrl'
 
 export default function ReportsAnalytics() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [activeTabIndex, setActiveTabIndex] = useState(0)
+
+  // Read tab from URL query params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam === 'course-popularity') {
+      setActiveTabIndex(1)
+    } else {
+      setActiveTabIndex(0)
+    }
+  }, [searchParams])
 
   // ✅ State for Key Metrics
   const [metrics, setMetrics] = useState({
@@ -107,14 +118,14 @@ export default function ReportsAnalytics() {
       </div>
 
       {/* Green Navigation Buttons using PillNavigation */}
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <PillNavigation 
           tabs={navigationTabs}
           activeTab={activeTabIndex}
         onTabChange={setActiveTabIndex}
         storageKey="institute_reports_analytics_tab"
         />
-      </div>
+      </div> */}
 
       {/* Content Area */}
       {activeTabIndex === 0 ? (
