@@ -17,6 +17,11 @@ const JobPosting = () => {
   const [showJobModal, setShowJobModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [lastAction, setLastAction] = useState(null);
+  const [showEditComparisonModal, setShowEditComparisonModal] = useState(false);
+  const [selectedEditJob, setSelectedEditJob] = useState(null);
+  const [originalJobData, setOriginalJobData] = useState(null);
+  const [loadingOriginalData, setLoadingOriginalData] = useState(false);
+  const [approvedJobsSnapshot, setApprovedJobsSnapshot] = useState({}); // Store snapshot of approved jobs
 
   // ====== DATA CONFIGURATION ======
   const [jobPostings, setJobPostings] = useState([]);
@@ -48,22 +53,100 @@ const JobPosting = () => {
         };
 
         // Map API response to component format
-        const mappedJobs = response.data.map((job) => ({
-          id: job.id || job.job_id,
-          title: capitalizeWords(job.title || 'N/A'),
-          company: capitalizeWords(job.company_name || job.company || 'N/A'),
-          posted: job.created_at || job.posted_date || 'N/A',
-          status: job.admin_action === 'approved' ? 'Approved' : 
-                 job.admin_action === 'pending' ? 'Pending' : 
-                 job.is_featured === 1 ? 'Promoted' : 
-                 job.status === 'flagged' ? 'Flagged' : 
-                 'Pending',
-          // Keep all original data
-          ...job
-        }));
+        const mappedJobs = response.data.map((job) => {
+          // Format posted date (only date, no time)
+          const postedDate = job.created_at || job.posted_date || null;
+          let formattedPosted = 'N/A';
+          if (postedDate) {
+            try {
+              const date = new Date(postedDate);
+              if (!isNaN(date.getTime())) {
+                formattedPosted = date.toLocaleDateString('en-IN', { 
+                  day: '2-digit', 
+                  month: 'short', 
+                  year: 'numeric'
+                });
+              }
+            } catch (e) {
+              formattedPosted = postedDate.split(' ')[0]; // Fallback: take only date part
+            }
+          }
+
+          return {
+            id: job.id || job.job_id,
+            title: capitalizeWords(job.title || 'N/A'),
+            company: capitalizeWords(job.company_name || job.company || 'N/A'),
+            posted: formattedPosted,
+            lastUpdated: job.last_updated || job.updated_at || job.updated_date || null,
+            status: job.admin_action === 'approved' ? 'Approved' : 
+                   job.admin_action === 'pending' ? 'Pending' : 
+                   job.is_featured === 1 ? 'Promoted' : 
+                   job.status === 'flagged' ? 'Flagged' : 
+                   'Pending',
+            // Keep all original data
+            ...job
+          };
+        });
 
         console.log('✅ Mapped Jobs:', mappedJobs);
         setJobPostings(mappedJobs);
+        
+        // ✅ Store snapshot of ALL jobs for comparison when they get edited
+        // This way we can compare current state with previous state
+        const jobsSnapshot = {};
+        mappedJobs.forEach(job => {
+          const jobId = job.id || job.job_id;
+          if (jobId) {
+            // Store current state as snapshot
+            // If job was approved before, keep the old snapshot (don't overwrite)
+            // If job is pending edit, we'll use the snapshot from when it was approved
+            if (job.admin_action === 'approved') {
+              // Update snapshot for approved jobs (latest approved state)
+              jobsSnapshot[jobId] = {
+                title: job.title,
+                location: job.location,
+                salary_min: job.salary_min,
+                salary_max: job.salary_max,
+                experience_required: job.experience_required,
+                job_type: job.job_type,
+                no_of_vacancies: job.no_of_vacancies,
+                skills_required: job.skills_required,
+              };
+            }
+            // For pending jobs, don't update snapshot (keep the old approved snapshot if exists)
+          }
+        });
+        // Merge with existing snapshot (don't overwrite existing snapshots for pending jobs)
+        setApprovedJobsSnapshot(prev => {
+          // Load from localStorage first
+          const storedSnapshots = JSON.parse(localStorage.getItem('jobApprovedSnapshots') || '{}');
+          const merged = { ...storedSnapshots, ...prev };
+          
+          Object.keys(jobsSnapshot).forEach(jobId => {
+            // Only update if job is approved (to preserve old snapshot for pending jobs)
+            const job = mappedJobs.find(j => (j.id || j.job_id) == jobId);
+            if (job && job.admin_action === 'approved') {
+              merged[jobId] = jobsSnapshot[jobId];
+            } else if (!merged[jobId]) {
+              // If no existing snapshot and job is pending, store current as snapshot
+              merged[jobId] = jobsSnapshot[jobId] || {
+                title: job?.title,
+                location: job?.location,
+                salary_min: job?.salary_min,
+                salary_max: job?.salary_max,
+                experience_required: job?.experience_required,
+                job_type: job?.job_type,
+                no_of_vacancies: job?.no_of_vacancies,
+                skills_required: job?.skills_required,
+              };
+            }
+          });
+          
+          // Save to localStorage
+          localStorage.setItem('jobApprovedSnapshots', JSON.stringify(merged));
+          
+          return merged;
+        });
       } else {
         console.error('❌ Failed to fetch jobs:', response?.message);
         setJobPostings([]);
@@ -73,6 +156,15 @@ const JobPosting = () => {
       setJobPostings([]);
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  // ✅ Load snapshots from localStorage on mount
+  useEffect(() => {
+    const storedSnapshots = JSON.parse(localStorage.getItem('jobApprovedSnapshots') || '{}');
+    if (Object.keys(storedSnapshots).length > 0) {
+      setApprovedJobsSnapshot(storedSnapshots);
+      console.log('📸 Loaded snapshots from localStorage:', storedSnapshots);
     }
   }, []);
 
@@ -191,6 +283,26 @@ const JobPosting = () => {
     const flagInfo = jobFlagsStatus[jobId];
     const jobAdminAction = (job.admin_action || '').toLowerCase();
     
+    // ✅ Special handling for "Pending Edit Approval" filter
+    if (statusFilter === 'Pending Edit Approval') {
+      // Show jobs that have admin_action="pending" but no flag (meaning they were edited)
+      // Jobs with flags are handled separately as "Flagged"
+      const hasNoFlag = !flagInfo;
+      const isPendingEdit = jobAdminAction === 'pending' && hasNoFlag;
+      return matchesSearch && isPendingEdit;
+    }
+    
+    // ✅ Special handling for "Pending" filter
+    if (statusFilter === 'Pending') {
+      // Show jobs that are pending (either initial pending or pending edit approval)
+      // But exclude flagged jobs (they have their own filter)
+      const hasNoFlag = !flagInfo;
+      const isPending = (jobAdminAction === 'pending' || !jobAdminAction || jobAdminAction === '') && hasNoFlag;
+      // Also include jobs that don't have admin_action set (new jobs)
+      const isNewPending = !jobAdminAction && !flagInfo && job.is_featured !== 1;
+      return matchesSearch && (isPending || isNewPending);
+    }
+    
     // Determine actual status based on flag info and job data
     let actualStatus = 'Pending'; // Default to Pending
     
@@ -209,7 +321,10 @@ const JobPosting = () => {
       // No flag info - check job's own admin_action
       if (jobAdminAction === 'approved') {
         actualStatus = 'Approved';
-      } else if (jobAdminAction === 'pending' || jobAdminAction === 'flagged') {
+      } else if (jobAdminAction === 'pending') {
+        // Job with pending admin_action but no flag = Pending Edit Approval
+        actualStatus = 'Pending Edit Approval';
+      } else if (jobAdminAction === 'flagged') {
         actualStatus = 'Flagged';
       } else if (job.is_featured === 1) {
         actualStatus = 'Promoted';
@@ -237,15 +352,121 @@ const JobPosting = () => {
     setSelectedJobs(prev => checked ? [...new Set([...prev, jobId])] : prev.filter(id => id !== jobId));
   };
 
+  // Fetch original job data before update
+  const fetchOriginalJobData = async (jobId, currentJob) => {
+    try {
+      setLoadingOriginalData(true);
+      
+      // ✅ First, check localStorage for snapshot
+      const storedSnapshots = JSON.parse(localStorage.getItem('jobApprovedSnapshots') || '{}');
+      const snapshot = storedSnapshots[jobId] || approvedJobsSnapshot[jobId];
+      
+      if (snapshot) {
+        console.log('📸 Using stored snapshot for job:', jobId, snapshot);
+        setOriginalJobData(snapshot);
+        setLoadingOriginalData(false);
+        return;
+      }
+      
+      // ✅ If no snapshot, try to fetch from API
+      const response = await getMethod({
+        apiUrl: `${apiService.getJobDetail}?id=${jobId}`
+      });
+      
+      console.log('📊 Original Job Data Response:', response);
+      
+      // If API returns original data, use it
+      if (response?.status && response?.data) {
+        const jobInfo = response.data.job_info || response.data;
+        if (jobInfo) {
+          // Check if backend provides original values (like original_location, etc.)
+          const originalData = {
+            title: jobInfo.original_title || jobInfo.title,
+            location: jobInfo.original_location || jobInfo.location,
+            salary_min: jobInfo.original_salary_min || jobInfo.salary_min,
+            salary_max: jobInfo.original_salary_max || jobInfo.salary_max,
+            experience_required: jobInfo.original_experience_required || jobInfo.experience_required,
+            job_type: jobInfo.original_job_type || jobInfo.job_type,
+            no_of_vacancies: jobInfo.original_no_of_vacancies || jobInfo.no_of_vacancies,
+            skills_required: jobInfo.original_skills_required || jobInfo.skills_required,
+          };
+          
+          // If backend doesn't provide original values, use current job's values as fallback
+          // This means the job hasn't been edited yet or original values aren't stored
+          if (!jobInfo.original_location && !jobInfo.original_title) {
+            // Use current values as original (means no change detected or first time viewing)
+            setOriginalJobData({
+              title: currentJob.title,
+              location: currentJob.location,
+              salary_min: currentJob.salary_min,
+              salary_max: currentJob.salary_max,
+              experience_required: currentJob.experience_required,
+              job_type: currentJob.job_type,
+              no_of_vacancies: currentJob.no_of_vacancies,
+              skills_required: currentJob.skills_required,
+            });
+          } else {
+            setOriginalJobData(originalData);
+          }
+        }
+      } else {
+        // If API doesn't return original values, use current job values
+        setOriginalJobData({
+          title: currentJob.title,
+          location: currentJob.location,
+          salary_min: currentJob.salary_min,
+          salary_max: currentJob.salary_max,
+          experience_required: currentJob.experience_required,
+          job_type: currentJob.job_type,
+          no_of_vacancies: currentJob.no_of_vacancies,
+          skills_required: currentJob.skills_required,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching original job data:', error);
+      // On error, use current job values
+      setOriginalJobData({
+        title: currentJob.title,
+        location: currentJob.location,
+        salary_min: currentJob.salary_min,
+        salary_max: currentJob.salary_max,
+        experience_required: currentJob.experience_required,
+        job_type: currentJob.job_type,
+        no_of_vacancies: currentJob.no_of_vacancies,
+        skills_required: currentJob.skills_required,
+      });
+    } finally {
+      setLoadingOriginalData(false);
+    }
+  };
+
   // Job action handlers
-  const handleViewJob = (job) => {
+  const handleViewJob = async (job) => {
     setSelectedJob(job);
     setShowJobModal(true);
+    // Fetch original job data if job was updated
+    const jobId = job.id || job.job_id;
+    if (job.lastUpdated && (job.admin_action === 'pending' || job.admin_action === 'approved')) {
+      await fetchOriginalJobData(jobId, job);
+    } else {
+      // If no update, use current values as original
+      setOriginalJobData({
+        title: job.title,
+        location: job.location,
+        salary_min: job.salary_min,
+        salary_max: job.salary_max,
+        experience_required: job.experience_required,
+        job_type: job.job_type,
+        no_of_vacancies: job.no_of_vacancies,
+        skills_required: job.skills_required,
+      });
+    }
   };
 
   const handleCloseJobModal = () => {
     setShowJobModal(false);
     setSelectedJob(null);
+    setOriginalJobData(null);
   };
 
   const handleApproveJob = async (jobId) => {
@@ -540,6 +761,160 @@ const JobPosting = () => {
     }
   };
 
+  // ✅ Approve Edited Job (not flagged, just needs edit approval)
+  const handleApproveEditedJob = async (jobId) => {
+    try {
+      const job = jobPostings.find(j => (j.id || j.job_id) === jobId);
+      
+      if (!job) {
+        Swal.fire('Error!', 'Job not found', 'error');
+        return;
+      }
+
+      const { value: reason } = await Swal.fire({
+        title: 'Approve Job Edit',
+        html: `
+          <div class="text-left">
+            <p class="mb-3">This job was edited by the recruiter. Review the changes and approve to make it visible to candidates again.</p>
+            <p class="text-sm text-gray-600 mb-3"><strong>Job:</strong> ${job.title || 'N/A'}</p>
+            <p class="text-sm text-gray-600 mb-3"><strong>Company:</strong> ${job.company || 'N/A'}</p>
+          </div>
+        `,
+        input: 'textarea',
+        inputLabel: 'Approval Reason (Optional)',
+        inputPlaceholder: 'Enter reason for approving this edit...',
+        inputAttributes: {
+          'aria-label': 'Enter approval reason'
+        },
+        showCancelButton: true,
+        confirmButtonColor: COLORS.GREEN_PRIMARY,
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Approve Edit',
+        cancelButtonText: 'Cancel'
+      });
+
+      if (reason !== undefined) { // User clicked approve (reason can be empty)
+        // Update job admin_action to "approved" via PUT API
+        const response = await putMethod({
+          apiUrl: `${service.updateJob}?id=${jobId}`,
+          payload: {
+            admin_action: 'approved'
+          }
+        });
+
+        console.log('📥 Approve Edited Job Response:', response);
+
+        if (response?.status === true || response?.success === true) {
+          // Update local state
+          setJobPostings(prev => prev.map(j => {
+            const jId = j.id || j.job_id;
+            if (jId === jobId) {
+              return {
+                ...j,
+                admin_action: 'approved',
+                status: 'Approved'
+              };
+            }
+            return j;
+          }));
+
+          setLastAction({ type: 'approved', message: 'Job edit approved successfully' });
+          Swal.fire('Success!', 'Job edit approved. The job is now visible to candidates.', 'success');
+
+          // Refresh data
+          await fetchJobs();
+
+          setTimeout(() => setLastAction(null), 3000);
+        } else {
+          Swal.fire('Error!', response?.message || 'Failed to approve job edit', 'error');
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error approving edited job:', error);
+      Swal.fire('Error!', error?.message || 'Failed to approve job edit', 'error');
+    }
+  };
+
+  // ✅ Reject Edited Job
+  const handleRejectEditedJob = async (jobId) => {
+    try {
+      const job = jobPostings.find(j => (j.id || j.job_id) === jobId);
+      
+      if (!job) {
+        Swal.fire('Error!', 'Job not found', 'error');
+        return;
+      }
+
+      const { value: reason } = await Swal.fire({
+        title: 'Reject Job Edit',
+        html: `
+          <div class="text-left">
+            <p class="mb-3">This will reject the changes made to this job. The job will remain hidden from candidates.</p>
+            <p class="text-sm text-gray-600 mb-3"><strong>Job:</strong> ${job.title || 'N/A'}</p>
+            <p class="text-sm text-gray-600 mb-3"><strong>Company:</strong> ${job.company || 'N/A'}</p>
+          </div>
+        `,
+        input: 'textarea',
+        inputLabel: 'Rejection Reason (Required)',
+        inputPlaceholder: 'Enter reason for rejecting this edit...',
+        inputAttributes: {
+          'aria-label': 'Enter rejection reason'
+        },
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Reject Edit',
+        cancelButtonText: 'Cancel',
+        inputValidator: (value) => {
+          if (!value || value.trim().length === 0) {
+            return 'You need to provide a rejection reason!';
+          }
+        }
+      });
+
+      if (reason) {
+        // Update job admin_action to "rejected" via PUT API
+        const response = await putMethod({
+          apiUrl: `${service.updateJob}?id=${jobId}`,
+          payload: {
+            admin_action: 'rejected',
+            rejection_reason: reason
+          }
+        });
+
+        console.log('📥 Reject Edited Job Response:', response);
+
+        if (response?.status === true || response?.success === true) {
+          // Update local state
+          setJobPostings(prev => prev.map(j => {
+            const jId = j.id || j.job_id;
+            if (jId === jobId) {
+              return {
+                ...j,
+                admin_action: 'rejected',
+                status: 'Rejected'
+              };
+            }
+            return j;
+          }));
+
+          setLastAction({ type: 'rejected', message: 'Job edit rejected' });
+          Swal.fire('Rejected!', 'Job edit has been rejected. The job remains hidden from candidates.', 'success');
+
+          // Refresh data
+          await fetchJobs();
+
+          setTimeout(() => setLastAction(null), 3000);
+        } else {
+          Swal.fire('Error!', response?.message || 'Failed to reject job edit', 'error');
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error rejecting edited job:', error);
+      Swal.fire('Error!', error?.message || 'Failed to reject job edit', 'error');
+    }
+  };
+
   const handlePromoteJob = (jobId) => console.log('Promoting job:', jobId);
   const handleBulkApprove = () => console.log('Bulk approving jobs:', selectedJobs);
   const handleBulkPromote = () => console.log('Bulk promoting jobs:', selectedJobs);
@@ -552,8 +927,127 @@ const JobPosting = () => {
     setPromotionJobId('');
   };
 
+  // ✅ Filter pending job edits (admin_action === "pending" and has last_updated)
+  const pendingJobEdits = jobPostings.filter(job => {
+    const jobAdminAction = (job.admin_action || '').toLowerCase();
+    return jobAdminAction === 'pending' && job.last_updated;
+  });
+
   return (
     <div className="job-posting-section space-y-6">
+      {/* ✅ Pending Job Edits Section */}
+      {pendingJobEdits.length > 0 && (
+        <div className="bg-orange-50 border-2 border-orange-200 rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-lg bg-orange-500 flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className={`text-xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                  Pending Job Edit Approvals ({pendingJobEdits.length})
+                </h2>
+                <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                  Recruiters have made changes to these jobs. Review and approve to make them visible to candidates.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {pendingJobEdits.map((job) => {
+              const jobId = job.id || job.job_id;
+              const lastUpdated = job.last_updated || job.updated_at || 'N/A';
+              const formattedDate = lastUpdated !== 'N/A' 
+                ? new Date(lastUpdated).toLocaleString('en-IN', { 
+                    day: '2-digit', 
+                    month: 'short', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })
+                : 'N/A';
+
+              return (
+                <div key={jobId} className="bg-white rounded-lg border border-orange-300 p-4 shadow-sm">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                          {job.title || 'N/A'}
+                        </h3>
+                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-700">
+                          Pending Approval
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm mb-3">
+                        <div>
+                          <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Company: </span>
+                          <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{job.company || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Last Updated: </span>
+                          <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{formattedDate}</span>
+                        </div>
+                        <div>
+                          <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Location: </span>
+                          <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{job.location || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Salary: </span>
+                          <span className={TAILWIND_COLORS.TEXT_PRIMARY}>
+                            {job.salary_min && job.salary_max 
+                              ? `₹${job.salary_min} - ₹${job.salary_max}` 
+                              : job.salary_min 
+                                ? `₹${job.salary_min}` 
+                                : 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-sm">
+                        <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Description: </span>
+                        <span className={TAILWIND_COLORS.TEXT_PRIMARY}>
+                          {job.description 
+                            ? (job.description.length > 150 
+                                ? job.description.substring(0, 150) + '...' 
+                                : job.description)
+                            : 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2 ml-4">
+                      <button
+                        onClick={() => handleApproveEditedJob(jobId)}
+                        className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-200 whitespace-nowrap"
+                      >
+                        ✓ Accept Changes
+                      </button>
+                      <button
+                        onClick={() => handleRejectEditedJob(jobId)}
+                        className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors duration-200 whitespace-nowrap"
+                      >
+                        ✗ Reject Changes
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedEditJob(job);
+                          setShowEditComparisonModal(true);
+                        }}
+                        className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 whitespace-nowrap"
+                      >
+                        📋 View Changes
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6" data-section="job-posting-management">
         {/* Toolbar */}
         <div className="flex items-center space-x-3 mb-6">
@@ -607,6 +1101,7 @@ const JobPosting = () => {
             >
               <option value="All Status">All Status</option>
               <option value="Pending">Pending</option>
+              <option value="Pending Edit Approval">Pending Edit Approval</option>
               <option value="Approved">Approved</option>
               <option value="Flagged">Flagged</option>
               <option value="Promoted">Promoted</option>
@@ -649,9 +1144,10 @@ const JobPosting = () => {
                         style={{ accentColor: COLORS.GREEN_PRIMARY }}
                       />
                     </th>
-                    <th className={`w-1/4 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Title</th>
-                    <th className={`w-1/5 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Company</th>
+                    <th className={`w-1/5 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Title</th>
+                    <th className={`w-1/6 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Company</th>
                     <th className={`w-1/6 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Posted</th>
+                    <th className={`w-1/6 px-4 py-3 text-left text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Recent Activity</th>
                     <th className={`w-1/6 px-4 py-3 text-center text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Status</th>
                     <th className={`w-1/5 px-4 py-3 text-center text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Actions</th>
                   </tr>
@@ -671,25 +1167,16 @@ const JobPosting = () => {
                       <td className={`w-1/4 px-4 py-4 text-sm font-medium ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
                         <div className="flex items-center gap-2">
                           <span className="truncate" title={job.title}>{job.title}</span>
-                          {/* Show badge based on job_flags table admin_action */}
+                          {/* Badge logic: Flag API first (pending=Flagged, approved=Approved), then jobs.php API */}
                           {(() => {
                             const jobId = job.id || job.job_id;
                             const flagInfo = jobFlagsStatus[jobId];
                             
-                            // If job has a flag record, use its admin_action
+                            // ✅ If flag record exists, check flag API admin_action
                             if (flagInfo) {
-                              const flagAdminAction = flagInfo.admin_action;
+                              const flagAdminAction = (flagInfo.admin_action || '').toLowerCase();
                               
-                              // If admin_action is "approved" in job_flags table → Show "Approved"
-                              if (flagAdminAction === 'approved') {
-                                return (
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium whitespace-nowrap">
-                                    Approved
-                                  </span>
-                                );
-                              }
-                              
-                              // If admin_action is "pending" or "flagged" or not approved → Show "Flagged"
+                              // Flag API se pending → "Flagged"
                               if (flagAdminAction === 'pending' || flagAdminAction === 'flagged' || !flagAdminAction || flagAdminAction === '') {
                                 return (
                                   <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-700 font-medium whitespace-nowrap">
@@ -697,10 +1184,20 @@ const JobPosting = () => {
                                   </span>
                                 );
                               }
+                              
+                              // Flag API se approved → "Approved"
+                              if (flagAdminAction === 'approved') {
+                                return (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium whitespace-nowrap">
+                                    Approved
+                                  </span>
+                                );
+                              }
                             }
                             
-                            // If no flag record, check job's own admin_action
+                            // ✅ If no flag, check jobs.php API admin_action
                             const jobAdminAction = (job.admin_action || '').toLowerCase();
+                            
                             if (jobAdminAction === 'approved') {
                               return (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 font-medium whitespace-nowrap">
@@ -709,12 +1206,48 @@ const JobPosting = () => {
                               );
                             }
                             
+                            if (jobAdminAction === 'pending') {
+                              return (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 font-medium whitespace-nowrap">
+                                  Pending
+                                </span>
+                              );
+                            }
+                            
                             return null;
                           })()}
                         </div>
                       </td>
-                      <td className={`w-1/5 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED} truncate`} title={job.company}>{job.company}</td>
+                      <td className={`w-1/6 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED} truncate`} title={job.company}>{job.company}</td>
                       <td className={`w-1/6 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{job.posted}</td>
+                      <td className={`w-1/6 px-4 py-4 text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>
+                        {job.lastUpdated ? (() => {
+                          try {
+                            const date = new Date(job.lastUpdated);
+                            if (isNaN(date.getTime())) {
+                              return <span className="text-gray-400 italic">No update</span>;
+                            }
+                            const now = new Date();
+                            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                            const updateDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                            const diffDays = Math.floor((today - updateDate) / (1000 * 60 * 60 * 24));
+                            
+                            if (diffDays === 0) {
+                              return 'Today';
+                            } else if (diffDays === 1) {
+                              return '1 day ago';
+                            } else if (diffDays > 1) {
+                              return `${diffDays} days ago`;
+                            } else {
+                              return 'Today';
+                            }
+                          } catch (e) {
+                            return <span className="text-gray-400 italic">No update</span>;
+                          }
+                        })() : (
+                          <span className="text-gray-400 italic">No update</span>
+                        )}
+                      </td>
                       <td className="w-1/6 px-4 py-4 text-center">
                         <span
                           data-status={job.status.toLowerCase()}
@@ -728,7 +1261,7 @@ const JobPosting = () => {
                               : 'bg-gray-100 text-gray-600'
                           }`}
                         >
-                          {job.status}
+                          {job.status?.toLowerCase() === 'paused' ? 'Draft' : job.status}
                         </span>
                       </td>
                       <td className="w-1/5 px-2 py-3 text-center">
@@ -806,6 +1339,167 @@ const JobPosting = () => {
         </div>
       </div>
 
+      {/* Job Edit Comparison Modal */}
+      {showEditComparisonModal && selectedEditJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-orange-50">
+              <div className="flex items-center space-x-3">
+                <div className="h-8 w-8 rounded-lg flex items-center justify-center bg-orange-500">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Job Edit Changes</h3>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Review changes made by recruiter</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowEditComparisonModal(false);
+                  setSelectedEditJob(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Job Info Header */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Job Title</label>
+                    <p className={`text-base font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedEditJob.title || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Company</label>
+                    <p className={`text-base font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedEditJob.company || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Last Updated</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>
+                      {selectedEditJob.last_updated 
+                        ? new Date(selectedEditJob.last_updated).toLocaleString('en-IN', { 
+                            day: '2-digit', 
+                            month: 'short', 
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
+                        : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Changes Comparison */}
+              <div className="space-y-4">
+                <h4 className={`text-md font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} border-b pb-2`}>Current Job Details (After Edit)</h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Location</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedEditJob.location || 'N/A'}</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Job Type</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedEditJob.job_type || 'N/A'}</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Salary Range</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>
+                      {selectedEditJob.salary_min && selectedEditJob.salary_max 
+                        ? `₹${selectedEditJob.salary_min} - ₹${selectedEditJob.salary_max}`
+                        : selectedEditJob.salary_min 
+                          ? `₹${selectedEditJob.salary_min}` 
+                          : 'N/A'}
+                    </p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Experience Required</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedEditJob.experience_required || 'N/A'}</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Skills Required</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedEditJob.skills_required || 'N/A'}</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>No. of Vacancies</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedEditJob.no_of_vacancies || 'N/A'}</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Application Deadline</label>
+                    <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>{selectedEditJob.application_deadline || 'N/A'}</p>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 rounded-lg p-4 mt-4">
+                  <label className={`text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED}`}>Job Description</label>
+                  <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY} mt-2 whitespace-pre-wrap`}>
+                    {selectedEditJob.description || 'N/A'}
+                  </p>
+                </div>
+
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div className="ml-3">
+                      <p className={`text-sm ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                        <strong>Note:</strong> This job is currently hidden from candidates. Once you approve the changes, it will become visible to all candidates.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => {
+                    setShowEditComparisonModal(false);
+                    setSelectedEditJob(null);
+                  }}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    handleRejectEditedJob(selectedEditJob.id || selectedEditJob.job_id);
+                    setShowEditComparisonModal(false);
+                    setSelectedEditJob(null);
+                  }}
+                  className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors duration-200"
+                >
+                  Reject Changes
+                </button>
+                <button
+                  onClick={() => {
+                    handleApproveEditedJob(selectedEditJob.id || selectedEditJob.job_id);
+                    setShowEditComparisonModal(false);
+                    setSelectedEditJob(null);
+                  }}
+                  className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors duration-200"
+                >
+                  ✓ Accept Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Job Details Modal */}
       {showJobModal && selectedJob && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -835,6 +1529,181 @@ const JobPosting = () => {
 
             {/* Modal Content */}
             <div className="p-6 space-y-6">
+              {/* Last Update Section */}
+              {selectedJob.lastUpdated && (
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 p-5">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Last Update Information</h4>
+                      <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Details about the most recent changes</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white rounded-lg p-4 border border-blue-100">
+                      <label className={`text-xs font-medium uppercase tracking-wide ${TAILWIND_COLORS.TEXT_MUTED}`}>Last Updated</label>
+                      <p className={`text-base font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>
+                        {(() => {
+                          try {
+                            const date = new Date(selectedJob.lastUpdated);
+                            if (isNaN(date.getTime())) {
+                              return 'N/A';
+                            }
+                            const now = new Date();
+                            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                            const updateDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                            const diffDays = Math.floor((today - updateDate) / (1000 * 60 * 60 * 24));
+                            
+                            const formattedDate = date.toLocaleDateString('en-IN', { 
+                              day: '2-digit', 
+                              month: 'short', 
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            });
+                            
+                            if (diffDays === 0) {
+                              return `Today at ${date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
+                            } else if (diffDays === 1) {
+                              return `Yesterday at ${date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
+                            } else {
+                              return formattedDate;
+                            }
+                          } catch (e) {
+                            return selectedJob.lastUpdated;
+                          }
+                        })()}
+                      </p>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border border-blue-100">
+                      <label className={`text-xs font-medium uppercase tracking-wide ${TAILWIND_COLORS.TEXT_MUTED}`}>Update Status</label>
+                      <p className={`text-base font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mt-1`}>
+                        {selectedJob.admin_action === 'pending' ? (
+                          <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
+                            Pending Approval
+                          </span>
+                        ) : selectedJob.admin_action === 'approved' ? (
+                          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                            Approved
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                            Not Updated
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Updated Fields Section - Only Highlight Changed Fields */}
+                  <div className="mt-4">
+                    <h5 className={`text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-4 flex items-center gap-2`}>
+                      <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Updated Fields
+                    </h5>
+                    
+                    <div className="bg-white rounded-lg border border-gray-200 p-4">
+                      {loadingOriginalData ? (
+                        <div className="text-center py-4">
+                          <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                          <p className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} mt-2`}>Loading changes...</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                          {/* Title */}
+                          <div className={`rounded p-3 border ${originalJobData?.title && originalJobData.title !== selectedJob.title ? 'border-orange-300 bg-orange-50' : 'border-gray-200 bg-gray-50'}`}>
+                            <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED} text-xs block mb-1`}>Title</span>
+                            <span className={TAILWIND_COLORS.TEXT_PRIMARY}>
+                              {selectedJob.title || 'N/A'}
+                            </span>
+                            {originalJobData?.title && originalJobData.title !== selectedJob.title && (
+                              <span className="ml-2 text-xs text-orange-600 font-medium">(Updated)</span>
+                            )}
+                          </div>
+
+                          {/* Location */}
+                          <div className={`rounded p-3 border ${originalJobData?.location && originalJobData.location !== selectedJob.location ? 'border-orange-300 bg-orange-50' : 'border-gray-200 bg-gray-50'}`}>
+                            <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED} text-xs block mb-1`}>Location</span>
+                            <span className={TAILWIND_COLORS.TEXT_PRIMARY}>
+                              {selectedJob.location || 'N/A'}
+                            </span>
+                            {originalJobData?.location && originalJobData.location !== selectedJob.location && (
+                              <span className="ml-2 text-xs text-orange-600 font-medium">(Updated)</span>
+                            )}
+                          </div>
+
+                          {/* Salary */}
+                          <div className={`rounded p-3 border ${(originalJobData?.salary_min !== selectedJob.salary_min || originalJobData?.salary_max !== selectedJob.salary_max) ? 'border-orange-300 bg-orange-50' : 'border-gray-200 bg-gray-50'}`}>
+                            <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED} text-xs block mb-1`}>Salary</span>
+                            <span className={TAILWIND_COLORS.TEXT_PRIMARY}>
+                              {selectedJob.salary_min && selectedJob.salary_max 
+                                ? `₹${selectedJob.salary_min} - ₹${selectedJob.salary_max}`
+                                : selectedJob.salary_min 
+                                  ? `₹${selectedJob.salary_min}` 
+                                  : 'N/A'}
+                            </span>
+                            {(originalJobData?.salary_min !== selectedJob.salary_min || originalJobData?.salary_max !== selectedJob.salary_max) && (
+                              <span className="ml-2 text-xs text-orange-600 font-medium">(Updated)</span>
+                            )}
+                          </div>
+
+                          {/* Experience */}
+                          <div className={`rounded p-3 border ${originalJobData?.experience_required && originalJobData.experience_required !== selectedJob.experience_required ? 'border-orange-300 bg-orange-50' : 'border-gray-200 bg-gray-50'}`}>
+                            <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED} text-xs block mb-1`}>Experience</span>
+                            <span className={TAILWIND_COLORS.TEXT_PRIMARY}>
+                              {selectedJob.experience_required || 'N/A'}
+                            </span>
+                            {originalJobData?.experience_required && originalJobData.experience_required !== selectedJob.experience_required && (
+                              <span className="ml-2 text-xs text-orange-600 font-medium">(Updated)</span>
+                            )}
+                          </div>
+
+                          {/* Job Type */}
+                          <div className={`rounded p-3 border ${originalJobData?.job_type && originalJobData.job_type !== selectedJob.job_type ? 'border-orange-300 bg-orange-50' : 'border-gray-200 bg-gray-50'}`}>
+                            <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED} text-xs block mb-1`}>Job Type</span>
+                            <span className={TAILWIND_COLORS.TEXT_PRIMARY}>
+                              {selectedJob.job_type || 'N/A'}
+                            </span>
+                            {originalJobData?.job_type && originalJobData.job_type !== selectedJob.job_type && (
+                              <span className="ml-2 text-xs text-orange-600 font-medium">(Updated)</span>
+                            )}
+                          </div>
+
+                          {/* Vacancies */}
+                          <div className={`rounded p-3 border ${originalJobData?.no_of_vacancies && originalJobData.no_of_vacancies !== selectedJob.no_of_vacancies ? 'border-orange-300 bg-orange-50' : 'border-gray-200 bg-gray-50'}`}>
+                            <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED} text-xs block mb-1`}>Vacancies</span>
+                            <span className={TAILWIND_COLORS.TEXT_PRIMARY}>
+                              {selectedJob.no_of_vacancies || 'N/A'}
+                            </span>
+                            {originalJobData?.no_of_vacancies && originalJobData.no_of_vacancies !== selectedJob.no_of_vacancies && (
+                              <span className="ml-2 text-xs text-orange-600 font-medium">(Updated)</span>
+                            )}
+                          </div>
+
+                          {/* Skills */}
+                          <div className={`rounded p-3 border ${originalJobData?.skills_required && originalJobData.skills_required !== selectedJob.skills_required ? 'border-orange-300 bg-orange-50' : 'border-gray-200 bg-gray-50'}`}>
+                            <span className={`font-medium ${TAILWIND_COLORS.TEXT_MUTED} text-xs block mb-1`}>Skills</span>
+                            <span className={TAILWIND_COLORS.TEXT_PRIMARY}>
+                              {selectedJob.skills_required || 'N/A'}
+                            </span>
+                            {originalJobData?.skills_required && originalJobData.skills_required !== selectedJob.skills_required && (
+                              <span className="ml-2 text-xs text-orange-600 font-medium">(Updated)</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Job Information */}
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className={`text-md font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-3`}>Job Information</h4>

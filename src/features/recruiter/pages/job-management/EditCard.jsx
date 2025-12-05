@@ -383,17 +383,36 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
         }
       } else {
         // ✅ Regular job - update via PUT API
+        // ✅ Check if job was previously approved - if yes, set admin_action to "pending" for edit approval
+        const wasApproved = job.admin_action === 'approved' || job.admin_status === 'approved';
+        
+        // If job was approved, add admin_action: "pending" to require admin approval for edits
+        const updatePayload = wasApproved 
+          ? { ...payload, admin_action: "pending" }
+          : payload;
+        
+        console.log("📋 [EditCard] ➜ Job Edit Approval Check:", {
+          jobId: job.id,
+          wasApproved,
+          admin_action: job.admin_action,
+          admin_status: job.admin_status,
+          requiresApproval: wasApproved,
+          payload: updatePayload
+        });
+
         const res = await putMethod({
           apiUrl: `${service.updateJob}?id=${job.id}`,
-          payload,
+          payload: updatePayload,
         });
         console.log("✅ [EditCard] ➜ API Response:", res);
 
         if (res?.status) {
           Swal.fire({
-            title: "Success!",
-            text: "Job updated successfully!",
-            icon: "success",
+            title: wasApproved ? "Job Updated - Pending Admin Approval" : "Success!",
+            text: wasApproved 
+              ? "Your job changes have been submitted. The job will be hidden from candidates until admin approves the changes."
+              : "Job updated successfully!",
+            icon: wasApproved ? "info" : "success",
             confirmButtonText: "OK",
             confirmButtonColor: "#3085d6",
           }).then(() => {

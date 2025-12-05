@@ -182,8 +182,16 @@ const FindJob = ({ onClose }) => {
       console.log('Jobs Count:', jobsData.length)
 
       if (jobsData.length > 0) {
+        // ✅ Filter out jobs that are not approved or are pending edit approval
+        // Only show jobs with admin_action === 'approved' to students/candidates
+        const approvedJobs = jobsData.filter(job => {
+          const adminAction = (job.admin_action || '').toLowerCase();
+          // Only show approved jobs to students
+          return adminAction === 'approved';
+        });
+
         // Transform API data to match component structure
-        const transformedJobs = jobsData.map((job, index) => {
+        const transformedJobs = approvedJobs.map((job, index) => {
           const rawType = job.employment_type || job.job_type || job.type || 'Full Time'
           const rawCategory = job.category_name || job.category || job.job_category || 'Other'
           const rawExperience = job.experience_required || job.experience_level || job.experience || 'Entry Level'
