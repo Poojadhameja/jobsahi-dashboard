@@ -650,7 +650,7 @@ const PostJob = ({ onJobSubmit }) => {
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <input
-                      type="text"
+                      type="number"
                       name="minSalary"
                       value={formData.minSalary}
                       onChange={handleInputChange}
@@ -666,7 +666,7 @@ const PostJob = ({ onJobSubmit }) => {
                   </div>
                   <div className="flex-1">
                     <input
-                      type="text"
+                      type="number"
                       name="maxSalary"
                       value={formData.maxSalary}
                       onChange={handleInputChange}

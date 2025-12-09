@@ -196,7 +196,7 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
       module_description: formData.moduleDescription || '',
       media:
         selectedMedia && selectedMedia.length > 0
-          ? selectedMedia.map(m => m.name || m).join(', ')
+          ? selectedMedia.map(m => m.name || m.url || 'Unnamed file').join(', ')
           : '',
       admin_action: 'approved'
     }
@@ -378,11 +378,13 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
                 fee <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
+                type="number"
                 value={formData.fee}
                 onChange={e => handleInputChange('fee', e.target.value)}
                 className={getInputClass('fee')}
                 placeholder="e.g. 15000"
+                min="0"
+                step="1"
               />
             </div>
 
@@ -470,11 +472,11 @@ const EditCoursePopup = ({ course, onSave, onClose }) => {
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {selectedMedia.map(media => (
                       <div
-                        key={media.id || media.name || media}
+                        key={media.id || media.name || `media-${Math.random()}`}
                         className="flex items-center justify-between bg-gray-50 rounded-lg p-2"
                       >
                         <span className="text-sm text-gray-700 truncate">
-                          {media.name || media}
+                          {media.name || media.url || 'Unnamed file'}
                         </span>
                         <button
                           onClick={() =>

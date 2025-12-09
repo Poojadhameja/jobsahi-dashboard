@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { COLORS, TAILWIND_COLORS } from '../WebConstant'
@@ -56,6 +56,9 @@ export default function CreateAccount() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingText, setLoadingText] = useState('Creating Account...')
+  const [phoneErrors, setPhoneErrors] = useState({})
+  const [passwordError, setPasswordError] = useState('')
+  const [confirmPasswordError, setConfirmPasswordError] = useState('')
   const [form, setForm] = useState({
     // Common fields
     password: '',
@@ -133,11 +136,49 @@ export default function CreateAccount() {
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
+  // Clear phone errors when role changes
+  useEffect(() => {
+    setPhoneErrors({});
+    setPasswordError('');
+    setConfirmPasswordError('');
+  }, [role])
+
+  // Password validation function
+  const validatePassword = (password) => {
+    if (!password) {
+      return 'Password is required';
+    }
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return 'Password must contain at least one special character';
+    }
+    return '';
+  }
+
   const onSubmit = async (e) => {
     e.preventDefault()
     
+    // Validate password strength
+    const passwordValidationError = validatePassword(form.password);
+    if (passwordValidationError) {
+      setPasswordError(passwordValidationError);
+      Swal.fire({
+        title: "Validation Error",
+        text: passwordValidationError,
+        icon: "error"
+      });
+      return;
+    }
+    setPasswordError('');
+    
     // Validate password confirmation
     if (form.password !== form.confirmPassword) {
+      setConfirmPasswordError("Password and confirm password do not match!");
       Swal.fire({
         title: "Validation Error",
         text: "Password and confirm password do not match!",
@@ -145,6 +186,45 @@ export default function CreateAccount() {
       });
       return;
     }
+    setConfirmPasswordError('');
+
+    // Validate phone numbers - must be exactly 10 digits
+    const newPhoneErrors = {};
+    let hasPhoneError = false;
+
+    if (role === 'Admin') {
+      if (!form.mobileNumber || form.mobileNumber.length !== 10) {
+        newPhoneErrors.mobileNumber = "Mobile number must be exactly 10 digits";
+        hasPhoneError = true;
+      }
+    } else if (role === 'Recruiter') {
+      if (!form.companyContact || form.companyContact.length !== 10) {
+        newPhoneErrors.companyContact = "Company contact number must be exactly 10 digits";
+        hasPhoneError = true;
+      }
+    } else if (role === 'Institute') {
+      if (!form.instituteContact || form.instituteContact.length !== 10) {
+        newPhoneErrors.instituteContact = "Institute contact number must be exactly 10 digits";
+        hasPhoneError = true;
+      }
+    } else if (role === 'Student') {
+      if (!form.studentMobileNumber || form.studentMobileNumber.length !== 10) {
+        newPhoneErrors.studentMobileNumber = "Mobile number must be exactly 10 digits";
+        hasPhoneError = true;
+      }
+    }
+
+    if (hasPhoneError) {
+      setPhoneErrors(newPhoneErrors);
+      Swal.fire({
+        title: "Validation Error",
+        text: "Please enter a valid 10-digit phone number",
+        icon: "error"
+      });
+      return;
+    }
+
+    setPhoneErrors({});
     
     // is_verified: 0 for Recruiter and Institute (admin approval required)
     // is_verified: 1 for Admin and Student (directly verified)
@@ -425,11 +505,23 @@ export default function CreateAccount() {
                     <input
                       type="tel"
                       value={form.mobileNumber}
-                      onChange={(e) => setForm((f) => ({ ...f, mobileNumber: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setForm((f) => ({ ...f, mobileNumber: value }));
+                        if (phoneErrors.mobileNumber) {
+                          setPhoneErrors((prev) => ({ ...prev, mobileNumber: null }));
+                        }
+                      }}
                       required
-                      placeholder="Enter your mobile number"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      placeholder="Enter your mobile number (10 digits)"
+                      maxLength={10}
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white ${
+                        phoneErrors.mobileNumber ? "border-red-500" : "border-gray-300"
+                      }`}
                     />
+                    {phoneErrors.mobileNumber && (
+                      <p className="text-red-500 text-xs mt-1">{phoneErrors.mobileNumber}</p>
+                    )}
                   </div>
                   <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -481,11 +573,23 @@ export default function CreateAccount() {
                     <input
                       type="tel"
                       value={form.companyContact}
-                      onChange={(e) => setForm((f) => ({ ...f, companyContact: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setForm((f) => ({ ...f, companyContact: value }));
+                        if (phoneErrors.companyContact) {
+                          setPhoneErrors((prev) => ({ ...prev, companyContact: null }));
+                        }
+                      }}
                       required
-                      placeholder="Enter company contact number"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      placeholder="Enter company contact number (10 digits)"
+                      maxLength={10}
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white ${
+                        phoneErrors.companyContact ? "border-red-500" : "border-gray-300"
+                      }`}
                     />
+                    {phoneErrors.companyContact && (
+                      <p className="text-red-500 text-xs mt-1">{phoneErrors.companyContact}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Industry Type*</label>
@@ -586,11 +690,23 @@ export default function CreateAccount() {
                     <input
                       type="tel"
                       value={form.instituteContact}
-                      onChange={(e) => setForm((f) => ({ ...f, instituteContact: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setForm((f) => ({ ...f, instituteContact: value }));
+                        if (phoneErrors.instituteContact) {
+                          setPhoneErrors((prev) => ({ ...prev, instituteContact: null }));
+                        }
+                      }}
                       required
-                      placeholder="Enter institute contact number"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      placeholder="Enter institute contact number (10 digits)"
+                      maxLength={10}
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white ${
+                        phoneErrors.instituteContact ? "border-red-500" : "border-gray-300"
+                      }`}
                     />
+                    {phoneErrors.instituteContact && (
+                      <p className="text-red-500 text-xs mt-1">{phoneErrors.instituteContact}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Institute Type*</label>
@@ -789,11 +905,23 @@ export default function CreateAccount() {
                     <input
                       type="tel"
                       value={form.studentMobileNumber}
-                      onChange={(e) => setForm((f) => ({ ...f, studentMobileNumber: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        setForm((f) => ({ ...f, studentMobileNumber: value }));
+                        if (phoneErrors.studentMobileNumber) {
+                          setPhoneErrors((prev) => ({ ...prev, studentMobileNumber: null }));
+                        }
+                      }}
                       required
-                      placeholder="Enter your mobile number"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      placeholder="Enter your mobile number (10 digits)"
+                      maxLength={10}
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white ${
+                        phoneErrors.studentMobileNumber ? "border-red-500" : "border-gray-300"
+                      }`}
                     />
+                    {phoneErrors.studentMobileNumber && (
+                      <p className="text-red-500 text-xs mt-1">{phoneErrors.studentMobileNumber}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1289,10 +1417,19 @@ export default function CreateAccount() {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={form.password}
-                    onChange={update('password')}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setForm((f) => ({ ...f, password: value }));
+                      if (passwordError) {
+                        const error = validatePassword(value);
+                        setPasswordError(error);
+                      }
+                    }}
                     required
-                    placeholder="Enter your password"
-                    className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 pr-10 bg-white"
+                    placeholder="Min 8 chars, 1 uppercase, 1 special"
+                    className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 pr-10 bg-white ${
+                      passwordError ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
                   <button
                     type="button"
@@ -1306,6 +1443,12 @@ export default function CreateAccount() {
                     )}
                   </button>
                 </div>
+                {passwordError && (
+                  <p className="text-red-500 text-xs mt-1">{passwordError}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-1">
+                  Password must be at least 8 characters with 1 uppercase letter and 1 special character
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password*</label>
@@ -1313,10 +1456,22 @@ export default function CreateAccount() {
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     value={form.confirmPassword}
-                    onChange={update('confirmPassword')}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setForm((f) => ({ ...f, confirmPassword: value }));
+                      if (confirmPasswordError || (form.password && value !== form.password)) {
+                        if (value !== form.password) {
+                          setConfirmPasswordError("Password and confirm password do not match!");
+                        } else {
+                          setConfirmPasswordError('');
+                        }
+                      }
+                    }}
                     required
                     placeholder="Confirm your password"
-                    className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 pr-10 bg-white"
+                    className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 pr-10 bg-white ${
+                      confirmPasswordError ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
                   <button
                     type="button"
@@ -1330,6 +1485,9 @@ export default function CreateAccount() {
                     )}
                   </button>
                 </div>
+                {confirmPasswordError && (
+                  <p className="text-red-500 text-xs mt-1">{confirmPasswordError}</p>
+                )}
               </div>
             </div>
 
