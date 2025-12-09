@@ -364,12 +364,12 @@ const MessagingCampaignsView = () => {
       ]} />
 
       {/* Navigation Tabs */}
-      <PillNavigation 
+      {/* <PillNavigation 
         tabs={navigationTabs}
         activeTab={activeTab}
         onTabChange={setActiveTab}
         storageKey="admin_messaging_campaigns_tab"
-      />
+      /> */}
 
       {/* Filter and New Campaign Buttons */}
       <div className="flex flex-col sm:flex-row justify-end gap-3 mb-4 sm:mb-6">
@@ -378,16 +378,17 @@ const MessagingCampaignsView = () => {
       </div>
 
       {/* Content based on active navigation tab */}
-      {activeTab === 0 && <SystemWidePush />}
+      {/* {activeTab === 0 && <SystemWidePush />} */}
+      <SystemWidePush />
 
       {/* Segment-Based Messaging Content */}
-      {activeTab === 1 && <SegmentBasedMessaging />}
+      {/* {activeTab === 1 && <SegmentBasedMessaging />} */}
 
       {/* Email & SMS Campaigns Management Content */}
-      {activeTab === 2 && <EmailSmsCampaignsManager />}    
+      {/* {activeTab === 2 && <EmailSmsCampaignsManager />} */}
 
       {/* Notification Templates Manager Content */}
-      {activeTab === 3 && <NotificationTemplatesManager />}
+      {/* {activeTab === 3 && <NotificationTemplatesManager />} */}
 
       {/* Coming Soon Popup */}
       <ComingSoonPopup />

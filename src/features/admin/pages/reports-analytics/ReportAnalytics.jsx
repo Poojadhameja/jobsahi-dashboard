@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { MatrixCard, Horizontal4Cards } from '../../../../shared/components/metricCard.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import ConversionReports from './ConversionReports.jsx'
@@ -20,7 +21,22 @@ import {
 } from 'react-icons/lu'
 
 export default function ReportAnalytics() {
+  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
+
+  // Read tab from URL query params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam === 'hiring') {
+      setActiveTab(1)
+    } else if (tabParam === 'completion') {
+      setActiveTab(2)
+    } else if (tabParam === 'performance') {
+      setActiveTab(3)
+    } else {
+      setActiveTab(0)
+    }
+  }, [searchParams])
   const [metricsData, setMetricsData] = useState([
     {
       title: 'Total Visits',
@@ -142,7 +158,7 @@ export default function ReportAnalytics() {
       />
 
       {/* Navigation Buttons */}
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
         <PillNavigation 
           tabs={navigationTabs}
           activeTab={activeTab}
@@ -150,7 +166,7 @@ export default function ReportAnalytics() {
           storageKey="admin_reports_analytics_tab"
           className=""
         />
-      </div>
+      </div> */}
 
       {/* Conditional Content Based on Active Tab */}
       {activeTab === 0 && <ConversionReports />}

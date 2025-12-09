@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant.js'
 import { MatrixCard, MetricPillRow } from '../../../../../shared/components/metricCard'
@@ -6,9 +7,9 @@ import { PillNavigation } from '../../../../../shared/components/navigation'
 import Button from '../../../../../shared/components/Button'
 import PendingRecruiterApprovals from './PendingRecruiter'
 import JobPostingAnalytics from './JobPosting'
-import PaymentHistory from './Payment'
+// import PaymentHistory from './Payment'
 import EmployerRatings from './EmployerRating'
-import ResumeUsageTracker from './ResumeUsage'
+// import ResumeUsageTracker from './ResumeUsage'
 import FraudControlSystem from './FraudControl'
 import {
   LuBuilding,
@@ -112,18 +113,49 @@ function EmployerTable({ employers }) {
 
 
 export default function EmployerManagement() {
+  const [searchParams] = useSearchParams()
   const [employers, setEmployers] = useState([])
   const [pendingApprovalEmployers, setPendingApprovalEmployers] = useState([])
   const [activeTab, setActiveTab] = useState(0)
   const [previousTab, setPreviousTab] = useState(0)
 
+  // Read tab from URL query params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    const subtabParam = searchParams.get('subtab')
+    
+    // If we're in employer management context, check subtab
+    if (tabParam === 'employer' || subtabParam) {
+      if (subtabParam === 'job-tracking') {
+        setActiveTab(1)
+      } else if (subtabParam === 'ratings') {
+        setActiveTab(2)
+      } else if (subtabParam === 'fraud-control') {
+        setActiveTab(3)
+      } else {
+        setActiveTab(0)
+      }
+    } else {
+      // Legacy support for direct tab param
+      if (tabParam === 'job-tracking') {
+        setActiveTab(1)
+      } else if (tabParam === 'ratings') {
+        setActiveTab(2)
+      } else if (tabParam === 'fraud-control') {
+        setActiveTab(3)
+      } else {
+        setActiveTab(0)
+      }
+    }
+  }, [searchParams])
+
   // Navigation tabs configuration
   const navigationTabs = [
     { id: 'approve-reject', label: 'Approve/Reject', icon: LuCheck },
     { id: 'job-tracking', label: 'Job Tracking', icon: LuBriefcase },
-    { id: 'payments', label: 'Payments', icon: LuBanknote },
+    // { id: 'payments', label: 'Payments', icon: LuBanknote },
     { id: 'ratings', label: 'Ratings', icon: LuStar },
-    { id: 'resume-usage', label: 'Resume Usage', icon: LuFileText },
+    // { id: 'resume-usage', label: 'Resume Usage', icon: LuFileText },
     { id: 'fraud-control', label: 'Fraud Control', icon: LuShield }
   ]
   const [totalEmployerCount, setTotalEmployerCount] = useState('0')
@@ -276,7 +308,7 @@ else {
       </div>
 
       {/* Navigation Tabs */}
-      <PillNavigation 
+      {/* <PillNavigation 
         tabs={navigationTabs}
         activeTab={activeTab}
         onTabChange={(newTab) => {
@@ -286,7 +318,7 @@ else {
           }
         }}
         storageKey="admin_employer_management_tab"
-      />
+      /> */}
 
       {/* Conditional Content Rendering */}
       {activeTab === 0 && (
@@ -298,18 +330,10 @@ else {
       )}
 
       {activeTab === 2 && (
-        <PaymentHistory onComingSoonClose={() => setActiveTab(previousTab)} />
-      )}
-
-      {activeTab === 3 && (
         <EmployerRatings />
       )}
 
-      {activeTab === 4 && (
-        <ResumeUsageTracker onComingSoonClose={() => setActiveTab(previousTab)} />
-      )}
-
-      {activeTab === 5 && (
+      {activeTab === 3 && (
         <FraudControlSystem />
       )}
 

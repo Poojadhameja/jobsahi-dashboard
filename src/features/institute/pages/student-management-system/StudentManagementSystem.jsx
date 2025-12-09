@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { LuPlus, LuUsers, LuBookOpen, LuTrendingUp, LuMessageSquare, LuEye } from 'react-icons/lu'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { LuPlus, LuUsers, LuBookOpen, LuTrendingUp, /* LuMessageSquare, */ LuEye } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
@@ -7,11 +8,22 @@ import ViewStudents from './ViewStudents'
 // import AddStudents from './AddStudents'
 import AssignCourse from './AssignCourse'
 // import TrackProgress from './TrackProgress'
-import SendMessages from './SendMessages'
+// import SendMessages from './SendMessages'
 
 export default function StudentManagementSystem() {
+  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
   const [previousTab, setPreviousTab] = useState(null)
+
+  // Read tab from URL query params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam === 'assign-course') {
+      setActiveTab(1)
+    } else {
+      setActiveTab(0)
+    }
+  }, [searchParams])
 
   // Navigation tabs configuration
   const navigationTabs = [
@@ -35,11 +47,11 @@ export default function StudentManagementSystem() {
     //   label: 'Track Progress',
     //   icon: LuTrendingUp
     // },
-    {
-      id: 'send-messages',
-      label: 'Send Messages',
-      icon: LuMessageSquare
-    }
+    // {
+    //   id: 'send-messages',
+    //   label: 'Send Messages',
+    //   icon: LuMessageSquare
+    // }
   ]
 
   const handleTabChange = (index) => {
@@ -64,7 +76,7 @@ export default function StudentManagementSystem() {
       </div>
 
       {/* Navigation Buttons with PillNavigation */}
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
         <PillNavigation 
           tabs={navigationTabs}
           activeTab={activeTab}
@@ -72,15 +84,15 @@ export default function StudentManagementSystem() {
           storageKey="institute_student_management_tab"
           className="w-full max-w-4xl"
         />
-      </div>
+      </div> */}
 
       {/* Conditional Content Rendering */}
       <div className={`mt-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
         {activeTab === 0 && <ViewStudents />}
-        {/* {activeTab === 1 && <AddStudents />} */}
         {activeTab === 1 && <AssignCourse />}
+        {/* {activeTab === 1 && <AddStudents />} */}
         {/* {activeTab === 3 && <TrackProgress />} */}
-        {activeTab === 2 && <SendMessages onComingSoonClose={handleReturnToPreviousTab} />}
+        {/* {activeTab === 2 && <SendMessages onComingSoonClose={handleReturnToPreviousTab} />} */}
         {/* Add other tab components here as needed */}
       </div>
     </div>

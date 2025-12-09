@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { LuPlus, LuSettings } from 'react-icons/lu'
 import { PillNavigation } from '../../../../shared/components/navigation'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
@@ -6,7 +7,18 @@ import PostJob from './PostJob'
 import ManageJob from './ManageJob'
 
 const JobManagement = () => {
+  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
+
+  // Read tab from URL query params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam === 'post') {
+      setActiveTab(1)
+    } else {
+      setActiveTab(0)
+    }
+  }, [searchParams])
   
   // Shared jobs state
   const [jobs, setJobs] = useState([
@@ -115,7 +127,7 @@ const JobManagement = () => {
   return (
     <div className={`min-h-screen ${TAILWIND_COLORS.BG_PRIMARY}`}>
       {/* Green Navigation Pills */}
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <PillNavigation 
           tabs={tabs}
           activeTab={activeTab}
@@ -123,10 +135,9 @@ const JobManagement = () => {
           storageKey="recruiter_job_management_tab"
           className="justify-start"
         />
-      </div>
+      </div> */}
 
       {/* Conditional Rendering based on active tab */}
-      
       {activeTab === 0 && (
         <ManageJob 
           jobs={jobs} 

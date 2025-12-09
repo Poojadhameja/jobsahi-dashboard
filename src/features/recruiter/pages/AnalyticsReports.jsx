@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import {
-  LuFileText,
-  LuFileSpreadsheet,
   LuUsers,
   LuUserCheck,
   LuPercent,
@@ -11,7 +9,6 @@ import BarChart from "../../../shared/components/charts/BarChart";
 import TradePieChart from "../../../shared/components/charts/TradePieChart";
 import { getChartColors } from "../../../shared/utils/chartColors";
 import { Horizontal4Cards, MatrixCard } from "../../../shared/components/metricCard";
-import DynamicButton from "../../../shared/components/DynamicButton";
 import { TAILWIND_COLORS } from "../../../shared/WebConstant";
 import { getMethod } from "../../../service/api";
 import apiService from "../services/serviceUrl";
@@ -134,67 +131,6 @@ const AnalyticsReports = () => {
     : [];
 
   // ==========================
-  // 📂 Export Handlers
-  // ==========================
-  const handleCSVDownload = () => {
-    if (!analyticsData) return;
-
-    const csvData = [
-      ["Department", "Total Applications", "Shortlisted", "Hired"],
-      ...analyticsData.applications_by_department.map((d) => [
-        d.department,
-        d.total_applications,
-        d.shortlisted,
-        d.hired,
-      ]),
-    ];
-
-    const csvContent = csvData.map((row) => row.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", "analytics_data.csv");
-    link.click();
-  };
-
-  const handlePDFDownload = () => {
-    if (!analyticsData) return;
-
-    const reportContent = `
-Recruiter Analytics Report
-Generated on: ${new Date().toLocaleDateString()}
-
-APPLICATIONS BY DEPARTMENT:
-${analyticsData.applications_by_department
-  .map(
-    (d) =>
-      `${d.department}: ${d.total_applications} applications, ${d.shortlisted} shortlisted, ${d.hired} hired`
-  )
-  .join("\n")}
-
-SOURCE OF HIRE:
-${analyticsData.source_of_hire
-  .map((s) => `${s.source}: ${s.count}`)
-  .join("\n")}
-
-KEY METRICS:
-${Object.entries(analyticsData.key_metrics)
-  .map(([k, v]) => `${k.replace(/_/g, " ")}: ${v}`)
-  .join("\n")}
-    `.trim();
-
-    const blob = new Blob([reportContent], {
-      type: "text/plain;charset=utf-8;",
-    });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", "analytics_report.txt");
-    link.click();
-  };
-
-  // ==========================
   // 🧩 Render
   // ==========================
   if (loading) {
@@ -240,29 +176,6 @@ ${Object.entries(analyticsData.key_metrics)
             <option value="Last year">Last year</option>
           </select>
         </div>
-
-        <div className="flex items-center gap-3">
-          <DynamicButton
-            onClick={handleCSVDownload}
-            backgroundColor="transparent"
-            textColor="var(--color-text-primary)"
-            border="2px solid var(--color-secondary)"
-            hoverBackgroundColor="var(--color-secondary)"
-            icon={<LuFileSpreadsheet className="w-4 h-4" />}
-          >
-            CSV
-          </DynamicButton>
-          <DynamicButton
-            onClick={handlePDFDownload}
-            backgroundColor="transparent"
-            textColor="var(--color-text-primary)"
-            border="2px solid var(--color-secondary)"
-            hoverBackgroundColor="var(--color-secondary)"
-            icon={<LuFileText className="w-4 h-4" />}
-          >
-            PDF
-          </DynamicButton>
-        </div>
       </div>
 
       {/* Charts Grid */}
@@ -271,6 +184,7 @@ ${Object.entries(analyticsData.key_metrics)
           <BarChart
             title="Applications by Department"
             data={applicationsData}
+            showExport={false}
           />
         </div>
         <div className="xl:col-span-1">

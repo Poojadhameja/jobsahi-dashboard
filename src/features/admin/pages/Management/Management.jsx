@@ -1,33 +1,28 @@
-import React, { useState } from 'react'
-import { PillNavigation, MANAGEMENT_TABS } from '../../../../shared/components/navigation'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
 import StudentManagement from './StudentManagement'
 import EmployerManagement from './employer-management/EmployerManagement'
 import InstituteManagement from './institute-management/InstituteManagement'
 
-// Active Tab Content Component
-function ActiveTabContent({ activeTab }) {
-  switch (activeTab) {
-    case 0:
-      return <StudentManagement />
-    case 1:
-      return <EmployerManagement />
-    case 2:
-      return <InstituteManagement />
-    default:
-      return <StudentManagement />
-  }
-}
-
 export default function Management() {
+  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
 
-  const handleTabChange = (tabIndex) => {
-    setActiveTab(tabIndex)
-  }
+  // Read tab from URL query params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam === 'employer') {
+      setActiveTab(1)
+    } else if (tabParam === 'institute') {
+      setActiveTab(2)
+    } else {
+      setActiveTab(0)
+    }
+  }, [searchParams])
 
   // Debug: Check authentication status
-  React.useEffect(() => {
+  useEffect(() => {
     const token = localStorage.getItem("authToken")
     console.log('🔐 Auth Token Status:', token ? 'Present' : 'Missing')
     console.log('🔐 Token Value:', token ? `${token.substring(0, 20)}...` : 'No token')
@@ -42,17 +37,17 @@ export default function Management() {
       </div> */}
 
       {/* Navigation using shared component */}
-      <PillNavigation 
+      {/* <PillNavigation 
         tabs={MANAGEMENT_TABS}
         activeTab={activeTab}
         onTabChange={handleTabChange}
         storageKey="admin_management_tab"
-      />
+      /> */}
 
       {/* Active Component */}
-      <ActiveTabContent activeTab={activeTab} />
+      {activeTab === 0 && <StudentManagement />}
+      {activeTab === 1 && <EmployerManagement />}
+      {activeTab === 2 && <InstituteManagement />}
     </div>
   )
 }
-
-

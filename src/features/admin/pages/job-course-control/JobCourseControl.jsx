@@ -145,12 +145,12 @@ const JobCourseControlView = () => {
       <Horizontal4Cards data={currentMetrics} />
 
       {/* Tabs */}
-      <PillNavigation 
+      {/* <PillNavigation 
         tabs={navigationTabs} 
         activeTab={activeTab} 
         onTabChange={setActiveTab}
         storageKey="admin_job_course_control_tab"
-      />
+      /> */}
 
       {/* Job Posting */}
       {activeTab === 0 && <JobPosting />}

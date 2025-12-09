@@ -57,6 +57,7 @@ export default function CreateAccount() {
   const [isLoading, setIsLoading] = useState(false)
   const [loadingText, setLoadingText] = useState('Creating Account...')
   const [phoneErrors, setPhoneErrors] = useState({})
+  const [emailErrors, setEmailErrors] = useState({})
   const [passwordError, setPasswordError] = useState('')
   const [confirmPasswordError, setConfirmPasswordError] = useState('')
   const [form, setForm] = useState({
@@ -136,12 +137,25 @@ export default function CreateAccount() {
 
   const update = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
 
-  // Clear phone errors when role changes
+  // Clear phone and email errors when role changes
   useEffect(() => {
     setPhoneErrors({});
+    setEmailErrors({});
     setPasswordError('');
     setConfirmPasswordError('');
   }, [role])
+
+  // Email validation function
+  const validateEmail = (email) => {
+    if (!email) {
+      return 'Email is required';
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return 'Please enter a valid email address';
+    }
+    return '';
+  }
 
   // Password validation function
   const validatePassword = (password) => {
@@ -188,28 +202,70 @@ export default function CreateAccount() {
     }
     setConfirmPasswordError('');
 
+    // Validate email addresses
+    const newEmailErrors = {};
+    let hasEmailError = false;
+
+    if (role === 'Admin') {
+      const emailError = validateEmail(form.officialEmail);
+      if (emailError) {
+        newEmailErrors.officialEmail = emailError;
+        hasEmailError = true;
+      }
+    } else if (role === 'Recruiter') {
+      const emailError = validateEmail(form.companyEmail);
+      if (emailError) {
+        newEmailErrors.companyEmail = emailError;
+        hasEmailError = true;
+      }
+    } else if (role === 'Institute') {
+      const emailError = validateEmail(form.instituteEmail);
+      if (emailError) {
+        newEmailErrors.instituteEmail = emailError;
+        hasEmailError = true;
+      }
+    } else if (role === 'Student') {
+      const emailError = validateEmail(form.studentEmail);
+      if (emailError) {
+        newEmailErrors.studentEmail = emailError;
+        hasEmailError = true;
+      }
+    }
+
+    if (hasEmailError) {
+      setEmailErrors(newEmailErrors);
+      Swal.fire({
+        title: "Validation Error",
+        text: "Please enter a valid email address",
+        icon: "error"
+      });
+      return;
+    }
+
+    setEmailErrors({});
+
     // Validate phone numbers - must be exactly 10 digits
     const newPhoneErrors = {};
     let hasPhoneError = false;
 
     if (role === 'Admin') {
       if (!form.mobileNumber || form.mobileNumber.length !== 10) {
-        newPhoneErrors.mobileNumber = "Mobile number must be exactly 10 digits";
+        newPhoneErrors.mobileNumber = "Mobile number must be minimum and maximum 10 digits";
         hasPhoneError = true;
       }
     } else if (role === 'Recruiter') {
       if (!form.companyContact || form.companyContact.length !== 10) {
-        newPhoneErrors.companyContact = "Company contact number must be exactly 10 digits";
+        newPhoneErrors.companyContact = "Company contact number must be minimum and maximum 10 digits";
         hasPhoneError = true;
       }
     } else if (role === 'Institute') {
       if (!form.instituteContact || form.instituteContact.length !== 10) {
-        newPhoneErrors.instituteContact = "Institute contact number must be exactly 10 digits";
+        newPhoneErrors.instituteContact = "Institute contact number must be minimum and maximum 10 digits";
         hasPhoneError = true;
       }
     } else if (role === 'Student') {
       if (!form.studentMobileNumber || form.studentMobileNumber.length !== 10) {
-        newPhoneErrors.studentMobileNumber = "Mobile number must be exactly 10 digits";
+        newPhoneErrors.studentMobileNumber = "Mobile number must be minimum and maximum 10 digits";
         hasPhoneError = true;
       }
     }
@@ -476,7 +532,7 @@ export default function CreateAccount() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name<span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={form.fullName}
@@ -487,40 +543,85 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Official Email*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Official Email<span className="text-red-500">*</span></label>
                     <input
                       type="email"
                       value={form.officialEmail}
-                      onChange={update('officialEmail')}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setForm((f) => ({ ...f, officialEmail: value }));
+                        // Real-time validation
+                        if (value) {
+                          const error = validateEmail(value);
+                          if (error) {
+                            setEmailErrors((prev) => ({ ...prev, officialEmail: error }));
+                          } else {
+                            setEmailErrors((prev) => ({ ...prev, officialEmail: null }));
+                          }
+                        } else {
+                          setEmailErrors((prev) => ({ ...prev, officialEmail: null }));
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate on blur
+                        if (form.officialEmail) {
+                          const error = validateEmail(form.officialEmail);
+                          if (error) {
+                            setEmailErrors((prev) => ({ ...prev, officialEmail: error }));
+                          }
+                        }
+                      }}
                       required
                       placeholder="Enter your official email"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 px-3 bg-white cursor-text ${
+                        emailErrors.officialEmail || (form.officialEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.officialEmail) && form.officialEmail.length > 0)
+                          ? "border-red-500 focus:ring-red-500" 
+                          : "border-gray-300 focus:ring-[#5B9821]"
+                      }`}
                     />
+                    {(emailErrors.officialEmail || (form.officialEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.officialEmail) && form.officialEmail.length > 0)) && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {emailErrors.officialEmail || "Please enter a valid email address"}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number<span className="text-red-500">*</span></label>
                     <input
                       type="tel"
                       value={form.mobileNumber}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '').slice(0, 10);
                         setForm((f) => ({ ...f, mobileNumber: value }));
-                        if (phoneErrors.mobileNumber) {
+                        // Real-time validation
+                        if (value && value.length !== 10) {
+                          setPhoneErrors((prev) => ({ ...prev, mobileNumber: "Mobile number must be minimum and maximum 10 digits" }));
+                        } else {
                           setPhoneErrors((prev) => ({ ...prev, mobileNumber: null }));
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate on blur
+                        if (form.mobileNumber && form.mobileNumber.length !== 10) {
+                          setPhoneErrors((prev) => ({ ...prev, mobileNumber: "Mobile number must be minimum and maximum 10 digits" }));
                         }
                       }}
                       required
                       placeholder="Enter your mobile number (10 digits)"
                       maxLength={10}
-                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white ${
-                        phoneErrors.mobileNumber ? "border-red-500" : "border-gray-300"
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 px-3 bg-white cursor-text ${
+                        phoneErrors.mobileNumber || (form.mobileNumber && form.mobileNumber.length !== 10 && form.mobileNumber.length > 0)
+                          ? "border-red-500 focus:ring-red-500" 
+                          : "border-gray-300 focus:ring-[#5B9821]"
                       }`}
                     />
-                    {phoneErrors.mobileNumber && (
-                      <p className="text-red-500 text-xs mt-1">{phoneErrors.mobileNumber}</p>
+                    {(phoneErrors.mobileNumber || (form.mobileNumber && form.mobileNumber.length !== 10 && form.mobileNumber.length > 0)) && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {phoneErrors.mobileNumber || "Mobile number must be minimum and maximum 10 digits"}
+                      </p>
                     )}
                   </div>
                   <div>
@@ -544,7 +645,7 @@ export default function CreateAccount() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Name*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Name<span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={form.companyName}
@@ -555,44 +656,89 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Email*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Email<span className="text-red-500">*</span></label>
                     <input
                       type="email"
                       value={form.companyEmail}
-                      onChange={update('companyEmail')}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setForm((f) => ({ ...f, companyEmail: value }));
+                        // Real-time validation
+                        if (value) {
+                          const error = validateEmail(value);
+                          if (error) {
+                            setEmailErrors((prev) => ({ ...prev, companyEmail: error }));
+                          } else {
+                            setEmailErrors((prev) => ({ ...prev, companyEmail: null }));
+                          }
+                        } else {
+                          setEmailErrors((prev) => ({ ...prev, companyEmail: null }));
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate on blur
+                        if (form.companyEmail) {
+                          const error = validateEmail(form.companyEmail);
+                          if (error) {
+                            setEmailErrors((prev) => ({ ...prev, companyEmail: error }));
+                          }
+                        }
+                      }}
                       required
                       placeholder="Enter company email"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 px-3 bg-white cursor-text ${
+                        emailErrors.companyEmail || (form.companyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.companyEmail) && form.companyEmail.length > 0)
+                          ? "border-red-500 focus:ring-red-500" 
+                          : "border-gray-300 focus:ring-[#5B9821]"
+                      }`}
                     />
+                    {(emailErrors.companyEmail || (form.companyEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.companyEmail) && form.companyEmail.length > 0)) && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {emailErrors.companyEmail || "Please enter a valid email address"}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Contact Number*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Company Contact Number<span className="text-red-500">*</span></label>
                     <input
                       type="tel"
                       value={form.companyContact}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '').slice(0, 10);
                         setForm((f) => ({ ...f, companyContact: value }));
-                        if (phoneErrors.companyContact) {
+                        // Real-time validation
+                        if (value && value.length !== 10) {
+                          setPhoneErrors((prev) => ({ ...prev, companyContact: "Company contact number must be minimum and maximum 10 digits" }));
+                        } else {
                           setPhoneErrors((prev) => ({ ...prev, companyContact: null }));
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate on blur
+                        if (form.companyContact && form.companyContact.length !== 10) {
+                          setPhoneErrors((prev) => ({ ...prev, companyContact: "Company contact number must be minimum and maximum 10 digits" }));
                         }
                       }}
                       required
                       placeholder="Enter company contact number (10 digits)"
                       maxLength={10}
-                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white ${
-                        phoneErrors.companyContact ? "border-red-500" : "border-gray-300"
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 px-3 bg-white cursor-text ${
+                        phoneErrors.companyContact || (form.companyContact && form.companyContact.length !== 10 && form.companyContact.length > 0)
+                          ? "border-red-500 focus:ring-red-500" 
+                          : "border-gray-300 focus:ring-[#5B9821]"
                       }`}
                     />
-                    {phoneErrors.companyContact && (
-                      <p className="text-red-500 text-xs mt-1">{phoneErrors.companyContact}</p>
+                    {(phoneErrors.companyContact || (form.companyContact && form.companyContact.length !== 10 && form.companyContact.length > 0)) && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {phoneErrors.companyContact || "Company contact number must be minimum and maximum 10 digits"}
+                      </p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Industry Type*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Industry Type<span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={form.industryType}
@@ -605,7 +751,7 @@ export default function CreateAccount() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Website / LinkedIn Page*</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Company Website / LinkedIn Page<span className="text-red-500">*</span></label>
                   <input
                     type="url"
                     value={form.companyWebsite}
@@ -617,7 +763,7 @@ export default function CreateAccount() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Office Address*</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Office Address<span className="text-red-500">*</span></label>
                   <textarea
                     value={form.officeAddress}
                     onChange={update('officeAddress')}
@@ -661,7 +807,7 @@ export default function CreateAccount() {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Name*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Name<span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={form.instituteName}
@@ -672,44 +818,89 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Email*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Email<span className="text-red-500">*</span></label>
                     <input
                       type="email"
                       value={form.instituteEmail}
-                      onChange={update('instituteEmail')}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setForm((f) => ({ ...f, instituteEmail: value }));
+                        // Real-time validation
+                        if (value) {
+                          const error = validateEmail(value);
+                          if (error) {
+                            setEmailErrors((prev) => ({ ...prev, instituteEmail: error }));
+                          } else {
+                            setEmailErrors((prev) => ({ ...prev, instituteEmail: null }));
+                          }
+                        } else {
+                          setEmailErrors((prev) => ({ ...prev, instituteEmail: null }));
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate on blur
+                        if (form.instituteEmail) {
+                          const error = validateEmail(form.instituteEmail);
+                          if (error) {
+                            setEmailErrors((prev) => ({ ...prev, instituteEmail: error }));
+                          }
+                        }
+                      }}
                       required
                       placeholder="Enter institute email"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 px-3 bg-white cursor-text ${
+                        emailErrors.instituteEmail || (form.instituteEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.instituteEmail) && form.instituteEmail.length > 0)
+                          ? "border-red-500 focus:ring-red-500" 
+                          : "border-gray-300 focus:ring-[#5B9821]"
+                      }`}
                     />
+                    {(emailErrors.instituteEmail || (form.instituteEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.instituteEmail) && form.instituteEmail.length > 0)) && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {emailErrors.instituteEmail || "Please enter a valid email address"}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Contact Number*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Contact Number<span className="text-red-500">*</span></label>
                     <input
                       type="tel"
                       value={form.instituteContact}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '').slice(0, 10);
                         setForm((f) => ({ ...f, instituteContact: value }));
-                        if (phoneErrors.instituteContact) {
+                        // Real-time validation
+                        if (value && value.length !== 10) {
+                          setPhoneErrors((prev) => ({ ...prev, instituteContact: "Institute contact number must be minimum and maximum 10 digits" }));
+                        } else {
                           setPhoneErrors((prev) => ({ ...prev, instituteContact: null }));
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate on blur
+                        if (form.instituteContact && form.instituteContact.length !== 10) {
+                          setPhoneErrors((prev) => ({ ...prev, instituteContact: "Institute contact number must be minimum and maximum 10 digits" }));
                         }
                       }}
                       required
                       placeholder="Enter institute contact number (10 digits)"
                       maxLength={10}
-                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white ${
-                        phoneErrors.instituteContact ? "border-red-500" : "border-gray-300"
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 px-3 bg-white cursor-text ${
+                        phoneErrors.instituteContact || (form.instituteContact && form.instituteContact.length !== 10 && form.instituteContact.length > 0)
+                          ? "border-red-500 focus:ring-red-500" 
+                          : "border-gray-300 focus:ring-[#5B9821]"
                       }`}
                     />
-                    {phoneErrors.instituteContact && (
-                      <p className="text-red-500 text-xs mt-1">{phoneErrors.instituteContact}</p>
+                    {(phoneErrors.instituteContact || (form.instituteContact && form.instituteContact.length !== 10 && form.instituteContact.length > 0)) && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {phoneErrors.instituteContact || "Institute contact number must be minimum and maximum 10 digits"}
+                      </p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Type*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Institute Type<span className="text-red-500">*</span></label>
                     <select
                       value={form.instituteType}
                       onChange={update('instituteType')}
@@ -726,7 +917,7 @@ export default function CreateAccount() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Registration Number*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Registration Number<span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={form.registrationNumber}
@@ -737,7 +928,7 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Affiliation / Accreditation Details*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Affiliation / Accreditation Details<span className="text-red-500">*</span></label>
                     <select
                       value={form.affiliationDetails}
                       onChange={update('affiliationDetails')}
@@ -756,7 +947,7 @@ export default function CreateAccount() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Principal / Head Name*</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Principal / Head Name<span className="text-red-500">*</span></label>
                   <input
                     type="text"
                     value={form.principalName}
@@ -818,7 +1009,7 @@ export default function CreateAccount() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Institute Address*</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Institute Address<span className="text-red-500">*</span></label>
                   <textarea
                     value={form.instituteAddress}
                     onChange={update('instituteAddress')}
@@ -848,7 +1039,7 @@ export default function CreateAccount() {
                 {/* Personal Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name<span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={form.studentFullName}
@@ -859,7 +1050,7 @@ export default function CreateAccount() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth<span className="text-red-500">*</span></label>
                     <input
                       type="date"
                       value={form.dateOfBirth}
@@ -872,7 +1063,7 @@ export default function CreateAccount() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender<span className="text-red-500">*</span></label>
                     <select
                       value={form.gender}
                       onChange={update('gender')}
@@ -887,40 +1078,85 @@ export default function CreateAccount() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email<span className="text-red-500">*</span></label>
                     <input
                       type="email"
                       value={form.studentEmail}
-                      onChange={update('studentEmail')}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setForm((f) => ({ ...f, studentEmail: value }));
+                        // Real-time validation
+                        if (value) {
+                          const error = validateEmail(value);
+                          if (error) {
+                            setEmailErrors((prev) => ({ ...prev, studentEmail: error }));
+                          } else {
+                            setEmailErrors((prev) => ({ ...prev, studentEmail: null }));
+                          }
+                        } else {
+                          setEmailErrors((prev) => ({ ...prev, studentEmail: null }));
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate on blur
+                        if (form.studentEmail) {
+                          const error = validateEmail(form.studentEmail);
+                          if (error) {
+                            setEmailErrors((prev) => ({ ...prev, studentEmail: error }));
+                          }
+                        }
+                      }}
                       required
                       placeholder="Enter your email address"
-                      className="w-full h-11 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white"
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 px-3 bg-white cursor-text ${
+                        emailErrors.studentEmail || (form.studentEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.studentEmail) && form.studentEmail.length > 0)
+                          ? "border-red-500 focus:ring-red-500" 
+                          : "border-gray-300 focus:ring-[#5B9821]"
+                      }`}
                     />
+                    {(emailErrors.studentEmail || (form.studentEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.studentEmail) && form.studentEmail.length > 0)) && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {emailErrors.studentEmail || "Please enter a valid email address"}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number<span className="text-red-500">*</span></label>
                     <input
                       type="tel"
                       value={form.studentMobileNumber}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '').slice(0, 10);
                         setForm((f) => ({ ...f, studentMobileNumber: value }));
-                        if (phoneErrors.studentMobileNumber) {
+                        // Real-time validation
+                        if (value && value.length !== 10) {
+                          setPhoneErrors((prev) => ({ ...prev, studentMobileNumber: "Mobile number must be minimum and maximum 10 digits" }));
+                        } else {
                           setPhoneErrors((prev) => ({ ...prev, studentMobileNumber: null }));
+                        }
+                      }}
+                      onBlur={() => {
+                        // Validate on blur
+                        if (form.studentMobileNumber && form.studentMobileNumber.length !== 10) {
+                          setPhoneErrors((prev) => ({ ...prev, studentMobileNumber: "Mobile number must be minimum and maximum 10 digits" }));
                         }
                       }}
                       required
                       placeholder="Enter your mobile number (10 digits)"
                       maxLength={10}
-                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 focus:ring-[#5B9821] px-3 bg-white ${
-                        phoneErrors.studentMobileNumber ? "border-red-500" : "border-gray-300"
+                      className={`w-full h-11 rounded-lg border focus:outline-none focus:ring-2 px-3 bg-white cursor-text ${
+                        phoneErrors.studentMobileNumber || (form.studentMobileNumber && form.studentMobileNumber.length !== 10 && form.studentMobileNumber.length > 0)
+                          ? "border-red-500 focus:ring-red-500" 
+                          : "border-gray-300 focus:ring-[#5B9821]"
                       }`}
                     />
-                    {phoneErrors.studentMobileNumber && (
-                      <p className="text-red-500 text-xs mt-1">{phoneErrors.studentMobileNumber}</p>
+                    {(phoneErrors.studentMobileNumber || (form.studentMobileNumber && form.studentMobileNumber.length !== 10 && form.studentMobileNumber.length > 0)) && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {phoneErrors.studentMobileNumber || "Mobile number must be minimum and maximum 10 digits"}
+                      </p>
                     )}
                   </div>
                   <div>
@@ -950,7 +1186,7 @@ export default function CreateAccount() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Location / Address*</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Location / Address<span className="text-red-500">*</span></label>
                   <textarea
                     value={form.location}
                     onChange={update('location')}
@@ -981,7 +1217,7 @@ export default function CreateAccount() {
                     <div key={index} className="mb-4 p-4 border border-gray-200 rounded-lg">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Qualification*</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Qualification<span className="text-red-500">*</span></label>
                       <select
                             value={edu.qualification}
                             onChange={(e) => {
@@ -1000,7 +1236,7 @@ export default function CreateAccount() {
                       </select>
                     </div>
                     <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Institute Name*</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Institute Name<span className="text-red-500">*</span></label>
                       <input
                         type="text"
                             value={edu.institute}
@@ -1104,7 +1340,7 @@ export default function CreateAccount() {
                   <h3 className="text-lg font-medium text-gray-800 mb-4">Skills & Additional Information</h3>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Skills*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Skills<span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={form.skills}
@@ -1117,7 +1353,7 @@ export default function CreateAccount() {
                   </div>
 
                   <div className="mt-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Resume / CV Upload*</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Resume / CV Upload<span className="text-red-500">*</span></label>
                       <input
                         type="file"
                         accept=".pdf,.doc,.docx"
@@ -1412,7 +1648,7 @@ export default function CreateAccount() {
             {/* Common Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Password*</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password<span className="text-red-500">*</span></label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -1451,7 +1687,7 @@ export default function CreateAccount() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password*</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password<span className="text-red-500">*</span></label>
                 <div className="relative">
                   <input
                     type={showConfirmPassword ? "text" : "password"}

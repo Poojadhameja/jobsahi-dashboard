@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { LuFileText, LuSettings, LuHistory } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
@@ -8,7 +9,20 @@ import ManageTemplate from './ManageTemplate'
 import IssuanceLogs from './IssuanceLogs'
 
 export default function CertificatesCompletion() {
+  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
+
+  // Read tab from URL query params
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam === 'manage-template') {
+      setActiveTab(1)
+    } else if (tabParam === 'issuance-logs') {
+      setActiveTab(2)
+    } else {
+      setActiveTab(0)
+    }
+  }, [searchParams])
 
   const tabs = [
     {
@@ -43,7 +57,7 @@ export default function CertificatesCompletion() {
       />
 
       {/* Navigation Pills using PillNavigation */}
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
         <PillNavigation
           tabs={tabs}
           activeTab={activeTab}
@@ -51,7 +65,7 @@ export default function CertificatesCompletion() {
           storageKey="institute_certificates_tab"
           className=""
         />
-      </div>
+      </div> */}
 
       {/* Tab Content */}
       <div className="mt-5">
