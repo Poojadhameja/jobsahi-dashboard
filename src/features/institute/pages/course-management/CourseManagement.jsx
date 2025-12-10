@@ -51,14 +51,21 @@ export default function CourseManagement() {
         </div>
 
         {/* Green Navigation Buttons using PillNavigation */}
-        {/* <div className="mb-8">
+        <div className="mb-8 flex justify-center">
           <PillNavigation 
             tabs={navigationTabs}
-            activeTab={activeTabIndex}
-            onTabChange={setActiveTabIndex}
+            activeTab={isCreateRoute ? 1 : 0}
+            onTabChange={(index) => {
+              setActiveTabIndex(index)
+              if (index === 1) {
+                navigate('/institute/course-management/create')
+              } else {
+                navigate('/institute/course-management')
+              }
+            }}
             storageKey="institute_course_management_tab"
           />
-        </div> */}
+        </div>
 
         {/* Content Area */}
         {isCreateRoute ? (

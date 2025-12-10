@@ -26,6 +26,7 @@ export const instituteSidebarItems = [
     to: '/institute/course-management', 
     activePath: '/institute/course-management', 
     label: 'Course Management', 
+    icon: Icon.CourseManagement,
     children: [
       { to: '/institute/course-management', activePath: '/institute/course-management', label: 'Manage Course' },
       { to: '/institute/course-management/create', activePath: '/institute/course-management/create', label: 'Create Course' },
@@ -35,6 +36,7 @@ export const instituteSidebarItems = [
     to: '/institute/student-management', 
     activePath: '/institute/student-management', 
     label: 'Student Management', 
+    icon: Icon.StudentManagement,
     children: [
       { to: '/institute/student-management', activePath: '/institute/student-management', label: 'View Students' },
       { to: '/institute/student-management?tab=assign-course', activePath: '/institute/student-management', label: 'Assign Course/Batch' },
@@ -45,6 +47,7 @@ export const instituteSidebarItems = [
     to: '/institute/certificates-completion', 
     activePath: '/institute/certificates-completion', 
     label: 'Certificate Completion', 
+    icon: Icon.CertificatesCompletion,
     children: [
       { to: '/institute/certificates-completion', activePath: '/institute/certificates-completion', label: 'Certificate Generation' },
       { to: '/institute/certificates-completion?tab=manage-template', activePath: '/institute/certificates-completion', label: 'Manage Template' },
@@ -57,6 +60,7 @@ export const instituteSidebarItems = [
     to: '/institute/reports-analytics', 
     activePath: '/institute/reports-analytics', 
     label: 'Reports & Analytics', 
+    icon: Icon.ReportsAnalytics,
     children: [
       { to: '/institute/reports-analytics', activePath: '/institute/reports-analytics', label: 'Student Completion' },
       { to: '/institute/reports-analytics?tab=course-popularity', activePath: '/institute/reports-analytics', label: 'Course Popularity' },
@@ -66,6 +70,7 @@ export const instituteSidebarItems = [
     to: '/institute/profile-setting', 
     activePath: '/institute/profile-setting', 
     label: 'Profile & Settings', 
+    icon: Icon.ProfileSetting,
     children: [
       { to: '/institute/profile-setting', activePath: '/institute/profile-setting', label: 'Institute Profile' },
       { to: '/institute/profile-setting/staff-management', activePath: '/institute/profile-setting/staff-management', label: 'Staff Management' },

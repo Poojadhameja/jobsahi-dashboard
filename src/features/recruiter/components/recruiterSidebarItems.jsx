@@ -29,6 +29,7 @@ export const recruiterSidebarItems = [
     to: '/recruiter/job-management', 
     activePath: '/recruiter/job-management', 
     label: 'Job Management', 
+    icon: Icon.JobManagement,
     children: [
       { to: '/recruiter/job-management', activePath: '/recruiter/job-management', label: 'Manage Job' },
       { to: '/recruiter/job-management?tab=post', activePath: '/recruiter/job-management', label: 'Post Job' },
@@ -39,6 +40,7 @@ export const recruiterSidebarItems = [
     to: '/recruiter/interview-scheduler', 
     activePath: '/recruiter/interview-scheduler', 
     label: 'Interview Scheduler', 
+    icon: Icon.InterviewScheduler,
     children: [
       { to: '/recruiter/interview-scheduler', activePath: '/recruiter/interview-scheduler', label: 'Schedule interviews' },
       { to: '/recruiter/interview-scheduler?tab=panel', activePath: '/recruiter/interview-scheduler', label: 'Panel Management' },
@@ -48,6 +50,7 @@ export const recruiterSidebarItems = [
     to: '/recruiter/skill-test', 
     activePath: '/recruiter/skill-test', 
     label: 'Skill Test', 
+    icon: Icon.SkillTest,
     children: [
       { to: '/recruiter/skill-test', activePath: '/recruiter/skill-test', label: 'Create Test' },
       { to: '/recruiter/skill-test?tab=manage', activePath: '/recruiter/skill-test', label: 'Manage Tests' },

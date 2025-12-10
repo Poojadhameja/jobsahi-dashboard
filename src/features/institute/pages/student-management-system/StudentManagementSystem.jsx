@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import React, { useState } from 'react'
 import { LuPlus, LuUsers, LuBookOpen, LuTrendingUp, /* LuMessageSquare, */ LuEye } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
@@ -11,19 +10,8 @@ import AssignCourse from './AssignCourse'
 // import SendMessages from './SendMessages'
 
 export default function StudentManagementSystem() {
-  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
   const [previousTab, setPreviousTab] = useState(null)
-
-  // Read tab from URL query params
-  useEffect(() => {
-    const tabParam = searchParams.get('tab')
-    if (tabParam === 'assign-course') {
-      setActiveTab(1)
-    } else {
-      setActiveTab(0)
-    }
-  }, [searchParams])
 
   // Navigation tabs configuration
   const navigationTabs = [
@@ -54,12 +42,6 @@ export default function StudentManagementSystem() {
     // }
   ]
 
-  const handleTabChange = (index) => {
-    if (index === activeTab) return
-    setPreviousTab(activeTab)
-    setActiveTab(index)
-  }
-
   const handleReturnToPreviousTab = () => {
     setActiveTab(previousTab ?? 0)
   }
@@ -76,15 +58,20 @@ export default function StudentManagementSystem() {
       </div>
 
       {/* Navigation Buttons with PillNavigation */}
-      {/* <div className="flex justify-center">
+      <div className="flex justify-center">
         <PillNavigation 
           tabs={navigationTabs}
           activeTab={activeTab}
-          onTabChange={handleTabChange}
+          onTabChange={(index) => {
+            if (index !== activeTab) {
+              setPreviousTab(activeTab)
+              setActiveTab(index)
+            }
+          }}
           storageKey="institute_student_management_tab"
           className="w-full max-w-4xl"
         />
-      </div> */}
+      </div>
 
       {/* Conditional Content Rendering */}
       <div className={`mt-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>

@@ -1,25 +1,32 @@
 import React, { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant'
+import { PillNavigation } from '../../../../shared/components/navigation'
+import { LuUsers, LuBuilding2, LuGraduationCap } from 'react-icons/lu'
 import StudentManagement from './StudentManagement'
 import EmployerManagement from './employer-management/EmployerManagement'
 import InstituteManagement from './institute-management/InstituteManagement'
 
 export default function Management() {
-  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
 
-  // Read tab from URL query params
-  useEffect(() => {
-    const tabParam = searchParams.get('tab')
-    if (tabParam === 'employer') {
-      setActiveTab(1)
-    } else if (tabParam === 'institute') {
-      setActiveTab(2)
-    } else {
-      setActiveTab(0)
+  // Navigation tabs configuration
+  const managementTabs = [
+    {
+      id: 'student',
+      label: 'Student Management',
+      icon: LuUsers
+    },
+    {
+      id: 'employer',
+      label: 'Employer Management',
+      icon: LuBuilding2
+    },
+    {
+      id: 'institute',
+      label: 'Skill Partner Management',
+      icon: LuGraduationCap
     }
-  }, [searchParams])
+  ]
 
   // Debug: Check authentication status
   useEffect(() => {
@@ -30,19 +37,15 @@ export default function Management() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      {/* <div className="mb-6">
-        <h1 className={`text-3xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>Management Dashboard</h1>
-        <p className={TAILWIND_COLORS.TEXT_MUTED}>Manage candidates, recruiters, and skill partners from one place.</p>
-      </div> */}
-
-      {/* Navigation using shared component */}
-      {/* <PillNavigation 
-        tabs={MANAGEMENT_TABS}
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        storageKey="admin_management_tab"
-      /> */}
+      {/* Navigation Tabs */}
+      <div className="flex justify-center">
+        <PillNavigation 
+          tabs={managementTabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          storageKey="admin_management_tab"
+        />
+      </div>
 
       {/* Active Component */}
       {activeTab === 0 && <StudentManagement />}

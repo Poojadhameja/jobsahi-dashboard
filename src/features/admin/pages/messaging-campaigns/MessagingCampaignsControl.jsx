@@ -11,7 +11,6 @@ import SystemWidePush from './SystemWidePush.jsx';
 import SegmentBasedMessaging from './SegmentBasedMessaging.jsx';
 import EmailSmsCampaignsManager from './EmailSmsCampaignsManager.jsx'; 
 import NotificationTemplatesManager from './NotificationTemplatesManager.jsx';
-import ComingSoonPopup from '../../../../shared/components/ComingSoon.jsx';
 
 const MessagingCampaignsView = () => {
   // Tabs synced to URL (?tab=messaging|segments|analytics|templates)
@@ -390,8 +389,6 @@ const MessagingCampaignsView = () => {
       {/* Notification Templates Manager Content */}
       {/* {activeTab === 3 && <NotificationTemplatesManager />} */}
 
-      {/* Coming Soon Popup */}
-      <ComingSoonPopup />
 
       {/* New Campaign Modal */}
       <NewCampaignModal

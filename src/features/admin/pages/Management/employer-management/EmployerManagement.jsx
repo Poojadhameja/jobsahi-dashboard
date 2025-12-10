@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { TAILWIND_COLORS, COLORS } from '../../../../../shared/WebConstant.js'
 import { MatrixCard, MetricPillRow } from '../../../../../shared/components/metricCard'
@@ -113,41 +112,10 @@ function EmployerTable({ employers }) {
 
 
 export default function EmployerManagement() {
-  const [searchParams] = useSearchParams()
   const [employers, setEmployers] = useState([])
   const [pendingApprovalEmployers, setPendingApprovalEmployers] = useState([])
   const [activeTab, setActiveTab] = useState(0)
   const [previousTab, setPreviousTab] = useState(0)
-
-  // Read tab from URL query params
-  useEffect(() => {
-    const tabParam = searchParams.get('tab')
-    const subtabParam = searchParams.get('subtab')
-    
-    // If we're in employer management context, check subtab
-    if (tabParam === 'employer' || subtabParam) {
-      if (subtabParam === 'job-tracking') {
-        setActiveTab(1)
-      } else if (subtabParam === 'ratings') {
-        setActiveTab(2)
-      } else if (subtabParam === 'fraud-control') {
-        setActiveTab(3)
-      } else {
-        setActiveTab(0)
-      }
-    } else {
-      // Legacy support for direct tab param
-      if (tabParam === 'job-tracking') {
-        setActiveTab(1)
-      } else if (tabParam === 'ratings') {
-        setActiveTab(2)
-      } else if (tabParam === 'fraud-control') {
-        setActiveTab(3)
-      } else {
-        setActiveTab(0)
-      }
-    }
-  }, [searchParams])
 
   // Navigation tabs configuration
   const navigationTabs = [
@@ -308,17 +276,19 @@ else {
       </div>
 
       {/* Navigation Tabs */}
-      {/* <PillNavigation 
-        tabs={navigationTabs}
-        activeTab={activeTab}
-        onTabChange={(newTab) => {
-          if (newTab !== activeTab) {
-            setPreviousTab(activeTab)
-            setActiveTab(newTab)
-          }
-        }}
-        storageKey="admin_employer_management_tab"
-      /> */}
+      <div className="flex justify-center">
+        <PillNavigation 
+          tabs={navigationTabs}
+          activeTab={activeTab}
+          onTabChange={(newTab) => {
+            if (newTab !== activeTab) {
+              setPreviousTab(activeTab)
+              setActiveTab(newTab)
+            }
+          }}
+          storageKey="admin_employer_management_tab"
+        />
+      </div>
 
       {/* Conditional Content Rendering */}
       {activeTab === 0 && (

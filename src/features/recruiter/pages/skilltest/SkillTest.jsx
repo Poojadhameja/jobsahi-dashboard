@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import React, { useState } from 'react'
 import { LuPlus, LuSettings } from 'react-icons/lu'
 import { MatrixCard } from '../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../shared/components/navigation'
@@ -7,18 +6,7 @@ import CreateSkillPage from './CreateSkillPage'
 import ManageSkillPage from './ManageSkillPage'
 
 const SkillTest = () => {
-  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
-
-  // Read tab from URL query params
-  useEffect(() => {
-    const tabParam = searchParams.get('tab')
-    if (tabParam === 'manage') {
-      setActiveTab(1)
-    } else {
-      setActiveTab(0)
-    }
-  }, [searchParams])
 
   const tabs = [
     {
@@ -44,14 +32,14 @@ const SkillTest = () => {
       </div>
 
       {/* Navigation Pills */}
-      {/* <div className="mb-5">
+      <div className="flex justify-center mb-5">
         <PillNavigation
           tabs={tabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
           storageKey="recruiter_skill_test_tab"
         />
-      </div> */}
+      </div>
 
       {/* Tab Content */}
       {activeTab === 0 && <CreateSkillPage />}

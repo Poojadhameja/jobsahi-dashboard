@@ -72,8 +72,6 @@ export default function BusinessRevenue() {
                 {/* {activeTab === 3 && <FeaturedContent />} */}
             </div>
 
-            {/* Coming Soon Popup */}
-            <ComingSoonPopup />
         </div>
     )
 }

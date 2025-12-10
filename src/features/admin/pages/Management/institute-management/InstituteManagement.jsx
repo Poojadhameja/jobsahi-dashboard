@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import Swal from 'sweetalert2'
 import { MatrixCard } from '../../../../../shared/components/metricCard'
 import { PillNavigation } from '../../../../../shared/components/navigation'
@@ -21,43 +20,12 @@ import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 
 
 export default function InstituteManagement() {
-  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState(0)
   const [previousTab, setPreviousTab] = useState(0)
   const [institutes, setInstitutes] = useState([])
   const [pendingApprovalInstitutes, setPendingApprovalInstitutes] = useState([])
   const [totalInstituteCount, setTotalInstituteCount] = useState('0')
   const [pendingApprovalsCount, setPendingApprovalsCount] = useState('0')
-
-  // Read tab from URL query params
-  useEffect(() => {
-    const tabParam = searchParams.get('tab')
-    const subtabParam = searchParams.get('subtab')
-    
-    // If we're in institute management context, check subtab
-    if (tabParam === 'institute' || subtabParam) {
-      if (subtabParam === 'course-monitoring') {
-        setActiveTab(1)
-      } else if (subtabParam === 'placement-students') {
-        setActiveTab(2)
-      } else if (subtabParam === 'certificate-issuance') {
-        setActiveTab(3)
-      } else {
-        setActiveTab(0)
-      }
-    } else {
-      // Legacy support for direct tab param
-      if (tabParam === 'course-monitoring') {
-        setActiveTab(1)
-      } else if (tabParam === 'placement-students') {
-        setActiveTab(2)
-      } else if (tabParam === 'certificate-issuance') {
-        setActiveTab(3)
-      } else {
-        setActiveTab(0)
-      }
-    }
-  }, [searchParams])
 
   useEffect(() => {
   
@@ -185,17 +153,19 @@ export default function InstituteManagement() {
       />
 
       {/* Navigation Tabs */}
-      {/* <PillNavigation 
-        tabs={navigationTabs}
-        activeTab={activeTab}
-        onTabChange={(newTab) => {
-          if (newTab !== activeTab) {
-            setPreviousTab(activeTab)
-            setActiveTab(newTab)
-          }
-        }}
-        storageKey="admin_institute_management_tab"
-      /> */}
+      <div className="flex justify-center">
+        <PillNavigation 
+          tabs={navigationTabs}
+          activeTab={activeTab}
+          onTabChange={(newTab) => {
+            if (newTab !== activeTab) {
+              setPreviousTab(activeTab)
+              setActiveTab(newTab)
+            }
+          }}
+          storageKey="admin_institute_management_tab"
+        />
+      </div>
 
       {/* Conditional Content */}
       {activeTab === 0 && (

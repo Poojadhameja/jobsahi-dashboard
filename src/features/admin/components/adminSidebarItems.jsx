@@ -29,6 +29,7 @@ export const adminSidebarItems = [
     to: '/admin/management', 
     activePath: '/admin/management', 
     label: 'Managements', 
+    icon: Icon.Manage,
     children: [
       { to: '/admin/management', activePath: '/admin/management', label: 'Candidate Management' },
       { 
@@ -59,6 +60,7 @@ export const adminSidebarItems = [
     to: '/admin/job-control', 
     activePath: '/admin/job-control', 
     label: 'Job & Course Control', 
+    icon: Icon.Jobs,
     children: [
       { to: '/admin/job-control', activePath: '/admin/job-control', label: 'Job Posting Control' },
       { to: '/admin/job-control?tab=course-oversight', activePath: '/admin/job-control', label: 'Course Oversight' },
@@ -69,6 +71,7 @@ export const adminSidebarItems = [
     to: '/admin/reports', 
     activePath: '/admin/reports', 
     label: 'Reports & Analytics Center', 
+    icon: Icon.Reports,
     children: [
       { to: '/admin/reports', activePath: '/admin/reports', label: 'Conversion Reports' },
       { to: '/admin/reports?tab=hiring', activePath: '/admin/reports', label: 'Hiring Funnel' },
@@ -81,6 +84,7 @@ export const adminSidebarItems = [
     to: '/admin/alerts-automation', 
     activePath: '/admin/alerts-automation', 
     label: 'Alerts & Automation', 
+    icon: Icon.Alerts,
     children: [
       { to: '/admin/alerts-automation', activePath: '/admin/alerts-automation', label: 'Expiry Reminders' },
       { to: '/admin/alerts-automation?tab=auto-flag', activePath: '/admin/alerts-automation', label: 'Auto Flagging' },

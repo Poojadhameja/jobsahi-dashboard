@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { MatrixCard } from '../../../../shared/components/metricCard.jsx'
 import { PillNavigation } from '../../../../shared/components/navigation.jsx'
 import { TAILWIND_COLORS } from '../../../../shared/WebConstant.js'
-import ComingSoonPopup from '../../../../shared/components/ComingSoon.jsx'
 import ActivityLogs from './ActivityLogs.jsx'
 import ErrorLogs from './ErrorLogs.jsx'
 import MessageLogs from './MessageLogs.jsx'
@@ -70,8 +69,6 @@ export default function AdminTools() {
       {/* {activeTab === 2 && <MessageLogs />} */}
       {/* {activeTab === 3 && <RoleManagement />} */}
 
-      {/* Coming Soon Popup */}
-      <ComingSoonPopup />
     </div>
   )
 }
