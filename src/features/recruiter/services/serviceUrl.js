@@ -17,14 +17,15 @@ const service = {
     updateJob: "/jobs/update_job.php", 
 
     //candidate management
-
     getRecentApplicants: "/employer/get_recent_applicants.php",
+    getApplication: "/student/get_application.php",
 
     
     //interview schedule
     scheduleInterview: "/applications/schedule_interview.php",
     getScheduledInterviews: "/applications/schedule_interview.php",
     updateInterview: "/applications/update_interview.php",
+    updateApplicationStatus: "/applications/update_application_status.php",
 
     //interview panel management
     addInterviewPanel: "/interviews/add_interview_panel.php",
@@ -37,6 +38,10 @@ const service = {
     //profile
       getRecruiterProfile: "/employer/profile.php",
   updateRecruiterProfile: "/employer/update_recruiter_profile.php",
+
+    //skill test
+    addSkillQuestion: "/skills/skill-questions.php",
+    getSkillQuestions: "/skills/skill-questions.php",
 
 };
 export default service;

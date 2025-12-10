@@ -28,13 +28,13 @@ export default function RevenueDashboard() {
       icon: <LuUsers />
     },
     {
-      title: 'Employer Revenue',
+      title: 'Recruiter Revenue',
       value: INR(metrics.employer.value),
       delta: metrics.employer.delta,
       icon: <LuUsers />
     },
     {
-      title: 'Institute Revenue',
+      title: 'Skill Partner Revenue',
       value: INR(metrics.institute.value),
       delta: metrics.institute.delta,
       icon: <LuUsers />
@@ -108,8 +108,8 @@ export default function RevenueDashboard() {
                 className={`w-full px-4 py-3  border border-[var(--color-primary)3c] rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer`}
               >
                 <option value="" className={TAILWIND_COLORS.TEXT_MUTED}>Select user type</option>
-                <option value="employer">Employer</option>
-                <option value="institute">Institute</option>
+                <option value="employer">Recruiter</option>
+                <option value="institute">Skill Partner</option>
                 <option value="student">Student</option>
               </select>
               <LuChevronDown className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${TAILWIND_COLORS.TEXT_MUTED} pointer-events-none`} size={20} />

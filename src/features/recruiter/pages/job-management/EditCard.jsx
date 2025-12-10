@@ -383,17 +383,36 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
         }
       } else {
         // ✅ Regular job - update via PUT API
+        // ✅ Check if job was previously approved - if yes, set admin_action to "pending" for edit approval
+        const wasApproved = job.admin_action === 'approved' || job.admin_status === 'approved';
+        
+        // If job was approved, add admin_action: "pending" to require admin approval for edits
+        const updatePayload = wasApproved 
+          ? { ...payload, admin_action: "pending" }
+          : payload;
+        
+        console.log("📋 [EditCard] ➜ Job Edit Approval Check:", {
+          jobId: job.id,
+          wasApproved,
+          admin_action: job.admin_action,
+          admin_status: job.admin_status,
+          requiresApproval: wasApproved,
+          payload: updatePayload
+        });
+
         const res = await putMethod({
           apiUrl: `${service.updateJob}?id=${job.id}`,
-          payload,
+          payload: updatePayload,
         });
         console.log("✅ [EditCard] ➜ API Response:", res);
 
         if (res?.status) {
           Swal.fire({
-            title: "Success!",
-            text: "Job updated successfully!",
-            icon: "success",
+            title: wasApproved ? "Job Updated - Pending Admin Approval" : "Success!",
+            text: wasApproved 
+              ? "Your job changes have been submitted. The job will be hidden from candidates until admin approves the changes."
+              : "Job updated successfully!",
+            icon: wasApproved ? "info" : "success",
             confirmButtonText: "OK",
             confirmButtonColor: "#3085d6",
           }).then(() => {
@@ -461,54 +480,69 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
             <h2 className={`text-xl font-bold mb-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Basic Information</h2>
 
             {/* Job Title */}
-            <input
-              type="text"
-              name="jobTitle"
-              value={formData.jobTitle}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 mb-6 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              placeholder="Enter job title"
-            />
+            <div className="mb-6">
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                JOB TITLE <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="jobTitle"
+                value={formData.jobTitle}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
+                  errors.jobTitle ? "border-red-500" : ""
+                }`}
+                placeholder="Enter job title"
+              />
+              {errors.jobTitle && (
+                <p className="text-red-500 text-sm mt-1">{errors.jobTitle}</p>
+              )}
+            </div>
 
             {/* Job Sector with Add Category Button */}
-            <div className="flex items-center gap-3 mb-6">
-              <select
-                name="jobSector"
-                value={formData.jobSectorName || ""} // ✅ use the category name instead of ID
-                onChange={(e) => {
-                  const selectedName = e.target.value; // selected category name
-                  const selectedCategory = jobCategories.find(
-                    (cat) => cat.category_name === selectedName
-                  );
-                  setFormData((prev) => ({
-                    ...prev,
-                    jobSector: selectedCategory?.id || "", // keep id internally
-                    jobSectorName: selectedName, // store name for payload
-                  }));
-                }}
-                className={`flex-1 px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
-                  errors.jobSector ? "border-red-500" : ""
-                }`}
-              >
-                <option value="">Choose Category</option>
-                {jobCategories.map((cat) => (
-                  <option key={cat.id} value={cat.category_name}>
-                    {cat.category_name}
-                  </option>
-                ))}
-              </select>
-              <Button
-                type="button"
-                onClick={() => setShowAddCategoryModal(true)}
-                variant="primary"
-                size="sm"
-              >
-                + Add
-              </Button>
+            <div className="mb-6">
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                JOB CATEGORY <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <select
+                  name="jobSector"
+                  value={formData.jobSectorName || ""} // ✅ use the category name instead of ID
+                  onChange={(e) => {
+                    const selectedName = e.target.value; // selected category name
+                    const selectedCategory = jobCategories.find(
+                      (cat) => cat.category_name === selectedName
+                    );
+                    setFormData((prev) => ({
+                      ...prev,
+                      jobSector: selectedCategory?.id || "", // keep id internally
+                      jobSectorName: selectedName, // store name for payload
+                    }));
+                  }}
+                  className={`flex-1 px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
+                    errors.jobSector ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="">Choose Category</option>
+                  {jobCategories.map((cat) => (
+                    <option key={cat.id} value={cat.category_name}>
+                      {cat.category_name}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  type="button"
+                  onClick={() => setShowAddCategoryModal(true)}
+                  variant="primary"
+                  size="sm"
+                >
+                  + Add
+                </Button>
+              </div>
+              {errors.jobSector && (
+                <p className="text-red-500 text-sm mt-1">{errors.jobSector}</p>
+              )}
             </div>
-            {errors.jobSector && (
-              <p className="text-red-500 text-sm mt-1 mb-6">{errors.jobSector}</p>
-            )}
 
             {/* Add Category Modal */}
             {showAddCategoryModal && (
@@ -553,147 +587,244 @@ const EditCard = ({ isOpen, onClose, job, onSave }) => {
             )}
 
             {/* Job Description */}
-            <RichTextEditor
-              value={formData.jobDescription}
-              onChange={handleRichTextChange}
-              placeholder="Describe the job responsibilities..."
-              height="180px"
-            />
+            <div className="mb-6">
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                JOB DESCRIPTION <span className="text-red-500">*</span>
+              </label>
+              <RichTextEditor
+                value={formData.jobDescription}
+                onChange={handleRichTextChange}
+                placeholder="Describe the job responsibilities..."
+                height="180px"
+              />
+              {errors.jobDescription && (
+                <p className="text-red-500 text-sm mt-1">{errors.jobDescription}</p>
+              )}
+            </div>
 
             {/* Salary Section */}
-            <div className="flex gap-4 mt-6">
-              <div>
-                <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-                  MONTHLY SALARY <span className="text-red-500">*</span>
-                </label>
+            <div className="mt-6">
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                MONTHLY SALARY <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <input
+                    type="number"
+                    name="minSalary"
+                    value={formData.minSalary}
+                    onChange={handleInputChange}
+                    placeholder="Min Salary"
+                    className={`w-full border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
+                      errors.minSalary ? "border-red-500" : ""
+                    }`}
+                  />
+                  {errors.minSalary && (
+                    <p className="text-red-500 text-sm mt-1">{errors.minSalary}</p>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="number"
+                    name="maxSalary"
+                    value={formData.maxSalary}
+                    onChange={handleInputChange}
+                    placeholder="Max Salary"
+                    className={`w-full border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
+                      errors.maxSalary ? "border-red-500" : ""
+                    }`}
+                  />
+                  {errors.maxSalary && (
+                    <p className="text-red-500 text-sm mt-1">{errors.maxSalary}</p>
+                  )}
+                </div>
               </div>
-              <input
-                type="number"
-                name="minSalary"
-                value={formData.minSalary}
-                onChange={handleInputChange}
-                placeholder="Min Salary"
-                className={`w-1/3 border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              />
-              <input
-                type="number"
-                name="maxSalary"
-                value={formData.maxSalary}
-                onChange={handleInputChange}
-                placeholder="Max Salary"
-                className={`w-1/3 border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              />
             </div>
 
             {/* Job Type */}
-            <select
-              name="jobType"
-              value={formData.jobType}
-              onChange={handleInputChange}
-              className={`w-full mt-6 px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-            >
-              <option value="">Choose job type</option>
-              <option value="full_time">Full-time</option>
-              <option value="part_time">Part-time</option>
-              <option value="contract">Contract</option>
-              <option value="internship">Internship</option>
-            </select>
+            <div className="mt-6">
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                JOB TYPE <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="jobType"
+                value={formData.jobType}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
+                  errors.jobType ? "border-red-500" : ""
+                }`}
+              >
+                <option value="">Choose job type</option>
+                <option value="full_time">Full-time</option>
+                <option value="part_time">Part-time</option>
+                <option value="contract">Contract</option>
+                <option value="internship">Internship</option>
+              </select>
+              {errors.jobType && (
+                <p className="text-red-500 text-sm mt-1">{errors.jobType}</p>
+              )}
+            </div>
 
             {/* Skills */}
-            <input
-              type="text"
-              name="requiredSkills"
-              value={formData.requiredSkills}
-              onChange={handleInputChange}
-              placeholder="e.g. JavaScript, React, Node.js"
-              className={`w-full mt-6 px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-            />
+            <div className="mt-6">
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                REQUIRED SKILLS
+              </label>
+              <input
+                type="text"
+                name="requiredSkills"
+                value={formData.requiredSkills}
+                onChange={handleInputChange}
+                placeholder="e.g. JavaScript, React, Node.js"
+                className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+              />
+            </div>
 
             {/* Experience */}
-            <input
-              type="text"
-              name="experience"
-              value={formData.experience}
-              onChange={handleInputChange}
-              placeholder="e.g. 2-5 years"
-              className={`w-full mt-6 px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-            />
+            <div className="mt-6">
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                EXPERIENCE REQUIRED
+              </label>
+              <input
+                type="text"
+                name="experience"
+                value={formData.experience}
+                onChange={handleInputChange}
+                placeholder="e.g. 2-5 years"
+                className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+              />
+            </div>
           </div>
 
           {/* LOCATION */}
           <div className="bg-white rounded-xl border p-5">
             <h2 className={`text-xl font-bold mb-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Address / Location</h2>
-            <input
-              type="text"
-              name="location"
-              value={formData.location}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              placeholder="Enter complete address"
-            />
+            <div>
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                JOB LOCATION <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
+                  errors.location ? "border-red-500" : ""
+                }`}
+                placeholder="Enter complete address"
+              />
+              {errors.location && (
+                <p className="text-red-500 text-sm mt-1">{errors.location}</p>
+              )}
+            </div>
           </div>
 
           {/* CONTACT INFO */}
           <div className="bg-white rounded-xl border p-5">
             <h2 className={`text-xl font-bold mb-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Contact Information</h2>
-            <input
-              type="text"
-              name="contactPerson"
-              value={formData.contactPerson}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 border rounded-lg mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              placeholder="Contact Person"
-            />
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 border rounded-lg mb-4 ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              placeholder="Phone Number"
-            />
-            <input
-              type="email"
-              name="additionalContact"
-              value={formData.additionalContact}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              placeholder="Additional Contact Email"
-            />
+            <div className="mb-4">
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                CONTACT PERSON
+              </label>
+              <input
+                type="text"
+                name="contactPerson"
+                value={formData.contactPerson}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                placeholder="Enter contact person name"
+              />
+            </div>
+            <div className="mb-4">
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                PHONE NUMBER
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                placeholder="Enter phone number"
+              />
+            </div>
+            <div>
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                ADDITIONAL CONTACT EMAIL
+              </label>
+              <input
+                type="email"
+                name="additionalContact"
+                value={formData.additionalContact}
+                onChange={handleInputChange}
+                className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+                placeholder="Enter additional contact email"
+              />
+            </div>
           </div>
 
           {/* DATES + STATUS */}
           <div className="bg-white rounded-xl border p-5">
             <h2 className={`text-xl font-bold mb-8 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>Dates & Status</h2>
 
-            <input
-              type="number"
-              name="no_of_vacancies"
-              value={formData.no_of_vacancies}
-              onChange={handleInputChange}
-              placeholder="Number of vacancies"
-              className={`w-full px-4 py-3 mb-6 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-            />
+            <div className="mb-6">
+              <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                NUMBER OF VACANCIES <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="no_of_vacancies"
+                value={formData.no_of_vacancies}
+                onChange={handleInputChange}
+                placeholder="Enter number of vacancies"
+                className={`w-full px-4 py-3 border rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
+                  errors.no_of_vacancies ? "border-red-500" : ""
+                }`}
+              />
+              {errors.no_of_vacancies && (
+                <p className="text-red-500 text-sm mt-1">{errors.no_of_vacancies}</p>
+              )}
+            </div>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <input
-                type="date"
-                name="closingDate"
-                value={formData.closingDate}
-                onChange={handleInputChange}
-                className={`border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              />
-              <select
-                name="vacancyStatus"
-                value={formData.vacancyStatus}
-                onChange={handleInputChange}
-                className={`border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY}`}
-              >
-                <option value="">Vacancy Status</option>
-                <option value="open">Open</option>
-                <option value="closed">Closed</option>
-                <option value="draft">Draft</option>
-              </select>
+              <div>
+                <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                  CLOSING DATE <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="closingDate"
+                  value={formData.closingDate}
+                  onChange={handleInputChange}
+                  className={`w-full border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
+                    errors.closingDate ? "border-red-500" : ""
+                  }`}
+                />
+                {errors.closingDate && (
+                  <p className="text-red-500 text-sm mt-1">{errors.closingDate}</p>
+                )}
+              </div>
+              <div>
+                <label className={`block text-sm font-semibold mb-2 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                  VACANCY STATUS <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="vacancyStatus"
+                  value={formData.vacancyStatus}
+                  onChange={handleInputChange}
+                  className={`w-full border px-4 py-3 rounded-lg ${TAILWIND_COLORS.TEXT_PRIMARY} ${
+                    errors.vacancyStatus ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="">Choose Status</option>
+                  <option value="open">Open</option>
+                  <option value="closed">Closed</option>
+                  <option value="draft">Draft</option>
+                </select>
+                {errors.vacancyStatus && (
+                  <p className="text-red-500 text-sm mt-1">{errors.vacancyStatus}</p>
+                )}
+              </div>
             </div>
           </div>
 

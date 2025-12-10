@@ -577,12 +577,7 @@ export default function ManageCourse({ onNavigateToCreateCourse }) {
                     ₹{course.fee && course.fee > 0 ? course.fee.toLocaleString('en-IN', { maximumFractionDigits: 2 }) : '0'}
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleBuyNow(course.id)}
-                      className={`${TAILWIND_COLORS.BTN_PRIMARY} px-4 py-2 rounded-lg text-sm font-medium transition-colors`}
-                    >
-                      Buy Now
-                    </button>
+                   
                     <button
                       onClick={() => handleAction('edit', course.id)}
                       className={`p-2 ${TAILWIND_COLORS.TEXT_MUTED} hover:text-[#5C9A24] transition-colors`}

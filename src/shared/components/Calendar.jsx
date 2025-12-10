@@ -112,7 +112,7 @@ const hasHighlightedInterview = (date) => {
   const isHighlighted = highlightedDates.includes(dateStr);
   // Debug log for dates 11-15 (where interviews are)
   if (date.getDate() >= 11 && date.getDate() <= 15) {
-    console.log(`📆 Calendar check: ${dateStr} in [${highlightedDates.join(', ')}] = ${isHighlighted}`);
+    // console.log(`📆 Calendar check: ${dateStr} in [${highlightedDates.join(', ')}] = ${isHighlighted}`);
   }
   return isHighlighted;
 };

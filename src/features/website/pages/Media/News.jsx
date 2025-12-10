@@ -212,7 +212,7 @@ const News = () => {
     ),
     description: (
       <p className="text-white/90 text-lg leading-relaxed">
-        Join thousands of students, institutions, and employers who trust JobsAhi for career advancement and quality placements in the technical field.
+        Join thousands of candidates, institutions, and recruiters who trust JobsAhi for career advancement and quality placements in the technical field.
       </p>
     )
   }

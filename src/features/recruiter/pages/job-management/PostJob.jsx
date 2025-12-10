@@ -650,7 +650,7 @@ const PostJob = ({ onJobSubmit }) => {
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <input
-                      type="text"
+                      type="number"
                       name="minSalary"
                       value={formData.minSalary}
                       onChange={handleInputChange}
@@ -666,7 +666,7 @@ const PostJob = ({ onJobSubmit }) => {
                   </div>
                   <div className="flex-1">
                     <input
-                      type="text"
+                      type="number"
                       name="maxSalary"
                       value={formData.maxSalary}
                       onChange={handleInputChange}
@@ -767,7 +767,7 @@ const PostJob = ({ onJobSubmit }) => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div>
                 <label className={`block text-sm font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2`}>
-                  FULL ADDRESS<span className="text-red-500">*</span>
+                  JOB LOCATION<span className="text-red-500">*</span>
                 </label>
                 <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>Enter full location</p>
               </div>

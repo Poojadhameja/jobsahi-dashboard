@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import {
   LuPaperclip,
@@ -13,6 +14,7 @@ import {
   LuMail,
   LuMapPin,
   LuUsers,
+  LuLogIn,
 } from "react-icons/lu";
 import { TAILWIND_COLORS } from "../../../../../shared/WebConstant.js";
 import { Button } from "../../../../../shared/components/Button";
@@ -146,12 +148,14 @@ function ApprovalCard({
   industry,
   appliedDate,
   last_modified,
+  location,
   documents,
   status,
   is_verified,
   onReview,
   onApprove,
   onReject,
+  onLogin,
 }) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
@@ -213,7 +217,7 @@ function ApprovalCard({
               />
               <InfoRow
                 label="Location"
-                value="N/A"
+                value={location || "N/A"}
                 icon={<LuMapPin size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
               />
             </div>
@@ -244,7 +248,18 @@ function ApprovalCard({
         {/* Right Actions */}
         <div className="flex flex-col space-y-2 ml-4 shrink-0">
 
-          {/* REVIEW BUTTON (unchanged) */}
+          {/* LOGIN BUTTON */}
+          <Button
+            onClick={onLogin}
+            variant="primary"
+            size="sm"
+            icon={<LuLogIn size={16} />}
+            className="!bg-blue-600 text-white hover:!bg-blue-700"
+          >
+            Login
+          </Button>
+
+          {/* REVIEW BUTTON */}
           <Button
             onClick={onReview}
             variant="light"
@@ -598,6 +613,7 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
   const normalized = useMemo(() => employers.map(normalizeEmployer), [employers]);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'pending', 'approved', 'rejected'
 
   // ✅ Fetch verification status from users table and set items
   React.useEffect(() => {
@@ -758,39 +774,151 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
     updateStatus(id, 0, "Rejected");
   };
 
-  const counts = {
-    approved: items.filter((i) => i.status === "approved").length,
-    pending: items.filter((i) => i.status === "pending").length,
-    rejected: items.filter((i) => i.status === "rejected").length,
+  // ✅ Admin Login as Recruiter
+  const handleLoginAsRecruiter = async (recruiter) => {
+    try {
+      Swal.fire({
+        title: 'Login as Recruiter?',
+        text: `You will be logged in as ${recruiter.user_name || recruiter.company_name}. You can return to admin panel later.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Login',
+        cancelButtonText: 'Cancel'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            // Store current admin session for returning
+            const currentAdminToken = localStorage.getItem("authToken");
+            const currentAdminUser = localStorage.getItem("authUser");
+            
+            if (currentAdminToken && currentAdminUser) {
+              localStorage.setItem("adminSessionToken", currentAdminToken);
+              localStorage.setItem("adminSessionUser", currentAdminUser);
+            }
+
+            // Create user object for recruiter
+            const recruiterUser = {
+              id: recruiter.uid || recruiter.id,
+              user_name: recruiter.user_name,
+              email: recruiter.email,
+              role: "recruiter",
+              phone_number: recruiter.phone_number,
+            };
+
+            // Generate a temporary token (or call API if available)
+            // For now, we'll create a simple token-like string
+            // In production, you should call an admin API endpoint to get a valid token
+            const tempToken = `admin_impersonate_${recruiter.uid}_${Date.now()}`;
+
+            // Set recruiter's session
+            localStorage.setItem("authToken", tempToken);
+            localStorage.setItem("authUser", JSON.stringify(recruiterUser));
+            localStorage.setItem("isAdminImpersonating", "true");
+
+            Swal.fire({
+              title: 'Success!',
+              text: `Logged in as ${recruiter.user_name || recruiter.company_name}`,
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false
+            }).then(() => {
+              // Redirect to recruiter dashboard
+              navigate("/recruiter/dashboard");
+            });
+          } catch (error) {
+            console.error("Error logging in as recruiter:", error);
+            Swal.fire({
+              title: "Error",
+              text: "Failed to login as recruiter. Please try again.",
+              icon: "error"
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error in handleLoginAsRecruiter:", error);
+    }
+  };
+
+  // Filter items based on selected status
+  const filteredItems = items.filter((item) => {
+    if (filterStatus === 'all') return true;
+    if (filterStatus === 'pending') return item.status === 'pending';
+    if (filterStatus === 'approved') return item.status === 'approved';
+    if (filterStatus === 'rejected') return item.status === 'rejected';
+    return true;
+  });
+
+  // Count by status
+  const statusCounts = {
+    all: items.length,
+    pending: items.filter(i => i.status === 'pending').length,
+    approved: items.filter(i => i.status === 'approved').length,
+    rejected: items.filter(i => i.status === 'rejected').length,
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <LuPaperclip className={TAILWIND_COLORS.TEXT_MUTED} size={24} />
-          <div>
-            <h1 className={`text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-              Recruiter Approvals
-            </h1>
-            <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1`}>
-              Manage approved, rejected, and pending recruiters.
-            </p>
+      {/* Header with Filter Tabs */}
+      <div className="space-y-3 sm:space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <LuPaperclip className={TAILWIND_COLORS.TEXT_MUTED} size={24} />
+            <div>
+              <h1 className={`text-lg sm:text-xl md:text-2xl font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+                Recruiter Approvals
+              </h1>
+              <p className={`${TAILWIND_COLORS.TEXT_MUTED} mt-1 text-sm`}>
+                Manage approved, rejected, and pending recruiters.
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Summary badges */}
-        <div className="flex gap-2 flex-wrap">
-          <span className="px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
-            Approved: {counts.approved}
-          </span>
-          <span className="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
-            Pending: {counts.pending}
-          </span>
-          <span className="px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
-            Rejected: {counts.rejected}
-          </span>
+        {/* Filter Tabs */}
+        <div className="flex flex-wrap gap-2 sm:gap-2 md:gap-3">
+          <button
+            onClick={() => setFilterStatus('all')}
+            className={`px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
+              filterStatus === 'all'
+                ? 'bg-green-600 text-white shadow-md'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            All ({statusCounts.all})
+          </button>
+          <button
+            onClick={() => setFilterStatus('pending')}
+            className={`px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
+              filterStatus === 'pending'
+                ? 'bg-orange-600 text-white shadow-md'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Pending ({statusCounts.pending})
+          </button>
+          <button
+            onClick={() => setFilterStatus('approved')}
+            className={`px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
+              filterStatus === 'approved'
+                ? 'bg-green-600 text-white shadow-md'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Approved ({statusCounts.approved})
+          </button>
+          <button
+            onClick={() => setFilterStatus('rejected')}
+            className={`px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 whitespace-nowrap ${
+              filterStatus === 'rejected'
+                ? 'bg-red-600 text-white shadow-md'
+                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Rejected ({statusCounts.rejected})
+          </button>
         </div>
       </div>
 
@@ -801,8 +929,8 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
           <div className="bg-white rounded-lg border border-dashed p-8 text-center">
             <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>Checking verification status...</p>
           </div>
-        ) : (
-          items.map((c) => (
+        ) : filteredItems.length > 0 ? (
+          filteredItems.map((c) => (
           <ApprovalCard
             key={c.id}
             company={c.company_name}
@@ -811,6 +939,7 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
             phone={c.phone_number}
             website={c.website}
             industry={c.industry}
+            location={c.location}
             appliedDate={
               c.applied_date ? new Date(c.applied_date).toLocaleDateString() : "N/A"
             }
@@ -829,13 +958,14 @@ export default function PendingRecruiterApprovals({ employers = [] }) {
 
             onApprove={() => handleApprove(c.uid)}
             onReject={() => handleReject(c.uid)}
+            onLogin={() => handleLoginAsRecruiter(c)}
           />
           ))
-        )}
-
-        {!loading && items.length === 0 && (
+        ) : (
           <div className="bg-white rounded-lg border border-dashed p-8 text-center">
-            <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>No recruiters found.</p>
+            <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>
+              No recruiters found with status: <span className="font-semibold">{filterStatus}</span>
+            </p>
           </div>
         )}
       </div>

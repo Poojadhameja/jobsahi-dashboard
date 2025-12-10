@@ -1,11 +1,11 @@
-﻿import React, { useState, useEffect, lazy, Suspense } from "react";
+﻿import React, { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import BrowseJobByCategory from "../../components/UI8Cards.jsx";
 import FAQ from "../../components/FAQ";
 import NewsletterSubscription from "../../components/NewsletterSubscription";
-import { WEBSITE_COLOR_CLASSES } from "../../components/colorClasses";
+import { WEBSITE_COLOR_CLASSES, getWebsiteColor } from "../../components/colorClasses";
 import uploadresumebg from "../../assets/uploadresumebg.png";
 import textunderline from "../../assets/website_text_underline.png";
 import homebanner from "../../assets/home/homebanner.jpg";
@@ -14,6 +14,9 @@ import homesquare from "../../assets/home/homesquare.jpg";
 import homesq from "../../assets/home/homesq.jpg";
 import homesmall from "../../assets/home/homesmall.jpg";
 import { COLOR_CLASSES } from "../../components/colorClasses";
+import { getMethod, postMultipart } from "../../../../service/api";
+import serviceUrl from "../../services/serviceUrl";
+import Swal from "sweetalert2";
 
 const TrustedByStartups = lazy(() =>
   import("../../components/TrustedByStartups.jsx")
@@ -54,6 +57,7 @@ import {
 const Home = () => {
   const navigate = useNavigate();
   const { BG, TEXT, BORDER, HOVER_BG, HOVER_TEXT } = WEBSITE_COLOR_CLASSES;
+  const colorHex = getWebsiteColor;
 
   const [isMediaDropdownOpen, setIsMediaDropdownOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -61,6 +65,17 @@ const Home = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [jobCategories, setJobCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [searchLocation, setSearchLocation] = useState('');
+  const [searchCategory, setSearchCategory] = useState('');
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [locations, setLocations] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [matchedJobs, setMatchedJobs] = useState([]);
+  const [loadingMatchedJobs, setLoadingMatchedJobs] = useState(false);
+  const [resumeUploaded, setResumeUploaded] = useState(false);
 
   const handleSubscribe = (emailValue) => {
     console.log("Subscribed with email:", emailValue);
@@ -69,11 +84,169 @@ const Home = () => {
     setTimeout(() => setIsSubscribed(false), 3000);
   };
 
-  const handleFileSelect = (event) => {
+  const handleFileSelect = async (event) => {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
-      console.log("Selected file:", file.name);
+      setLoadingMatchedJobs(true);
+      setResumeUploaded(false);
+      
+      try {
+        // Upload resume
+        const formData = new FormData();
+        formData.append('resume', file);
+        
+        const uploadResponse = await postMultipart({
+          apiUrl: serviceUrl.uploadResume,
+          data: formData
+        });
+
+        if (uploadResponse.status || uploadResponse.success) {
+          setResumeUploaded(true);
+          
+          // Fetch matched jobs immediately after upload
+          const jobsResponse = await getMethod({
+            apiUrl: serviceUrl.getMatchedJobs,
+            params: {}
+          });
+
+          if (jobsResponse.status || jobsResponse.success) {
+            let jobsData = [];
+            if (Array.isArray(jobsResponse.data)) {
+              jobsData = jobsResponse.data;
+            } else if (Array.isArray(jobsResponse.jobs)) {
+              jobsData = jobsResponse.jobs;
+            }
+
+            // Transform jobs data similar to FindJob page
+            const transformedJobs = jobsData.map((job, index) => {
+              const rawSkills = job.skills_required || job.skills || job.required_skills || '';
+              let skillsArray = [];
+              if (rawSkills) {
+                if (Array.isArray(rawSkills)) {
+                  skillsArray = rawSkills.map(s => s.trim()).filter(s => s);
+                } else if (typeof rawSkills === 'string') {
+                  skillsArray = rawSkills.split(',').map(s => s.trim()).filter(s => s);
+                }
+              }
+
+              const salaryDisplay = job.salary_min && job.salary_max 
+                ? `${job.salary_min}-${job.salary_max}/Monthly`
+                : job.salary || job.salary_range || '1500/Monthly';
+
+              return {
+                id: job.id || job.job_id || index + 1,
+                title: job.title || job.job_title || 'Job Title',
+                company: job.company_name || job.employer_name || 'Company',
+                location: job.location || job.city || 'Location',
+                type: job.employment_type || job.job_type || job.type || 'Full Time',
+                category: job.category_name || job.category || job.job_category || 'Other',
+                salary: salaryDisplay,
+                applied: job.applied_count || job.applications_count || 0,
+                capacity: job.capacity || job.max_applications || job.no_of_vacancies || 100,
+                skills: skillsArray.length > 0 ? skillsArray : ['Skill'],
+                logo: (job.company_name || job.employer_name || 'C')[0].toUpperCase(),
+                logoColor: '#00395B',
+                experience: job.experience_required || job.experience_level || job.experience || 'Entry Level',
+                postedOn: job.created_at || job.posted_date || new Date().toLocaleDateString(),
+                applyBefore: job.deadline || job.apply_before || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+                description: job.description || job.job_description || 'Job description not available.',
+                responsibilities: job.responsibilities ? (Array.isArray(job.responsibilities) ? job.responsibilities : job.responsibilities.split(',')) : [],
+                requirements: job.requirements ? (Array.isArray(job.requirements) ? job.requirements : job.requirements.split(',')) : [],
+                benefits: job.benefits ? (Array.isArray(job.benefits) ? job.benefits : job.benefits.split(',').map(b => ({ title: b, icon: 'FaShieldAlt', description: b }))) : []
+              };
+            });
+
+            setMatchedJobs(transformedJobs);
+            
+            // Scroll to matched jobs section
+            setTimeout(() => {
+              const matchedJobsSection = document.getElementById('matched-jobs-section');
+              if (matchedJobsSection) {
+                matchedJobsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }, 500);
+
+            Swal.fire({
+              icon: 'success',
+              title: 'Resume Uploaded!',
+              text: `Found ${transformedJobs.length} matching jobs for you!`,
+              timer: 3000,
+              showConfirmButton: false
+            });
+          } else {
+            // If matched jobs API fails, fetch all jobs as fallback
+            const allJobsResponse = await getMethod({
+              apiUrl: serviceUrl.getJobs,
+              params: {}
+            });
+
+            if (allJobsResponse.status || allJobsResponse.success) {
+              let jobsData = [];
+              if (Array.isArray(allJobsResponse.data)) {
+                jobsData = allJobsResponse.data.slice(0, 10); // Show first 10 jobs
+              }
+
+              const transformedJobs = jobsData.map((job, index) => {
+                const rawSkills = job.skills_required || job.skills || job.required_skills || '';
+                let skillsArray = [];
+                if (rawSkills) {
+                  if (Array.isArray(rawSkills)) {
+                    skillsArray = rawSkills.map(s => s.trim()).filter(s => s);
+                  } else if (typeof rawSkills === 'string') {
+                    skillsArray = rawSkills.split(',').map(s => s.trim()).filter(s => s);
+                  }
+                }
+
+                return {
+                  id: job.id || job.job_id || index + 1,
+                  title: job.title || job.job_title || 'Job Title',
+                  company: job.company_name || job.employer_name || 'Company',
+                  location: job.location || job.city || 'Location',
+                  type: job.employment_type || job.job_type || job.type || 'Full Time',
+                  category: job.category_name || job.category || job.job_category || 'Other',
+                  salary: job.salary_min && job.salary_max ? `${job.salary_min}-${job.salary_max}/Monthly` : job.salary || '1500/Monthly',
+                  skills: skillsArray.length > 0 ? skillsArray : ['Skill'],
+                  logo: (job.company_name || job.employer_name || 'C')[0].toUpperCase(),
+                  logoColor: '#00395B'
+                };
+              });
+
+              setMatchedJobs(transformedJobs);
+              
+              setTimeout(() => {
+                const matchedJobsSection = document.getElementById('matched-jobs-section');
+                if (matchedJobsSection) {
+                  matchedJobsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              }, 500);
+
+              Swal.fire({
+                icon: 'success',
+                title: 'Resume Uploaded!',
+                text: `Showing ${transformedJobs.length} jobs for you!`,
+                timer: 3000,
+                showConfirmButton: false
+              });
+            }
+          }
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Upload Failed',
+            text: uploadResponse.message || 'Failed to upload resume. Please try again.',
+          });
+        }
+      } catch (error) {
+        console.error('Error uploading resume:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Something went wrong. Please try again.',
+        });
+      } finally {
+        setLoadingMatchedJobs(false);
+      }
     }
   };
 
@@ -82,8 +255,35 @@ const Home = () => {
     if (input) input.click();
   };
 
+  // Filter locations and categories based on search input
+  const filteredLocations = useMemo(() => {
+    if (!searchLocation) return locations;
+    return locations.filter(loc => 
+      loc.toLowerCase().includes(searchLocation.toLowerCase())
+    );
+  }, [locations, searchLocation]);
+
+  const filteredCategories = useMemo(() => {
+    if (!searchCategory) return categories;
+    return categories.filter(cat => 
+      cat.toLowerCase().includes(searchCategory.toLowerCase())
+    );
+  }, [categories, searchCategory]);
+
   const navigateToFindJob = () => {
-    navigate("/find-job");
+    // Build URL with search params
+    const params = new URLSearchParams();
+    if (searchLocation.trim()) {
+      params.set('location', searchLocation.trim());
+    }
+    if (searchCategory.trim()) {
+      params.set('category', searchCategory.trim());
+    }
+    
+    const queryString = params.toString();
+    const url = queryString ? `/find-job?${queryString}` : '/find-job';
+    
+    navigate(url);
     if (typeof window !== "undefined") {
       window.scrollTo(0, 0);
     }
@@ -99,6 +299,112 @@ const Home = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Icon mapping for categories
+  const getCategoryIcon = (categoryName) => {
+    const name = categoryName.toLowerCase();
+    if (name.includes('electrician') || name.includes('electrical')) return FaBolt;
+    if (name.includes('welder') || name.includes('welding')) return FaFire;
+    if (name.includes('fitter') || name.includes('fitting')) return FaCogs;
+    if (name.includes('cnc') || name.includes('operator')) return FaIndustry;
+    if (name.includes('plumber') || name.includes('plumbing')) return FaTools;
+    if (name.includes('ac') || name.includes('air conditioning') || name.includes('technician')) return FaSnowflake;
+    if (name.includes('helper') || name.includes('assistant')) return FaHandsHelping;
+    if (name.includes('maintenance') || name.includes('machine')) return FaCogs;
+    if (name.includes('mechanic') || name.includes('automotive')) return FaWrench;
+    return FaBriefcase; // Default icon
+  };
+
+  // Fetch job categories and jobs count
+  useEffect(() => {
+    const fetchJobCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        
+        // Fetch categories and jobs in parallel
+        const [categoriesResponse, jobsResponse] = await Promise.all([
+          getMethod({ apiUrl: serviceUrl.getJobCategory }),
+          getMethod({ apiUrl: serviceUrl.getJobs })
+        ]);
+
+        console.log('Categories API Response:', categoriesResponse);
+        console.log('Jobs API Response:', jobsResponse);
+
+        let categories = [];
+        let jobs = [];
+
+        // Extract categories - API returns { status: true, categories: [...] }
+        if (categoriesResponse?.status === true || categoriesResponse?.status === 'success') {
+          if (Array.isArray(categoriesResponse.categories)) {
+            categories = categoriesResponse.categories;
+          } else if (Array.isArray(categoriesResponse.data)) {
+            categories = categoriesResponse.data;
+          }
+        }
+
+        // Extract jobs
+        if (jobsResponse?.status === true || jobsResponse?.status === 'success') {
+          if (Array.isArray(jobsResponse.data)) {
+            jobs = jobsResponse.data;
+          } else if (Array.isArray(jobsResponse.jobs)) {
+            jobs = jobsResponse.jobs;
+          }
+        }
+
+        console.log('Extracted Categories:', categories);
+        console.log('Extracted Jobs:', jobs);
+
+        // Count jobs per category
+        const categoryCounts = {};
+        jobs.forEach(job => {
+          const categoryName = job.category || job.job_category || job.category_name || 'Other';
+          const formattedCategory = categoryName.trim().toLowerCase();
+          categoryCounts[formattedCategory] = (categoryCounts[formattedCategory] || 0) + 1;
+        });
+
+        console.log('Category Counts:', categoryCounts);
+
+        // Map categories with counts and icons
+        const mappedCategories = categories
+          .map(cat => {
+            const categoryName = cat.category_name || cat.name || cat.title || 'Other';
+            const formattedName = categoryName.trim();
+            const formattedNameLower = formattedName.toLowerCase();
+            const count = categoryCounts[formattedNameLower] || 0;
+            
+            return {
+              title: formattedName,
+              count: count,
+              subject: "Jobs Available",
+              icon: getCategoryIcon(formattedName),
+            };
+          })
+          .sort((a, b) => b.count - a.count) // Sort by count descending
+          .slice(0, 8); // Limit to 8 categories
+
+        console.log('Mapped Categories:', mappedCategories);
+        setJobCategories(mappedCategories);
+
+        // Extract unique locations and categories for search dropdowns
+        const uniqueLocations = [...new Set(jobs.map(job => job.location || job.city).filter(Boolean))].sort();
+        const uniqueCategories = [...new Set(jobs.map(job => {
+          const catName = job.category || job.job_category || job.category_name || 'Other';
+          return catName.trim();
+        }).filter(Boolean))].sort();
+        
+        setLocations(uniqueLocations);
+        setCategories(uniqueCategories);
+      } catch (error) {
+        console.error('Error fetching job categories:', error);
+        // Fallback to empty array
+        setJobCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchJobCategories();
+  }, []);
+
   const faqs = [
     {
       question: "How do I create an account on JOBSAHI?",
@@ -106,9 +412,9 @@ const Home = () => {
         'Creating an account is simple! Just click on the "Sign Up" button, fill in your basic information, verify your email, and you\'re ready to start your job search journey.',
     },
     {
-      question: "Is JOBSAHI free for students?",
+      question: "Is JOBSAHI free for candidates?",
       answer:
-        "Yes, JOBSAHI is completely free for ITI and Polytechnic students. We believe in providing equal opportunities for all students to access quality job opportunities.",
+        "Yes, JOBSAHI is completely free for ITI and Polytechnic candidates. We believe in providing equal opportunities for all candidates to access quality job opportunities.",
     },
     {
       question: "What types of jobs are available on JOBSAHI?",
@@ -123,7 +429,7 @@ const Home = () => {
     {
       question: "Can I apply for jobs directly through JOBSAHI?",
       answer:
-        "Yes! You can apply for jobs directly through our platform. Simply browse jobs, click apply, and your application will be sent to the employer.",
+        "Yes! You can apply for jobs directly through our platform. Simply browse jobs, click apply, and your application will be sent to the recruiter.",
     },
     {
       question: "How do I update my resume on JOBSAHI?",
@@ -223,56 +529,6 @@ const Home = () => {
     });
   }, [isMobile]);
 
-  const jobCategories = [
-    {
-      title: "Electrician Jobs",
-      count: 68,
-      subject: "Jobs Available",
-      icon: FaBolt,
-    },
-    {
-      title: "Welder Jobs",
-      count: 45,
-      subject: "Jobs Available",
-      icon: FaFire,
-    },
-    {
-      title: "Fitter Jobs",
-      count: 52,
-      subject: "Jobs Available",
-      icon: FaCogs,
-    },
-    {
-      title: "CNC Operator",
-      count: 38,
-      subject: "Jobs Available",
-      icon: FaIndustry,
-    },
-    {
-      title: "Plumber Jobs",
-      count: 29,
-      subject: "Jobs Available",
-      icon: FaTools,
-    },
-    {
-      title: "AC Technician",
-      count: 41,
-      subject: "Jobs Available",
-      icon: FaSnowflake,
-    },
-    {
-      title: "Helper / Assistant",
-      count: 67,
-      subject: "Jobs Available",
-      icon: FaHandsHelping,
-    },
-    {
-      title: "Machine Maintenance",
-      count: 34,
-      subject: "Jobs Available",
-      icon: FaCogs,
-    },
-  ];
 
   const browseJobHeaderContent = {
     title: (
@@ -315,8 +571,8 @@ const Home = () => {
       <Navbar />
 
       {/* HERO SECTION – Figma Accurate */}
-      <section className="min-h-screen bg-[#E7F3FD] mx-1 sm:mx-2 md:mx-3 lg:mx-4 rounded-[20px] sm:rounded-[30px] md:rounded-[40px] lg:rounded-[50px] relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-5 lg:px-6 py-6 sm:py-8 md:py-10 lg:py-12 relative">
+      <section className="min-h-screen bg-[#E7F3FD] mx-1 sm:mx-2 md:mx-3 lg:mx-4 rounded-[20px] sm:rounded-[30px] md:rounded-[40px] lg:rounded-[50px] relative overflow-x-hidden overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-5 lg:px-6 py-6 sm:py-8 md:py-10 lg:py-12 relative z-0">
           {/* Top Tag */}
           <div className="text-center mb-4 sm:mb-6 md:mb-8">
             <div className={`inline-block border-2 ${COLOR_CLASSES.border.accentGreen} ${COLOR_CLASSES.text.accentGreen} px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold`}>
@@ -344,7 +600,7 @@ const Home = () => {
           {/* Description */}
           <div className="text-center mb-8 sm:mb-12 md:mb-14 lg:mb-16 max-w-4xl mx-auto px-2">
             <p className="text-sm sm:text-base md:text-lg font-light mb-3 sm:mb-4 leading-relaxed text-gray-700">
-              Every month, over 5 lakh ITI students use JobSahi to explore jobs,
+              Every month, over 5 lakh ITI candidates use JobSahi to explore jobs,
               apprenticeships, and courses. Start your career journey with just
               one click.
             </p>
@@ -354,77 +610,139 @@ const Home = () => {
           </div>
 
           {/* Search Bar */}
-          <div className="w-full max-w-4xl mx-auto mb-8 sm:mb-12 md:mb-16 lg:mb-20 px-2 sm:px-3 md:px-4">
-            <div className="bg-white rounded-2xl sm:rounded-full shadow-xl px-3 sm:px-4 md:px-5 lg:px-7 py-3 sm:py-3.5 md:py-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 md:gap-4">
-              {/* Location */}
-              <div
-                className="flex-1 flex items-center gap-2 sm:gap-3 cursor-pointer w-full sm:w-auto min-h-[48px] sm:min-h-[44px] md:min-h-0 px-3 sm:px-2 md:px-0 py-2.5 sm:py-2 md:py-0 rounded-xl sm:rounded-none active:bg-gray-50 sm:active:bg-transparent transition-colors"
-                onClick={navigateToFindJob}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    navigateToFindJob();
-                  }
-                }}
-              >
-                <FaMapMarkerAlt className="text-[#8CD63E] text-base sm:text-lg md:text-xl flex-shrink-0" />
-                <div className="flex items-center justify-between flex-1 min-w-0">
-                  <p className="text-sm sm:text-base text-[#8CD63E] font-medium truncate">
-                    Location
-                  </p>
-                  <FaChevronDown className="text-[#8CD63E] text-xs sm:text-sm flex-shrink-0 ml-2" />
+          <div className="w-full max-w-4xl mx-auto mb-6 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20 px-2 xs:px-3 sm:px-4">
+            <div className="bg-white rounded-xl xs:rounded-2xl sm:rounded-full shadow-xl px-2 xs:px-3 sm:px-4 md:px-5 lg:px-6 xl:px-7 py-2.5 xs:py-3 sm:py-3.5 md:py-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 xs:gap-2.5 sm:gap-3 md:gap-4 relative z-10 overflow-visible">
+              {/* Location Search Input */}
+              <div className="flex-1 relative w-full sm:w-auto min-w-0 z-50" data-location-input>
+                <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 md:gap-3 w-full min-h-[44px] xs:min-h-[46px] sm:min-h-[44px] md:min-h-0 px-2 xs:px-2.5 sm:px-3 md:px-2 lg:px-0 py-2 xs:py-2.5 sm:py-2 md:py-0 rounded-lg xs:rounded-xl sm:rounded-none bg-transparent">
+                  <FaMapMarkerAlt className="text-[#8CD63E] text-sm xs:text-base sm:text-lg md:text-xl flex-shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Location..."
+                    value={searchLocation}
+                    onChange={(e) => {
+                      setSearchLocation(e.target.value);
+                      setShowLocationDropdown(true);
+                    }}
+                    onFocus={() => setShowLocationDropdown(true)}
+                    onBlur={(e) => {
+                      setTimeout(() => {
+                        if (!e.currentTarget.contains(document.activeElement)) {
+                          setShowLocationDropdown(false);
+                        }
+                      }, 200);
+                    }}
+                    className="flex-1 text-xs xs:text-sm sm:text-base text-[#8CD63E] placeholder-[#8CD63E]/60 outline-none bg-transparent min-w-0 w-0"
+                  />
+                  <FaChevronDown className="text-[#8CD63E] text-[10px] xs:text-xs sm:text-sm flex-shrink-0 ml-0.5" />
                 </div>
+                {/* Location Dropdown */}
+                {showLocationDropdown && filteredLocations.length > 0 && (
+                  <div 
+                    className="absolute z-[100] w-full mt-0.5 xs:mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto"
+                    style={{ 
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.15)'
+                    }}
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    {filteredLocations.map((location, index) => (
+                      <div
+                        key={index}
+                        onClick={() => {
+                          setSearchLocation(location);
+                          setShowLocationDropdown(false);
+                        }}
+                        className="px-2.5 xs:px-3 sm:px-4 py-1.5 xs:py-2 hover:bg-gray-100 cursor-pointer text-xs xs:text-sm transition-colors"
+                        style={{ color: '#00395B' }}
+                      >
+                        {location}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Divider */}
-              <div className="hidden sm:block w-px h-7 sm:h-8 md:h-9 bg-[#8CD63E] flex-shrink-0" />
+              {/* Divider - Desktop */}
+              <div className="hidden sm:block w-px h-6 sm:h-7 md:h-8 lg:h-9 bg-[#8CD63E] flex-shrink-0" />
 
               {/* Mobile Divider */}
-              <div className="block sm:hidden w-full h-px bg-gray-200" />
+              <div className="block sm:hidden w-full h-px bg-gray-200 -mx-2 xs:-mx-3" />
 
-              {/* Category */}
-              <div
-                className="flex-1 flex items-center gap-2 sm:gap-3 cursor-pointer w-full sm:w-auto min-h-[48px] sm:min-h-[44px] md:min-h-0 px-3 sm:px-2 md:px-0 py-2.5 sm:py-2 md:py-0 rounded-xl sm:rounded-none active:bg-gray-50 sm:active:bg-transparent transition-colors"
-                onClick={navigateToFindJob}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    navigateToFindJob();
-                  }
-                }}
-              >
-                <FaBriefcase className="text-[#8CD63E] text-base sm:text-lg md:text-xl flex-shrink-0" />
-                <div className="flex items-center justify-between flex-1 min-w-0">
-                  <p className="text-sm sm:text-base text-[#8CD63E] font-medium truncate">
-                    Category
-                  </p>
-                  <FaChevronDown className="text-[#8CD63E] text-xs sm:text-sm flex-shrink-0 ml-2" />
+              {/* Category Search Input */}
+              <div className="flex-1 relative w-full sm:w-auto min-w-0 z-50" data-category-input>
+                <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 md:gap-3 w-full min-h-[44px] xs:min-h-[46px] sm:min-h-[44px] md:min-h-0 px-2 xs:px-2.5 sm:px-3 md:px-2 lg:px-0 py-2 xs:py-2.5 sm:py-2 md:py-0 rounded-lg xs:rounded-xl sm:rounded-none bg-transparent">
+                  <FaBriefcase className="text-[#8CD63E] text-sm xs:text-base sm:text-lg md:text-xl flex-shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Category..."
+                    value={searchCategory}
+                    onChange={(e) => {
+                      setSearchCategory(e.target.value);
+                      setShowCategoryDropdown(true);
+                    }}
+                    onFocus={() => setShowCategoryDropdown(true)}
+                    onBlur={(e) => {
+                      setTimeout(() => {
+                        if (!e.currentTarget.contains(document.activeElement)) {
+                          setShowCategoryDropdown(false);
+                        }
+                      }, 200);
+                    }}
+                    className="flex-1 text-xs xs:text-sm sm:text-base text-[#8CD63E] placeholder-[#8CD63E]/60 outline-none bg-transparent min-w-0 w-0"
+                  />
+                  <FaChevronDown className="text-[#8CD63E] text-[10px] xs:text-xs sm:text-sm flex-shrink-0 ml-0.5" />
                 </div>
+                {/* Category Dropdown */}
+                {showCategoryDropdown && filteredCategories.length > 0 && (
+                  <div 
+                    className="absolute z-[100] w-full mt-0.5 xs:mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto"
+                    style={{ 
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.15)'
+                    }}
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    {filteredCategories.map((category, index) => (
+                      <div
+                        key={index}
+                        onClick={() => {
+                          setSearchCategory(category);
+                          setShowCategoryDropdown(false);
+                        }}
+                        className="px-2.5 xs:px-3 sm:px-4 py-1.5 xs:py-2 hover:bg-gray-100 cursor-pointer text-xs xs:text-sm transition-colors"
+                        style={{ color: '#00395B' }}
+                      >
+                        {category}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Mobile Divider */}
-              <div className="block sm:hidden w-full h-px bg-gray-200" />
+              <div className="block sm:hidden w-full h-px bg-gray-200 -mx-2 xs:-mx-3" />
 
               {/* Search Button */}
               <button
                 onClick={navigateToFindJob}
-                className="w-full sm:w-auto border-2 border-[#8CD63E] text-[#8CD63E] hover:bg-[#8CD63E] hover:text-white active:bg-[#7BC52E] active:border-[#7BC52E] rounded-xl sm:rounded-full px-4 sm:px-5 md:px-6 py-2.5 sm:py-2 md:py-2.5 font-semibold text-sm sm:text-base md:text-lg flex items-center justify-center gap-2 transition-all duration-200 min-h-[48px] sm:min-h-[44px] md:min-h-0 shadow-sm sm:shadow-none"
+                className="w-full sm:w-auto sm:flex-shrink-0 border-2 border-[#8CD63E] text-[#8CD63E] hover:bg-[#8CD63E] hover:text-white active:bg-[#7BC52E] active:border-[#7BC52E] rounded-lg xs:rounded-xl sm:rounded-full px-3 xs:px-4 sm:px-5 md:px-6 py-2 xs:py-2.5 sm:py-2 md:py-2.5 font-semibold text-xs xs:text-sm sm:text-base md:text-lg flex items-center justify-center gap-1.5 xs:gap-2 transition-all duration-200 min-h-[44px] xs:min-h-[46px] sm:min-h-[44px] md:min-h-0 shadow-sm sm:shadow-none whitespace-nowrap"
               >
                 <span className="whitespace-nowrap">नौकरी खोजें</span>
-                <span className="w-5 h-5 sm:w-6 sm:h-6 bg-[#8CD63E] rounded-full flex items-center justify-center flex-shrink-0">
-                  <FaSearch className="text-white text-xs sm:text-xs md:text-sm" />
+                <span className="w-4 h-4 xs:w-5 xs:h-5 sm:w-6 sm:h-6 bg-[#8CD63E] rounded-full flex items-center justify-center flex-shrink-0">
+                  <FaSearch className="text-white text-[10px] xs:text-xs sm:text-xs md:text-sm" />
                 </span>
               </button>
             </div>
           </div>
 
           {/* Illustration Area */}
-          <div className="relative w-full flex justify-center mt-8 sm:mt-12 md:mt-16 lg:mt-24 xl:mt-32 mb-12 sm:mb-16 md:mb-20 lg:mb-24 xl:mb-32 px-3 sm:px-4 md:px-6">
-            <div className="relative w-full max-w-6xl mx-auto">
+          <div className="relative w-full flex justify-center mt-8 sm:mt-12 md:mt-16 lg:mt-24 xl:mt-32 mb-12 sm:mb-16 md:mb-20 lg:mb-24 xl:mb-32 px-3 sm:px-4 md:px-6 overflow-visible">
+            <div className="relative w-full max-w-6xl mx-auto overflow-visible">
               
               {/* Left green bubbles - horizontally aligned design with improved spacing */}
               <div className="absolute -top-1 sm:-top-1.5 md:-top-2 left-0 sm:left-1 md:left-2 lg:left-4 z-40 animate-fade-in">
@@ -446,23 +764,25 @@ const Home = () => {
                 {/* Mobile Image - jobsahi.jpg - Visible only on mobile (< 768px) - Auto height */}
                 <img 
                   src={jobsahi} 
-                  alt="JobSahi - The easiest way to get your new job. Find opportunities for ITI and Polytechnic students." 
-                  className="block md:hidden w-full h-auto object-contain object-center rounded-2xl sm:rounded-3xl"
+                  alt="JobSahi - The easiest way to get your new job. Find opportunities for ITI and Polytechnic candidates." 
+                  className="block md:hidden w-full h-auto max-h-[400px] xs:max-h-[420px] sm:max-h-[450px] object-contain object-center rounded-2xl sm:rounded-3xl"
                   loading="eager"
                   decoding="async"
                   fetchPriority="high"
                   sizes="100vw"
+                  style={{ maxWidth: '100%', height: 'auto' }}
                 />
                 {/* Desktop Image - homebanner.jpg - Visible only on desktop (>= 768px) - Fixed height */}
                 <img 
                   src={homebanner} 
-                  alt="JobSahi - The easiest way to get your new job. Find opportunities for ITI and Polytechnic students." 
+                  alt="JobSahi - The easiest way to get your new job. Find opportunities for ITI and Polytechnic candidates." 
                   className="hidden md:block absolute top-0 left-0 w-full h-full object-cover object-center rounded-2xl sm:rounded-3xl md:rounded-[2.5rem]"
                   style={{
                     width: '100%',
                     height: '100%',
                     objectFit: 'cover',
-                    objectPosition: 'center center'
+                    objectPosition: 'center center',
+                    maxWidth: '100%'
                   }}
                   loading="eager"
                   decoding="async"
@@ -474,11 +794,11 @@ const Home = () => {
               </div>
 
               {/* Right side white box with improved styling - Desktop only */}
-              <div className="hidden md:block absolute -bottom-16 sm:-bottom-20 md:-bottom-24 lg:-bottom-28 xl:-bottom-32 right-0 z-30 animate-slide-in-right">
+              <div className="hidden md:block absolute -bottom-16 sm:-bottom-20 md:-bottom-24 lg:-bottom-28 xl:-bottom-32 right-0 z-30 animate-slide-in-right overflow-visible">
                 <div className="w-[140px] h-[120px] sm:w-[180px] sm:h-[160px] md:w-[200px] md:h-[180px] lg:w-[240px] lg:h-[220px] bg-white rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl rounded-br-[2.5rem] shadow-[0_15px_50px_rgba(0,0,0,0.12)] relative overflow-hidden border border-gray-100/50">
                   <img 
                     src={homesquare} 
-                    alt="JobSahi platform showcase - Career opportunities for students" 
+                    alt="JobSahi platform showcase - Career opportunities for candidates" 
                     className="absolute inset-0 w-full h-full object-cover object-center rounded-tl-3xl rounded-tr-3xl rounded-bl-3xl rounded-br-[2.5rem]"
                     loading="lazy"
                     decoding="async"
@@ -604,6 +924,7 @@ const Home = () => {
       <BrowseJobByCategory
         jobCategories={jobCategories}
         headerContent={browseJobHeaderContent}
+        loading={loadingCategories}
       />
 
       {/* Upload Resume */}
@@ -687,10 +1008,24 @@ const Home = () => {
                   {selectedFile && (
                     <div className="flex justify-center mt-4 px-2">
                       <div className="bg-green-50 border border-green-200 rounded-lg px-3 sm:px-4 py-2 flex items-center space-x-2 max-w-[90%] sm:max-w-none">
-                        <FaFileAlt className="text-green-600 text-sm sm:text-base flex-shrink-0" />
-                        <span className="text-green-800 font-medium text-xs sm:text-sm truncate">
-                          Selected: {selectedFile.name}
-                        </span>
+                        {loadingMatchedJobs ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                            <span className="text-green-800 font-medium text-xs sm:text-sm">
+                              Processing resume and finding jobs...
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <FaFileAlt className="text-green-600 text-sm sm:text-base flex-shrink-0" />
+                            <span className="text-green-800 font-medium text-xs sm:text-sm truncate">
+                              Selected: {selectedFile.name}
+                            </span>
+                            {resumeUploaded && (
+                              <FaCheckCircle className="text-green-600 text-sm sm:text-base flex-shrink-0" />
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
                   )}
@@ -700,6 +1035,113 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Matched Jobs Section */}
+      {matchedJobs.length > 0 && (
+        <section id="matched-jobs-section" className="my-6 sm:my-8 md:my-10 lg:my-12 px-2 sm:px-3 md:px-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-6 sm:mb-8 md:mb-10">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-3" style={{ color: '#00395B' }}>
+                Jobs Matched for You
+              </h2>
+              <p className="text-sm sm:text-base md:text-lg text-gray-600">
+                Based on your resume, we found {matchedJobs.length} matching job{matchedJobs.length !== 1 ? 's' : ''} for you!
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+              {matchedJobs.map((job, index) => (
+                <div
+                  key={job.id}
+                  className="bg-white rounded-lg p-4 sm:p-5 md:p-6 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-200 animate-fade-in-up"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                  onClick={() => navigate(`/find-job?jobId=${job.id}`)}
+                >
+                  <div className="flex items-start space-x-3 sm:space-x-4 mb-4">
+                    {/* Company Logo */}
+                    <div
+                      className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl md:text-2xl flex-shrink-0"
+                      style={{ backgroundColor: job.logoColor || '#00395B' }}
+                    >
+                      {job.logo}
+                    </div>
+
+                    {/* Job Details */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2 break-words" style={{ color: '#00395B' }}>
+                        {job.title}
+                      </h3>
+                      <p className="mb-2 sm:mb-3 text-sm sm:text-base break-words text-gray-600">
+                        {job.company} • {job.location}
+                      </p>
+
+                      {/* Job Type & Salary */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mb-3 sm:mb-4 gap-2 sm:gap-0">
+                        <div className="flex items-center space-x-2">
+                          <FaBriefcase className="text-xs sm:text-sm text-gray-500" />
+                          <span className="text-xs sm:text-sm text-gray-600">{job.type}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-xs sm:text-sm text-gray-600">{job.salary}</span>
+                        </div>
+                      </div>
+
+                      {/* Skills */}
+                      {job.skills && job.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                          {job.skills.slice(0, 3).map((skill, skillIndex) => (
+                            <span
+                              key={skillIndex}
+                              className="px-2 py-0.5 sm:px-3 sm:py-1 text-xs sm:text-sm font-medium rounded-full bg-green-100 text-green-800"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                          {job.skills.length > 3 && (
+                            <span className="px-2 py-0.5 sm:px-3 sm:py-1 text-xs sm:text-sm font-medium rounded-full bg-gray-100 text-gray-600">
+                              +{job.skills.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Apply Button */}
+                  <button
+                    className="w-full px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 font-semibold rounded-lg transition-colors text-sm sm:text-base text-white"
+                    style={{ backgroundColor: '#8CD63E' }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#7BC52E'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#8CD63E'}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/find-job?jobId=${job.id}`);
+                    }}
+                  >
+                    View Details
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* View All Jobs Button */}
+            <div className="text-center mt-6 sm:mt-8 md:mt-10">
+              <button
+                onClick={() => navigate('/find-job')}
+                className="px-6 sm:px-8 md:px-10 py-2.5 sm:py-3 md:py-3.5 font-semibold rounded-full text-sm sm:text-base md:text-lg text-white transition-all duration-200"
+                style={{ backgroundColor: '#00395B' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#002d47'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#00395B'}
+              >
+                View All Jobs
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Right For You */}
       <section className="py-6 sm:py-8 md:py-12 lg:py-16 bg-white overflow-hidden">
@@ -838,7 +1280,7 @@ const Home = () => {
                 Complete Your Profile
               </h3>
               <p className="text-gray-600 text-base sm:text-lg leading-relaxed px-2">
-                Fill in your details to get noticed by employers faster.
+                Fill in your details to get noticed by recruiters faster.
               </p>
             </div>
 
@@ -858,7 +1300,7 @@ const Home = () => {
               </h3>
               <p className="text-gray-600 text-base sm:text-lg leading-relaxed px-2">
                 Apply to jobs that match your skills or post a job if you&apos;re
-                an employer.
+                a recruiter.
               </p>
             </div>
           </div>

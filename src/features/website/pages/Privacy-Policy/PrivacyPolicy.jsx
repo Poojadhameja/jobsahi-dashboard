@@ -58,7 +58,7 @@ const PrivacyPolicy = () => {
               </p>
               <ul className="list-disc pl-6 text-gray-700 mb-4">
                 <li>Provide job matching and recommendation services</li>
-                <li>Facilitate communication between job seekers and employers</li>
+                <li>Facilitate communication between job seekers and recruiters</li>
                 <li>Improve our platform and user experience</li>
                 <li>Send important updates and notifications</li>
                 <li>Ensure platform security and prevent fraud</li>
@@ -72,8 +72,8 @@ const PrivacyPolicy = () => {
                 We may share your information with:
               </p>
               <ul className="list-disc pl-6 text-gray-700 mb-4">
-                <li>Employers when you apply for jobs</li>
-                <li>Training institutes for course recommendations</li>
+                <li>Recruiters when you apply for jobs</li>
+                <li>Skill partners for course recommendations</li>
                 <li>Service providers who assist in platform operations</li>
                 <li>Legal authorities when required by law</li>
               </ul>

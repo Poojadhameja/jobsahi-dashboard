@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   LuBuilding,
   LuMail,
@@ -10,7 +11,8 @@ import {
   LuFileText,
   LuCheck,
   LuX,
-  LuEye
+  LuEye,
+  LuLogIn
 } from 'react-icons/lu'
 import Swal from 'sweetalert2'
 import { postMethod, putMethod } from '../../../../../service/api'
@@ -19,109 +21,170 @@ import service from '../../../../../service/serviceUrl'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
 import { Button } from '../../../../../shared/components/Button'
 
-// Institute Approval Card Component
-function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject, is_verified }) {
-  const getStatusBadge = (status) => {
-    // Normalize status to uppercase
-    const normalizedStatus = status?.toUpperCase() || 'PENDING REVIEW';
-    
-    const statusStyles = {
-      'PENDING REVIEW': 'bg-orange-100 text-orange-800',
-      'PENDING': 'bg-orange-100 text-orange-800',
-      'APPROVED': 'bg-green-100 text-green-800',
-      'REJECTED': 'bg-red-100 text-red-800'
-    }
+// Helper Functions
+const toTitle = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : "N/A");
 
-    const displayStatus = normalizedStatus === 'PENDING' ? 'PENDING REVIEW' : normalizedStatus;
-    const style = statusStyles[normalizedStatus] || statusStyles['PENDING REVIEW'];
+const statusFromVerified = (v) => {
+  if (v === 1 || v === "1" || v === true) return "approved";
+  if (v === 0 || v === "0") return "rejected";
+  return "pending";
+};
 
-    return (
-      <span className={`px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-medium rounded-full ${style}`}>
-        {displayStatus}
-      </span>
-    )
-  }
+// Status Badge Component
+function StatusBadge({ status }) {
+  const cls =
+    status === "approved"
+      ? "bg-green-100 text-green-800"
+      : status === "rejected"
+        ? "bg-red-100 text-red-800"
+        : "bg-yellow-100 text-yellow-800";
   return (
-    <div className="bg-white rounded-lg border border-blue-200 p-3 sm:p-4 md:p-6 shadow-sm h-full flex flex-col">
-      {/* Institute Header */}
-      <div className="flex items-start gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4">
-        <div className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-bold text-xs sm:text-sm md:text-lg">{institute.initials}</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className={`font-bold ${TAILWIND_COLORS.TEXT_PRIMARY} text-sm sm:text-base md:text-lg truncate`}>{institute.institute_name || 'N/A'}</h3>
-          <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs sm:text-sm font-medium truncate`}>
-            {institute.name || institute.user_name || 'N/A'}
-          </p>
-          <p className={`${TAILWIND_COLORS.TEXT_MUTED} text-xs mt-0.5 sm:mt-1 truncate`}>{institute.email || 'N/A'}</p>
-        </div>
-      </div>
+    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${cls}`}>
+      {toTitle(status)}
+    </span>
+  );
+}
 
-      {/* Institute Details - Important Info Only */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4 flex-1">
-        <div className="min-w-0">
-          <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} block mb-0.5`}>Location:</span>
-          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-xs sm:text-sm break-words`}>
-            {institute.address ? `${institute.address}${institute.postal_code ? `, ${institute.postal_code}` : ''}` : 'N/A'}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} block mb-0.5`}>Type:</span>
-          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-xs sm:text-sm truncate`}>
-            {institute.institute_type || 'N/A'}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} block mb-0.5`}>Phone:</span>
-          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-xs sm:text-sm truncate`}>
-            {institute.phone || 'N/A'}
-          </p>
-        </div>
-        <div className="min-w-0">
-          <span className={`text-xs ${TAILWIND_COLORS.TEXT_MUTED} block mb-0.5`}>Established:</span>
-          <p className={`font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} text-xs sm:text-sm`}>
-            {institute.established_year || 'N/A'}
-          </p>
-        </div>
-      </div>
+// Info Row Component
+function InfoRow({ label, value, icon }) {
+  return (
+    <div className="flex items-center gap-2">
+      {icon}
+      <span className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED}`}>{label}:</span>
+      <span className={TAILWIND_COLORS.TEXT_PRIMARY}>{value || "N/A"}</span>
+    </div>
+  );
+}
 
-      {/* Status and Actions */}
-      <div className="space-y-2 sm:space-y-3 mt-auto">
-        <div className="flex items-center gap-2">
-          {getStatusBadge(institute.status)}
+// Institute Approval Card Component (Same structure as Recruiter)
+function InstituteApprovalCard({ institute, onViewDetails, onApprove, onReject, is_verified, onLogin }) {
+  // Normalize status
+  const status = institute.status?.toLowerCase() === "approved" ? "approved" : 
+                 institute.status?.toLowerCase() === "rejected" ? "rejected" : 
+                 "pending";
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+      <div className="flex items-start justify-between">
+        {/* Left Section */}
+        <div className="flex items-start space-x-4 flex-1">
+          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+            <LuBuilding className={TAILWIND_COLORS.TEXT_MUTED} size={24} />
+          </div>
+
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h3
+                className={`text-lg font-bold ${TAILWIND_COLORS.TEXT_PRIMARY}`}
+              >
+                {institute.institute_name || 'N/A'}
+              </h3>
+              <StatusBadge status={status} />
+            </div>
+
+            <p className={`text-sm ${TAILWIND_COLORS.TEXT_MUTED} mb-3`}>
+              {institute.name || institute.user_name || 'N/A'}
+            </p>
+
+            <div className="flex flex-wrap gap-4 text-sm mb-3">
+              <InfoRow
+                label="Email"
+                value={institute.email}
+                icon={<LuMail size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+              />
+              <InfoRow
+                label="Phone"
+                value={institute.phone}
+                icon={<LuPhone size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+              />
+              <InfoRow
+                label="Website"
+                value={institute.website}
+                icon={<LuGlobe size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2 mb-3">
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                {institute.institute_type || 'N/A'}
+              </span>
+            </div>
+
+            <div className="flex flex-wrap gap-4 text-sm mb-4">
+              <InfoRow
+                label="Location"
+                value={institute.location || institute.address || "N/A"}
+                icon={<LuMapPin size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+              />
+              {institute.established_year && (
+                <InfoRow
+                  label="Established"
+                  value={institute.established_year}
+                  icon={<LuCalendar size={16} className={TAILWIND_COLORS.TEXT_MUTED} />}
+                />
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col xs:flex-row gap-2 sm:gap-2">
-          <button
-            onClick={() => onViewDetails(institute)}
-            className="text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 sm:py-2 border-2 border-blue-600 text-blue-600 hover:text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-1.5 sm:gap-2 w-full xs:w-auto flex-1 xs:flex-none"
+        {/* Right Actions */}
+        <div className="flex flex-col space-y-2 ml-4 shrink-0">
+          {/* LOGIN BUTTON */}
+          <Button
+            onClick={onLogin}
+            variant="primary"
+            size="sm"
+            icon={<LuLogIn size={16} />}
+            className="!bg-blue-600 text-white hover:!bg-blue-700"
           >
-            <LuEye size={14} className="flex-shrink-0" />
-            <span className="whitespace-nowrap">View Details</span>
-          </button>
-          <button
-            onClick={() => onApprove(institute.institute_id)}
-            disabled={is_verified === 1}
-            className={`text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 sm:py-2 border-2 font-semibold rounded-lg transition-colors duration-200 flex items-center justify-center gap-1.5 sm:gap-2 w-full xs:w-auto flex-1 xs:flex-none ${
+            Login
+          </Button>
+
+          {/* REVIEW BUTTON */}
+          <Button
+            onClick={onViewDetails}
+            variant="light"
+            size="sm"
+            icon={<LuEye size={16} />}
+          >
+            Review
+          </Button>
+
+          {/* APPROVE BUTTON */}
+          <Button
+            onClick={onApprove}
+            variant="success"
+            size="sm"
+            icon={<LuCheck size={16} />}
+            className={
               is_verified === 1
-                ? "opacity-30 cursor-not-allowed border-gray-400 text-gray-400 bg-gray-100"
-                : "border-green-600 text-green-600 hover:text-white hover:bg-green-700"
-            }`}
+                ? "opacity-30 cursor-not-allowed !bg-gray-400"
+                : "!bg-green-600 text-white hover:!bg-green-700"
+            }
+            disabled={is_verified === 1}
           >
-            <LuCheck size={14} className="flex-shrink-0" />
-            <span className="whitespace-nowrap">Approve</span>
-          </button>
-          <button
-            onClick={() => onReject(institute.institute_id)}
-            className="text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 sm:py-2 border-2 border-red-600 text-red-600 hover:text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center justify-center gap-1.5 sm:gap-2 w-full xs:w-auto flex-1 xs:flex-none"
+            Approve
+          </Button>
+
+          {/* REJECT BUTTON */}
+          <Button
+            onClick={onReject}
+            variant="danger"
+            size="sm"
+            icon={<LuX size={16} />}
+            className={
+              status === "rejected"
+                ? "opacity-50 cursor-not-allowed"
+                : "!bg-red-500 text-white"
+            }
+            disabled={status === "rejected"}
           >
-            <LuX size={14} className="flex-shrink-0" />
-            <span className="whitespace-nowrap">Reject</span>
-          </button>
+            Reject
+          </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // View Details Modal Component
@@ -147,11 +210,11 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
           <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
             <h3 className={`text-sm sm:text-base md:text-lg font-medium ${TAILWIND_COLORS.TEXT_PRIMARY} mb-2 sm:mb-3 md:mb-4 flex items-center gap-2`}>
               <LuBuilding className="text-blue-600 flex-shrink-0" size={16} />
-              <span>Institute Information</span>
+              <span>Skill Partner Information</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
               <div className="min-w-0">
-                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Institute Name</label>
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Skill Partner Name</label>
                 <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} font-medium text-sm sm:text-base break-words`}>{institute.institute_name || 'N/A'}</p>
               </div>
               <div className="min-w-0">
@@ -164,7 +227,7 @@ function ViewDetailsModal({ institute, isOpen, onClose }) {
                 </p>
               </div>
               <div className="min-w-0">
-                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Institute Type</label>
+                <label className={`block text-xs sm:text-sm font-medium ${TAILWIND_COLORS.TEXT_MUTED} mb-1`}>Skill Partner Type</label>
                 <p className={`${TAILWIND_COLORS.TEXT_PRIMARY} text-sm sm:text-base`}>{institute.institute_type || 'N/A'}</p>
               </div>
               <div className="min-w-0">
@@ -620,6 +683,74 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
     })
   }
 
+  // ✅ Admin Login as Institute/Skill Partner
+  const handleLoginAsInstitute = async (institute) => {
+    try {
+      Swal.fire({
+        title: 'Login as Skill Partner?',
+        text: `You will be logged in as ${institute.institute_name || institute.name}. You can return to admin panel later.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, Login',
+        cancelButtonText: 'Cancel'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            // Store current admin session for returning
+            const currentAdminToken = localStorage.getItem("authToken");
+            const currentAdminUser = localStorage.getItem("authUser");
+            
+            if (currentAdminToken && currentAdminUser) {
+              localStorage.setItem("adminSessionToken", currentAdminToken);
+              localStorage.setItem("adminSessionUser", currentAdminUser);
+            }
+
+            // Create user object for institute
+            const instituteUser = {
+              id: institute.id || institute.institute_id,
+              user_name: institute.name || institute.user_name,
+              email: institute.email,
+              role: "institute",
+              phone: institute.phone,
+            };
+
+            // Generate a temporary token (or call API if available)
+            // For now, we'll create a simple token-like string
+            // In production, you should call an admin API endpoint to get a valid token
+            const tempToken = `admin_impersonate_${institute.id || institute.institute_id}_${Date.now()}`;
+
+            // Set institute's session
+            localStorage.setItem("authToken", tempToken);
+            localStorage.setItem("authUser", JSON.stringify(instituteUser));
+            localStorage.setItem("isAdminImpersonating", "true");
+
+            Swal.fire({
+              title: 'Success!',
+              text: `Logged in as ${institute.institute_name || institute.name}`,
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false
+            }).then(() => {
+              // Redirect to institute dashboard
+              navigate("/institute/dashboard");
+            });
+          } catch (error) {
+            console.error("Error logging in as institute:", error);
+            Swal.fire({
+              title: "Error",
+              text: "Failed to login as skill partner. Please try again.",
+              icon: "error"
+            });
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error in handleLoginAsInstitute:", error);
+    }
+  };
+
   // Format institutes data
   const formattedInstitutes = institutes.map((item, index) => {
     // ✅ Handle both raw API data structure and formatted data structure
@@ -784,21 +915,22 @@ export default function PendingInstituteApprovals({ institutes: initialInstitute
 
       {/* Institute Cards */}
       {filteredInstitutes.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+        <div className="space-y-4">
           {filteredInstitutes.map((institute) => (
             <InstituteApprovalCard
               key={institute.id}
               institute={institute}
               is_verified={institute.is_verified || 0} // ✅ Pass is_verified prop
               onViewDetails={() => handleViewDetails(institute)}
-              onApprove={() =>handleApprove(institute.institute_id)}
-              onReject={() =>handleReject(institute.institute_id)}
+              onApprove={() => handleApprove(institute.institute_id)}
+              onReject={() => handleReject(institute.institute_id)}
+              onLogin={() => handleLoginAsInstitute(institute)}
             />
           ))}
         </div>
       ) : (
-        <div className="text-center py-8 sm:py-12 bg-white rounded-lg border border-gray-200 px-4">
-          <p className={`text-sm sm:text-base md:text-lg ${TAILWIND_COLORS.TEXT_MUTED}`}>
+        <div className="bg-white rounded-lg border border-dashed p-8 text-center">
+          <p className={`${TAILWIND_COLORS.TEXT_MUTED}`}>
             No institutes found with status: <span className="font-semibold">{filterStatus}</span>
           </p>
         </div>

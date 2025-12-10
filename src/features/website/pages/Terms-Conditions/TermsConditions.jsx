@@ -24,7 +24,7 @@ const TermsConditions = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-[#0B537D] mb-4">1. Acceptance of Terms</h2>
               <p className="text-gray-700 leading-relaxed mb-4">
-                By accessing and using JobSahi ("the Platform"), you accept and agree to be bound by the terms and provision of this agreement. These Terms and Conditions govern your use of our job portal services for ITI and Polytechnic students.
+                By accessing and using JobSahi ("the Platform"), you accept and agree to be bound by the terms and provision of this agreement. These Terms and Conditions govern your use of our job portal services for ITI and Polytechnic candidates.
               </p>
               <p className="text-gray-700 leading-relaxed">
                 If you do not agree to abide by the above, please do not use this service.
@@ -34,14 +34,14 @@ const TermsConditions = () => {
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-[#0B537D] mb-4">2. Description of Service</h2>
               <p className="text-gray-700 leading-relaxed mb-4">
-                JobSahi is a job portal platform that connects ITI and Polytechnic students with employers and training institutes. Our services include:
+                JobSahi is a job portal platform that connects ITI and Polytechnic candidates with recruiters and skill partners. Our services include:
               </p>
               <ul className="list-disc pl-6 text-gray-700 mb-4">
                 <li>Job search and application platform</li>
                 <li>Resume building and management tools</li>
                 <li>Course and training program listings</li>
                 <li>Career guidance and resources</li>
-                <li>Communication tools between students and employers</li>
+                <li>Communication tools between candidates and recruiters</li>
               </ul>
             </section>
 
@@ -94,12 +94,12 @@ const TermsConditions = () => {
             </section>
 
             <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-[#0B537D] mb-4">6. Job Applications and Employer Relations</h2>
+              <h2 className="text-2xl font-semibold text-[#0B537D] mb-4">6. Job Applications and Recruiter Relations</h2>
               <ul className="list-disc pl-6 text-gray-700 mb-4">
                 <li>JobSahi facilitates connections but does not guarantee employment</li>
-                <li>Employers are responsible for their own hiring decisions</li>
+                <li>Recruiters are responsible for their own hiring decisions</li>
                 <li>We do not endorse or guarantee the accuracy of job postings</li>
-                <li>Users are responsible for verifying employer credentials</li>
+                <li>Users are responsible for verifying recruiter credentials</li>
                 <li>JobSahi is not liable for employment disputes</li>
               </ul>
             </section>

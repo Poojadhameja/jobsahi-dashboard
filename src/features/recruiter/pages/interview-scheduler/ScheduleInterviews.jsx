@@ -10,7 +10,6 @@ import {
   LuX,
   LuMapPin,
   LuChevronDown,
-  LuCheck,
   LuSearch,
 } from "react-icons/lu";
 import Calendar from "../../../../shared/components/Calendar";
@@ -52,6 +51,9 @@ const ScheduleInterviews = () => {
 
   const [scheduledInterviews, setScheduledInterviews] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCandidates, setSelectedCandidates] = useState([]);
+  const [loadingAction, setLoadingAction] = useState(false);
+  const [hasFetchedStatuses, setHasFetchedStatuses] = useState(false);
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedInterview, setSelectedInterview] = useState(null);
@@ -477,6 +479,7 @@ const handleScheduleInterview = async () => {
 
           return {
             id: item.interviewId || item.interview_id || index + 1,
+            application_id: item.application_id || item.applicationId || null,
             candidate: {
               name: item.candidateName || item.candidate_name || "—",
               initials: (item.candidateName || item.candidate_name || "")
@@ -495,7 +498,8 @@ const handleScheduleInterview = async () => {
                 : "In-Person",
             location: item.location || "—",
             status: item.status || "Scheduled",
-            feedback: item.feedback || "—",
+            feedback: item.interview_info || item.feedback || item.interviewInfo || "—",
+            interview_info: item.interview_info || item.feedback || item.interviewInfo || null,
             meetingLink: item.meetingLink || item.meeting_link || "",
             scheduledBy: item.scheduledBy || item.scheduled_by || "",
           };
@@ -515,6 +519,77 @@ const handleScheduleInterview = async () => {
   useEffect(() => {
     fetchScheduledInterviews();
   }, []);
+
+  // =========================================================
+  // 4.5) FETCH APPLICATION STATUS FOR ALL INTERVIEWS ON PAGE LOAD
+  // =========================================================
+  useEffect(() => {
+    const fetchApplicationStatuses = async () => {
+      if (hasFetchedStatuses || scheduledInterviews.length === 0) return;
+
+      const interviewsWithAppId = scheduledInterviews.filter((intv) => intv.application_id);
+      if (interviewsWithAppId.length === 0) return;
+
+      setHasFetchedStatuses(true);
+      console.log("📤 Fetching application statuses for", interviewsWithAppId.length, "interviews on page load");
+
+      try {
+        // Fetch status for all interviews that have application_id
+        const statusPromises = interviewsWithAppId.map((interview) =>
+          getMethod({
+            apiUrl: apiService.getApplication,
+            params: { id: interview.application_id },
+          })
+            .then((response) => {
+              console.log(`📥 GET Application Status for ID ${interview.application_id}:`, response);
+              return {
+                interviewId: interview.id,
+                applicationId: interview.application_id,
+                response,
+              };
+            })
+            .catch((error) => {
+              console.error(`❌ Error fetching status for application_id ${interview.application_id}:`, error);
+              return {
+                interviewId: interview.id,
+                applicationId: interview.application_id,
+                response: null,
+                error,
+              };
+            })
+        );
+
+        const statusResults = await Promise.all(statusPromises);
+
+        console.log("📥 All Application Status Responses:", statusResults);
+
+        // Update local state with fetched statuses
+        setScheduledInterviews((prev) =>
+          prev.map((intv) => {
+            const statusResult = statusResults.find(
+              (result) => result.interviewId === intv.id
+            );
+
+            if (statusResult && statusResult.response?.status === true && statusResult.response?.data) {
+              const updatedStatus = statusResult.response.data.status || intv.status;
+              console.log(`✅ Updated status for interview ${intv.id} (app_id: ${intv.application_id}): ${updatedStatus}`);
+              return { ...intv, status: updatedStatus };
+            }
+
+            return intv;
+          })
+        );
+      } catch (error) {
+        console.error("❌ Error fetching application statuses:", error);
+        setHasFetchedStatuses(false); // Reset on error so it can retry
+      }
+    };
+
+    // Only fetch if we have interviews with application_id and haven't fetched yet
+    if (scheduledInterviews.length > 0 && scheduledInterviews.some((intv) => intv.application_id) && !hasFetchedStatuses) {
+      fetchApplicationStatuses();
+    }
+  }, [scheduledInterviews.length, hasFetchedStatuses]); // Run when scheduledInterviews count changes
 
 // ✅ Interview waali dates highlight karne ke liye
 const [highlightedDates, setHighlightedDates] = useState([]);
@@ -546,6 +621,340 @@ useEffect(() => {
       interview.status.toLowerCase().includes(q)
     );
   });
+
+  // =========================================================
+  // 6) HANDLE SELECT/REJECT CANDIDATES
+  // =========================================================
+  const handleSelectCandidate = async (interview) => {
+    if (!interview.application_id) {
+      Swal.fire({
+        title: "Error",
+        text: "Application ID not found. Cannot update status.",
+        icon: "error",
+      });
+      return;
+    }
+
+    try {
+      setLoadingAction(true);
+      // ✅ API expects application_id as query parameter and status in body
+      const response = await putMethod({
+        apiUrl: `${apiService.updateApplicationStatus}?id=${interview.application_id}`,
+        payload: {
+          status: "selected",
+          job_selected: 1,
+        },
+      });
+
+      console.log("📥 Hired API Response:", response);
+
+      if (response?.status === true || response?.status === "success" || response?.success === true) {
+        // ✅ Fetch updated application status from GET API
+        try {
+          console.log("📤 Calling GET Application API with ID:", interview.application_id);
+          console.log("📤 GET API URL:", apiService.getApplication);
+          console.log("📤 GET API Params:", { id: interview.application_id });
+          
+          const getResponse = await getMethod({
+            apiUrl: apiService.getApplication,
+            params: { id: interview.application_id },
+          });
+
+          console.log("📥 bbbbbbbbbjsnjsnjGET Application Status Response:", getResponse);
+          console.log("📥 GET Response Status:", getResponse?.status);
+          console.log("📥 GET Response Data:", getResponse?.data);
+
+          if (getResponse?.status === true && getResponse?.data) {
+            const updatedStatus = getResponse.data.status || "selected";
+            console.log("✅ Updated Status from GET API:", updatedStatus);
+            
+            // Update local state with fetched status
+            setScheduledInterviews((prev) =>
+              prev.map((intv) =>
+                intv.id === interview.id
+                  ? { ...intv, status: updatedStatus }
+                  : intv
+              )
+            );
+          } else {
+            console.warn("⚠️ GET API response structure unexpected:", getResponse);
+            // Fallback: Update with "selected" if GET API fails
+            setScheduledInterviews((prev) =>
+              prev.map((intv) =>
+                intv.id === interview.id
+                  ? { ...intv, status: "selected" }
+                  : intv
+              )
+            );
+          }
+        } catch (getError) {
+          console.error("❌ Error fetching updated status:", getError);
+          console.error("❌ Error details:", {
+            message: getError?.message,
+            response: getError?.response,
+            application_id: interview.application_id
+          });
+          // Fallback: Update with "selected" if GET API fails
+          setScheduledInterviews((prev) =>
+            prev.map((intv) =>
+              intv.id === interview.id
+                ? { ...intv, status: "selected" }
+                : intv
+            )
+          );
+        }
+
+        // Remove from selected candidates if it was selected
+        setSelectedCandidates((prev) => prev.filter(id => id !== interview.id));
+
+        Swal.fire({
+          title: "Success!",
+          text: `${interview.candidate.name} has been hired successfully.`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire({
+          title: "Failed",
+          text: response?.message || "Failed to update candidate status.",
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error hiring candidate:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong.",
+        icon: "error",
+      });
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
+  const handleRejectCandidate = async (interview) => {
+    if (!interview.application_id) {
+      Swal.fire({
+        title: "Error",
+        text: "Application ID not found. Cannot update status.",
+        icon: "error",
+      });
+      return;
+    }
+
+    try {
+      setLoadingAction(true);
+      // ✅ API expects application_id as query parameter and status in body
+      const response = await putMethod({
+        apiUrl: `${apiService.updateApplicationStatus}?id=${interview.application_id}`,
+        payload: {
+          status: "rejected",
+          job_selected: 0,
+        },
+      });
+
+      console.log("📥 Reject API Response:", response);
+
+      if (response?.status === true || response?.status === "success" || response?.success === true) {
+        // ✅ Fetch updated application status from GET API
+        try {
+          console.log("📤 Calling GET Application API (Reject) with ID:", interview.application_id);
+          console.log("📤 GET API URL:", apiService.getApplication);
+          console.log("📤 GET API Params:", { id: interview.application_id });
+          
+          const getResponse = await getMethod({
+            apiUrl: apiService.getApplication,
+            params: { id: interview.application_id },
+          });
+
+          console.log("📥 GET Application Status Response (Reject):", getResponse);
+          console.log("📥 GET Response Status:", getResponse?.status);
+          console.log("📥 GET Response Data:", getResponse?.data);
+
+          if (getResponse?.status === true && getResponse?.data) {
+            const updatedStatus = getResponse.data.status || "rejected";
+            console.log("✅ Updated Status from GET API:", updatedStatus);
+            
+            // Update local state with fetched status
+            setScheduledInterviews((prev) =>
+              prev.map((intv) =>
+                intv.id === interview.id
+                  ? { ...intv, status: updatedStatus }
+                  : intv
+              )
+            );
+          } else {
+            console.warn("⚠️ GET API response structure unexpected:", getResponse);
+            // Fallback: Update with "rejected" if GET API fails
+            setScheduledInterviews((prev) =>
+              prev.map((intv) =>
+                intv.id === interview.id
+                  ? { ...intv, status: "rejected" }
+                  : intv
+              )
+            );
+          }
+        } catch (getError) {
+          console.error("❌ Error fetching updated status:", getError);
+          console.error("❌ Error details:", {
+            message: getError?.message,
+            response: getError?.response,
+            application_id: interview.application_id
+          });
+          // Fallback: Update with "rejected" if GET API fails
+          setScheduledInterviews((prev) =>
+            prev.map((intv) =>
+              intv.id === interview.id
+                ? { ...intv, status: "rejected" }
+                : intv
+            )
+          );
+        }
+
+        // Remove from selected candidates if it was selected
+        setSelectedCandidates((prev) => prev.filter(id => id !== interview.id));
+
+        Swal.fire({
+          title: "Rejected",
+          text: `${interview.candidate.name} has been rejected.`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        Swal.fire({
+          title: "Failed",
+          text: response?.message || "Failed to update candidate status.",
+          icon: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error rejecting candidate:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong.",
+        icon: "error",
+      });
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
+  const handleBulkShortlist = async () => {
+    if (selectedCandidates.length === 0) {
+      Swal.fire({
+        title: "No Selection",
+        text: "Please select at least one candidate.",
+        icon: "warning",
+      });
+      return;
+    }
+
+    try {
+      setLoadingAction(true);
+      const selectedInterviews = scheduledInterviews.filter((intv) =>
+        selectedCandidates.includes(intv.id)
+      );
+
+      // Filter out interviews without application_id
+      const validInterviews = selectedInterviews.filter(
+        (intv) => intv.application_id
+      );
+
+      if (validInterviews.length === 0) {
+        Swal.fire({
+          title: "Error",
+          text: "No valid candidates found for bulk hire.",
+          icon: "error",
+        });
+        return;
+      }
+
+      // ✅ Call API for each candidate with application_id as query parameter
+      const promises = validInterviews.map((interview) =>
+        putMethod({
+          apiUrl: `${apiService.updateApplicationStatus}?id=${interview.application_id}`,
+          payload: {
+            status: "selected",
+            job_selected: 1,
+          },
+        })
+      );
+
+      const results = await Promise.all(promises);
+      const successCount = results.filter(
+        (res) => res?.status === true || res?.status === "success" || res?.success === true
+      ).length;
+
+      // ✅ Fetch updated status for all successfully hired candidates
+      const successfulInterviews = validInterviews.filter((interview, index) => {
+        const result = results[index];
+        return result?.status === true || result?.status === "success" || result?.success === true;
+      });
+
+      // Fetch updated status for each successful hire
+      console.log("📤 Fetching updated status for", successfulInterviews.length, "candidates");
+      const statusPromises = successfulInterviews.map((interview) => {
+        console.log("📤 GET API for application_id:", interview.application_id);
+        return getMethod({
+          apiUrl: apiService.getApplication,
+          params: { id: interview.application_id },
+        });
+      });
+
+      try {
+        const statusResults = await Promise.all(statusPromises);
+        
+        // Update local state with fetched statuses
+        setScheduledInterviews((prev) =>
+          prev.map((intv) => {
+            if (selectedCandidates.includes(intv.id)) {
+              const interviewIndex = successfulInterviews.findIndex(
+                (inv) => inv.id === intv.id
+              );
+              if (interviewIndex !== -1 && statusResults[interviewIndex]?.data) {
+                const updatedStatus = statusResults[interviewIndex].data.status || "selected";
+                return { ...intv, status: updatedStatus };
+              }
+              return { ...intv, status: "selected" };
+            }
+            return intv;
+          })
+        );
+      } catch (statusError) {
+        console.error("Error fetching updated statuses:", statusError);
+        // Fallback: Update with "selected" if GET API fails
+        setScheduledInterviews((prev) =>
+          prev.map((intv) =>
+            selectedCandidates.includes(intv.id)
+              ? { ...intv, status: "selected" }
+              : intv
+          )
+        );
+      }
+
+      // Clear selection
+      setSelectedCandidates([]);
+
+      Swal.fire({
+        title: "Success!",
+        text: `${successCount} candidate(s) have been hired successfully.`,
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error("Error bulk shortlisting:", error);
+      Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong.",
+        icon: "error",
+      });
+    } finally {
+      setLoadingAction(false);
+    }
+  };
 
   // const handleEditClick = (interview) => {
   //   setSelectedInterview(interview);
@@ -610,13 +1019,17 @@ useEffect(() => {
     return `${String(h).padStart(2, "0")}:${mm}`;
   };
 
+  // ✅ Get feedback from interview_info or feedback field
+  const interviewFeedback = interview.interview_info || interview.feedback || "";
+  
   setEditFormData({
     candidate: interview.candidate.name,
     date: formattedDate, // ✅ fixed
     timeSlot: parseTimeTo24(interview.time),
-    location: interview.location || "",
+    interviewMode: interview.type === "Virtual Call" ? "online" : "offline",
+    location: interview.location && interview.location !== "—" ? interview.location : "",
     status: interview.status,
-    feedback: interview.feedback || "",
+    feedback: interviewFeedback && interviewFeedback !== "—" ? interviewFeedback : "",
   });
 
   setShowEditModal(true);
@@ -639,7 +1052,8 @@ const handleUpdateInterview = async () => {
     interview_id: selectedInterview.id,
     scheduled_at,
     status: editFormData.status,
-    feedback: editFormData.feedback,
+    interview_info: editFormData.feedback, // ✅ Backend expects interview_info field
+    feedback: editFormData.feedback, // Keep for backward compatibility
   };
 
   console.log("📤 Update Payload:", payload);
@@ -1103,7 +1517,6 @@ const handleUpdateInterview = async () => {
             variant="primary"
             size="lg"
             fullWidth
-            icon={<LuCheck className="w-4 h-4" />}
             className="mt-5"
           >
             Confirm Schedule
@@ -1113,10 +1526,51 @@ const handleUpdateInterview = async () => {
 
       {/* Scheduled Interviews */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
-          Scheduled Interviews
-        </h3>
-
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={(() => {
+                // Only count non-rejected interviews for select all
+                const selectableInterviews = filteredInterviews.filter(
+                  (intv) => intv.status?.toLowerCase() !== "rejected" && intv.status?.toLowerCase() !== "selected"
+                );
+                return selectableInterviews.length > 0 && 
+                       selectedCandidates.length === selectableInterviews.length &&
+                       selectableInterviews.every(intv => selectedCandidates.includes(intv.id));
+              })()}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  // Select all filtered interviews EXCEPT rejected and selected ones
+                  const selectableInterviews = filteredInterviews.filter(
+                    (intv) => intv.status?.toLowerCase() !== "rejected" && intv.status?.toLowerCase() !== "selected"
+                  );
+                  setSelectedCandidates(selectableInterviews.map(intv => intv.id));
+                } else {
+                  // Deselect all
+                  setSelectedCandidates([]);
+                }
+              }}
+              className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
+            />
+            <h3 className={`text-lg font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
+              Scheduled Interviews
+            </h3>
+             </div>
+             
+          <Button
+            onClick={handleBulkShortlist}
+            variant="primary"
+            size="sm"
+            disabled={loadingAction || selectedCandidates.length === 0}
+            className="flex items-center gap-2"
+          >
+            Bulk Hire {selectedCandidates.length > 0 && `(${selectedCandidates.length})`}
+          </Button>
+          
+        </div>
+        <p>All listed candidates have successfully cleared the interview process and are shortlisted. Final hiring confirmation is now pending. </p>
+        
         <div className="mt-4">
           <div className="relative mb-5">
             <LuSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -1138,26 +1592,84 @@ const handleUpdateInterview = async () => {
                 key={intv.id}
                 className="border p-4 rounded-lg flex justify-between items-center hover:shadow-sm transition"
               >
-                <div>
-                  <div
-                    className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer`}
-                    onClick={() => handleEditClick(intv)}
-                  >
-                    {intv.candidate.name}
-                  </div>
-                  <p className="text-sm text-gray-500">
-                    {intv.candidate.date} • {intv.time} • {intv.type}
-                    {intv.location && intv.location !== "—" && intv.type === "In-Person" && ` • ${intv.location}`}
-                  </p>
-                  {intv.feedback && intv.feedback !== "—" && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      Feedback: {intv.feedback}
+                <div className="flex items-center gap-3 flex-1">
+                  <input
+                    type="checkbox"
+                    checked={selectedCandidates.includes(intv.id)}
+                    disabled={intv.status?.toLowerCase() === "rejected" || intv.status?.toLowerCase() === "selected"}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedCandidates([...selectedCandidates, intv.id]);
+                      } else {
+                        setSelectedCandidates(selectedCandidates.filter(id => id !== intv.id));
+                      }
+                    }}
+                    className={`w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary ${
+                      intv.status?.toLowerCase() === "rejected" || intv.status?.toLowerCase() === "selected"
+                        ? "cursor-not-allowed opacity-50"
+                        : "cursor-pointer"
+                    }`}
+                  />
+                  <div className="flex-1">
+                    <div
+                      className={`font-semibold ${TAILWIND_COLORS.TEXT_PRIMARY} cursor-pointer`}
+                      onClick={() => handleEditClick(intv)}
+                    >
+                      {intv.candidate.name}
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      {intv.candidate.date} • {intv.time} • {intv.type}
+                      {intv.location && intv.location !== "—" && intv.type === "In-Person" && ` • ${intv.location}`}
                     </p>
+                    {intv.feedback && intv.feedback !== "—" && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        Feedback: {intv.feedback}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {intv.status?.toLowerCase() === "selected" ? (
+                    <Button
+                      variant="success"
+                      size="sm"
+                      disabled={true}
+                      className="flex items-center gap-1 cursor-not-allowed"
+                    >
+                      Candidate Selected
+                    </Button>
+                  ) : intv.status?.toLowerCase() === "rejected" ? (
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      disabled={true}
+                      className="flex items-center gap-1 cursor-not-allowed"
+                    >
+                      Candidate Rejected
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={() => handleSelectCandidate(intv)}
+                        variant="primary"
+                        size="sm"
+                        disabled={loadingAction}
+                        className="flex items-center gap-1"
+                      >
+                        Hired
+                      </Button>
+                      <Button
+                        onClick={() => handleRejectCandidate(intv)}
+                        variant="danger"
+                        size="sm"
+                        disabled={loadingAction}
+                        className="flex items-center gap-1"
+                      >
+                        Reject
+                      </Button>
+                    </>
                   )}
                 </div>
-                <span className="px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium">
-                  {intv.status}
-                </span>
               </div>
             ))}
           </div>
@@ -1321,7 +1833,6 @@ const handleUpdateInterview = async () => {
               <Button
                 onClick={handleUpdateInterview}
                 variant="primary"
-                icon={<LuCheck className="w-4 h-4" />}
               >
                 Update Interview
               </Button>

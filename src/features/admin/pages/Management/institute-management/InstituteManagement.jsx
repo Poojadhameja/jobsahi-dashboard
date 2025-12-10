@@ -7,13 +7,13 @@ import {
   LuBookOpen, 
   LuUsers, 
   LuAward, 
-  LuMessageSquare 
+  // LuMessageSquare 
 } from 'react-icons/lu'
 import PendingInstituteApprovals from './PendingInstitute'
 import CourseMonitoring from './CourseMonitoring'
 import PlacementStudent from './PlacementStudent'
 import CertificateIssuance from './CertificateIssuance'
-import MessageInstitute from './MessageInstitute'
+// import MessageInstitute from './MessageInstitute'
 import { getMethod } from '../../../../../service/api'
 import apiService from '../../../../admin/services/serviceUrl'
 import { TAILWIND_COLORS } from '../../../../../shared/WebConstant'
@@ -136,34 +136,36 @@ export default function InstituteManagement() {
 
   // Navigation tabs configuration
   const navigationTabs = [
-    { id: 'verify-approve', label: 'Verify / Approve Institute', icon: LuCheck },
+    { id: 'verify-approve', label: 'Verify / Approve Skill Partner', icon: LuCheck },
     { id: 'course-monitoring', label: 'Course & Enrollment Monitoring', icon: LuBookOpen },
     { id: 'placement-students', label: 'Placement-Ready Students', icon: LuUsers },
     { id: 'certificate-issuance', label: 'Certificate Issuance', icon: LuAward },
-    { id: 'message-institute', label: 'Message Specific Institute', icon: LuMessageSquare }
+    // { id: 'message-institute', label: 'Message Specific Skill Partner', icon: LuMessageSquare }
   ]
 
   return (
     <div className={`space-y-4 sm:space-y-6 ${TAILWIND_COLORS.TEXT_PRIMARY}`}>
       {/* Title Section with MatrixCard */}
       <MatrixCard 
-        title="Institute Management"
-        subtitle="Manage institute onboarding, course monitoring, payments, and communications."
+        title="Skill Partner Management"
+        subtitle="Manage skill partner onboarding, course monitoring, payments, and communications."
         className="mb-4 sm:mb-6"  
       />
 
       {/* Navigation Tabs */}
-      <PillNavigation 
-        tabs={navigationTabs}
-        activeTab={activeTab}
-        onTabChange={(newTab) => {
-          if (newTab !== activeTab) {
-            setPreviousTab(activeTab)
-            setActiveTab(newTab)
-          }
-        }}
-        storageKey="admin_institute_management_tab"
-      />
+      <div className="flex justify-center">
+        <PillNavigation 
+          tabs={navigationTabs}
+          activeTab={activeTab}
+          onTabChange={(newTab) => {
+            if (newTab !== activeTab) {
+              setPreviousTab(activeTab)
+              setActiveTab(newTab)
+            }
+          }}
+          storageKey="admin_institute_management_tab"
+        />
+      </div>
 
       {/* Conditional Content */}
       {activeTab === 0 && (
@@ -182,9 +184,9 @@ export default function InstituteManagement() {
         <CertificateIssuance />
       )}
 
-      {activeTab === 4 && (
+      {/* {activeTab === 4 && (
         <MessageInstitute onBack={() => setActiveTab(previousTab)} />
-      )}
+      )} */}
      </div>
   )
 }

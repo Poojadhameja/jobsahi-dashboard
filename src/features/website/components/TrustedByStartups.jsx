@@ -45,7 +45,7 @@ export const TRUSTED_BY_STARTUPS_DEFAULT_HEADER = Object.freeze({
   ),
   description: (
     <p className="text-white text-lg leading-relaxed">
-      Join 300+ companies and institutes hiring through JobSahi. From MSMEs to training institutes, trusted by industry
+      Join 300+ companies and skill partners hiring through JobSahi. From MSMEs to skill partners, trusted by industry
       leaders to find the right skilled talent fast.
     </p>
   ),
