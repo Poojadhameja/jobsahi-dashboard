@@ -2,10 +2,30 @@
 
 
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 export default function AppSidebar({ isOpen, toggleSidebar, brand = 'JOBSAHI', roleLabel = '', items = [] }) {
   const { pathname, search } = useLocation()
+  const navigate = useNavigate()
+  
+  // Check if admin is impersonating
+  const isAdminImpersonating = typeof window !== 'undefined' && localStorage.getItem('isAdminImpersonating') === 'true'
+  
+  // Handle back to admin
+  const handleBackToAdmin = () => {
+    const adminToken = localStorage.getItem('adminSessionToken')
+    const adminUser = localStorage.getItem('adminSessionUser')
+    
+    if (adminToken && adminUser) {
+      localStorage.setItem('authToken', adminToken)
+      localStorage.setItem('authUser', adminUser)
+      localStorage.removeItem('isAdminImpersonating')
+      localStorage.removeItem('adminSessionToken')
+      localStorage.removeItem('adminSessionUser')
+      localStorage.removeItem('impersonatedUserId')
+      navigate('/admin/dashboard')
+    }
+  }
   
   const isActive = (path) => {
     const currentUrl = pathname + search
@@ -87,9 +107,29 @@ export default function AppSidebar({ isOpen, toggleSidebar, brand = 'JOBSAHI', r
         })}
       </nav>
 
-      <div className="p-2 sm:p-3 border-t border-white/10 text-[10px] sm:text-[11px] leading-3 sm:leading-4 text-white/70">
-        <div className="truncate">{footerTitle}</div>
-        <div>© {new Date().getFullYear()} All Rights Reserved</div>
+      <div className="p-2 sm:p-3 border-t border-white/10">
+        {isAdminImpersonating ? (
+          <div className="space-y-2">
+            <button
+              onClick={handleBackToAdmin}
+              className="w-full px-3 py-2 bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Admin
+            </button>
+            <div className="text-[10px] sm:text-[11px] leading-3 sm:leading-4 text-white/70">
+              <div className="truncate">{footerTitle}</div>
+              <div>© {new Date().getFullYear()} All Rights Reserved</div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-[10px] sm:text-[11px] leading-3 sm:leading-4 text-white/70">
+            <div className="truncate">{footerTitle}</div>
+            <div>© {new Date().getFullYear()} All Rights Reserved</div>
+          </div>
+        )}
       </div>
     </aside>
   )

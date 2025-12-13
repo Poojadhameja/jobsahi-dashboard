@@ -60,8 +60,18 @@ const CompanyInfo = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
+        // Get recruiter ID if admin is impersonating
+        const impersonatedUserId = localStorage.getItem("impersonatedUserId");
+        const params = impersonatedUserId ? { 
+          user_id: impersonatedUserId,
+          uid: impersonatedUserId,
+          recruiter_id: impersonatedUserId,
+          employer_id: impersonatedUserId
+        } : {};
+        
         const response = await getMethod({
           apiUrl: apiService.getRecruiterProfile,
+          params
         });
 
         console.log('📥 GET Profile Response:', response);
@@ -279,8 +289,18 @@ const CompanyInfo = () => {
         toast.success("✅ Profile updated successfully!");
         
         // ✅ Refresh profile data after successful update
+        // Get recruiter ID if admin is impersonating
+        const impersonatedUserId = localStorage.getItem("impersonatedUserId");
+        const refreshParams = impersonatedUserId ? { 
+          user_id: impersonatedUserId,
+          uid: impersonatedUserId,
+          recruiter_id: impersonatedUserId,
+          employer_id: impersonatedUserId
+        } : {};
+        
         const refreshResponse = await getMethod({
           apiUrl: apiService.getRecruiterProfile,
+          params: refreshParams
         });
 
         console.log('🔄 Refresh Profile Response:', refreshResponse);

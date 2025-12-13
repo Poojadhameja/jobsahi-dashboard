@@ -11,7 +11,12 @@ const backendHost = SERVICE_URL;
 const getHeaders = (includeAuth = true) => {
   const headers = { "content-type": "application/json" };
   const token = localStorage.getItem("authToken");
-  if (includeAuth && token) headers["Authorization"] = `Bearer ${token}`;
+  
+  if (includeAuth && token) {
+    headers["Authorization"] = `Bearer ${token}`;
+    // Note: Not adding custom headers to avoid CORS issues
+    // Recruiter ID will be passed in params/payload instead
+  }
   return headers;
 };
 
@@ -32,31 +37,69 @@ export const getMethod = async (data) => {
 
     const headers = getHeaders();
     const token = localStorage.getItem("authToken");
+    const isAdminImpersonating = localStorage.getItem("isAdminImpersonating") === "true";
+    const impersonatedUserId = localStorage.getItem("impersonatedUserId");
+
+    // If admin is impersonating and this is a recruiter/institute endpoint, add user ID to params
+    let params = data.params || {};
+    if (isAdminImpersonating && impersonatedUserId) {
+      const isRecruiterEndpoint = data.apiUrl.includes('/employer/') || data.apiUrl.includes('/recruiter/') || data.apiUrl.includes('/applications/');
+      const isInstituteEndpoint = data.apiUrl.includes('/institute/');
+      
+      if (isRecruiterEndpoint || isInstituteEndpoint) {
+        // Add recruiter/institute ID to params so backend knows which user's data to fetch
+        // Always add these params, even if they exist, to ensure backend gets the right ID
+        params = {
+          ...params,
+          user_id: impersonatedUserId,
+          uid: impersonatedUserId,
+          recruiter_id: impersonatedUserId,
+          employer_id: impersonatedUserId,
+          recruiter_uid: impersonatedUserId, // Additional param name some backends might expect
+          employer_uid: impersonatedUserId
+        };
+      }
+    }
 
     const fullUrl = backendHost + data.apiUrl;
-    console.log('🌐 GET Request:', {
-      url: fullUrl,
-      token: token ? `${token.substring(0, 15)}...` : 'No token'
-    });
+    // Only log if not impersonating to reduce console noise
+    if (!isAdminImpersonating) {
+      console.log('🌐 GET Request:', {
+        url: fullUrl,
+        token: token ? `${token.substring(0, 15)}...` : 'No token',
+        params: params
+      });
+    }
 
     const respData = await axios({
       method: 'get',
       url: fullUrl,
-      params: data.params || {}, // ✅ use params for GET
+      params: params, // ✅ use params with recruiter ID if impersonating
       headers
     });
 
-    console.log('✅ GET Response:', respData.data);
+    // Only log if not impersonating to reduce console noise
+    if (!isAdminImpersonating) {
+      console.log('✅ GET Response:', respData.data);
+    }
     return respChanges(respData.data);
   } catch (err) {
     const errorUrl = data?.apiUrl ? backendHost + data.apiUrl : 'undefined';
-    console.error('❌ GET Error:', {
-      message: err.message,
-      status: err.response?.status,
-      data: err.response?.data,
-      url: errorUrl,
-      apiUrl: data?.apiUrl
-    });
+    const isAdminImpersonating = localStorage.getItem("isAdminImpersonating") === "true";
+    const is401Error = err.response?.status === 401;
+    
+    // Suppress 401 errors in console when admin is impersonating (expected behavior)
+    if (!isAdminImpersonating || !is401Error) {
+      console.error('❌ GET Error:', {
+        message: err.message,
+        status: err.response?.status,
+        data: err.response?.data,
+        url: errorUrl,
+        apiUrl: data?.apiUrl
+      });
+    }
+    // Suppress all error logs when admin is impersonating to keep console clean
+    
     return {
       status: false,
       message: err.response?.data?.message || err.message || 'Network error occurred',
@@ -79,27 +122,61 @@ export const postMethod = async (data) => {
       data.apiUrl.includes('create_student_profile')
     );
     const headers = getHeaders(!skipToken);
-
+    
+    const isAdminImpersonating = localStorage.getItem("isAdminImpersonating") === "true";
+    const impersonatedUserId = localStorage.getItem("impersonatedUserId");
+    
+    // If admin is impersonating and this is a recruiter/institute endpoint, add user ID to payload
+    let payload = data.payload || {};
+    if (isAdminImpersonating && impersonatedUserId && !skipToken) {
+      const isRecruiterEndpoint = data.apiUrl.includes('/employer/') || data.apiUrl.includes('/recruiter/') || data.apiUrl.includes('/applications/');
+      const isInstituteEndpoint = data.apiUrl.includes('/institute/');
+      
+      if (isRecruiterEndpoint || isInstituteEndpoint) {
+        // Add recruiter/institute ID to payload so backend knows which user's data to fetch
+        // Always add these params, even if they exist, to ensure backend gets the right ID
+        payload = {
+          ...payload,
+          user_id: impersonatedUserId,
+          uid: impersonatedUserId,
+          recruiter_id: impersonatedUserId,
+          employer_id: impersonatedUserId,
+          recruiter_uid: impersonatedUserId, // Additional param name some backends might expect
+          employer_uid: impersonatedUserId
+        };
+      }
+    }
 
     console.log('🌐 POST Request:', {
       url: backendHost + data.apiUrl,
-      payload: data.payload,
-      token: headers.Authorization ? `${headers.Authorization.substring(0, 20)}...` : 'No token'
+      payload: payload,
+      token: headers.Authorization ? `${headers.Authorization.substring(0, 20)}...` : 'No token',
+      isAdminImpersonating: isAdminImpersonating
     });
 
     const respData = await axios({
       method: 'post',
       url: backendHost + data.apiUrl,
-      data: data.payload || {},
+      data: payload,
       headers
     });
 
     const response = respChanges(respData.data);
     response.httpStatus = respData.status;
-    console.log('✅ POST Response:', response);
+    // Only log if not impersonating to reduce console noise
+    if (!isAdminImpersonating) {
+      console.log('✅ POST Response:', response);
+    }
     return response;
   } catch (err) {
-    console.error('❌ POST Error:', err.response?.data || err);
+    const isAdminImpersonating = localStorage.getItem("isAdminImpersonating") === "true";
+    const is401Error = err.response?.status === 401;
+    
+    // Suppress 401 errors in console when admin is impersonating
+    if (!isAdminImpersonating || !is401Error) {
+      console.error('❌ POST Error:', err.response?.data || err);
+    }
+    
     return {
       status: false,
       message: err.response?.data?.message || 'Something went wrong while posting data.',
@@ -119,23 +196,58 @@ export const putMethod = async (data) => {
                        data.apiUrl.includes('institute_profile_updated') || 
                        data.apiUrl.includes('profile_updated'));
     const headers = getHeaders(!hasUserId);
-    console.log('🌐 PUT Request:', {
-      url: backendHost + data.apiUrl,
-      payload: data.payload || data.data,
-      skipToken: hasUserId
-    });
+    
+    const isAdminImpersonating = localStorage.getItem("isAdminImpersonating") === "true";
+    const impersonatedUserId = localStorage.getItem("impersonatedUserId");
+    
+    // If admin is impersonating and this is a recruiter/institute endpoint, add user ID to payload
+    let payload = data.payload || data.data || {};
+    if (isAdminImpersonating && impersonatedUserId && !hasUserId) {
+      const isRecruiterEndpoint = data.apiUrl.includes('/employer/') || data.apiUrl.includes('/recruiter/') || data.apiUrl.includes('/applications/');
+      const isInstituteEndpoint = data.apiUrl.includes('/institute/');
+      
+      if (isRecruiterEndpoint || isInstituteEndpoint) {
+        // Add recruiter/institute ID to payload so backend knows which user's data to update
+        // Always add these params, even if they exist, to ensure backend gets the right ID
+        payload = {
+          ...payload,
+          user_id: impersonatedUserId,
+          uid: impersonatedUserId,
+          recruiter_id: impersonatedUserId,
+          employer_id: impersonatedUserId,
+          recruiter_uid: impersonatedUserId, // Additional param name some backends might expect
+          employer_uid: impersonatedUserId
+        };
+      }
+    }
+    
+    // Only log if not impersonating to reduce console noise
+    if (!isAdminImpersonating) {
+      console.log('🌐 PUT Request:', {
+        url: backendHost + data.apiUrl,
+        payload: payload,
+        skipToken: hasUserId
+      });
+    }
 
     const respData = await axios({
       method: 'put',
       url: backendHost + data.apiUrl,
-      data: data.payload || data.data || {},
+      data: payload,
       headers
     });
 
-    console.log('✅ PUT Response:', respData.data);
+    // Only log if not impersonating to reduce console noise
+    if (!isAdminImpersonating) {
+      console.log('✅ PUT Response:', respData.data);
+    }
     return respChanges(respData.data);
   } catch (err) {
-    console.error('❌ PUT Error:', err.response?.data || err);
+    const isAdminImpersonating = localStorage.getItem("isAdminImpersonating") === "true";
+    // Suppress all error logs when admin is impersonating to keep console clean
+    if (!isAdminImpersonating) {
+      console.error('❌ PUT Error:', err.response?.data || err);
+    }
     return {
       status: false,
       message: err.response?.data?.message || 'Update failed',

@@ -286,7 +286,7 @@ export default function CreateCourse() {
         formDataToSend.append('module_description', module_description || '')
 
         selectedMedia.forEach(file => {
-          formDataToSend.append('media_files[]', file.file)
+          formDataToSend.append('media[]', file.file)
         })
 
         res = await postMultipart({

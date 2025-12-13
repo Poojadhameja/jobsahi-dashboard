@@ -9,6 +9,24 @@ import CreateBatchModal from './CreateBatchModal'
 import { getMethod } from '../../../../service/api'
 import apiService from '../../services/serviceUrl.js'
 
+// Helper function for user-specific localStorage keys
+const getUserSpecificKey = (baseKey) => {
+  try {
+    const authUser = localStorage.getItem("authUser");
+    if (authUser) {
+      const user = JSON.parse(authUser);
+      const userId = user.id || user.uid;
+      const userRole = user.role;
+      if (userId && userRole) {
+        return `${baseKey}_${userRole}_${userId}`;
+      }
+    }
+  } catch (error) {
+    console.error('Error getting user-specific key:', error);
+  }
+  return baseKey;
+};
+
 export default function BatchManagement() {
   const [selectedBatch, setSelectedBatch] = useState(null)
   const [selectedCourse, setSelectedCourse] = useState(null)
@@ -75,7 +93,25 @@ export default function BatchManagement() {
 
   // ✅ Check localStorage on mount for refresh persistence
   useEffect(() => {
-    const storedCourseId = localStorage.getItem('institute_course_detail_id')
+    // Helper function for user-specific localStorage keys
+    const getUserSpecificKey = (baseKey) => {
+      try {
+        const authUser = localStorage.getItem("authUser");
+        if (authUser) {
+          const user = JSON.parse(authUser);
+          const userId = user.id || user.uid;
+          const userRole = user.role;
+          if (userId && userRole) {
+            return `${baseKey}_${userRole}_${userId}`;
+          }
+        }
+      } catch (error) {
+        console.error('Error getting user-specific key:', error);
+      }
+      return baseKey;
+    };
+    const courseDetailKey = getUserSpecificKey('institute_course_detail_id');
+    const storedCourseId = localStorage.getItem(courseDetailKey)
     if (storedCourseId && !selectedCourse && !loading) {
       // Fetch course data if we have stored ID but no selected course
       handleViewCourse(Number(storedCourseId))
@@ -154,13 +190,15 @@ export default function BatchManagement() {
   if (selectedCourse) {
     // Store course ID in localStorage for refresh persistence
     if (selectedCourse.id) {
-      localStorage.setItem('institute_course_detail_id', String(selectedCourse.id))
+      const courseDetailKey = getUserSpecificKey('institute_course_detail_id');
+      localStorage.setItem(courseDetailKey, String(selectedCourse.id))
     }
     return (
       <CourseDetail
         courseData={selectedCourse}
         onBack={() => {
-          localStorage.removeItem('institute_course_detail_id')
+          const courseDetailKey = getUserSpecificKey('institute_course_detail_id');
+          localStorage.removeItem(courseDetailKey)
           handleBackToCourses()
         }}
         onViewBatch={(batch) => handleViewBatch(selectedCourse.id, batch)}

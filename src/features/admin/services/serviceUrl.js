@@ -40,6 +40,7 @@ const service = {
     getJobs: '/jobs/jobs.php',
     getCourses: '/courses/courses.php',
     getJobDetail: '/jobs/job-detail.php',
+    updateJobStatus: '/admin/update_job_status.php',
 
 }
 
